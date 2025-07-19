@@ -1,0 +1,28 @@
+{
+  "name": "interviewer-hiring-system",
+  "version": "1.0.0",
+  "description": "Freelancer Interviewer Hiring Workflow System",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "server": "nodemon server/server.js",
+    "client": "npm run dev --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install-all": "npm install && npm install --prefix server && npm install --prefix client",
+    "build": "npm run build --prefix client",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "interviewer",
+    "hiring",
+    "workflow",
+    "freelancer",
+    "mern"
+  ],
+  "author": "NxtWave",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.0.1"
+  }
+}
