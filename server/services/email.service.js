@@ -46,15 +46,25 @@ const sendEmail = async (options) => {
       templateName,
       subject,
       templateData,
+      htmlBody, // --- MODIFICATION: Accept direct HTML body ---
       relatedTo,
       sentBy,
       isAutomated = true,
       metadata = {}
     } = options;
 
-    // Get email template
-    const template = await getTemplate(templateName);
-    const htmlContent = template(templateData);
+    // --- MODIFICATION START: Use direct HTML body if provided, otherwise compile template ---
+    let htmlContent;
+    if (htmlBody) {
+        htmlContent = htmlBody;
+    } else if (templateName) {
+        const template = await getTemplate(templateName);
+        htmlContent = template(templateData);
+    } else {
+        throw new Error('Either templateName or htmlBody must be provided.');
+    }
+    // --- MODIFICATION END ---
+
 
     // Create transporter
     const transporter = createTransporter();
@@ -199,7 +209,6 @@ const sendNewInterviewerWelcomeEmail = async (user, interviewer, password) => {
   });
 };
 
-// ** NEW FUNCTION **
 // Send booking invitation to students
 const sendStudentBookingInvitationEmail = async (email, bookingId, publicBookingId) => {
     const bookingLink = `${process.env.CLIENT_URL}/book/${publicBookingId}`;
@@ -209,7 +218,7 @@ const sendStudentBookingInvitationEmail = async (email, bookingId, publicBooking
         recipientModel: 'PublicBooking',
         recipientEmail: email,
         templateName: EMAIL_TEMPLATES.STUDENT_BOOKING_INVITATION,
-        subject: 'Your Interview Invitation from NxtWave',
+        subject: 'Interview Invitation from NxtWave',
         templateData: {
             bookingLink,
         },

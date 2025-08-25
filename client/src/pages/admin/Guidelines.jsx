@@ -105,7 +105,21 @@ const Guidelines = () => {
                 {row.applicant.fullName}
             </button>
         )},
-        { key: 'domain', title: 'Domain', render: (row) => row.domain || 'N/A' },
+        { 
+            key: 'domains', 
+            title: 'Domain(s)', 
+            render: (row) => (
+                <div className="flex flex-wrap gap-1">
+                    {(row.domains && row.domains.length > 0) ? (
+                        row.domains.map((domain, index) => (
+                            <Badge key={index} variant="primary" size="sm">{domain}</Badge>
+                        ))
+                    ) : (
+                        <span className="text-gray-500">N/A</span>
+                    )}
+                </div>
+            )
+        },
         { key: 'score', title: 'Score', render: (row) => `${row.score}%` },
         { key: 'status', title: 'Test Result', render: (row) => (
             <Badge variant={row.passed ? 'success' : 'danger'}>
@@ -132,10 +146,10 @@ const Guidelines = () => {
                             </Menu.Button>
                         </div>
                         <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="transform opacity-0 scale-95" enterTo="transform opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="transform opacity-100 scale-100" leaveTo="transform opacity-0 scale-95">
-                            <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                                 <div className="py-1">
                                     <Menu.Item>
-                                        {({ active }) => (<Link to={`/admin/applicants/${row.applicant._id}`} className={classNames(active ? 'bg-gray-100' : '', 'group flex items-center px-4 py-2 text-sm text-gray-700')}><FiEye className="mr-3 h-5 w-5 text-gray-400" />View Applicant</Link>)}
+                                        {({ active }) => (<button onClick={() => openDetailsModal(row)} className={classNames(active ? 'bg-gray-100' : '', 'group flex items-center px-4 py-2 text-sm text-gray-700 w-full text-left')}><FiEye className="mr-3 h-5 w-5 text-gray-400" />Scores</button>)}
                                     </Menu.Item>
                                     {isActionable && (
                                         <>
@@ -154,34 +168,45 @@ const Guidelines = () => {
                 );
             },
         },
-    ], [processingIds, openConfirmation]);
+    ], [processingIds, openConfirmation, openDetailsModal]);
 
     return (
         <div className="space-y-6">
             <Card>
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-                    <div className="w-full md:w-1/3">
-                        <SearchInput
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            onClear={() => setSearchTerm('')}
-                            placeholder="Search by applicant name..."
-                        />
-                    </div>
-                    <div className="flex flex-wrap gap-4">
-                        <FilterDropdown label="Test Result" options={statusOptions} selectedValue={statusFilter} onChange={setStatusFilter} />
-                        <FilterDropdown label="Domain" options={domainOptions} selectedValue={domainFilter} onChange={setDomainFilter} />
-                    </div>
-                </div>
-                <Table
-                    columns={columns}
-                    data={guidelinesData}
-                    isLoading={loading}
-                    pagination={pagination}
-                    onPageChange={handlePageChange}
-                    emptyMessage="No guidelines submissions found."
-                />
-            </Card>
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 min-h-[60px]">
+        <div className="w-full md:w-1/3 flex items-center">
+            <SearchInput
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClear={() => setSearchTerm('')}
+                placeholder="Search by applicant name..."
+                className="w-full"
+            />
+        </div>
+        <div className="flex flex-wrap gap-4 items-center">
+            <FilterDropdown 
+                label="Test Result" 
+                options={statusOptions} 
+                selectedValue={statusFilter} 
+                onChange={setStatusFilter} 
+            />
+            <FilterDropdown 
+                label="Domain" 
+                options={domainOptions} 
+                selectedValue={domainFilter} 
+                onChange={setDomainFilter} 
+            />
+        </div>
+    </div>
+    <Table
+        columns={columns}
+        data={guidelinesData}
+        isLoading={loading}
+        pagination={pagination}
+        onPageChange={handlePageChange}
+        emptyMessage="No guidelines submissions found."
+    />
+</Card>
 
             <ConfirmDialog
                 isOpen={confirmState.isOpen}

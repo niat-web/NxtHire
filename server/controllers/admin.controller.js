@@ -1,5 +1,6 @@
 // server/controllers/admin.controller.js
 const asyncHandler = require('express-async-handler');
+const mongoose = require('mongoose'); // Import mongoose for transactions
 const Applicant = require('../models/Applicant');
 const SkillAssessment = require('../models/SkillAssessment');
 const Interviewer = require('../models/Interviewer');
@@ -9,17 +10,509 @@ const InterviewBooking = require("../models/InterviewBooking");
 const MainSheetEntry = require('../models/MainSheetEntry');
 const PublicBooking = require('../models/PublicBooking');
 const StudentBooking = require('../models/StudentBooking');
+const Domain = require('../models/Domain'); 
+const EvaluationSheet = require('../models/EvaluationSheet'); 
+const Counter = require('../models/Counter');
+const PaymentConfirmation = require('../models/PaymentConfirmation');
+const jwt = require('jsonwebtoken');
+const PayoutSheet = require('../models/PayoutSheet');
+const CustomEmailTemplate = require('../models/CustomEmailTemplate');
 const { APPLICATION_STATUS, INTERVIEWER_STATUS, EMAIL_TEMPLATES } = require("../config/constants");
 const { sendEmail, sendAccountCreationEmail, sendNewInterviewerWelcomeEmail, sendStudentBookingInvitationEmail } = require('../services/email.service');
+const { sendNotificationToInterviewer } = require('../services/push.service');
 const { sendWelcomeWhatsApp } = require('../services/whatsapp.service');
 const { logEvent } = require('../middleware/logger.middleware');
 const crypto = require('crypto');
 const { registerUser } = require('../services/auth.service');
 const excel = require('exceljs');
+const { createCalendarEvent, fetchRecentCalendarEvents } = require('../services/google.service');
+const { formatDate } = require('../../client/src/utils/formatters');
+
+// Helper to get the next sequence number for Interview ID
+async function getNextSequenceValue(sequenceName) {
+    const sequenceDocument = await Counter.findByIdAndUpdate(
+        sequenceName,
+        { $inc: { sequence_value: 1 } },
+        { new: true, upsert: true }
+    );
+    return sequenceDocument.sequence_value;
+}
 
 
-// @desc    Get dashboard statistics
-// @route   GET /api/admin/stats/dashboard
+// --- ADDITIONS START: Bulk Upload Feature ---
+
+// @desc    Bulk upload Main Sheet entries from CSV/XLSX
+// @route   POST /api/admin/main-sheet/bulk-upload
+// @access  Private/Admin
+const bulkUploadMainSheetEntries = asyncHandler(async (req, res) => {
+    const entries = req.body;
+    const { _id: adminId } = req.user;
+    
+    if (!entries || !Array.isArray(entries) || entries.length === 0) {
+        res.status(400);
+        throw new Error('No entries provided for upload.');
+    }
+
+    // Pre-fetch all interviewers to create a lookup map from full name to ID
+    const allInterviewers = await Interviewer.find().populate('user', 'firstName lastName');
+    const interviewerNameMap = new Map();
+    allInterviewers.forEach(interviewer => {
+        if (interviewer.user && interviewer.user.firstName && interviewer.user.lastName) {
+            const fullName = `${interviewer.user.firstName} ${interviewer.user.lastName}`.toLowerCase().trim();
+            interviewerNameMap.set(fullName, interviewer._id);
+        }
+    });
+
+    const results = { created: 0, errors: [] };
+    const bulkOps = [];
+
+    entries.forEach((entry, index) => {
+        const {
+            candidateName,
+            mailId,
+            interviewerName,
+            'Interviewer Name': interviewerNameAlt1,
+            Interviewer: interviewerNameAlt2,
+            ...rest
+        } = entry;
+        
+        if (!candidateName || !mailId) {
+            results.errors.push({ row: index + 2, message: 'Missing required fields: candidateName or mailId' });
+            return;
+        }
+        
+        const providedInterviewerName = interviewerName || interviewerNameAlt1 || interviewerNameAlt2;
+        const interviewerId = providedInterviewerName ? interviewerNameMap.get(String(providedInterviewerName).toLowerCase().trim()) : null;
+
+        if (providedInterviewerName && !interviewerId) {
+             results.errors.push({ row: index + 2, message: `Interviewer '${providedInterviewerName}' not found.` });
+        }
+        
+        bulkOps.push({
+            insertOne: {
+                document: {
+                    ...rest,
+                    candidateName,
+                    mailId,
+                    interviewer: interviewerId, // Will be null if not provided or not found
+                    createdBy: adminId,
+                    updatedBy: adminId,
+                }
+            }
+        });
+    });
+
+    if (bulkOps.length > 0) {
+        const result = await MainSheetEntry.bulkWrite(bulkOps, { ordered: false });
+        results.created = result.insertedCount;
+    }
+
+    logEvent('main_sheet_bulk_uploaded', { ...results, adminId });
+
+    if (results.errors.length > 0) {
+        return res.status(207).json({ // 207 Multi-Status
+            success: true,
+            message: `Processed with some issues. Created: ${results.created}. See errors for details.`,
+            data: results
+        });
+    }
+
+    res.status(201).json({ success: true, message: `${results.created} entries created successfully.`, data: results });
+});
+
+// @desc    Bulk upload Interviewers from CSV/XLSX
+// @route   POST /api/admin/interviewers/bulk-upload
+// @access  Private/Admin
+const bulkUploadInterviewers = asyncHandler(async (req, res) => {
+    const interviewersData = req.body;
+    const { _id: adminId } = req.user;
+    
+    if (!interviewersData || !Array.isArray(interviewersData) || interviewersData.length === 0) {
+        res.status(400);
+        throw new Error('No interviewer data provided for upload.');
+    }
+    
+    const results = { created: 0, skipped: 0, errors: [] };
+    
+    for (const [index, data] of interviewersData.entries()) {
+        const { email, firstName, lastName, primaryDomain, phoneNumber } = data;
+        
+        if (!email || !firstName || !lastName || !primaryDomain || !phoneNumber) {
+            results.errors.push({ row: index + 2, message: `Missing required fields (email, firstName, lastName, phoneNumber, primaryDomain) for ${email || 'N/A'}.` });
+            continue;
+        }
+
+        const userExists = await User.findOne({ email });
+        if (userExists) {
+            results.skipped++;
+            results.errors.push({ row: index + 2, message: `User with email ${email} already exists. Skipped.` });
+            continue;
+        }
+        
+        const session = await mongoose.startSession();
+        try {
+            await session.withTransaction(async () => {
+                const tempPassword = crypto.randomBytes(10).toString('hex');
+                
+                // Create a corresponding Applicant record
+                const applicant = await Applicant.create([{
+                    fullName: `${firstName} ${lastName}`, email, phoneNumber,
+                    linkedinProfileUrl: 'https://linkedin.com/in/imported-via-bulk',
+                    sourcingChannel: 'Other', status: APPLICATION_STATUS.ONBOARDED,
+                }], { session });
+
+                // Create the User record for login
+                const newUser = await User.create([{
+                    email, password: tempPassword, firstName, lastName,
+                    phoneNumber, whatsappNumber: data.whatsappNumber || phoneNumber,
+                    role: 'interviewer'
+                }], { session });
+                
+                // Create the Interviewer record
+                const interviewer = await Interviewer.create([{
+                    ...data,
+                    user: newUser[0]._id,
+                    applicant: applicant[0]._id,
+                    domains: [primaryDomain], // Sets the primary domain as the initial domain
+                }], { session });
+                
+                results.created++;
+            });
+        } catch (error) {
+            results.errors.push({ row: index + 2, message: `Failed to import ${email}: ${error.message}` });
+        } finally {
+            session.endSession();
+        }
+    }
+    
+    logEvent('interviewers_bulk_uploaded', { ...results, adminId });
+
+    if (results.errors.length > 0) {
+        return res.status(207).json({ 
+            success: true, 
+            message: `Process completed with some issues. Created: ${results.created}, Skipped: ${results.skipped}, Failed: ${results.errors.length}.`,
+            data: results 
+        });
+    }
+
+    res.status(201).json({ success: true, message: `${results.created} interviewers created successfully.`, data: results });
+});
+// --- ADDITIONS END ---
+
+
+// --- Custom Email Feature Controllers ---
+// @desc    Create a custom email template
+// @route   POST /api/admin/custom-email-templates
+// @access  Private/Admin
+const createCustomEmailTemplate = asyncHandler(async (req, res) => {
+    const { name, subject, body } = req.body;
+    if (!name || !subject || !body) {
+        res.status(400);
+        throw new Error('Template name, subject, and body are required.');
+    }
+
+    const templateExists = await CustomEmailTemplate.findOne({ name });
+    if (templateExists) {
+        res.status(400);
+        throw new Error('A template with this name already exists.');
+    }
+
+    const template = await CustomEmailTemplate.create({
+        name,
+        subject,
+        body,
+        createdBy: req.user._id,
+        updatedBy: req.user._id
+    });
+    
+    logEvent('custom_template_created', { templateId: template._id, name, adminId: req.user._id });
+    res.status(201).json({ success: true, data: template });
+});
+
+// @desc    Get all custom email templates
+// @route   GET /api/admin/custom-email-templates
+// @access  Private/Admin
+const getCustomEmailTemplates = asyncHandler(async (req, res) => {
+    const templates = await CustomEmailTemplate.find().sort({ name: 1 });
+    res.json({ success: true, data: templates });
+});
+
+// @desc    Get a single custom email template
+// @route   GET /api/admin/custom-email-templates/:id
+// @access  Private/Admin
+const getCustomEmailTemplateById = asyncHandler(async (req, res) => {
+    const template = await CustomEmailTemplate.findById(req.params.id);
+    if (!template) {
+        res.status(404);
+        throw new Error('Template not found');
+    }
+    res.json({ success: true, data: template });
+});
+
+// @desc    Update a custom email template
+// @route   PUT /api/admin/custom-email-templates/:id
+// @access  Private/Admin
+const updateCustomEmailTemplate = asyncHandler(async (req, res) => {
+    const { name, subject, body } = req.body;
+    const template = await CustomEmailTemplate.findById(req.params.id);
+
+    if (!template) {
+        res.status(404);
+        throw new Error('Template not found');
+    }
+    
+    // Check if new name conflicts with an existing one
+    if (name && name !== template.name) {
+        const templateExists = await CustomEmailTemplate.findOne({ name });
+        if (templateExists) {
+            res.status(400);
+            throw new Error('A template with this name already exists.');
+        }
+    }
+
+    template.name = name || template.name;
+    template.subject = subject || template.subject;
+    template.body = body || template.body;
+    template.updatedBy = req.user._id;
+
+    const updatedTemplate = await template.save();
+    logEvent('custom_template_updated', { templateId: updatedTemplate._id, name, adminId: req.user._id });
+    res.json({ success: true, data: updatedTemplate });
+});
+
+// @desc    Delete a custom email template
+// @route   DELETE /api/admin/custom-email-templates/:id
+// @access  Private/Admin
+const deleteCustomEmailTemplate = asyncHandler(async (req, res) => {
+    const template = await CustomEmailTemplate.findById(req.params.id);
+    if (!template) {
+        res.status(404);
+        throw new Error('Template not found');
+    }
+    await template.deleteOne();
+    logEvent('custom_template_deleted', { templateId: req.params.id, adminId: req.user._id });
+    res.json({ success: true, message: 'Template deleted successfully' });
+});
+
+// @desc    Send bulk custom emails from a template and CSV data
+// @route   POST /api/admin/custom-email/send
+// @access  Private/Admin
+const sendBulkCustomEmail = asyncHandler(async (req, res) => {
+    const { templateId, recipients } = req.body;
+
+    if (!templateId || !recipients || !Array.isArray(recipients) || recipients.length === 0) {
+        res.status(400);
+        throw new Error('Template ID and a list of recipients are required.');
+    }
+    
+    const template = await CustomEmailTemplate.findById(templateId);
+    if (!template) {
+        res.status(404);
+        throw new Error('Email template not found.');
+    }
+    
+    let emailsSent = 0;
+    let emailsFailed = 0;
+
+    for (const recipientData of recipients) {
+        const recipientEmail = recipientData.Email || recipientData.email; // Handle case variations
+
+        if (!recipientEmail) {
+            emailsFailed++;
+            continue;
+        }
+
+        try {
+            // Replace placeholders in subject and body
+            let finalSubject = template.subject;
+            let finalBody = template.body;
+
+            for (const key in recipientData) {
+                const placeholder = new RegExp(`{{\\s*${key}\\s*}}`, 'gi');
+                finalSubject = finalSubject.replace(placeholder, recipientData[key] || '');
+                finalBody = finalBody.replace(placeholder, recipientData[key] || '');
+            }
+            
+            await sendEmail({
+                recipient: null, // No specific model for custom lists
+                recipientModel: 'Custom',
+                recipientEmail: recipientEmail,
+                templateName: null, // We provide the HTML body directly
+                subject: finalSubject,
+                templateData: {}, // Not needed as we pre-render
+                htmlBody: finalBody, // Pass pre-rendered HTML
+                relatedTo: `Custom Bulk Send - ${template.name}`,
+                sentBy: req.user._id,
+                isAutomated: false
+            });
+
+            emailsSent++;
+
+        } catch (error) {
+            emailsFailed++;
+            console.error(`Failed to send email to ${recipientEmail}:`, error);
+        }
+    }
+    
+    logEvent('custom_bulk_email_sent', {
+        templateId: template._id,
+        sent: emailsSent,
+        failed: emailsFailed,
+        total: recipients.length,
+        adminId: req.user._id,
+    });
+    
+    res.json({
+        success: true,
+        message: `Email sending process completed. Sent: ${emailsSent}, Failed: ${emailsFailed}.`
+    });
+});
+
+const createInterviewBooking = asyncHandler(async (req, res) => {
+    const { bookingDate, interviewerIds } = req.body;
+    if (!bookingDate || !interviewerIds || interviewerIds.length === 0) {
+        res.status(400);
+        throw new Error('Booking date and at least one interviewer are required.');
+    }
+    const booking = await InterviewBooking.create({
+        bookingDate,
+        interviewers: interviewerIds.map(id => ({ interviewer: id, status: 'Pending' })),
+        createdBy: req.user._id,
+    });
+
+    const interviewersToNotify = await Interviewer.find({ _id: { $in: interviewerIds } }).populate("user", "email firstName");
+
+    const formattedDate = new Date(bookingDate).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+
+    for (const interviewer of interviewersToNotify) {
+        if (interviewer.user && interviewer.user.email) {
+            // Send Email
+            await sendEmail({
+                recipient: interviewer._id,
+                recipientModel: 'Interviewer',
+                recipientEmail: interviewer.user.email,
+                templateName: EMAIL_TEMPLATES.BOOKING_REQUEST_NOTIFICATION,
+                subject: 'New Interview Availability Request from NxtWave',
+                templateData: {
+                    name: interviewer.user.firstName,
+                    date: formattedDate,
+                    portalLink: `${process.env.CLIENT_URL}/interviewer/availability`,
+                },
+                relatedTo: "Interviewer Booking",
+                sentBy: req.user._id,
+                isAutomated: true,
+            });
+
+            // Send Push Notification
+            await sendNotificationToInterviewer(interviewer._id, {
+                title: 'New Interview Request',
+                body: `You have a new availability request for ${formattedDate}.`,
+                icon: `${process.env.CLIENT_URL}/logo.svg`, 
+                data: {
+                    url: '/interviewer/availability'
+                }
+            });
+        }
+    }
+
+    logEvent('interview_booking_created', { bookingId: booking._id, adminId: req.user._id, notifiedCount: interviewersToNotify.length });
+    res.status(201).json({ success: true, data: booking });
+});
+
+const refreshRecordingLinks = asyncHandler(async (req, res) => {
+    const googleEvents = await fetchRecentCalendarEvents();
+    if (!googleEvents || googleEvents.length === 0) {
+        return res.json({ success: true, message: "No recent calendar events found to sync." });
+    }
+
+    const recordingsMap = new Map();
+    for (const event of googleEvents) {
+        if (event.hangoutLink && Array.isArray(event.attachments)) {
+            const recording = event.attachments.find(
+                att => att.mimeType && att.mimeType.startsWith('video/')
+            );
+            
+            if (recording && recording.fileUrl) {
+                recordingsMap.set(event.hangoutLink, recording.fileUrl);
+            }
+        }
+    }
+    
+    if (recordingsMap.size === 0) {
+        return res.json({ success: true, message: "Found calendar events, but no new recordings were identified." });
+    }
+
+    const entriesToUpdate = await MainSheetEntry.find({
+        meetingLink: { $in: [...recordingsMap.keys()] },
+        $or: [
+            { recordingLink: { $exists: false } },
+            { recordingLink: '' }
+        ]
+    });
+
+    if (entriesToUpdate.length === 0) {
+        return res.json({ success: true, message: "All existing recording links are already up to date." });
+    }
+
+    const bulkOps = entriesToUpdate.map(entry => {
+        const recordingLink = recordingsMap.get(entry.meetingLink);
+        if (recordingLink) {
+            return {
+                updateOne: {
+                    filter: { _id: entry._id },
+                    update: { $set: { recordingLink: recordingLink, updatedBy: req.user._id } }
+                }
+            };
+        }
+        return null;
+    }).filter(Boolean);
+
+    let updatedCount = 0;
+    if (bulkOps.length > 0) {
+        const result = await MainSheetEntry.bulkWrite(bulkOps);
+        updatedCount = result.modifiedCount;
+        logEvent('recording_links_refreshed', { count: updatedCount, adminId: req.user._id });
+    }
+
+    res.json({ success: true, message: `${updatedCount} recording link(s) updated successfully.` });
+});
+
+const getEvaluationDataForAdmin = asyncHandler(async (req, res) => {
+    const { domain, search } = req.query;
+    if (!domain) {
+        return res.json({ success: true, data: { evaluationSheet: null, interviews: [] } });
+    }
+
+    const domainDoc = await Domain.findOne({ name: domain });
+    if (!domainDoc) {
+        res.status(404);
+        throw new Error('Domain not found.');
+    }
+
+    const evaluationSheet = await EvaluationSheet.findOne({ domain: domainDoc._id });
+    
+    const query = { techStack: domain };
+    if (search) {
+        const searchRegex = { $regex: search, $options: 'i' };
+        query.$or = [
+            { candidateName: searchRegex },
+            { mailId: searchRegex },
+            { uid: searchRegex },
+            { interviewId: searchRegex },
+        ];
+    }
+    
+    const interviews = await MainSheetEntry.find(query)
+        .sort({ interviewDate: -1 })
+        .limit(1000); 
+
+    res.json({ success: true, data: { evaluationSheet, interviews } });
+});
+
 const getDashboardStats = asyncHandler(async (req, res) => {
     const { period = 'all_time' } = req.query;
 
@@ -34,57 +527,313 @@ const getDashboardStats = asyncHandler(async (req, res) => {
 
     const dateFilter = startDate ? { createdAt: { $gte: startDate } } : {};
 
-    const [ totalApplicants, pendingReviews, activeInterviewers, platformEarningsData ] = await Promise.all([
+    const [ 
+        totalApplicants, 
+        pendingReviews, 
+        activeInterviewers, 
+        platformEarningsData,
+        pendingLinkedInReviews,
+        pendingSkillsReview,
+        pendingGuidelinesReview,
+        probationInterviewers
+    ] = await Promise.all([
         Applicant.countDocuments(dateFilter),
         Applicant.countDocuments({ status: { $in: [APPLICATION_STATUS.SUBMITTED, APPLICATION_STATUS.UNDER_REVIEW, APPLICATION_STATUS.SKILLS_ASSESSMENT_COMPLETED, APPLICATION_STATUS.GUIDELINES_REVIEWED] } }),
         Interviewer.countDocuments({ status: INTERVIEWER_STATUS.ACTIVE }),
-        Interviewer.aggregate([{ $group: { _id: null, total: { $sum: '$metrics.totalEarnings' } } }])
+        MainSheetEntry.aggregate([
+          { $match: { interviewStatus: 'Completed', interviewer: { $exists: true, $ne: null } } },
+          {
+              $lookup: {
+                  from: 'interviewers',
+                  localField: 'interviewer',
+                  foreignField: '_id',
+                  as: 'interviewerInfo'
+              }
+          },
+          { $unwind: '$interviewerInfo' },
+          {
+              $addFields: {
+                  cleanedAmountStr: {
+                      $replaceAll: {
+                          input: { $ifNull: ["$interviewerInfo.paymentAmount", "0"] },
+                          find: "₹",
+                          replacement: ""
+                      }
+                  }
+              }
+          },
+          {
+              $project: {
+                  numericAmount: { $convert: { input: "$cleanedAmountStr", to: "int", onError: 0, onNull: 0 } }
+              }
+          },
+          {
+              $group: {
+                  _id: null,
+                  total: { $sum: "$numericAmount" }
+              }
+          }
+        ]),
+        Applicant.countDocuments({ status: APPLICATION_STATUS.SUBMITTED }),
+        SkillAssessment.countDocuments({ status: 'Pending' }),
+        Applicant.countDocuments({ status: APPLICATION_STATUS.GUIDELINES_REVIEWED }),
+        Interviewer.countDocuments({ status: INTERVIEWER_STATUS.PROBATION })
     ]);
 
     const totalPlatformEarnings = platformEarningsData[0]?.total || 0;
 
     res.json({
         success: true,
-        data: { totalApplicants, pendingReviews, activeInterviewers, totalPlatformEarnings }
+        data: { 
+            totalApplicants, 
+            pendingReviews, 
+            activeInterviewers, 
+            totalPlatformEarnings,
+            pendingLinkedInReviews,
+            pendingSkillsReview,
+            pendingGuidelinesReview,
+            probationInterviewers
+        }
     });
 });
 
-// @desc    Get all applicants with pagination and filters
-// @route   GET /api/admin/applicants
-// @access  Private/Admin
+const generateAndGetPayoutSheet = asyncHandler(async (req, res) => {
+    const { search, startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+        return res.status(400).json({ success: false, message: 'Start and end dates are required for the payout period.' });
+    }
+
+    const monthYear = new Date(startDate).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+    const matchStage = {
+        interviewStatus: 'Completed',
+        interviewer: { $exists: true, $ne: null },
+        interviewDate: { $gte: new Date(startDate), $lte: new Date(endDate) }
+    };
+
+    const earningsPipeline = [
+        { $match: matchStage },
+        { $lookup: { from: 'interviewers', localField: 'interviewer', foreignField: '_id', as: 'interviewerInfo' }},
+        { $unwind: '$interviewerInfo' },
+        { $addFields: { paymentAmountNum: { $toInt: { $replaceAll: { input: { $ifNull: ["$interviewerInfo.paymentAmount", "0"] }, find: "₹", replacement: "" }}}}},
+        { $group: { _id: '$interviewerInfo._id', totalAmount: { $sum: '$paymentAmountNum' }}}
+    ];
+
+    const earningsData = await MainSheetEntry.aggregate(earningsPipeline);
+
+    const bulkOps = earningsData.map(data => ({
+        updateOne: {
+            filter: { interviewer: data._id, monthYear: monthYear },
+            update: {
+                $set: {
+                    points: data.totalAmount,
+                    activityDatetime: new Date(),
+                    pointsVestingDatetime: new Date(),
+                },
+                $setOnInsert: {
+                    interviewer: data._id,
+                    monthYear: monthYear
+                }
+            },
+            upsert: true
+        }
+    }));
+    if (bulkOps.length > 0) await PayoutSheet.bulkWrite(bulkOps);
+    
+    const payoutQuery = { monthYear: monthYear };
+    const payoutPipeline = [
+        { $match: payoutQuery },
+        { $lookup: { from: 'interviewers', localField: 'interviewer', foreignField: '_id', as: 'interviewerInfo' }},
+        { $unwind: '$interviewerInfo' }
+    ];
+
+    if (search) {
+        payoutPipeline.push({
+            $match: { 'interviewerInfo.interviewerId': { $regex: search, $options: 'i' } }
+        });
+    }
+
+    payoutPipeline.push({
+        $project: {
+            _id: 1,
+            interviewer: { _id: '$interviewerInfo._id', interviewerId: '$interviewerInfo.interviewerId' },
+            associationName: 1,
+            activityName: 1,
+            activityReferenceId: 1,
+            activityDatetime: 1,
+            points: 1,
+            pointsVestingDatetime: 1
+        }
+    });
+
+    const payoutSheet = await PayoutSheet.aggregate(payoutPipeline);
+
+    res.json({ success: true, data: { payoutSheet, month: monthYear } });
+});
+
+const getPaymentRequests = asyncHandler(async (req, res) => {
+    const { startDate, endDate } = req.query;
+
+    const matchStage = { interviewStatus: 'Completed' };
+    if (startDate && endDate) {
+        matchStage.interviewDate = { $gte: new Date(startDate), $lte: new Date(endDate) };
+    }
+    
+    const monthYearForLookup = startDate ? new Date(startDate).toLocaleString('en-US', { month: 'long', year: 'numeric' }) : null;
+
+    const pipeline = [
+        { $match: matchStage },
+        { $lookup: { from: 'interviewers', localField: 'interviewer', foreignField: '_id', as: 'interviewerInfo' }},
+        { $unwind: '$interviewerInfo' },
+        { $lookup: { from: 'users', localField: 'interviewerInfo.user', foreignField: '_id', as: 'userInfo' }},
+        { $unwind: '$userInfo' },
+        { $addFields: { paymentAmountNum: { $toInt: { $replaceAll: { input: { $ifNull: ["$interviewerInfo.paymentAmount", "0"] }, find: "₹", replacement: "" }}}}},
+        { $group: {
+            _id: '$interviewerInfo._id',
+            fullName: { $first: { $concat: ["$userInfo.firstName", " ", "$userInfo.lastName"] }},
+            email: { $first: '$userInfo.email'},
+            interviewerId: { $first: '$interviewerInfo.interviewerId' },
+            mobileNumber: { $first: '$userInfo.phoneNumber' },
+            paymentAmount: { $first: '$interviewerInfo.paymentAmount' },
+            companyType: { $first: '$interviewerInfo.companyType' },
+            interviewsCompleted: { $sum: 1 },
+            totalAmount: { $sum: '$paymentAmountNum' }
+        }},
+        {
+            $lookup: {
+                from: 'paymentconfirmations',
+                let: { interviewerId: '$_id' },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$interviewer", "$$interviewerId"] },
+                                    { $eq: ["$monthYear", monthYearForLookup] }
+                                ]
+                            }
+                        }
+                    },
+                    { $sort: { createdAt: -1 } },
+                    { $limit: 1 }
+                ],
+                as: 'confirmation'
+            }
+        },
+        { $unwind: { path: '$confirmation', preserveNullAndEmptyArrays: true } },
+        {
+            $project: {
+                _id: 1, fullName: 1, email: 1, interviewerId: 1, mobileNumber: 1,
+                paymentAmount: 1, companyType: 1, interviewsCompleted: 1, totalAmount: 1,
+                emailSentStatus: { $cond: { if: { $ifNull: ["$confirmation._id", false] }, then: "Sent", else: "Not Sent" }},
+                confirmationStatus: { $cond: { if: { $in: ["$confirmation.status", ["Confirmed", "Disputed"]] }, then: "$confirmation.status", else: "Pending" }},
+                confirmationRemarks: { $ifNull: ["$confirmation.remarks", ""] },
+                invoiceEmailSentStatus: { $ifNull: ["$confirmation.invoiceEmailSentStatus", "Not Sent"] },
+                paymentReceivedStatus: { $ifNull: ["$confirmation.paymentReceivedStatus", "Pending"] },
+                paymentReceivedRemarks: { $ifNull: ["$confirmation.paymentReceivedRemarks", ""] },
+                paymentReceivedEmailSentAt: { $ifNull: ["$confirmation.paymentReceivedEmailSentAt", null] },
+            }
+        },
+        { $sort: { totalAmount: -1 } }
+    ];
+
+    const results = await MainSheetEntry.aggregate(pipeline);
+    res.json({ success: true, data: results });
+});
+
+const sendPaymentEmail = asyncHandler(async (req, res) => {
+    const { interviewerId, email, name, monthYear, payPerInterview, interviewCount, totalAmount, startDate, endDate } = req.body;
+    const existingConfirmation = await PaymentConfirmation.findOne({ interviewer: interviewerId, startDate: new Date(startDate), endDate: new Date(endDate), });
+
+    if (existingConfirmation && existingConfirmation.status !== 'Email Sent') {
+        res.status(400);
+        throw new Error(`A confirmation for this period has already been ${existingConfirmation.status.toLowerCase()}.`);
+    }
+
+    const confirmation = existingConfirmation || new PaymentConfirmation({ interviewer: interviewerId, startDate: new Date(startDate), endDate: new Date(endDate), monthYear, totalAmount, interviewCount });
+    confirmation.status = 'Email Sent';
+    confirmation.tokenExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const token = jwt.sign({ id: confirmation._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    confirmation.confirmationToken = token;
+    
+    await confirmation.save();
+    const confirmationLink = `${process.env.CLIENT_URL}/payment-confirmation?token=${token}`;
+
+    await sendEmail({
+        recipient: interviewerId, recipientModel: 'Interviewer', recipientEmail: email,
+        templateName: EMAIL_TEMPLATES.PAYMENT_CONFIRMATION, subject: `Interview Payment Confirmation – ${monthYear}`,
+        templateData: { name, payPerInterview, interviewCount, totalAmount, startDate, endDate, confirmationLink },
+        relatedTo: "Payment Request", sentBy: req.user._id, isAutomated: false
+    });
+    res.json({ success: true, message: `Email sent to ${name}`});
+});
+
+const sendInvoiceMail = asyncHandler(async (req, res) => {
+    const { interviewerId, email, name, interviewCount, totalAmount, startDate, endDate } = req.body;
+    const monthYear = new Date(startDate).toLocaleString('default', { month: 'long', year: 'numeric' });
+    await PaymentConfirmation.findOneAndUpdate(
+        { interviewer: interviewerId, startDate: new Date(startDate), endDate: new Date(endDate) },
+        { $set: { invoiceEmailSentStatus: 'Sent', invoiceEmailSentAt: new Date() }},
+        { upsert: true, new: true }
+    );
+    await sendEmail({
+        recipient: interviewerId, recipientModel: 'Interviewer', recipientEmail: email, templateName: 'invoiceMail', subject: `Your NxtWave Interview Payment for ${monthYear}`,
+        templateData: { name, interviewCount, totalAmount, startDate: formatDate(startDate), endDate: formatDate(endDate), redeemLink: "https://nxtrewards.ccbp.in/" },
+        relatedTo: "Payment Invoice", sentBy: req.user._id, isAutomated: false
+    });
+    res.json({ success: true, message: `Invoice email sent to ${name}`});
+});
+
+const sendPaymentReceivedEmail = asyncHandler(async (req, res) => {
+    const { interviewerId, email, name, startDate, endDate, totalAmount, interviewCount } = req.body;
+    const monthYear = new Date(startDate).toLocaleString('default', { month: 'long', year: 'numeric' });
+    let confirmation = await PaymentConfirmation.findOne({ interviewer: interviewerId, startDate: new Date(startDate), endDate: new Date(endDate) });
+
+    if (!confirmation) {
+        confirmation = new PaymentConfirmation({ interviewer: interviewerId, startDate: new Date(startDate), endDate: new Date(endDate), monthYear, totalAmount, interviewCount, });
+    }
+    const token = jwt.sign({ id: confirmation._id, purpose: 'payment_received' }, process.env.JWT_SECRET, { expiresIn: '14d' });
+    confirmation.paymentReceivedConfirmationToken = token;
+    confirmation.paymentReceivedTokenExpires = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+    confirmation.paymentReceivedEmailSentAt = new Date();
+    await confirmation.save();
+    const confirmationLink = `${process.env.CLIENT_URL}/confirm-payment-received?token=${token}`;
+    await sendEmail({
+        recipient: interviewerId, recipientModel: 'Interviewer', recipientEmail: email, templateName: 'paymentReceivedConfirmation', subject: `Action Required: Confirm Payment for ${monthYear}`,
+        templateData: { name, monthYear, confirmationLink }, relatedTo: 'Payment Received Confirmation', sentBy: req.user._id,
+    });
+    res.json({ success: true, message: `Confirmation email sent to ${name}.` });
+});
+
+// --- (keep the rest of the file from getApplicants to the end of the module.exports) ---
+
 const getApplicants = asyncHandler(async (req, res) => {
-  const { status, domain, search, page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
-  const query = {};
-  if (status) { if (status.includes(',')) { query.status = { $in: status.split(',').map(s => s.trim()) }; } else { query.status = status; } }
-  if (search) { query.$or = [ { fullName: { $regex: search, $options: 'i' } }, { email: { $regex: search, $options: 'i' } } ]; }
-  if (domain) { const assessments = await SkillAssessment.find({ domain }).select('applicant'); const applicantIds = assessments.map(sa => sa.applicant); query._id = { $in: applicantIds }; }
-  const skip = (parseInt(page) - 1) * parseInt(limit);
-  const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
-  const totalDocs = await Applicant.countDocuments(query);
-  const applicants = await Applicant.find(query).sort(sort).skip(skip).limit(parseInt(limit));
-  const applicantDomains = {};
-  if (applicants.length > 0) {
-      const skills = await SkillAssessment.find({ applicant: { $in: applicants.map(a => a._id) } }).select('applicant domain');
-      skills.forEach(skill => { applicantDomains[skill.applicant.toString()] = skill.domain; });
-  }
-  res.json({ success: true, data: { applicants: applicants.map(applicant => ({ ...applicant.toObject(), domain: applicantDomains[applicant._id.toString()] || null })), page: parseInt(page), limit: parseInt(limit), totalDocs, totalPages: Math.ceil(totalDocs / parseInt(limit)) } });
+    const { status, domain, search, page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+    const query = {};
+    if (status) { if (status.includes(',')) { query.status = { $in: status.split(',').map(s => s.trim()) }; } else { query.status = status; } }
+    if (search) { query.$or = [{ fullName: { $regex: search, $options: 'i' } }, { email: { $regex: search, $options: 'i' } }]; }
+    if (domain) { const assessments = await SkillAssessment.find({ domains: domain }).select('applicant'); const applicantIds = assessments.map(sa => sa.applicant); query._id = { $in: applicantIds }; }
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+    const totalDocs = await Applicant.countDocuments(query);
+    const applicants = await Applicant.find(query).sort(sort).skip(skip).limit(parseInt(limit));
+    const applicantDomains = {};
+    if (applicants.length > 0) {
+        const skills = await SkillAssessment.find({ applicant: { $in: applicants.map(a => a._id) } }).select('applicant domains');
+        skills.forEach(skill => { applicantDomains[skill.applicant.toString()] = skill.domains || []; });
+    }
+    res.json({ success: true, data: { applicants: applicants.map(applicant => ({ ...applicant.toObject(), domain: applicantDomains[applicant._id.toString()]?.[0] || null, domains: applicantDomains[applicant._id.toString()] || [] })), page: parseInt(page), limit: parseInt(limit), totalDocs, totalPages: Math.ceil(totalDocs / parseInt(limit)) } });
 });
 
-// @desc    Create a new applicant from admin panel
-// @route   POST /api/admin/applicants
-// @access  Private/Admin
 const createApplicant = asyncHandler(async (req, res) => {
-  const { fullName, email, phoneNumber, whatsappNumber, linkedinProfileUrl, interestedInJoining, sourcingChannel, status } = req.body;
-  const existingApplicant = await Applicant.findOne({ email });
-  if (existingApplicant) { res.status(400); throw new Error('An application with this email already exists'); }
-  const applicant = await Applicant.create({ fullName, email, phoneNumber, whatsappNumber, linkedinProfileUrl, interestedInJoining, sourcingChannel, status: status || APPLICATION_STATUS.SUBMITTED });
-  logEvent('applicant_created_by_admin', { applicantId: applicant._id, adminId: req.user._id });
-  res.status(201).json({ success: true, data: applicant });
+    const { fullName, email, phoneNumber, whatsappNumber, linkedinProfileUrl, interestedInJoining, sourcingChannel, status } = req.body;
+    const existingApplicant = await Applicant.findOne({ email });
+    if (existingApplicant) { res.status(400); throw new Error('An application with this email already exists'); }
+    const applicant = await Applicant.create({ fullName, email, phoneNumber, whatsappNumber, linkedinProfileUrl, interestedInJoining, sourcingChannel, status: status || APPLICATION_STATUS.SUBMITTED });
+    logEvent('applicant_created_by_admin', { applicantId: applicant._id, adminId: req.user._id });
+    res.status(201).json({ success: true, data: applicant });
 });
 
-// @desc    Update a single applicant's details
-// @route   PUT /api/admin/applicants/:id
-// @access  Private/Admin
 const updateApplicant = asyncHandler(async (req, res) => {
     const applicant = await Applicant.findById(req.params.id);
     if (!applicant) { res.status(404); throw new Error('Applicant not found'); }
@@ -106,9 +855,6 @@ const updateApplicant = asyncHandler(async (req, res) => {
     res.json({ success: true, data: updatedApplicant });
 });
 
-// @desc    Delete an applicant
-// @route   DELETE /api/admin/applicants/:id
-// @access  Private/Admin
 const deleteApplicant = asyncHandler(async (req, res) => {
     const applicant = await Applicant.findById(req.params.id);
     if (!applicant) { res.status(404); throw new Error('Applicant not found'); }
@@ -117,12 +863,9 @@ const deleteApplicant = asyncHandler(async (req, res) => {
     res.json({ success: true, message: 'Applicant deleted successfully' });
 });
 
-// @desc    Export applicants to CSV/XLSX
-// @route   GET /api/admin/applicants/export
-// @access  Private/Admin
 const exportApplicants = asyncHandler(async (req, res) => {
     const { status, search } = req.query; const query = {};
-    if (status) query.status = status; if (search) { query.$or = [ { fullName: { $regex: search, $options: 'i' } }, { email: { $regex: search, $options: 'i' } } ]; }
+    if (status) query.status = status; if (search) { query.$or = [{ fullName: { $regex: search, $options: 'i' } }, { email: { $regex: search, $options: 'i' } }]; }
     const applicants = await Applicant.find(query).sort({ createdAt: -1 });
     const workbook = new excel.Workbook(); const worksheet = workbook.addWorksheet('Applicants');
     worksheet.columns = [
@@ -133,14 +876,11 @@ const exportApplicants = asyncHandler(async (req, res) => {
         { header: 'Applied On', key: 'createdAt', width: 20 },
     ];
     worksheet.addRows(applicants);
-    res.setHeader( 'Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' );
-    res.setHeader( 'Content-Disposition', `attachment; filename="applicants_${new Date().toISOString()}.xlsx"` );
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="applicants_${new Date().toISOString()}.xlsx"`);
     await workbook.xlsx.write(res); res.end();
 });
 
-// @desc    Get all interviewers with pagination and filters
-// @route   GET /api/admin/interviewers
-// @access  Private/Admin
 const getInterviewers = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, search, status, domain, paymentTier, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
     const query = {};
@@ -154,7 +894,7 @@ const getInterviewers = asyncHandler(async (req, res) => {
     }
     
     if (paymentTier) query.paymentTier = paymentTier;
-    if (domain) query.primaryDomain = domain;
+    if (domain) query.domains = domain;
 
     const pipeline = [];
 
@@ -182,17 +922,32 @@ const getInterviewers = asyncHandler(async (req, res) => {
     pipeline.push({ $sort: sort });
     pipeline.push({ $skip: (parseInt(page) - 1) * parseInt(limit) });
     pipeline.push({ $limit: parseInt(limit) });
-
+    
     pipeline.push({
       $project: {
           user: {
               _id: '$userInfo._id',
               firstName: '$userInfo.firstName',
               lastName: '$userInfo.lastName',
-              email: '$userInfo.email'
+              email: '$userInfo.email',
+              phoneNumber: '$userInfo.phoneNumber',
+              whatsappNumber: '$userInfo.whatsappNumber'
           },
-          _id: 1, status: 1, primaryDomain: 1, paymentTier: 1, paymentAmount: 1,
-          'metrics.interviewsCompleted': 1, onboardingDate: 1, createdAt: 1
+          _id: 1, 
+          interviewerId: 1,
+          status: 1, 
+          primaryDomain: 1, 
+          domains: 1, 
+          paymentTier: 1, 
+          paymentAmount: 1,
+          currentEmployer: 1,
+          jobTitle: 1,
+          yearsOfExperience: 1,
+          companyType: 1,
+          bankDetails: 1,
+          'metrics.interviewsCompleted': 1, 
+          onboardingDate: 1, 
+          createdAt: 1
       }
     });
 
@@ -208,18 +963,12 @@ const getInterviewers = asyncHandler(async (req, res) => {
     });
 });
 
-// @desc    Get interviewer details by ID
-// @route   GET /api/admin/interviewers/:id
-// @access  Private/Admin
 const getInterviewerDetails = asyncHandler(async (req, res) => {
     const interviewer = await Interviewer.findById(req.params.id).populate('user');
     if (!interviewer) { res.status(404); throw new Error('Interviewer not found'); }
     res.json({ success: true, data: interviewer });
 });
 
-// @desc    Create a new interviewer
-// @route   POST /api/admin/interviewers
-// @access  Private/Admin
 const createInterviewer = asyncHandler(async (req, res) => {
     const { email, password, firstName, lastName, phoneNumber, whatsappNumber, ...interviewerData } = req.body;
     
@@ -248,11 +997,12 @@ const createInterviewer = asyncHandler(async (req, res) => {
         whatsappNumber,
         role: 'interviewer'
     });
-
+    
     const newInterviewer = await Interviewer.create({
         ...interviewerData,
         user: newUser._id,
-        applicant: applicant._id
+        applicant: applicant._id,
+        domains: [interviewerData.primaryDomain],
     });
     
     await sendNewInterviewerWelcomeEmail(newUser, newInterviewer, password);
@@ -269,9 +1019,6 @@ const createInterviewer = asyncHandler(async (req, res) => {
     res.status(201).json({ success: true, data: newInterviewer });
 });
 
-// @desc    Update interviewer details
-// @route   PUT /api/admin/interviewers/:id
-// @access  Private/Admin
 const updateInterviewer = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { firstName, lastName, email, phoneNumber, ...interviewerData } = req.body;
@@ -292,9 +1039,6 @@ const updateInterviewer = asyncHandler(async (req, res) => {
     res.json({ success: true, data: updatedInterviewer });
 });
 
-// @desc    Delete an interviewer
-// @route   DELETE /api/admin/interviewers/:id
-// @access  Private/Admin
 const deleteInterviewer = asyncHandler(async (req, res) => {
     const interviewer = await Interviewer.findById(req.params.id);
     if (!interviewer) { res.status(404); throw new Error('Interviewer not found.'); }
@@ -303,9 +1047,38 @@ const deleteInterviewer = asyncHandler(async (req, res) => {
     res.json({ success: true, message: 'Interviewer and associated user deleted.' });
 });
 
-// @desc    Get applicant details
-// @route   GET /api/admin/applicants/:id
-// @access  Private/Admin
+// --- ADDITION START: Bulk Delete Interviewers and their associated Users ---
+const bulkDeleteInterviewers = asyncHandler(async (req, res) => {
+    const { ids } = req.body;
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+        res.status(400);
+        throw new Error('No interviewer IDs provided for deletion.');
+    }
+
+    // First, find the interviewers to get their associated user IDs
+    const interviewersToDelete = await Interviewer.find({ _id: { $in: ids } }).select('user');
+    if (!interviewersToDelete) {
+        res.status(404);
+        throw new Error('No interviewers found for the provided IDs.');
+    }
+
+    const userIdsToDelete = interviewersToDelete.map(i => i.user);
+
+    // Perform deletions in parallel
+    const [interviewerResult, userResult] = await Promise.all([
+        Interviewer.deleteMany({ _id: { $in: ids } }),
+        User.deleteMany({ _id: { $in: userIdsToDelete } })
+    ]);
+
+    logEvent('interviewers_bulk_deleted', {
+        deletedCount: interviewerResult.deletedCount,
+        associatedUsersDeleted: userResult.deletedCount,
+        adminId: req.user._id
+    });
+
+    res.json({ success: true, message: `${interviewerResult.deletedCount} interviewer(s) and their user accounts deleted successfully.` });
+});
+
 const getApplicantDetails = asyncHandler(async (req, res) => {
     const applicant = await Applicant.findById(req.params.id);
     if (!applicant) { res.status(404); throw new Error('Applicant not found'); }
@@ -317,70 +1090,80 @@ const getApplicantDetails = asyncHandler(async (req, res) => {
     res.json({ success: true, data: { applicant, skillAssessment, interviewer } });
 });
 
-// @desc    Update applicant status
-// @route   PUT /api/admin/applicants/:id/status
-// @access  Private/Admin
 const updateApplicantStatus = asyncHandler(async (req, res) => {
-  const { status, notes } = req.body;
-  const applicant = await Applicant.findById(req.params.id);
-  if (!applicant) { res.status(404); throw new Error('Applicant not found'); }
-  applicant.status = status;
-  if (notes) { applicant.reviewNotes = (applicant.reviewNotes || '') + `\n--- Status Update to '${status}' ---\n${notes}`; }
-  await applicant.save();
-  logEvent('applicant_status_updated', { applicantId: applicant._id, newStatus: status, updatedBy: req.user._id });
-  res.json({ success: true, data: applicant, message: 'Applicant status updated successfully' });
+    const { status, notes } = req.body;
+    const applicant = await Applicant.findById(req.params.id);
+    if (!applicant) { res.status(404); throw new Error('Applicant not found'); }
+    applicant.status = status;
+    if (notes) { applicant.reviewNotes = (applicant.reviewNotes || '') + `\n--- Status Update to '${status}' ---\n${notes}`; }
+    await applicant.save();
+    logEvent('applicant_status_updated', { applicantId: applicant._id, newStatus: status, updatedBy: req.user._id });
+    res.json({ success: true, data: applicant, message: 'Applicant status updated successfully' });
 });
 
-// @desc    Process LinkedIn profile review
-// @route   POST /api/admin/applicants/:id/linkedin-review
-// @access  Private/Admin
 const processLinkedInReview = asyncHandler(async (req, res) => {
-  const { decision, notes, rejectionReason } = req.body;
-  const applicant = await Applicant.findById(req.params.id);
-  if (!applicant) { res.status(404); throw new Error('Applicant not found'); }
-  if (applicant.status !== APPLICATION_STATUS.SUBMITTED && applicant.status !== APPLICATION_STATUS.UNDER_REVIEW) { res.status(400); throw new Error('Applicant is not at the LinkedIn review stage'); }
-  if (decision === 'approve') {
-    applicant.status = APPLICATION_STATUS.PROFILE_APPROVED;
-    if (notes) applicant.reviewNotes = notes;
-    await applicant.save();
-    await sendEmail({ recipient: applicant._id, recipientModel: 'Applicant', recipientEmail: applicant.email, templateName: 'skillAssessmentInvitation', subject: 'Next Steps: Skill Assessment - NxtWave Interviewer Program', templateData: { name: applicant.fullName, skillAssessmentLink: `${process.env.CLIENT_URL}/skill-assessment/${applicant._id}` }, relatedTo: 'Skill Assessment', sentBy: req.user._id, isAutomated: false });
-    applicant.status = APPLICATION_STATUS.SKILLS_ASSESSMENT_SENT;
-    await applicant.save();
-    logEvent('linkedin_review_approved', { applicantId: applicant._id, reviewedBy: req.user._id, email: applicant.email });
-  } else if (decision === 'reject') {
-    if (!rejectionReason) { res.status(400); throw new Error('Rejection reason is required'); }
-    applicant.status = APPLICATION_STATUS.PROFILE_REJECTED;
-    applicant.rejectionReason = rejectionReason;
-    if (notes) applicant.reviewNotes = notes;
-    await applicant.save();
-    await sendEmail({ recipient: applicant._id, recipientModel: 'Applicant', recipientEmail: applicant.email, templateName: 'profileRejection', subject: 'Update on Your NxtWave Interviewer Application', templateData: { name: applicant.fullName, reason: rejectionReason }, relatedTo: 'LinkedIn Review', sentBy: req.user._id, isAutomated: false });
-    logEvent('linkedin_review_rejected', { applicantId: applicant._id, reviewedBy: req.user._id, email: applicant.email, reason: rejectionReason });
-  } else { res.status(400); throw new Error('Invalid decision'); }
-  res.json({ success: true, data: { id: applicant._id, status: applicant.status, message: `Application ${decision === 'approve' ? 'approved' : 'rejected'} successfully` } });
+    const { decision, notes, rejectionReason } = req.body;
+    const applicant = await Applicant.findById(req.params.id);
+    if (!applicant) { res.status(404); throw new Error('Applicant not found'); }
+    if (applicant.status !== APPLICATION_STATUS.SUBMITTED && applicant.status !== APPLICATION_STATUS.UNDER_REVIEW) { res.status(400); throw new Error('Applicant is not at the LinkedIn review stage'); }
+    if (decision === 'approve') {
+        applicant.status = APPLICATION_STATUS.PROFILE_APPROVED;
+        if (notes) applicant.reviewNotes = notes;
+        await applicant.save();
+        await sendEmail({ recipient: applicant._id, recipientModel: 'Applicant', recipientEmail: applicant.email, templateName: 'skillAssessmentInvitation', subject: 'Next Steps: Skill Assessment - NxtWave Interviewer Program', templateData: { name: applicant.fullName, skillAssessmentLink: `${process.env.CLIENT_URL}/skill-assessment/${applicant._id}` }, relatedTo: 'Skill Assessment', sentBy: req.user._id, isAutomated: false });
+        applicant.status = APPLICATION_STATUS.SKILLS_ASSESSMENT_SENT;
+        await applicant.save();
+        logEvent('linkedin_review_approved', { applicantId: applicant._id, reviewedBy: req.user._id, email: applicant.email });
+    } else if (decision === 'reject') {
+        if (!rejectionReason) { res.status(400); throw new Error('Rejection reason is required'); }
+        applicant.status = APPLICATION_STATUS.PROFILE_REJECTED;
+        applicant.rejectionReason = rejectionReason;
+        if (notes) applicant.reviewNotes = notes;
+        await applicant.save();
+        await sendEmail({ recipient: applicant._id, recipientModel: 'Applicant', recipientEmail: applicant.email, templateName: 'profileRejection', subject: 'Update on Your NxtWave Interviewer Application', templateData: { name: applicant.fullName, reason: rejectionReason }, relatedTo: 'LinkedIn Review', sentBy: req.user._id, isAutomated: false });
+        logEvent('linkedin_review_rejected', { applicantId: applicant._id, reviewedBy: req.user._id, email: applicant.email, reason: rejectionReason });
+    } else { res.status(400); throw new Error('Invalid decision'); }
+    res.json({ success: true, data: { id: applicant._id, status: applicant.status, message: `Application ${decision === 'approve' ? 'approved' : 'rejected'} successfully` } });
 });
 
-// @desc    Process skill categorization
-// @route   POST /api/admin/skill-assessments/:id/categorize
-// @access  Private/Admin
 const processSkillCategorization = asyncHandler(async (req, res) => {
-    const { domain, notes } = req.body;
+    const { domains, notes } = req.body; 
     const skillAssessment = await SkillAssessment.findById(req.params.id);
-    if (!skillAssessment) { res.status(404); throw new Error('Skill assessment not found'); }
-    skillAssessment.domain = domain; skillAssessment.adminCategorized = true; skillAssessment.categorizedBy = req.user._id; skillAssessment.status = 'Reviewed';
+    if (!skillAssessment) { 
+        res.status(404); 
+        throw new Error('Skill assessment not found'); 
+    }
+    skillAssessment.domains = domains; 
+    skillAssessment.adminCategorized = true; 
+    skillAssessment.categorizedBy = req.user._id; 
+    skillAssessment.status = 'Reviewed';
     if (notes) skillAssessment.additionalNotes = notes;
     await skillAssessment.save();
+
     const applicant = await Applicant.findById(skillAssessment.applicant);
-    if (!applicant) { res.status(404); throw new Error('Associated applicant not found'); }
+    if (!applicant) { 
+        res.status(404); 
+        throw new Error('Associated applicant not found'); 
+    }
+
     applicant.status = APPLICATION_STATUS.GUIDELINES_SENT;
     await applicant.save();
-    await sendEmail({ recipient: applicant._id, recipientModel: 'Applicant', recipientEmail: applicant.email, templateName: 'guidelinesInvitation', subject: 'Final Step: Interview Guidelines - NxtWave Interviewer Program', templateData: { name: applicant.fullName, guidelinesLink: `${process.env.CLIENT_URL}/guidelines/${applicant._id}` }, relatedTo: 'Guidelines', sentBy: req.user._id, isAutomated: false });
-    logEvent('skill_assessment_categorized', { skillAssessmentId: skillAssessment._id, applicantId: applicant._id, categorizedBy: req.user._id, domain });
-    res.json({ success: true, data: { id: skillAssessment._id, domain: skillAssessment.domain, applicantId: applicant._id, applicantStatus: applicant.status, message: 'Skill assessment categorized successfully' } });
+
+    await sendEmail({
+        recipient: applicant._id,
+        recipientModel: 'Applicant',
+        recipientEmail: applicant.email,
+        templateName: 'guidelinesInvitation',
+        subject: 'Final Step: Interview Guidelines - NxtWave Interviewer Program',
+        templateData: { name: applicant.fullName, guidelinesLink: `${process.env.CLIENT_URL}/guidelines/${applicant._id}` },
+        relatedTo: 'Guidelines',
+        sentBy: req.user._id,
+        isAutomated: false
+    });
+    logEvent('skill_assessment_categorized', { skillAssessmentId: skillAssessment._id, applicantId: applicant._id, categorizedBy: req.user._id, domains });
+    res.json({ success: true, data: { id: skillAssessment._id, domains: skillAssessment.domains, applicantId: applicant._id, applicantStatus: applicant.status, message: 'Skill assessment categorized successfully' } });
 });
 
-// @desc    Process guidelines review and onboard applicant
-// @route   POST /api/admin/guidelines/:id/review
-// @access  Private/Admin
 const processGuidelinesReview = asyncHandler(async (req, res) => {
     const { decision, rejectionReason } = req.body;
     const guidelines = await Guidelines.findById(req.params.id);
@@ -397,7 +1180,7 @@ const processGuidelinesReview = asyncHandler(async (req, res) => {
       user.passwordResetExpires = Date.now() + 24 * 60 * 60 * 1000;
       await user.save();
       const interviewerSkills = (skillAssessment.technicalSkills || []).map(skill => ({ skill: skill.technology, proficiencyLevel: 'Advanced' }));
-      const interviewer = await Interviewer.create({ user: user._id, applicant: applicant._id, currentEmployer: skillAssessment.currentEmployer, jobTitle: skillAssessment.jobTitle, yearsOfExperience: skillAssessment.yearsOfExperience, domains: [skillAssessment.domain], primaryDomain: skillAssessment.domain, skills: interviewerSkills });
+      const interviewer = await Interviewer.create({ user: user._id, applicant: applicant._id, currentEmployer: skillAssessment.currentEmployer, jobTitle: skillAssessment.jobTitle, yearsOfExperience: skillAssessment.yearsOfExperience, domains: skillAssessment.domains, primaryDomain: skillAssessment.domains[0] || 'Other', skills: interviewerSkills });
       applicant.status = APPLICATION_STATUS.ONBOARDED; applicant.interviewer = interviewer._id; await applicant.save();
       await sendAccountCreationEmail(user, resetToken, applicant);
       if (applicant.whatsappNumber) { await sendWelcomeWhatsApp(user, applicant); }
@@ -411,9 +1194,6 @@ const processGuidelinesReview = asyncHandler(async (req, res) => {
     res.json({ success: true, message: `Applicant has been successfully ${decision === 'approve' ? 'onboarded' : 'rejected'}.` });
 });
 
-// @desc    Get skill assessments with pagination and filters
-// @route   GET /api/admin/skill-assessments
-// @access  Private/Admin
 const getSkillAssessments = asyncHandler(async (req, res) => {
     const { status, search, page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'asc' } = req.query;
     let query = {}; if (status) query.status = status;
@@ -423,14 +1203,11 @@ const getSkillAssessments = asyncHandler(async (req, res) => {
     const totalDocs = (await SkillAssessment.aggregate(aggregationPipeline)).length;
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
-    aggregationPipeline.push( { $sort: sort }, { $skip: skip }, { $limit: parseInt(limit) }, { $project: { status: 1, currentEmployer: 1, jobTitle: 1, yearsOfExperience: 1, autoCategorizedDomain: 1, domain: 1, createdAt: 1, _id: 1, technicalSkills: 1, otherSkills: 1, applicant: { _id: '$applicantInfo._id', fullName: '$applicantInfo.fullName', email: '$applicantInfo.email', status: '$applicantInfo.status', phoneNumber: '$applicantInfo.phoneNumber', linkedinProfileUrl: '$applicantInfo.linkedinProfileUrl' } } } );
+    aggregationPipeline.push( { $sort: sort }, { $skip: skip }, { $limit: parseInt(limit) }, { $project: { status: 1, currentEmployer: 1, jobTitle: 1, yearsOfExperience: 1, autoCategorizedDomain: 1, domains: 1, createdAt: 1, _id: 1, technicalSkills: 1, otherSkills: 1, applicant: { _id: '$applicantInfo._id', fullName: '$applicantInfo.fullName', email: '$applicantInfo.email', status: '$applicantInfo.status', phoneNumber: '$applicantInfo.phoneNumber', linkedinProfileUrl: '$applicantInfo.linkedinProfileUrl' } } } );
     const assessments = await SkillAssessment.aggregate(aggregationPipeline);
     res.json({ success: true, data: { assessments: assessments || [], page: parseInt(page), limit: parseInt(limit), totalDocs, totalPages: Math.ceil(totalDocs / parseInt(limit)) } });
 });
 
-// @desc    Manually onboard applicant
-// @route   POST /api/admin/applicants/:id/manual-onboard
-// @access  Private/Admin
 const manualOnboard = asyncHandler(async (req, res) => {
     const { reason } = req.body;
     const applicant = await Applicant.findById(req.params.id);
@@ -445,7 +1222,7 @@ const manualOnboard = asyncHandler(async (req, res) => {
     newUser.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
     newUser.passwordResetExpires = Date.now() + 24 * 60 * 60 * 1000;
     await newUser.save();
-    const interviewer = await Interviewer.create({ user: newUser._id, applicant: applicant._id, currentEmployer: skillAssessment.currentEmployer, jobTitle: skillAssessment.jobTitle, yearsOfExperience: skillAssessment.yearsOfExperience, domains: [skillAssessment.domain], primaryDomain: skillAssessment.domain, skills: skillAssessment.technicalSkills.map(skill => ({ skill: skill.skill, proficiencyLevel: skill.proficiencyLevel })) });
+    const interviewer = await Interviewer.create({ user: newUser._id, applicant: applicant._id, currentEmployer: skillAssessment.currentEmployer, jobTitle: skillAssessment.jobTitle, yearsOfExperience: skillAssessment.yearsOfExperience, domains: skillAssessment.domains, primaryDomain: skillAssessment.domains[0] || 'Other', skills: skillAssessment.technicalSkills.map(skill => ({ skill: skill.skill, proficiencyLevel: skill.proficiencyLevel })) });
     applicant.status = APPLICATION_STATUS.ONBOARDED; applicant.interviewer = interviewer._id; applicant.reviewNotes = `Manually onboarded by admin. Reason: ${reason}`;
     await applicant.save();
     await sendAccountCreationEmail(newUser, resetToken, applicant);
@@ -454,9 +1231,6 @@ const manualOnboard = asyncHandler(async (req, res) => {
     res.json({ success: true, data: { id: applicant._id, status: applicant.status, interviewerId: interviewer._id, message: 'Applicant manually onboarded successfully' } });
 });
 
-// @desc    Get all guidelines submissions
-// @route   GET /api/admin/guidelines
-// @access  Private/Admin
 const getGuidelinesSubmissions = asyncHandler(async (req, res) => {
     const { status, domain, search, page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
     const query = [];
@@ -467,21 +1241,18 @@ const getGuidelinesSubmissions = asyncHandler(async (req, res) => {
     const matchCriteria = {};
     if (status) matchCriteria.passed = status === 'passed';
     if (search) matchCriteria['applicantInfo.fullName'] = { $regex: search, $options: 'i' };
-    if (domain) matchCriteria['skillAssessmentInfo.domain'] = domain;
+    if (domain) matchCriteria['skillAssessmentInfo.domains'] = domain;
     if (Object.keys(matchCriteria).length > 0) { query.push({ $match: matchCriteria }); }
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
     query.push({ $facet: { paginatedResults: [ { $sort: sort }, { $skip: skip }, { $limit: parseInt(limit) } ], totalCount: [ { $count: 'count' } ] } });
     const results = await Guidelines.aggregate(query);
-    const guidelines = results[0].paginatedResults.map(g => ({ ...g, domain: g.skillAssessmentInfo?.domain }));
+    const guidelines = results[0].paginatedResults;
     const totalDocs = results[0].totalCount[0] ? results[0].totalCount[0].count : 0;
-    const formattedGuidelines = guidelines.map(g => ({ _id: g._id, applicant: { _id: g.applicantInfo._id, fullName: g.applicantInfo.fullName, email: g.applicantInfo.email, }, applicantStatus: g.applicantInfo.status, domain: g.domain || 'N/A', score: g.score, passed: g.passed, completionTime: g.completionTime, createdAt: g.createdAt, answers: g.answers }));
+    const formattedGuidelines = guidelines.map(g => ({ _id: g._id, applicant: { _id: g.applicantInfo._id, fullName: g.applicantInfo.fullName, email: g.applicantInfo.email, }, applicantStatus: g.applicantInfo.status, domains: g.skillAssessmentInfo?.domains || [], score: g.score, passed: g.passed, completionTime: g.completionTime, createdAt: g.createdAt, answers: g.answers }));
     res.json({ success: true, data: { guidelines: formattedGuidelines, page: parseInt(page), limit: parseInt(limit), totalDocs, totalPages: Math.ceil(totalDocs / parseInt(limit)) } });
 });
 
-// @desc    Get all users for User Management
-// @route   GET /api/admin/users
-// @access  Private/Admin
 const getUsers = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, search, role, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
     const query = {};
@@ -495,9 +1266,6 @@ const getUsers = asyncHandler(async (req, res) => {
     res.json({ success: true, data: { users: usersWithDetails, page: parseInt(page), limit: parseInt(limit), totalDocs, totalPages: Math.ceil(totalDocs / parseInt(limit)) } });
 });
 
-// @desc    Create a new user
-// @route   POST /api/admin/users
-// @access  Private/Admin
 const createUser = asyncHandler(async (req, res) => {
     const { firstName, lastName, email, password, role, isActive, phoneNumber } = req.body;
     const userExists = await User.findOne({ email });
@@ -506,18 +1274,12 @@ const createUser = asyncHandler(async (req, res) => {
     res.status(201).json({ success: true, data: user });
 });
 
-// @desc    Get single user details
-// @route   GET /api/admin/users/:id
-// @access  Private/Admin
 const getUserDetails = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) { res.status(404); throw new Error('User not found'); }
     res.json({ success: true, data: user });
 });
 
-// @desc    Update a user
-// @route   PUT /api/admin/users/:id
-// @access  Private/Admin
 const updateUser = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) { res.status(404); throw new Error('User not found'); }
@@ -535,9 +1297,6 @@ const updateUser = asyncHandler(async (req, res) => {
     res.json({ success: true, data: updatedUser });
 });
 
-// @desc    Delete a user
-// @route   DELETE /api/admin/users/:id
-// @access  Private/Admin
 const deleteUser = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) { res.status(404); throw new Error('User not found'); }
@@ -546,53 +1305,17 @@ const deleteUser = asyncHandler(async (req, res) => {
     res.json({ success: true, message: 'User has been deactivated' });
 });
 
-// @desc    Create a new interview booking
-// @route   POST /api/admin/bookings
-// @access  Private/Admin
-const createInterviewBooking = asyncHandler(async (req, res) => {
-    const { bookingDate, interviewerIds } = req.body;
-    if (!bookingDate || !interviewerIds || interviewerIds.length === 0) { res.status(400); throw new Error('Booking date and at least one interviewer are required.'); }
-    const booking = await InterviewBooking.create({ bookingDate, interviewers: interviewerIds.map(id => ({ interviewer: id, status: 'Pending' })), createdBy: req.user._id, });
-
-    const interviewersToNotify = await Interviewer.find({ _id: { $in: interviewerIds }, }).populate("user", "email firstName");
-
-    for (const interviewer of interviewersToNotify) {
-        if (interviewer.user && interviewer.user.email) {
-            await sendEmail({
-                recipient: interviewer._id,
-                recipientModel: 'Interviewer',
-                recipientEmail: interviewer.user.email,
-                templateName: EMAIL_TEMPLATES.BOOKING_REQUEST_NOTIFICATION,
-                subject: 'New Interview Availability Request from NxtWave',
-                templateData: {
-                    name: interviewer.user.firstName,
-                    date: new Date(bookingDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric'}),
-                    portalLink: `${process.env.CLIENT_URL}/interviewer/availability`,
-                },
-                relatedTo: "Interviewer Booking",
-                sentBy: req.user._id,
-                isAutomated: true,
-            });
-        }
-    }
-    logEvent('interview_booking_created', { bookingId: booking._id, adminId: req.user._id, notifiedCount: interviewersToNotify.length });
-    res.status(201).json({ success: true, data: booking });
-});
-
-// @desc    Get all interview bookings
-// @route   GET /api/admin/bookings
-// @access  Private/Admin
 const getInterviewBookings = asyncHandler(async (req, res) => {
     const bookings = await InterviewBooking.find().populate({ path: 'interviewers.interviewer', populate: { path: 'user', select: 'firstName lastName' } }).populate('createdBy', 'firstName lastName').sort({ bookingDate: -1 });
     res.json({ success: true, data: bookings });
 });
 
-// @desc    Get single interview booking
-// @route   GET /api/admin/bookings/:id
-// @access  Private/Admin
 const getInterviewBookingDetails = asyncHandler(async (req, res) => {
     const booking = await InterviewBooking.findById(req.params.id)
-        .populate({ path: 'interviewers.interviewer', populate: { path: 'user', select: 'firstName lastName' } })
+        .populate({ 
+            path: 'interviewers.interviewer', 
+            populate: { path: 'user', select: 'firstName lastName email' }
+        })
         .populate('createdBy', 'firstName lastName');
 
     if (!booking) {
@@ -602,9 +1325,6 @@ const getInterviewBookingDetails = asyncHandler(async (req, res) => {
     res.json({ success: true, data: booking });
 });
 
-// @desc    Reset a specific interviewer's submission in a booking
-// @route   DELETE /api/admin/bookings/:bookingId/submissions/:submissionId
-// @access  Private/Admin
 const resetBookingSubmission = asyncHandler(async (req, res) => {
     const { bookingId, submissionId } = req.params;
     
@@ -628,9 +1348,6 @@ const resetBookingSubmission = asyncHandler(async (req, res) => {
     res.json({ success: true, message: "Interviewer's slot submission has been reset." });
 });
 
-// @desc    Get consolidated booking slots
-// @route   GET /api/admin/booking-slots
-// @access  Private/Admin
 const getBookingSlots = asyncHandler(async (req, res) => {
     const { search, date } = req.query;
 
@@ -681,9 +1398,6 @@ const getBookingSlots = asyncHandler(async (req, res) => {
     res.json({ success: true, data: slots });
 });
 
-// @desc    Update an interview booking
-// @route   PUT /api/admin/bookings/:id
-// @access  Private/Admin
 const updateInterviewBooking = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { bookingDate, interviewerIds } = req.body;
@@ -696,12 +1410,11 @@ const updateInterviewBooking = asyncHandler(async (req, res) => {
 
     booking.bookingDate = bookingDate || booking.bookingDate;
 
-    // Smart update for interviewers to preserve their status if they still exist in the list
     if (interviewerIds && Array.isArray(interviewerIds)) {
         const existingInterviewersMap = new Map(booking.interviewers.map(i => [i.interviewer.toString(), i.status]));
         booking.interviewers = interviewerIds.map(interviewerId => ({
             interviewer: interviewerId,
-            status: existingInterviewersMap.get(interviewerId) || 'Pending' // Keep existing status or default to Pending
+            status: existingInterviewersMap.get(interviewerId) || 'Pending'
         }));
     }
 
@@ -710,9 +1423,6 @@ const updateInterviewBooking = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, data: updatedBooking });
 });
 
-// @desc    Delete an interview booking
-// @route   DELETE /api/admin/bookings/:id
-// @access  Private/Admin
 const deleteInterviewBooking = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const booking = await InterviewBooking.findById(id);
@@ -727,11 +1437,6 @@ const deleteInterviewBooking = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, message: 'Interview booking deleted successfully.' });
 });
 
-// *** CONTROLLERS FOR MAIN SHEET ***
-
-// @desc    Get single Main Sheet entry
-// @route   GET /api/admin/main-sheet/:id
-// @access  Private/Admin
 const getMainSheetEntryById = asyncHandler(async (req, res) => {
     const entry = await MainSheetEntry.findById(req.params.id)
       .populate({
@@ -752,10 +1457,6 @@ const getMainSheetEntryById = asyncHandler(async (req, res) => {
     res.json({ success: true, data: entry });
 });
 
-
-// @desc    Get all main sheet entries
-// @route   GET /api/admin/main-sheet
-// @access  Private/Admin
 const getMainSheetEntries = asyncHandler(async (req, res) => {
     const { search, page = 1, limit = 25 } = req.query;
     const query = {};
@@ -799,21 +1500,18 @@ const getMainSheetEntries = asyncHandler(async (req, res) => {
     });
 });
 
-// @desc    Bulk create/update Main Sheet entries
-// @route   POST /api/admin/main-sheet/bulk
-// @access  Private/Admin
 const bulkUpdateMainSheetEntries = asyncHandler(async (req, res) => {
-    const entries = req.body; // Expect an array of entry objects
+    const entries = req.body;
     const { _id: adminId } = req.user;
     const results = { created: 0, updated: 0, errors: [] };
 
     for (const entry of entries) {
         try {
             entry.updatedBy = adminId;
-            if (entry._id) { // If it has an ID, update it
+            if (entry._id) {
                 await MainSheetEntry.findByIdAndUpdate(entry._id, entry, { new: true, runValidators: true });
                 results.updated++;
-            } else { // Otherwise, create a new one
+            } else {
                 entry.createdBy = adminId;
                 await MainSheetEntry.create(entry);
                 results.created++;
@@ -836,9 +1534,6 @@ const bulkUpdateMainSheetEntries = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, message: 'Sheet updated successfully.', data: results });
 });
 
-// @desc    Delete single Main Sheet entry
-// @route   DELETE /api/admin/main-sheet/:id
-// @access  Private/Admin
 const deleteMainSheetEntry = asyncHandler(async (req, res) => {
     const entry = await MainSheetEntry.findById(req.params.id);
     if (!entry) {
@@ -850,11 +1545,8 @@ const deleteMainSheetEntry = asyncHandler(async (req, res) => {
     res.json({ success: true, message: 'Entry deleted successfully' });
 });
 
-// @desc    Bulk delete Main Sheet entries
-// @route   DELETE /api/admin/main-sheet/bulk
-// @access  Private/Admin
 const bulkDeleteMainSheetEntries = asyncHandler(async (req, res) => {
-    const { ids } = req.body; // Expect an array of entry IDs
+    const { ids } = req.body;
     if (!ids || ids.length === 0) {
         res.status(400);
         throw new Error('No entry IDs provided for deletion.');
@@ -867,14 +1559,14 @@ const bulkDeleteMainSheetEntries = asyncHandler(async (req, res) => {
 });
 
 
-// *** NEW STUDENT BOOKING SYSTEM CONTROLLERS ***
+const getUniqueHiringNames = asyncHandler(async (req, res) => {
+    const names = await MainSheetEntry.distinct('hiringName');
+    const filteredNames = names.filter(name => name && name.trim() !== '');
+    res.json({ success: true, data: filteredNames });
+});
 
-// @desc    Create a public booking page from selected slots
-// @route   POST /api/admin/public-bookings
-// @access  Private/Admin
 const createPublicBooking = asyncHandler(async (req, res) => {
-    const { selectedSlots } = req.body; // Expects an array like [{ interviewerId, date, slots: [...] }]
-
+    const { selectedSlots } = req.body;
     const newPublicBooking = await PublicBooking.create({
         createdBy: req.user._id,
         interviewerSlots: selectedSlots.map(s => ({
@@ -886,13 +1578,9 @@ const createPublicBooking = asyncHandler(async (req, res) => {
             }))
         }))
     });
-
     res.status(201).json({ success: true, data: newPublicBooking });
 });
 
-// @desc    Get all public booking pages
-// @route   GET /api/admin/public-bookings
-// @access  Private/Admin
 const getPublicBookings = asyncHandler(async (req, res) => {
     const bookings = await PublicBooking.find().populate({
         path: 'interviewerSlots.interviewer',
@@ -903,111 +1591,246 @@ const getPublicBookings = asyncHandler(async (req, res) => {
 });
 
 
-// @desc    Update a public booking page (e.g., to add authorized emails)
-// @route   PUT /api/admin/public-bookings/:id
-// @access  Private/Admin
 const updatePublicBooking = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { allowedEmails } = req.body;
-
+    const { students } = req.body;
     const publicBooking = await PublicBooking.findById(id);
     if (!publicBooking) {
         res.status(404);
         throw new Error('Public booking not found.');
     }
+    const existingEmailsSet = new Set(publicBooking.allowedStudents.map(s => s.email));
+    const newStudents = students.filter(student => !existingEmailsSet.has(student.email.toLowerCase()));
 
-    const emailsToAdd = allowedEmails.map(e => e.trim().toLowerCase()).filter(Boolean);
-
-    // Identify only the genuinely new emails not already in the list
-    const existingEmailsSet = new Set(publicBooking.allowedEmails);
-    const newEmailsToSend = emailsToAdd.filter(email => !existingEmailsSet.has(email));
-
-    if (newEmailsToSend.length > 0) {
-        // Add the new, unique emails to the existing list
-        publicBooking.allowedEmails.push(...newEmailsToSend);
-        
-        // Send invitations ONLY to the new emails
-        for (const email of newEmailsToSend) {
-            await sendStudentBookingInvitationEmail(email, id, publicBooking.publicId);
+    if (newStudents.length > 0) {
+        for (const student of newStudents) {
+            const sequenceNumber = await getNextSequenceValue('interviewId');
+            student.interviewId = `INT-${String(sequenceNumber).padStart(4, '0')}`;
         }
+        publicBooking.allowedStudents.push(...newStudents);
+        
+        for (const student of newStudents) {
+            await sendStudentBookingInvitationEmail(student.email, id, publicBooking.publicId);
+        }
+        
         await publicBooking.save();
-        res.json({ success: true, message: `${newEmailsToSend.length} new invitations sent successfully.`, data: publicBooking });
+        logEvent('students_authorized_for_booking', { publicBookingId: id, count: newStudents.length, adminId: req.user._id, });
+        res.json({ success: true, message: `${newStudents.length} new invitations sent successfully.`, data: publicBooking });
     } else {
         res.json({ success: true, message: 'No new unique emails to send. List is up to date.', data: publicBooking });
     }
 });
 
-// @desc    Get all confirmed student bookings
-// @route   GET /api/admin/student-bookings
-// @access  Private/Admin
-const getStudentBookings = asyncHandler(async (req, res) => {
-    const studentBookings = await StudentBooking.find()
-        .populate({
-            path: 'bookedInterviewer',
-            select: 'user',
-            populate: { path: 'user', select: 'firstName lastName' }
-        })
-        .sort({ createdAt: -1 });
+const sendBookingReminders = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    
+    const publicBooking = await PublicBooking.findById(id);
+    if (!publicBooking || publicBooking.status !== 'Active') {
+        res.status(404);
+        throw new Error('Active public booking link not found.');
+    }
+    const bookedStudents = await StudentBooking.find({ publicBooking: id }).select('studentEmail -_id');
+    const bookedEmails = new Set(bookedStudents.map(s => s.studentEmail));
+    const studentsToRemind = publicBooking.allowedStudents.filter(student => !bookedEmails.has(student.email));
 
-    res.json({ success: true, data: studentBookings });
+    if (studentsToRemind.length === 0) {
+        return res.json({ success: true, message: "All authorized students have already booked their slots. No reminders sent." });
+    }
+
+    let remindersSent = 0;
+    for (const student of studentsToRemind) {
+        await sendEmail({
+            recipient: publicBooking._id, recipientModel: 'PublicBooking', recipientEmail: student.email, templateName: EMAIL_TEMPLATES.STUDENT_BOOKING_REMINDER, subject: 'Reminder: Schedule Your NxtWave Interview',
+            templateData: { bookingLink: `${process.env.CLIENT_URL}/book/${publicBooking.publicId}` }, relatedTo: 'Student Booking Reminder', sentBy: req.user._id, isAutomated: false
+        });
+        remindersSent++;
+    }
+
+    logEvent('booking_reminders_sent', { publicBookingId: id, count: remindersSent, adminId: req.user._id, });
+    res.json({ success: true, message: `${remindersSent} reminder(s) have been sent successfully.` });
 });
 
-// @desc    Get details for a single public booking link
-// @route   GET /api/admin/public-bookings/:id
-// @access  Private/Admin
+const getStudentPipeline = asyncHandler(async (req, res) => {
+    const pipeline = [
+        { $unwind: "$allowedStudents" },
+        {
+            $lookup: {
+                from: "studentbookings", let: { student_email: "$allowedStudents.email", public_booking_id: "$_id" },
+                pipeline: [
+                    { $match: { $expr: { $and: [ { $eq: ["$studentEmail", "$$student_email"] }, { $eq: ["$publicBooking", "$$public_booking_id"] } ] } } },
+                    { $lookup: { from: "interviewers", localField: "bookedInterviewer", foreignField: "_id", as: "interviewerInfo" } },
+                    { $unwind: { path: "$interviewerInfo", preserveNullAndEmptyArrays: true } },
+                    { $lookup: { from: "users", localField: "interviewerInfo.user", foreignField: "_id", as: "interviewerUserInfo" } },
+                    { $unwind: { path: "$interviewerUserInfo", preserveNullAndEmptyArrays: true } }
+                ],
+                as: "bookingInfo"
+            }
+        },
+        { $unwind: { path: "$bookingInfo", preserveNullAndEmptyArrays: true } },
+        {
+            $project: {
+                _id: { $ifNull: ["$bookingInfo._id", "$allowedStudents.email"] },
+                publicBookingId: "$publicId",
+                interviewId: "$allowedStudents.interviewId", 
+                hiringName: "$allowedStudents.hiringName",
+                domain: { $ifNull: ["$bookingInfo.domain", "$allowedStudents.domain"] },
+                userId: "$allowedStudents.userId",
+                studentName: "$allowedStudents.fullName",
+                studentEmail: "$allowedStudents.email",
+                mobileNumber: "$allowedStudents.mobileNumber",
+                resumeLink: "$allowedStudents.resumeLink",
+                studentPhone: "$bookingInfo.studentPhone",
+                bookedInterviewer: "$bookingInfo.interviewerInfo",
+                interviewerEmail: "$bookingInfo.interviewerEmail",
+                bookingDate: "$bookingInfo.bookingDate",
+                bookedSlot: "$bookingInfo.bookedSlot",
+                hostEmail: "$bookingInfo.hostEmail",
+                eventTitle: "$bookingInfo.eventTitle",
+                meetLink: "$bookingInfo.meetLink",
+                createdAt: { $ifNull: ["$bookingInfo.createdAt", null] }
+            }
+        },
+        { $sort: { bookingDate: -1, studentName: 1 } }
+    ];
+
+    const studentPipeline = await PublicBooking.aggregate(pipeline);
+    
+    for (let item of studentPipeline) {
+        if (item.bookedInterviewer) {
+            const user = await User.findById(item.bookedInterviewer.user).select('firstName lastName');
+            if(user) { item.bookedInterviewer.user = user; }
+        }
+    }
+    
+    res.json({ success: true, data: studentPipeline });
+});
+
 const getPublicBookingDetails = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const booking = await PublicBooking.findById(id).lean()
-        .populate('createdBy', 'firstName lastName');
+    const booking = await PublicBooking.findById(id).lean().populate('createdBy', 'firstName lastName');
 
     if (!booking) {
         res.status(404);
         throw new Error('Public booking details not found.');
     }
-
+    const bookedStudents = await StudentBooking.find({ publicBooking: id }).select('studentEmail -_id').lean();
+    const bookedEmails = new Set(bookedStudents.map(s => s.studentEmail));
+    const trackedStudents = booking.allowedStudents.map(student => ({ ...student, status: bookedEmails.has(student.email) ? 'Submitted' : 'Not Submitted' }));
+    booking.trackedEmails = trackedStudents;
+    delete booking.allowedStudents;
     res.json({ success: true, data: booking });
 });
 
+const updateStudentBooking = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const updateData = req.body;
+    if (!updateData || Object.keys(updateData).length === 0) { res.status(400); throw new Error('Update data is required in the request body.'); }
+    const booking = await StudentBooking.findById(id);
+    if (!booking) { res.status(404); throw new Error('Student booking not found.'); }
+    if (updateData.domain && updateData.domain !== booking.domain) {
+        const domainDoc = await Domain.findOne({ name: updateData.domain });
+        if (domainDoc && domainDoc.eventTitle) {
+            updateData.eventTitle = `${domainDoc.eventTitle} || ${booking.studentName}`;
+        } else {
+            updateData.eventTitle = `${updateData.domain} Interview || ${booking.studentName}`;
+        }
+    }
+    Object.assign(booking, updateData);
+    const updatedBooking = await booking.save();
+    res.json({ success: true, data: updatedBooking });
+});
+
+const getUniqueHostEmails = asyncHandler(async (req, res) => {
+    const emails = await StudentBooking.distinct('hostEmail');
+    const filteredEmails = emails.filter(email => email && email.trim() !== '');
+    res.json({ success: true, data: filteredEmails });
+});
+
+const generateMeetLink = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const booking = await StudentBooking.findById(id).populate({ path: 'bookedInterviewer', populate: { path: 'user', select: 'email' }});
+    if (!booking) { res.status(404); throw new Error('Booking not found.'); }
+    const { studentEmail, interviewerEmail, hostEmail, eventTitle, bookingDate, bookedSlot } = booking;
+    const attendees = [studentEmail, interviewerEmail, hostEmail].filter(Boolean);
+    if (attendees.length < 2) { res.status(400); throw new Error('At least two attendees (student, interviewer, or host) must have a valid email.'); }
+    const dateParts = booking.bookingDate.split('/');
+    const formattedDate = `${dateParts[2]}-${dateParts[0].padStart(2, '0')}-${dateParts[1].padStart(2, '0')}`;
+    const startDateTime = `${formattedDate}T${bookedSlot.startTime}:00`;
+    const endDateTime = `${formattedDate}T${bookedSlot.endTime}:00`;
+    const eventData = { summary: eventTitle || `Technical Interview: ${booking.studentName}`, description: `Interview for ${booking.studentName} with our technical interviewer.`, start: { dateTime: startDateTime }, end: { dateTime: endDateTime }, attendees, };
+    const googleEvent = await createCalendarEvent(eventData);
+    booking.meetLink = googleEvent.hangoutLink;
+    await booking.save();
+    if (booking.interviewId && googleEvent.hangoutLink) {
+        await MainSheetEntry.findOneAndUpdate( { interviewId: booking.interviewId }, { $set: { meetingLink: googleEvent.hangoutLink, updatedBy: req.user._id } } );
+        logEvent('main_sheet_meetlink_synced', { studentBookingId: booking._id, interviewId: booking.interviewId, adminId: req.user._id });
+    }
+    res.json({ success: true, data: booking });
+});
+
+const getDomains = asyncHandler(async (req, res) => {
+    const domains = await Domain.find().sort({ name: 1 });
+    res.json({ success: true, data: domains });
+});
+
+const createDomain = asyncHandler(async (req, res) => {
+    const { name, eventTitle } = req.body;
+    if (!name) { res.status(400); throw new Error('Domain name is required.'); }
+    const existing = await Domain.findOne({ name: new RegExp(`^${name}$`, 'i') });
+    if (existing) { res.status(400); throw new Error('A domain with this name already exists.'); }
+    const domain = await Domain.create({ name, eventTitle, createdBy: req.user._id, updatedBy: req.user._id });
+    res.status(201).json({ success: true, data: domain });
+});
+
+const updateDomain = asyncHandler(async (req, res) => {
+    const { name, eventTitle } = req.body;
+    const domain = await Domain.findByIdAndUpdate( req.params.id, { name, eventTitle, updatedBy: req.user._id }, { new: true, runValidators: true });
+    if (!domain) { res.status(404); throw new Error('Domain not found.'); }
+    res.json({ success: true, data: domain });
+});
+
+const deleteDomain = asyncHandler(async (req, res) => {
+    const domain = await Domain.findById(req.params.id);
+    if (!domain) { res.status(404); throw new Error('Domain not found.'); }
+    await EvaluationSheet.deleteOne({ domain: domain._id });
+    await domain.deleteOne();
+    res.json({ success: true, message: 'Domain and its evaluation sheet have been deleted.' });
+});
+
+const getEvaluationSheetByDomain = asyncHandler(async (req, res) => {
+    const { domainId } = req.params;
+    let sheet = await EvaluationSheet.findOne({ domain: domainId });
+    if (!sheet) { sheet = await EvaluationSheet.create({ domain: domainId, columnGroups: [], updatedBy: req.user._id, }); }
+    res.json({ success: true, data: sheet });
+});
+
+const updateEvaluationSheet = asyncHandler(async (req, res) => {
+    const { domainId } = req.params;
+    const { columnGroups, remarksEnabled } = req.body;
+    const sheet = await EvaluationSheet.findOneAndUpdate( { domain: domainId }, { columnGroups, remarksEnabled, updatedBy: req.user._id }, { new: true, upsert: true, runValidators: true });
+    res.json({ success: true, data: sheet });
+});
+
+
 module.exports = {
-    getDashboardStats,
-    getApplicants,
-    createApplicant,
-    updateApplicant,
-    deleteApplicant,
-    exportApplicants,
-    getApplicantDetails,
-    updateApplicantStatus,
-    processLinkedInReview,
-    processSkillCategorization,
-    manualOnboard,
-    getSkillAssessments,
-    getGuidelinesSubmissions,
-    processGuidelinesReview,
-    getInterviewers,
-    getInterviewerDetails,
-    createInterviewer,
-    updateInterviewer,
-    deleteInterviewer,
-    getUsers,
-    getUserDetails,
-    createUser,
-    updateUser,
-    deleteUser,
-    createInterviewBooking,
-    getInterviewBookings,
-    getInterviewBookingDetails,
-    resetBookingSubmission,
-    updateInterviewBooking,
-    deleteInterviewBooking,
-    getBookingSlots,
-    getMainSheetEntryById,
-    getMainSheetEntries, 
-    bulkUpdateMainSheetEntries,
-    deleteMainSheetEntry,
-    bulkDeleteMainSheetEntries,
-    createPublicBooking,      
-    getPublicBookings,        
-    updatePublicBooking,      
-    getStudentBookings,
-    getPublicBookingDetails,
+    getDashboardStats, getEarningsReport: generateAndGetPayoutSheet, getPaymentRequests, sendPaymentEmail,
+    getApplicants, createApplicant, updateApplicant, deleteApplicant, exportApplicants,
+    getApplicantDetails, updateApplicantStatus, processLinkedInReview, processSkillCategorization,
+    manualOnboard, getSkillAssessments, getGuidelinesSubmissions, processGuidelinesReview,
+    getInterviewers, getInterviewerDetails, createInterviewer, updateInterviewer, deleteInterviewer,
+  bulkDeleteInterviewers,
+    getUsers, getUserDetails, createUser, updateUser, deleteUser,
+    createInterviewBooking, getInterviewBookings, getBookingSlots, getInterviewBookingDetails, resetBookingSubmission,
+    updateInterviewBooking, deleteInterviewBooking, getMainSheetEntryById, getMainSheetEntries,
+    bulkUpdateMainSheetEntries, deleteMainSheetEntry, bulkDeleteMainSheetEntries,
+    createPublicBooking, getPublicBookings, updatePublicBooking,
+    getStudentPipeline, getPublicBookingDetails, updateStudentBooking,
+    getUniqueHostEmails, generateMeetLink, sendBookingReminders, getUniqueHiringNames,
+    getDomains, createDomain, updateDomain, deleteDomain,
+    getEvaluationSheetByDomain, updateEvaluationSheet, getEvaluationDataForAdmin, sendInvoiceMail,
+    sendPaymentReceivedEmail, refreshRecordingLinks, createCustomEmailTemplate,
+    getCustomEmailTemplates, getCustomEmailTemplateById, updateCustomEmailTemplate, deleteCustomEmailTemplate,
+    sendBulkCustomEmail,
+    bulkUploadMainSheetEntries,
+    bulkUploadInterviewers
 };

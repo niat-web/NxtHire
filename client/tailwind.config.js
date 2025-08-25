@@ -21,6 +21,18 @@ export default {
           900: '#1e3a8a',
           950: '#172554',
         },
+        // --- ADDITION START ---
+        brandRed: {
+          50: '#fef2f2',
+          100: '#fee2e2',
+          200: '#fecaca',
+          600: '#dc2626',
+          700: '#b91c1c',
+          800: '#991b1b',
+          900: '#7f1d1d',
+          950: '#450a0a',
+        },
+        // --- ADDITION END ---
         // You can add other palette colors here if needed
       },
       fontFamily: {

@@ -1,10 +1,9 @@
 // client/src/pages/admin/UserManagement.jsx
 import React, { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
-import { FiEdit, FiFilter, FiSearch, FiRefreshCw, FiPlus, FiTrash2, FiToggleLeft, FiToggleRight, FiMoreVertical } from 'react-icons/fi';
-import Card from '../../components/common/Card';
-import Table from '../../components/common/Table';
+import { FiEdit, FiFilter, FiSearch, FiPlus, FiTrash2, FiToggleLeft, FiToggleRight, FiMoreVertical, FiChevronLeft, FiChevronRight, FiRefreshCw } from 'react-icons/fi';
 import { Menu, Transition } from '@headlessui/react';
 import Button from '../../components/common/Button';
+import Badge from '../../components/common/Badge';
 import SearchInput from '../../components/common/SearchInput';
 import FilterDropdown from '../../components/common/FilterDropdown';
 import { getUsers, deleteUser, updateUser } from '../../api/admin.api';
@@ -13,13 +12,15 @@ import { debounce } from '../../utils/helpers';
 import { useAlert } from '../../hooks/useAlert';
 import UserFormModal from './UserFormModal';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
+import Table from '../../components/common/Table';
+import DropdownMenu from '../../components/common/DropdownMenu';
 
 const UserManagement = () => {
     const { showSuccess, showError } = useAlert();
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState([]);
     const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalItems: 0 });
-    const [sortConfig, setSortConfig] = useState({ key: 'lastLogin', direction: 'desc' });
+    const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
     const [filters, setFilters] = useState({ search: '', role: '' });
     
     const [modalState, setModalState] = useState({ type: null, data: null });
@@ -33,25 +34,18 @@ const UserManagement = () => {
         { value: '', label: 'All Roles' }, { value: 'admin', label: 'Admin' }, { value: 'interviewer', label: 'Interviewer' },
     ], []);
 
-    const fetchUsers = useCallback(() => {
+    const fetchUsers = useCallback((pageToFetch) => {
         setLoading(true);
         const params = {
-            page: pagination.currentPage, limit: 10,
+            page: pageToFetch, limit: 10,
             search: filters.search, role: filters.role,
             sortBy: sortConfig.key, sortOrder: sortConfig.direction,
         };
         getUsers(params)
             .then(response => {
-                const { users, ...paginationData } = response.data.data;
+                const { users, page: currentPage, totalPages, totalDocs } = response.data.data;
                 setUsers(users || []);
-                // --- FIX STARTS HERE ---
-                // Map the API response fields to your state's fields
-                setPagination({
-                    currentPage: paginationData.page,
-                    totalPages: paginationData.totalPages,
-                    totalItems: paginationData.totalDocs
-                });
-                // --- FIX ENDS HERE ---
+                setPagination({ currentPage, totalPages, totalItems: totalDocs });
             })
             .catch(error => {
                 showError('Failed to fetch user data.');
@@ -59,126 +53,181 @@ const UserManagement = () => {
             .finally(() => {
                 setLoading(false);
             });
-    }, [pagination.currentPage, filters, sortConfig, showError]);
-    
-    // This single effect handles all data fetching with debounce
+    }, [filters, sortConfig, showError]);
+
     useEffect(() => {
-        const handler = debounce(fetchUsers, 300);
+        const handler = debounce(() => fetchUsers(1), 300);
         handler();
         return () => handler.cancel();
-    }, [fetchUsers]);
+    }, [filters, sortConfig, fetchUsers]);
     
     const handleFilterChange = (key, value) => {
-        setPagination(p => ({...p, currentPage: 1 }));
         setFilters(prev => ({ ...prev, [key]: value }));
     };
 
     const handleSort = (key) => {
-        setPagination(p => ({...p, currentPage: 1 }));
         setSortConfig(prev => ({ key, direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc' }));
     };
-
+    
     const handlePageChange = (page) => {
-        setPagination(prev => ({ ...prev, currentPage: page }));
+        if (page > 0 && page <= pagination.totalPages) {
+            fetchUsers(page);
+        }
     };
     
     const handleModalSuccess = () => {
         setModalState({ type: null, data: null });
-        fetchUsers();
+        fetchUsers(pagination.currentPage);
     };
 
     const handleDelete = async () => {
         if(!deleteDialog.user) return;
         try {
             await deleteUser(deleteDialog.user._id);
-            showSuccess(`User ${deleteDialog.user.fullName} has been deactivated.`);
+            showSuccess(`User ${deleteDialog.user.firstName} ${deleteDialog.user.lastName} has been deactivated.`);
             setDeleteDialog({ isOpen: false, user: null });
-            fetchUsers();
+            fetchUsers(pagination.currentPage);
         } catch (err) {
             showError('Failed to deactivate user.');
         }
     };
 
-    const toggleActiveStatus = async (user) => {
+    // --- MODIFICATION START: Implemented optimistic UI update for status toggle ---
+    const toggleActiveStatus = async (userToUpdate) => {
+        const originalUsers = [...users];
+        
+        // Optimistically update the UI first
+        const optimisticUsers = users.map(user => 
+            user._id === userToUpdate._id ? { ...user, isActive: !user.isActive } : user
+        );
+        setUsers(optimisticUsers);
+
         try {
-            await updateUser(user._id, { isActive: !user.isActive });
-            showSuccess(`User status updated successfully.`);
-            fetchUsers();
+            // Make the API call in the background
+            await updateUser(userToUpdate._id, { isActive: !userToUpdate.isActive });
+            showSuccess('User status updated successfully.');
+            // No full reload needed on success
         } catch (err) {
-            showError('Failed to update user status.');
+            // If the API call fails, revert the UI and show an error
+            showError('Failed to update user status. Reverting change.');
+            setUsers(originalUsers);
         }
     };
+    // --- MODIFICATION END ---
 
     const userColumns = useMemo(() => [
-        { key: 'fullName', title: 'Full Name', sortable: true },
-        { key: 'email', title: 'Email', sortable: true },
-        { key: 'role', title: 'Role', sortable: true, render: (row) => <span className="capitalize font-medium">{row.role}</span> },
-        { 
-            key: 'isActive', title: 'Status', sortable: true, 
-            render: (row) => (
-              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                  row.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-              }`}>
-                  {row.isActive ? 'Active' : 'Inactive'}
-              </span>
-            ) 
-        },
-        { key: 'lastLogin', title: 'Last Login', sortable: true, render: (row) => row.lastLogin ? formatDateTime(row.lastLogin) : 'Never' },
+        { key: 'name', title: 'User', minWidth: '250px', sortable: true, render: (row) => (
+            <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600 mr-3 flex-shrink-0">
+                    {(row.firstName?.charAt(0) || '')}{(row.lastName?.charAt(0) || '')}
+                </div>
+                <div>
+                    <div className="font-semibold text-gray-800">{`${row.firstName} ${row.lastName}`}</div>
+                    <div className="text-xs text-gray-500">{row.email}</div>
+                </div>
+            </div>
+        )},
         {
-            key: 'actions', title: 'Actions', render: (row) => (
-                <Menu as="div" className="relative inline-block text-left">
-                    <div>
-                        <Menu.Button className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-transparent text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                            <span className="sr-only">Open options</span>
-                            <FiMoreVertical className="h-5 w-5" aria-hidden="true" />
-                        </Menu.Button>
-                    </div>
-                    <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="transform opacity-0 scale-95" enterTo="transform opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="transform opacity-100 scale-100" leaveTo="transform opacity-0 scale-95">
-                        <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                            <div className="py-1">
-                                <Menu.Item>
-                                    {({ active }) => (<button onClick={() => setModalState({ type: 'edit', data: row })} className={classNames(active ? 'bg-gray-100' : '', 'group flex items-center px-4 py-2 text-sm text-gray-700 w-full text-left')}><FiEdit className="mr-3 h-5 w-5 text-gray-400" />Edit User</button>)}
-                                </Menu.Item>
-                                <Menu.Item>
-                                    {({ active }) => (
-                                        <button onClick={() => toggleActiveStatus(row)} className={classNames(active ? 'bg-gray-100' : '', 'group flex items-center px-4 py-2 text-sm text-gray-700 w-full text-left')}>
-                                            {row.isActive ? <FiToggleLeft className="mr-3 h-5 w-5 text-gray-400" /> : <FiToggleRight className="mr-3 h-5 w-5 text-gray-400" />}
-                                            {row.isActive ? 'Deactivate User' : 'Activate User'}
-                                        </button>
-                                    )}
-                                </Menu.Item>
-                                <Menu.Item>
-                                    {({ active }) => (
-                                        <button onClick={() => setDeleteDialog({ isOpen: true, user: row })} className={classNames(active ? 'bg-red-50' : '', 'group flex items-center px-4 py-2 text-sm text-red-700 w-full text-left')}>
-                                            <FiTrash2 className="mr-3 h-5 w-5 text-red-400" />
-                                            Delete User (Soft)
-                                        </button>
-                                    )}
-                                </Menu.Item>
-                            </div>
-                        </Menu.Items>
-                    </Transition>
-                </Menu>
+            key: 'role', title: 'Role', sortable: true, minWidth: '120px', render: (row) => (
+                <Badge
+                    variant={row.role === 'admin' ? 'info' : 'success'}
+                    className="capitalize"
+                >
+                    {row.role}
+                </Badge>
+            )
+        },
+        { 
+            key: 'isActive', title: 'Status', sortable: true, minWidth: '120px', render: (row) => (
+                <button
+                    onClick={() => toggleActiveStatus(row)}
+                    className={`w-10 h-5 rounded-full p-0.5 transition-colors duration-300 ease-in-out flex items-center ${
+                        row.isActive ? 'bg-green-500' : 'bg-gray-300'
+                    }`}
+                    title={row.isActive ? 'Active (Click to Deactivate)' : 'Inactive (Click to Activate)'}
+                >
+                    <span className={`block w-4 h-4 rounded-full bg-white shadow-md transform transition-transform duration-300 ease-in-out ${
+                        row.isActive ? 'translate-x-5' : 'translate-x-0'
+                    }`}/>
+                </button>
+            )
+        },
+        { key: 'lastLogin', title: 'Last Login', sortable: true, minWidth: '180px', render: (row) => row.lastLogin ? formatDateTime(row.lastLogin) : 'Never' },
+        { key: 'actions', title: 'Actions', minWidth: '100px', render: (row) => (
+                <DropdownMenu options={[
+                    { label: 'Edit', icon: FiEdit, onClick: () => setModalState({ type: 'edit', data: row }) },
+                    { 
+                        label: row.isActive ? 'Deactivate' : 'Activate', 
+                        icon: row.isActive ? FiToggleLeft : FiToggleRight, 
+                        onClick: () => toggleActiveStatus(row)
+                    },
+                    { label: 'Delete (Soft)', icon: FiTrash2, isDestructive: true, onClick: () => setDeleteDialog({ isOpen: true, user: row }) },
+                ]} />
             ),
         },
-    ], [toggleActiveStatus, setModalState, setDeleteDialog]);
+    ], [users, toggleActiveStatus]);
 
     return (
-        <div className="space-y-6">
-            <Card>
-                <div className="p-4 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <SearchInput value={filters.search} onChange={(e) => handleFilterChange('search', e.target.value)} onClear={() => handleFilterChange('search', '')} placeholder="Search by name or email..." className="w-full md:w-72" />
+        <div className="space-y-4">
+             {/* Header */}
+            <div className="flex justify-between items-center">
+                <h1 className="text-2xl font-bold text-gray-800">User Management</h1>
+                <Button variant="primary" icon={<FiPlus />} onClick={() => setModalState({ type: 'add', data: null })}>
+                    Add New User
+                </Button>
+            </div>
+            {/* Main Content Area */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                {/* Filters */}
+                <div className="p-4 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-gray-200">
+                    <SearchInput 
+                        value={filters.search} 
+                        onChange={(e) => handleFilterChange('search', e.target.value)} 
+                        onClear={() => handleFilterChange('search', '')} 
+                        placeholder="Search by name or email..." 
+                        className="w-full md:w-72" 
+                    />
                     <div className="flex items-center gap-4 flex-wrap">
                         <FilterDropdown label="Role" options={roleOptions} selectedValue={filters.role} onChange={(val) => handleFilterChange('role', val)} />
-                        <Button variant="primary" icon={<FiPlus size={20} />} onClick={() => setModalState({ type: 'add', data: null })}>Add</Button>
+                        <Button variant="outline" icon={<FiRefreshCw/>} onClick={() => fetchUsers(1)} title="Refresh Data"/>
                     </div>
                 </div>
+                {/* Table */}
+                <Table 
+                    columns={userColumns} 
+                    data={users} 
+                    isLoading={loading} 
+                    sortConfig={sortConfig} 
+                    onSort={handleSort} 
+                    emptyMessage="No users found."
+                />
+                {/* Pagination */}
+                {pagination && pagination.totalItems > 10 && (
+                    <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+                        <div>
+                            <p className="text-sm text-gray-700">
+                                Showing <span className="font-medium">{(pagination.currentPage - 1) * 10 + 1}</span> to <span className="font-medium">{Math.min(pagination.currentPage * 10, pagination.totalItems)}</span> of{' '}
+                                <span className="font-medium">{pagination.totalItems}</span> results
+                            </p>
+                        </div>
+                        <div className="space-x-2">
+                            <Button variant="outline" onClick={() => handlePageChange(pagination.currentPage - 1)} disabled={pagination.currentPage <= 1}><FiChevronLeft className="h-4 w-4"/></Button>
+                            <Button variant="outline" onClick={() => handlePageChange(pagination.currentPage + 1)} disabled={pagination.currentPage >= pagination.totalPages}><FiChevronRight className="h-4 w-4"/></Button>
+                        </div>
+                    </div>
+                )}
+            </div>
 
-                <Table columns={userColumns} data={users} isLoading={loading} pagination={pagination} onPageChange={handlePageChange} sortConfig={sortConfig} onSort={handleSort} emptyMessage="No users found." />
-            </Card>
-
+            {/* Modals */}
             {modalState.type && <UserFormModal isOpen={!!modalState.type} onClose={() => setModalState({ type: null, data: null })} onSuccess={handleModalSuccess} userData={modalState.data} />}
-            <ConfirmDialog isOpen={deleteDialog.isOpen} onClose={() => setDeleteDialog({ isOpen: false, user: null })} onConfirm={handleDelete} title="Deactivate User" message={`Are you sure you want to deactivate the user "${deleteDialog.user?.fullName}"?`} />
+            <ConfirmDialog 
+                isOpen={deleteDialog.isOpen} 
+                onClose={() => setDeleteDialog({ isOpen: false, user: null })} 
+                onConfirm={handleDelete} 
+                title="Deactivate User" 
+                message={`Are you sure you want to deactivate the user "${deleteDialog.user?.firstName} ${deleteDialog.user?.lastName}"? This can be undone later.`} 
+                confirmVariant="danger"
+            />
         </div>
     );
 };

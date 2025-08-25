@@ -1,19 +1,28 @@
 // client/src/components/admin/BookingFormModal.jsx
 import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import Modal from '@/components/common/Modal';
-import Button from '@/components/common/Button';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
-import StatusBadge from '@/components/common/StatusBadge';
-import { useAlert } from '@/hooks/useAlert';
-import { getInterviewers, createInterviewBooking, updateInterviewBooking } from '@/api/admin.api';
 import Select from 'react-select';
+
+import { getInterviewers, createInterviewBooking, updateInterviewBooking } from '@/api/admin.api';
+import { useAlert } from '@/hooks/useAlert';
+
+import Modal from '@/components/common/Modal';
+import Button from '@/components/common/Button';
+import Alert from '@/components/common/Alert';
+import StatusBadge from '@/components/common/StatusBadge';
 
 const BookingFormModal = ({ isOpen, onClose, onSuccess, bookingData = null }) => {
     const isEditMode = !!bookingData;
     const { showSuccess, showError } = useAlert();
-    const { control, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm();
+    const { 
+        control, 
+        handleSubmit, 
+        formState: { errors, isSubmitting }, 
+        reset 
+    } = useForm();
+    
     const [interviewerOptions, setInterviewerOptions] = useState([]);
     const [loadingInterviewers, setLoadingInterviewers] = useState(true);
     
@@ -47,7 +56,7 @@ const BookingFormModal = ({ isOpen, onClose, onSuccess, bookingData = null }) =>
     }, [isOpen, isEditMode, bookingData, showError, reset]);
 
     const formatOptionLabel = ({ label, status }) => (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="flex justify-between items-center">
             <span>{label}</span>
             {status && <StatusBadge status={status} />}
         </div>
@@ -73,62 +82,95 @@ const BookingFormModal = ({ isOpen, onClose, onSuccess, bookingData = null }) =>
         }
     };
     
+    // This style ensures the portaled menu appears above the modal's overlay.
+    const selectStyles = {
+        menuPortal: base => ({ ...base, zIndex: 9999 })
+    };
+    
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={isEditMode ? 'Edit Interview Booking' : 'Create New Interview Booking'} size="lg">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={isEditMode ? 'Edit Interview Booking' : 'Create New Interview Booking'}
+            size="lg"
+            footer={
+                <div className="flex justify-end gap-3">
+                    <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+                        Cancel
+                    </Button>
+                    <Button 
+                        type="submit" 
+                        form="booking-form" 
+                        variant="primary" 
+                        isLoading={isSubmitting || loadingInterviewers}
+                    >
+                        {isEditMode ? 'Save Changes' : 'Create Booking'}
+                    </Button>
+                </div>
+            }
+        >
+            <form id="booking-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                {/* Booking Date */}
                 <div>
-                    <label className="form-label">Booking Date</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="bookingDate">
+                        Booking Date <span className="text-red-500">*</span>
+                    </label>
                     <Controller
                         control={control}
+                        id="bookingDate"
                         name="bookingDate"
-                        rules={{ required: 'Date is required.' }}
+                        rules={{ required: 'Please select a booking date' }}
                         render={({ field }) => (
                             <DatePicker
-                                placeholderText="mm/dd/yyyy"
+                                placeholderText="Select a date"
                                 onChange={(date) => field.onChange(date)}
                                 selected={field.value}
-                                className="form-input" 
+                                className="form-input" // Using a common class from index.css
                                 minDate={new Date()}
+                                dateFormat="MMMM d, yyyy"
                             />
                         )}
                     />
                     {errors.bookingDate && <p className="form-error">{errors.bookingDate.message}</p>}
                 </div>
                 
+                {/* Interviewers Selection */}
                 <div>
-                    <label className="form-label">Select Interviewers</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="interviewers">
+                        Select Interviewers <span className="text-red-500">*</span>
+                    </label>
                     <Controller
                         name="interviewers"
+                        id="interviewers"
                         control={control}
-                        rules={{ required: 'Please select at least one interviewer.' }}
+                        rules={{
+                            required: 'Please select at least one interviewer',
+                            validate: value => (value && value.length > 0) || 'At least one interviewer must be selected'
+                        }}
                         render={({ field }) => (
                             <Select
                                 {...field}
                                 isMulti
                                 options={interviewerOptions}
                                 isLoading={loadingInterviewers}
-                                className="react-select-container"
-                                classNamePrefix="react-select"
-                                placeholder="Select interviewers..."
+                                placeholder="Choose one or more interviewers..."
                                 formatOptionLabel={formatOptionLabel}
-                                // *** FIX STARTS HERE ***
-                                // menuPortalTarget allows the dropdown menu to render outside the modal's overflow context.
+                                noOptionsMessage={() => "No active interviewers found"}
+                                // These props are the solution to display the menu outside the modal
                                 menuPortalTarget={document.body}
-                                // We apply styles to ensure the portalled menu appears correctly above the modal.
-                                styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
-                                // This ensures the positioning logic works correctly when portalled.
+                                styles={selectStyles}
                                 menuPosition={'fixed'}
-                                // *** FIX ENDS HERE ***
                             />
                         )}
                     />
                     {errors.interviewers && <p className="form-error">{errors.interviewers.message}</p>}
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4">
-                    <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-                    <Button type="submit" variant="primary" isLoading={isSubmitting}>{isEditMode ? 'Save Changes' : 'Create Booking'}</Button>
-                </div>
+                {/* Info Alert */}
+                <Alert
+                    type="info"
+                    message="Selected interviewers will be notified to provide their available time slots for the chosen date."
+                />
             </form>
         </Modal>
     );
