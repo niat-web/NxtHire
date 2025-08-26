@@ -1,9 +1,7 @@
 // client/src/pages/public/Home.jsx
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence, useInView, useScroll, useTransform } from 'framer-motion';
-import Modal from '../../components/common/Modal';
-import InitialApplicationForm from '../../components/forms/InitialApplicationForm';
+import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 
 // Animated background component
 const AnimatedBackground = () => {
@@ -374,7 +372,7 @@ const HeroSection = ({ onApplyNowClick }) => {
       <div className="relative z-10 bg-slate-950">
         <CompaniesSection />
         <BenefitsSection />
-        <CTASection />
+        <CTASection onApplyNowClick={onApplyNowClick} />
       </div>
     </>
   );
@@ -560,37 +558,15 @@ const CTASection = ({ onApplyNowClick }) => {
 
 // Main Home Page Component
 const Home = () => {
-  const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
-  const location = useLocation();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (location.hash === '#apply') {
-      setIsApplicationModalOpen(true);
-      navigate(location.pathname, { replace: true });
-    }
-  }, [location, navigate]);
-
-  const handleApplyNowClick = () => setIsApplicationModalOpen(true);
-  const handleCloseModal = () => setIsApplicationModalOpen(false);
+  const handleApplyNowClick = () => navigate('/applicationform');
   
   return (
     <div className="text-slate-200 font-sans antialiased">      
       <main>
         <HeroSection onApplyNowClick={handleApplyNowClick} />
       </main>
-      
-      <Modal
-        isOpen={isApplicationModalOpen}
-        onClose={handleCloseModal}
-        title="Apply to Become a NxtWave Interviewer"
-        size="2xl"
-      >
-        <p className="text-gray-600 mb-6">
-          Thank you for your interest. Please fill out the form below to start your application.
-        </p>
-        <InitialApplicationForm onSuccess={handleCloseModal} />
-      </Modal>
       
       {/* Global styles */}
       <style jsx global>{`
