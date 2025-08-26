@@ -1,13 +1,20 @@
 // client/src/utils/formatters.js
   // Date formatting
   export const formatDate = (dateString) => {
+    // Return empty if the input is falsy (null, undefined, '')
     if (!dateString) return '';
     
     const date = new Date(dateString);
+    // Check if the created date is valid
+    if (isNaN(date.getTime())) {
+      return 'Invalid Date';
+    }
+    
     return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
+      timeZone: 'UTC' // Add this to prevent timezone shifts
     }).format(date);
   };
   
