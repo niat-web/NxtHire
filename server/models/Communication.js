@@ -10,7 +10,7 @@ const CommunicationSchema = new mongoose.Schema({
   recipientModel: {
     type: String,
     required: true,
-    enum: ['Applicant', 'Interviewer']
+    enum: ['Applicant', 'Interviewer', 'PublicBooking', 'Custom', 'User']
   },
   recipientEmail: {
     type: String,
@@ -55,6 +55,11 @@ const CommunicationSchema = new mongoose.Schema({
       'Password Reset',
       'Interview Reminder',
       'System Notification',
+      'Student Booking',
+      'Student Booking Reminder',
+      'Payment Request',
+      'Payment Invoice',
+      'Payment Received Confirmation',
       'Other'
     ],
     required: true
