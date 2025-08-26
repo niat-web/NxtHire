@@ -68,7 +68,7 @@ const StudentBookingSchema = new mongoose.Schema({
     },
     // Changed to String to store in MM/DD/YYYY format
     bookingDate: {
-        type: String,
+        type: Date,
         required: true
     },
     hostEmail: {
