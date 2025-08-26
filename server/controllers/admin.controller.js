@@ -1750,21 +1750,40 @@ const generateMeetLink = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const booking = await StudentBooking.findById(id).populate({ path: 'bookedInterviewer', populate: { path: 'user', select: 'email' }});
     if (!booking) { res.status(404); throw new Error('Booking not found.'); }
+
     const { studentEmail, interviewerEmail, hostEmail, eventTitle, bookingDate, bookedSlot } = booking;
     const attendees = [studentEmail, interviewerEmail, hostEmail].filter(Boolean);
     if (attendees.length < 2) { res.status(400); throw new Error('At least two attendees (student, interviewer, or host) must have a valid email.'); }
-    const dateParts = booking.bookingDate.split('/');
-    const formattedDate = `${dateParts[2]}-${dateParts[0].padStart(2, '0')}-${dateParts[1].padStart(2, '0')}`;
+
+    // --- THIS IS THE CORRECTED CODE BLOCK ---
+    const date = new Date(bookingDate);
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    const formattedDate = `${year}-${month}-${day}`;
+    // --- END CORRECTION ---
+
     const startDateTime = `${formattedDate}T${bookedSlot.startTime}:00`;
     const endDateTime = `${formattedDate}T${bookedSlot.endTime}:00`;
-    const eventData = { summary: eventTitle || `Technical Interview: ${booking.studentName}`, description: `Interview for ${booking.studentName} with our technical interviewer.`, start: { dateTime: startDateTime }, end: { dateTime: endDateTime }, attendees, };
+
+    const eventData = { 
+        summary: eventTitle || `Technical Interview: ${booking.studentName}`, 
+        description: `Interview for ${booking.studentName} with our technical interviewer.`, 
+        start: { dateTime: startDateTime }, 
+        end: { dateTime: endDateTime }, 
+        attendees, 
+    };
+
     const googleEvent = await createCalendarEvent(eventData);
+
     booking.meetLink = googleEvent.hangoutLink;
     await booking.save();
+
     if (booking.interviewId && googleEvent.hangoutLink) {
         await MainSheetEntry.findOneAndUpdate( { interviewId: booking.interviewId }, { $set: { meetingLink: googleEvent.hangoutLink, updatedBy: req.user._id } } );
         logEvent('main_sheet_meetlink_synced', { studentBookingId: booking._id, interviewId: booking.interviewId, adminId: req.user._id });
     }
+
     res.json({ success: true, data: booking });
 });
 
