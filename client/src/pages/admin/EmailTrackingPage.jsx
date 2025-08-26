@@ -263,7 +263,7 @@ const EmailTrackingPage = () => {
     return (
         <div className="space-y-4">
              <div className="flex justify-between items-center">
-                <Link to="/admin/student-bookings" className="text-blue-600 hover:text-blue-700 flex items-center font-medium">
+                <Link to="/admin/bookings/student-bookings" className="text-blue-600 hover:text-blue-700 flex items-center font-medium">
                     <FiArrowLeft className="mr-2"/> Back to Student Bookings
                 </Link>
                 <LocalButton
