@@ -93,14 +93,10 @@ const Navbar = () => {
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
               >
                 <Link 
-                  to="/#apply"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate('/#apply');
-                  }}
+                  to="/applicationform"
                   className="relative inline-flex items-center justify-center overflow-hidden rounded-full py-3 px-7 text-sm font-medium text-white shadow-lg transition-all duration-300"
                 >
-                  <span className="absolute inset-0 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600"></span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-700"></span>
                   <span className="absolute inset-0 opacity-0 hover:opacity-100 bg-gradient-to-r from-purple-700 via-indigo-700 to-blue-700 transition-opacity duration-300"></span>
                   <span className="relative flex items-center">
                     Apply Now
@@ -169,18 +165,15 @@ const Navbar = () => {
               {currentUser ? (
                 <Link 
                   to={getProfileLink()} 
-                  onClick={() => setIsMenuOpen(false)} 
+                  onClick={() => setIsMenuOpen(false)}
                   className="block text-center py-3 px-4 rounded-lg text-white font-medium bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all"
                 >
                   Go to Dashboard
                 </Link>
               ) : (
-                <Link 
-                  to="/#apply" 
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    navigate('/#apply');
-                  }} 
+                <Link
+                  to="/applicationform"
+                  onClick={() => setIsMenuOpen(false)}
                   className="block text-center py-3 px-4 rounded-lg text-white font-medium bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all"
                 >
                   Apply Now
