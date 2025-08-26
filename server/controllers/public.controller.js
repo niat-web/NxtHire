@@ -128,7 +128,7 @@ const bookSlot = asyncHandler(async (req, res) => {
             bookedInterviewer: interviewerId,
             interviewerEmail: interviewerSlot.interviewer.user.email,
             bookedSlot: { startTime: slot.startTime, endTime: slot.endTime },
-            bookingDate: new Date(interviewerSlot.date).toLocaleDateString('en-US'),
+            bookingDate: interviewerSlot.date,
             eventTitle: finalEventTitle,
         });
         
