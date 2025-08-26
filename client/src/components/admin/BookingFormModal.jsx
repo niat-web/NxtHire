@@ -63,8 +63,13 @@ const BookingFormModal = ({ isOpen, onClose, onSuccess, bookingData = null }) =>
     );
     
     const onSubmit = async (data) => {
+        // --- ADD THIS LINE ---
+        const localDate = new Date(data.bookingDate);
+        const utcDate = new Date(Date.UTC(localDate.getFullYear(), localDate.getMonth(), localDate.getDate()));
+    
         const payload = {
-            bookingDate: data.bookingDate,
+            // --- CHANGE THIS LINE ---
+            bookingDate: utcDate, 
             interviewerIds: data.interviewers.map(i => i.value)
         };
 
