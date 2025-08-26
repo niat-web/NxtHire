@@ -136,7 +136,7 @@ const BookingSlots = () => {
             const payload = { selectedSlots: Object.values(selectedSlots) };
             await createPublicBookingLink(payload);
             showSuccess('Public booking link created! Redirecting...');
-            navigate('/admin/student-bookings');
+            navigate('/admin/bookings/student-bookings');
         } catch (error) {
             showError("Failed to create public link. Please try again.");
         } finally {
