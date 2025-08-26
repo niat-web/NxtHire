@@ -112,6 +112,7 @@ function App() {
                 <Route path="interviewer-bookings" element={<InterviewBookings />} />
                 <Route path="booking-slots" element={<BookingSlots />} />
                 <Route path="student-bookings" element={<StudentBookings />} />
+                <Route path="public-bookings/:id/tracking" element={<EmailTrackingPage />} />
                 <Route path="confirmed-slots" element={<ConfirmedSlots />} />
             </Route>
         </Route>
