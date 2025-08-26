@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
-import { FiEye, FiInfo, FiSend, FiInbox, FiLink, FiUsers, FiUpload, FiClipboard, FiCheckCircle, FiAlertTriangle, FiX } from 'react-icons/fi';
+import { FiEye, FiInfo, FiSend, FiInbox, FiLink, FiUsers, FiUpload, FiClipboard, FiCheckCircle, FiAlertTriangle, FiX, FiTrash2 } from 'react-icons/fi';
 import { getPublicBookings, updatePublicBookingLink } from '@/api/admin.api';
 import { useAlert } from '@/hooks/useAlert';
 import { formatDateTime } from '@/utils/formatters';
