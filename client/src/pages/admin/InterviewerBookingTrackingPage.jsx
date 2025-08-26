@@ -60,9 +60,9 @@ const InterviewerBookingTrackingPage = () => {
     }
 
     return (
-        <div className="space-y-4 p-6">
+        <div className="space-y-4">
             <div className="flex items-center">
-                <Link to="/admin/interview-bookings" className="text-primary-600 hover:text-primary-800 flex items-center font-medium">
+                <Link to="/admin/bookings/interviewer-bookings" className="text-primary-600 hover:text-primary-800 flex items-center font-medium">
                     <FiArrowLeft className="mr-2"/> Back to Bookings
                 </Link>
             </div>
