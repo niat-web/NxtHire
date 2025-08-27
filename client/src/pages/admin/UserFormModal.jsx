@@ -6,6 +6,7 @@ import Select from '../../components/common/Select';
 import Button from '../../components/common/Button';
 import { useAlert } from '../../hooks/useAlert';
 import { createUser, updateUser } from '../../api/admin.api';
+import { FiEye, FiEyeOff } from 'react-icons/fi'; // Import icons
 
 const UserFormModal = ({ isOpen, onClose, onSuccess, userData }) => {
     const isEditMode = !!userData;
@@ -21,6 +22,8 @@ const UserFormModal = ({ isOpen, onClose, onSuccess, userData }) => {
       { value: 'admin', label: 'Admin' },
       { value: 'interviewer', label: 'Interviewer' },
     ]);
+
+    const [showPassword, setShowPassword] = useState(false); // State for password visibility
     
     useEffect(() => {
         if (isEditMode && userData) {
@@ -53,10 +56,30 @@ const UserFormModal = ({ isOpen, onClose, onSuccess, userData }) => {
                     <Input label="Last Name" {...register('lastName', { required: 'Last name is required' })} error={errors.lastName?.message} />
                  </div>
                  <Input label="Email" type="email" {...register('email', { required: 'Email is required' })} error={errors.email?.message} />
-                 {/* *** FIX STARTS HERE *** */}
                  <Input label="Phone Number" {...register('phoneNumber', { required: 'Phone number is required' })} error={errors.phoneNumber?.message} required />
-                 {/* *** FIX ENDS HERE *** */}
-                 {!isEditMode && <Input label="Password" type="password" {...register('password', { required: 'Password is required' })} error={errors.password?.message} />}
+                 
+                 {!isEditMode && (
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="password">Password</label>
+                        <div className="relative">
+                            <input
+                                id="password"
+                                type={showPassword ? 'text' : 'password'}
+                                {...register('password', { required: 'Password is required' })}
+                                className={`w-full px-3 py-2 pr-10 border ${errors.password ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500`}
+                            />
+                            <button
+                                type="button"
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <FiEyeOff /> : <FiEye />}
+                            </button>
+                        </div>
+                        {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
+                    </div>
+                )}
+                 
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Select label="Role" {...register('role')} options={roleOptions} />
                     <div className="flex items-center pt-6">
