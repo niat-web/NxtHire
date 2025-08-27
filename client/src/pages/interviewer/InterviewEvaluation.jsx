@@ -139,7 +139,6 @@ const InterviewDetailsModal = ({ isOpen, onClose, interview, onStatusChange }) =
   );
 };
 
-// --- NEW: Header section with Schedule Management title and filters ---
 const PageHeader = ({ filters, setFilters, domains, onRefresh }) => {
   const statusOptions = MAIN_SHEET_INTERVIEW_STATUSES;
   
@@ -220,7 +219,6 @@ const PageHeader = ({ filters, setFilters, domains, onRefresh }) => {
   );
 };
 
-// --- NEW: Sub-header with week navigation and legend ---
 const SubHeader = ({ currentWeekStart, onPrevWeek, onNextWeek, onTodayClick }) => {
   const start = currentWeekStart;
   const end = endOfWeek(start);
@@ -275,52 +273,52 @@ const SubHeader = ({ currentWeekStart, onPrevWeek, onNextWeek, onTodayClick }) =
 
 const InterviewCard = React.memo(({ interview, position, onEventClick }) => {
   const statusColors = {
-    'Completed': { bg: 'bg-green-100', border: 'border-l-4 border-green-500', text: 'text-green-800' },
-    'Scheduled': { bg: 'bg-indigo-100', border: 'border-l-4 border-indigo-500', text: 'text-indigo-800' },
-    'InProgress': { bg: 'bg-blue-100', border: 'border-l-4 border-blue-500', text: 'text-blue-800' },
-    'Cancelled': { bg: 'bg-red-100', border: 'border-l-4 border-red-500', text: 'text-red-800' },
+    'Completed': 'bg-green-500',
+    'Scheduled': 'bg-indigo-500',
+    'InProgress': 'bg-blue-500',
+    'Cancelled': 'bg-red-500',
   };
   
-  const style = { 
-    left: `${position.left}%`, 
-    top: `${position.top}px`, 
-    width: `${position.width}%`, 
-    height: `${position.height}px` 
+  const statusStyle = statusColors[interview.interviewStatus] || 'bg-gray-500';
+  
+  // Helper to format time strings
+  const formatTimeForDisplay = (timeStr) => {
+    if (!timeStr) return '';
+    const [hour, minute] = timeStr.split(':').map(Number);
+    return new Date(1970, 0, 1, hour, minute).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
   };
   
-  const statusStyle = statusColors[interview.interviewStatus] || { 
-    bg: 'bg-gray-100', 
-    border: 'border-l-4 border-gray-500', 
-    text: 'text-gray-800' 
-  };
+  const [startTimeStr, endTimeStr] = (interview.interviewTime || '').split('-').map(t => t.trim());
+  const displayTime = `${formatTimeForDisplay(startTimeStr)} - ${formatTimeForDisplay(endTimeStr)}`;
   
   return (
     <button 
       onClick={() => onEventClick(interview)} 
-      className={`absolute p-2 text-left rounded-lg shadow-sm transition-all duration-200 transform hover:scale-[1.02] hover:shadow-lg hover:z-20 ${statusStyle.bg} ${statusStyle.border}`} 
-      style={style}
-      title={`${interview.candidateName} - ${interview.techStack} - ${interview.interviewTime}`}
+      className="absolute p-2.5 text-left rounded-lg bg-white shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 group overflow-hidden" 
+      style={{ left: `${position.left}%`, top: `${position.top}px`, width: `${position.width}%`, height: `${position.height}px` }}
+      title={`${interview.candidateName} - ${displayTime}`}
     >
-      <p className={`font-bold text-xs truncate ${statusStyle.text}`}>
+      <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${statusStyle}`}></div>
+      <p className="font-bold text-xs text-gray-800 truncate pl-2">
         {interview.candidateName}
       </p>
-      <p className={`text-[11px] text-gray-600 truncate`}>
+      <p className="text-[11px] text-gray-600 truncate pl-2">
         {interview.techStack}
       </p>
-      <p className={`text-[10px] text-gray-500 mt-1`}>
-        {interview.interviewTime}
+      <p className="text-[10px] text-gray-500 mt-1 pl-2">
+        {displayTime}
       </p>
     </button>
   );
 });
 
 const CalendarGrid = ({ weekDays, scheduledInterviews, onEventClick }) => {
-  const hours = Array.from({ length: 11 }, (_, i) => i + 8); // 8 AM to 6 PM
+  const hours = Array.from({ length: 15 }, (_, i) => i + 8); // 8 AM to 10 PM
   
   return (
     <div className="flex-grow overflow-auto relative bg-white rounded-xl shadow-md border border-gray-200">
       <div className="grid grid-cols-[100px_1fr] h-full" style={{minWidth: '1000px'}}>
-        <div className="grid grid-rows-[3.5rem_repeat(11,_5rem)]">
+        <div className={`grid grid-rows-[3.5rem_repeat(${hours.length},_5rem)]`}>
           <div className="sticky top-0 bg-white z-10 p-2 text-center text-sm font-semibold border-b border-r border-gray-200 flex items-center justify-center">
             Time
           </div>
@@ -388,6 +386,27 @@ const InterviewEvaluation = () => {
   const [selectedInterview, setSelectedInterview] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+
+  // Helper function to parse time from various formats
+  const parseTime = (timeStr) => {
+    if (!timeStr) return { hour: 0, minute: 0 };
+    const cleaned = timeStr.trim().toUpperCase();
+    let hour, minute;
+    if (cleaned.includes('AM') || cleaned.includes('PM')) {
+        const period = cleaned.includes('PM') ? 'PM' : 'AM';
+        const [timePart] = cleaned.split(period);
+        const [h, m] = timePart.trim().split(':');
+        hour = parseInt(h, 10);
+        minute = m ? parseInt(m, 10) : 0;
+        if (period === 'PM' && hour !== 12) hour += 12;
+        if (period === 'AM' && hour === 12) hour = 0;
+    } else {
+        const [h, m] = cleaned.split(':');
+        hour = parseInt(h, 10);
+        minute = m ? parseInt(m, 10) : 0;
+    }
+    return { hour, minute };
+  };
   
   const fetchInterviews = useCallback(async () => { 
     setLoading(true); 
@@ -427,7 +446,7 @@ const InterviewEvaluation = () => {
   const scheduledInterviews = useMemo(() => {
     const weekStart = currentWeekStart; 
     const weekEnd = endOfWeek(weekStart, { weekStartsOn: 0 }); 
-    const hourHeight = 80; // 5rem
+    const hourHeight = 80; // 5rem corresponds to 80px
     
     const filtered = allInterviews.filter(item => {
       if (!item.interviewDate) return false; 
@@ -444,12 +463,9 @@ const InterviewEvaluation = () => {
       const interviewDate = new Date(interview.interviewDate); 
       const dayOfWeek = getDay(interviewDate);
       
-      const [startHourStr, startMinuteStr] = interview.interviewTime.split(' ')[0].split(':');
-      let startHour = parseInt(startHourStr, 10);
-      if(interview.interviewTime.includes('PM') && startHour !== 12) startHour += 12;
-      if(interview.interviewTime.includes('AM') && startHour === 12) startHour = 0;
-      
-      const startMinute = parseInt(startMinuteStr, 10);
+      const startTimeStr = (interview.interviewTime || '00:00').split('-')[0].trim();
+      const { hour: startHour, minute: startMinute } = parseTime(startTimeStr);
+
       let durationMinutes = 60;
       if (interview.interviewDuration && interview.interviewDuration.includes('mins')) { 
         durationMinutes = parseInt(interview.interviewDuration.replace(' mins', ''));
@@ -463,7 +479,7 @@ const InterviewEvaluation = () => {
         interview, 
         position: { 
           top: topOffset, 
-          height: eventHeight - 4, 
+          height: eventHeight - 4, // 4px padding
           left: dayOfWeek * columnWidth + 0.5, 
           width: columnWidth - 1 
         } 
