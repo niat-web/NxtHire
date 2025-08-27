@@ -1607,6 +1607,24 @@ const updatePublicBooking = asyncHandler(async (req, res) => {
             const sequenceNumber = await getNextSequenceValue('interviewId');
             student.interviewId = `INT-${String(sequenceNumber).padStart(4, '0')}`;
         }
+        const entriesToCreate = newStudents.map(student => ({
+            hiringName: student.hiringName,
+            techStack: student.domain,
+            interviewId: student.interviewId,
+            uid: student.userId,
+            candidateName: student.fullName,
+            mobileNumber: student.mobileNumber,
+            mailId: student.email,
+            candidateResume: student.resumeLink,
+            createdBy: req.user._id,
+            updatedBy: req.user._id,
+            // The interviewStatus will automatically default to 'Pending Student Booking'
+        }));
+    
+        if (entriesToCreate.length > 0) {
+            await MainSheetEntry.insertMany(entriesToCreate);
+            logEvent('main_sheet_entries_pre_created', { count: entriesToCreate.length, adminId: req.user._id });
+        }
         publicBooking.allowedStudents.push(...newStudents);
         
         for (const student of newStudents) {
