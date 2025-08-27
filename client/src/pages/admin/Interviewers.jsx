@@ -76,12 +76,7 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, title, instructions, re
             <div className="relative w-full max-w-4xl bg-white rounded-lg shadow-xl flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                 <div className="p-4 border-b"><h3 className="text-lg font-semibold text-gray-800">{title}</h3></div>
                 <div className="p-6 flex-grow overflow-y-auto space-y-4">
-                    <div className="p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-800 text-sm">
-                        <h4 className="font-bold mb-2">Instructions</h4>
-                        <ul className="list-disc list-inside space-y-1">
-                            {instructions.map((inst, i) => <li key={i}>{inst}</li>)}
-                        </ul>
-                    </div>
+                    
                     <div className="flex items-center gap-4">
                         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
                         {error && <p className="text-red-600 text-sm font-semibold">{error}</p>}
