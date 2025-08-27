@@ -160,7 +160,20 @@ const bookSlot = asyncHandler(async (req, res) => {
             createdBy: bookingPage.createdBy,
             updatedBy: bookingPage.createdBy
         };
-        await MainSheetEntry.create([mainSheetEntryData], { session });
+        await MainSheetEntry.findOneAndUpdate(
+            { interviewId: newStudentBooking.interviewId },
+            {
+                $set: {
+                    interviewDate: interviewerSlot.date,
+                    interviewTime: `${newStudentBooking.bookedSlot.startTime} - ${newStudentBooking.bookedSlot.endTime}`,
+                    interviewDuration: `${duration} mins`,
+                    interviewStatus: 'Scheduled',
+                    interviewer: newStudentBooking.bookedInterviewer,
+                    updatedBy: bookingPage.createdBy,
+                }
+            },
+            { session } // This ensures the update is part of the transaction
+        );
         
         await session.commitTransaction();
         session.endSession();
