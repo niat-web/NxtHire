@@ -210,12 +210,13 @@ const CalendarGrid = ({ weekDays, scheduledInterviews, onEventClick }) => {
           {/* Day Headers */}
           {weekDays.map(day => (
             <div 
-              key={day.toString()} 
-              className={`sticky top-0 p-2 text-center text-sm font-medium border-b border-l border-slate-200 ${isToday(day) ? 'bg-indigo-50' : 'bg-slate-50'} z-20`}
-            >
-              <span className="text-slate-500 font-semibold">{formatDateFns(day, 'ccc')}</span> <br />
-              <span className={`text-xl font-bold ${isToday(day) ? 'text-indigo-700' : 'text-slate-700'}`}>{formatDateFns(day, 'd')}</span>
-            </div>
+            key={day.toString()} 
+            className={`sticky top-0 p-2 text-center text-sm font-medium border-b border-l border-slate-200 ${isToday(day) ? 'bg-indigo-50' : 'bg-slate-50'} z-20`}
+          >
+            <span className={`font-bold ${isToday(day) ? 'text-indigo-700' : 'text-slate-700'}`}>
+              {formatDateFns(day, 'ccc d')}
+            </span>
+          </div>
           ))}
           
           {/* Time Labels and Grid Cells */}
