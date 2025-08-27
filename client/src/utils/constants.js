@@ -108,6 +108,7 @@ export const MAIN_SHEET_TECH_STACKS = [
 
 // *** NEW: Interview Status options for Main Sheet ***
 export const MAIN_SHEET_INTERVIEW_STATUSES = [
+  { value: 'Pending Student Booking', label: 'Pending Student Booking' },
   { value: 'Completed', label: 'Completed' },
   { value: 'Scheduled', label: 'Scheduled' },
   { value: 'InProgress', label: 'In Progress' },
