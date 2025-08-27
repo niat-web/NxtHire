@@ -679,7 +679,8 @@ const getPaymentRequests = asyncHandler(async (req, res) => {
         matchStage.interviewDate = { $gte: new Date(startDate), $lte: new Date(endDate) };
     }
     
-    const monthYearForLookup = startDate ? new Date(startDate).toLocaleString('en-US', { month: 'long', year: 'numeric' }) : null;
+    // --- THIS IS THE OLD, BUGGY PART ---
+    // const monthYearForLookup = startDate ? new Date(startDate).toLocaleString('en-US', { month: 'long', year: 'numeric' }) : null;
 
     const pipeline = [
         { $match: matchStage },
@@ -700,16 +701,24 @@ const getPaymentRequests = asyncHandler(async (req, res) => {
             totalAmount: { $sum: '$paymentAmountNum' }
         }},
         {
+            // --- FIX STARTS HERE ---
             $lookup: {
                 from: 'paymentconfirmations',
-                let: { interviewerId: '$_id' },
+                let: {
+                    interviewerId: '$_id',
+                    // Pass the exact date objects to the sub-pipeline
+                    periodStart: new Date(startDate), 
+                    periodEnd: new Date(endDate)
+                },
                 pipeline: [
                     {
                         $match: {
                             $expr: {
                                 $and: [
                                     { $eq: ["$interviewer", "$$interviewerId"] },
-                                    { $eq: ["$monthYear", monthYearForLookup] }
+                                    // Match on the exact dates, not the formatted month string
+                                    { $eq: ["$startDate", "$$periodStart"] },
+                                    { $eq: ["$endDate", "$$periodEnd"] }
                                 ]
                             }
                         }
@@ -719,6 +728,7 @@ const getPaymentRequests = asyncHandler(async (req, res) => {
                 ],
                 as: 'confirmation'
             }
+            // --- FIX ENDS HERE ---
         },
         { $unwind: { path: '$confirmation', preserveNullAndEmptyArrays: true } },
         {
