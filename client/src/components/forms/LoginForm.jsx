@@ -3,12 +3,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../../hooks/useAuth';
+import { FiEye, FiEyeOff } from 'react-icons/fi'; // Import icons
 
 const LoginForm = () => {
   const navigate = useNavigate();
   const { login, error: authError } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State for password visibility
   
   const { 
     register, 
@@ -108,18 +110,25 @@ const LoginForm = () => {
               </div>
               <input
                 id="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
                 {...register('password', { 
                     required: 'Password is required'
                 })}
                 placeholder="Enter your password"
-                className={`block w-full pl-10 pr-3 py-3 border-2 ${
+                className={`block w-full pl-10 pr-10 py-3 border-2 ${
                   errors.password 
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
                     : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500'
                 } placeholder-slate-500 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-opacity-50 text-sm font-medium transition-all duration-200 bg-slate-50/50 hover:bg-white focus:bg-white shadow-sm`}
               />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FiEyeOff className="h-5 w-5"/> : <FiEye className="h-5 w-5"/>}
+              </button>
             </div>
             {errors.password && (
               <p className="mt-2 text-sm text-red-600 flex items-center">
@@ -146,8 +155,6 @@ const LoginForm = () => {
               Remember me
             </label>
           </div>
-          
-
         </div>
         
         <button
