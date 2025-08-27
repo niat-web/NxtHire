@@ -21,8 +21,8 @@ const MainSheetEntrySchema = new mongoose.Schema({
     interviewDuration: { type: String, trim: true, default: '' },
     interviewStatus: {
         type: String,
-        enum: ['Completed', 'Scheduled', 'InProgress', 'Cancelled', ''],
-        default: 'Scheduled'
+        enum: ['Completed', 'Scheduled', 'InProgress', 'Cancelled', 'Pending Student Booking', ''],
+        default: 'Pending Student Booking' // <-- Changed default
     },
     remarks: { type: String, trim: true, default: '' },
     interviewerRemarks: { type: String, trim: true, default: '' },
