@@ -329,7 +329,8 @@ const MainSheet = () => {
     };
     
     const handleInterviewerChange = async (entryId, newInterviewerId) => {
-        await handleCellSave(entryId, 'interviewer', newInterviewerId);
+        const valueToSend = newInterviewerId === '' ? null : newInterviewerId;
+        await handleCellSave(entryId, 'interviewer', valueToSend);
         const selectedInterviewer = interviewerOptions.find(opt => opt.value === newInterviewerId);
         setEntries(current => current.map(e => e._id === entryId ? { ...e, interviewer: selectedInterviewer ? { _id: selectedInterviewer.value, user: { firstName: selectedInterviewer.label.split(' ')[0], lastName: selectedInterviewer.label.split(' ').slice(1).join(' '), email: selectedInterviewer.email }} : null } : e));
     };
@@ -371,7 +372,7 @@ const MainSheet = () => {
         { key: 'interviewStatus', title: 'Status', minWidth: '150px', render: (row) => { const statusColors = {'Completed': 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200','Scheduled': 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200','InProgress': 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200','Cancelled': 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200' }; return (<select value={row.interviewStatus || ''} onChange={(e) => handleStatusChange(row._id, e.target.value)} disabled={updatingId === row._id} className={`w-full text-xs font-semibold px-2 py-1.5 border rounded-md shadow-sm focus:outline-none focus:ring-1 transition-colors cursor-pointer ${statusColors[row.interviewStatus] || 'bg-gray-100'}`} onClick={(e) => e.stopPropagation()}><option value="" disabled>Select Status</option>{MAIN_SHEET_INTERVIEW_STATUSES.map(status => (<option key={status.value} value={status.value}>{status.label}</option>))}</select>); } },
         { key: 'remarks', title: 'Remarks', minWidth: '200px' },
         { key: 'interviewerName', title: 'Interviewer', minWidth: '180px', render: (row) => (<select value={row.interviewer?._id || ''} onChange={(e) => handleInterviewerChange(row._id, e.target.value)} disabled={updatingId === row._id} className="w-full p-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors" onClick={(e) => e.stopPropagation()}><option value="">Unassigned</option>{interviewerOptions.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select>) },
-        { key: 'interviewerMail', title: "Interviewer Mail", minWidth: '200px', render: (row) => row.interviewer?.user?.email || 'N/A' },
+        { key: 'interviewerMail', title: "Interviewer Mail", minWidth: '200px', render: (row) => row.interviewer?.user?.email || '' },
         { key: 'actions', title: 'Actions', minWidth: '60px', render: (row) => (<LocalDropdownMenu options={[{ label: 'Edit', icon: FiEdit, onClick: () => navigate(`/admin/main-sheet/edit/${row._id}`) }, { label: 'Delete', icon: FiTrash2, isDestructive: true, onClick: () => handleDeleteRequest(row) },]}/>)}
     ], [navigate, handleDeleteRequest, handleStatusChange, handleInterviewerChange, updatingId, interviewerOptions, hiringNamesOptions, handleCellSave, domainOptions]);
     
