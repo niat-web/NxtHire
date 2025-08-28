@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/common/Sidebar';
-import { FiHome, FiUserCheck, FiMenu, FiShield, FiCalendar, FiGrid, FiSettings, FiClipboard, FiMail } from 'react-icons/fi';
-import { useAuth } from '../hooks/useAuth';
+import { FiHome, FiUserCheck, FiMenu, FiShield, FiCalendar, FiGrid, FiSettings, FiClipboard, FiMail, FiBarChart2 } from 'react-icons/fi';import { useAuth } from '../hooks/useAuth';
 import { getDashboardStats } from '../api/admin.api';
 
 const AdminLayout = () => {
@@ -40,6 +39,7 @@ const AdminLayout = () => {
     { label: 'Custom Email', path: '/admin/custom-email', icon: <FiMail className="w-5 h-5" /> },
     { label: 'Evaluation Setup', path: '/admin/evaluation-setup', icon: <FiSettings className="w-5 h-5" /> },
     { label: 'Domain Evaluation', path: '/admin/domain-evaluation', icon: <FiClipboard className="w-5 h-5" /> },
+    { label: 'Earnings Report', path: '/admin/earnings-report', icon: <FiBarChart2 className="w-5 h-5" /> },
   ];
 
   const adminNavItemsWithCounts = useMemo(() => {
