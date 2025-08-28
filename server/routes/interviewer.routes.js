@@ -21,7 +21,8 @@ const {
   getEvaluationDataForInterviewer,
   updateEvaluationData,
   getPaymentHistory,
-  subscribeToPushNotifications // NEW
+  subscribeToPushNotifications, // NEW
+  getInterviewerEvaluationSummary // NEW
   // --- MODIFICATION END ---
 } = require('../controllers/interviewer.controller');
 const { protect, interviewerOnly } = require('../middleware/auth.middleware');
@@ -41,6 +42,7 @@ router.put('/assigned-interviews/:id/status', updateAssignedInterviewStatus);
 
 // --- MODIFICATION START: New routes for the "Domain Evaluation" page ---
 router.get('/assigned-domains', getAssignedDomains);
+router.get('/evaluation-summary', getInterviewerEvaluationSummary);
 router.get('/evaluation-data', getEvaluationDataForInterviewer);
 router.put('/evaluation-data/:id', updateEvaluationData);
 // --- MODIFICATION END ---
