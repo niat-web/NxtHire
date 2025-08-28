@@ -97,6 +97,14 @@ export const deleteUser = (id) => {
 export const getDashboardStats = (params) => {
     return api.get('/api/admin/stats/dashboard', { params });
 };
+// --- FIX START: Add new API functions ---
+export const getDashboardAnalytics = (params) => {
+  return api.get('/api/admin/stats/analytics', { params });
+};
+export const getLatestInterviewDate = () => {
+    return api.get('/api/admin/stats/latest-interview-date');
+};
+// --- FIX END ---
 export const getPayoutSheet = (params) => {
     return api.get('/api/admin/earnings-report', { params });
 };
