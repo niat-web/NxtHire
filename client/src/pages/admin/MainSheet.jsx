@@ -2,7 +2,10 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import CreatableSelect from 'react-select/creatable'; 
-import { FiDownload, FiPlus, FiEdit, FiTrash2, FiMoreVertical, FiSearch, FiInbox, FiAlertTriangle, FiChevronLeft, FiChevronRight, FiRefreshCw, FiUpload } from 'react-icons/fi';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
+import { format } from 'date-fns'; // --- FIX: Import the 'format' function ---
+import { FiDownload, FiPlus, FiEdit, FiTrash2, FiMoreVertical, FiSearch, FiInbox, FiAlertTriangle, FiChevronLeft, FiChevronRight, FiRefreshCw, FiUpload, FiFilter, FiX } from 'react-icons/fi';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { getMainSheetEntries, deleteMainSheetEntry, getInterviewers, bulkUpdateMainSheetEntries, getUniqueHiringNames, getDomains, refreshRecordingLinks, bulkUploadMainSheetEntries as bulkUpload } from '@/api/admin.api'; 
@@ -227,7 +230,15 @@ const MainSheet = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [entries, setEntries] = useState([]);
+    
+    // --- State management for new filters ---
     const [search, setSearch] = useState('');
+    const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
+    const [tempFilters, setTempFilters] = useState({ interviewDate: null, interviewStatus: '' });
+    const [activeFilters, setActiveFilters] = useState({ interviewDate: null, interviewStatus: '' });
+    // --- Ref for the filter menu to detect outside clicks ---
+    const filterMenuRef = useRef(null);
+
     const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalItems: 0 });
     const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, entry: null, isLoading: false });
     const [updatingId, setUpdatingId] = useState(null);
@@ -238,23 +249,47 @@ const MainSheet = () => {
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     
-    // --- silentFetchEntries: Fetches data without showing the main loader ---
+    // --- Logic to close the filter menu on outside click ---
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (filterMenuRef.current && !filterMenuRef.current.contains(event.target)) {
+                setIsFilterMenuOpen(false);
+            }
+        };
+        if (isFilterMenuOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isFilterMenuOpen]);
+
     const silentFetchEntries = useCallback(async (page = 1) => {
-        // No setLoading(true) here
         try {
-            const response = await getMainSheetEntries({ search, page, limit: 20 });
+            // --- FIX: Pass new filter params to the API call ---
+            const params = { search, page, limit: 20, ...activeFilters };
+            if (activeFilters.interviewDate) {
+                // Send date as YYYY-MM-DD to avoid timezone issues
+                params.interviewDate = format(activeFilters.interviewDate, 'yyyy-MM-dd');
+            }
+            const response = await getMainSheetEntries(params);
             setEntries(response.data.data.entries || []);
             setPagination(response.data.data);
         } catch (error) { 
             showError("Failed to refresh main sheet data.");
         }
-    }, [search, showError]);
+    }, [search, activeFilters, showError]);
     
-    // --- fetchEntries: Fetches data and shows the main loader ---
     const fetchEntries = useCallback(async (page = 1) => {
         setLoading(true);
         try {
-            const response = await getMainSheetEntries({ search, page, limit: 20 });
+            // --- FIX: Pass new filter params to the API call ---
+            const params = { search, page, limit: 20, ...activeFilters };
+            if (activeFilters.interviewDate) {
+                 // Send date as YYYY-MM-DD to avoid timezone issues
+                params.interviewDate = format(activeFilters.interviewDate, 'yyyy-MM-dd');
+            }
+            const response = await getMainSheetEntries(params);
             setEntries(response.data.data.entries || []);
             setPagination(response.data.data);
         } catch (error) { 
@@ -262,7 +297,7 @@ const MainSheet = () => {
         } finally { 
             setLoading(false);
         }
-    }, [search, showError]);
+    }, [search, activeFilters, showError]);
 
     useEffect(() => {
         getUniqueHiringNames().then(res => setHiringNames(res.data.data)).catch(() => showError("Failed to load hiring names list."));
@@ -274,7 +309,7 @@ const MainSheet = () => {
     }, [showError]);
     
     const debouncedFetch = useMemo(() => debounce(() => fetchEntries(1), 300), [fetchEntries]);
-    useEffect(() => { debouncedFetch(); return () => debouncedFetch.cancel(); }, [debouncedFetch]);
+    useEffect(() => { debouncedFetch(); return () => debouncedFetch.cancel(); }, [debouncedFetch, activeFilters]);
     
     const handleCellSave = async (entryId, fieldKey, newValue) => {
         setUpdatingId(entryId);
@@ -294,15 +329,15 @@ const MainSheet = () => {
     };
     
     const handleRefreshRecordings = async () => {
-        setIsRefreshing(true); // Show loader on the button
+        setIsRefreshing(true);
         try {
             const response = await refreshRecordingLinks();
             showSuccess(response.data.message);
-            await silentFetchEntries(pagination.currentPage); // SILENTLY refresh data
+            await silentFetchEntries(pagination.currentPage);
         } catch (error) {
             showError('Failed to refresh recording links.');
         } finally {
-            setIsRefreshing(false); // Hide loader on the button
+            setIsRefreshing(false);
         }
     };
     
@@ -316,7 +351,7 @@ const MainSheet = () => {
             }
             showSuccess(`${created} entries imported successfully!`);
             setIsUploadModalOpen(false);
-            fetchEntries(1); // Hard reload after upload
+            fetchEntries(1);
         } catch(err) {
             showError(err.response?.data?.message || 'Bulk upload failed. Please ensure the data format is correct.');
         } finally {
@@ -343,15 +378,27 @@ const MainSheet = () => {
         try {
             await deleteMainSheetEntry(deleteDialog.entry._id);
             showSuccess('Entry deleted successfully!');
-            silentFetchEntries(pagination.currentPage); // SILENTLY refresh data
+            silentFetchEntries(pagination.currentPage);
         } catch (error) { showError('Failed to delete entry.'); } 
         finally { setDeleteDialog({ isOpen: false, entry: null, isLoading: false }); }
     };
     
     const handleExport = () => {
-        // Implement export logic here if needed
         showError("Export functionality is not yet implemented.");
     };
+
+    const handleApplyFilters = () => {
+        setActiveFilters(tempFilters);
+        setIsFilterMenuOpen(false);
+    };
+
+    const handleClearFilters = () => {
+        setTempFilters({ interviewDate: null, interviewStatus: '' });
+        setActiveFilters({ interviewDate: null, interviewStatus: '' });
+        setIsFilterMenuOpen(false);
+    };
+
+    const isFilterActive = activeFilters.interviewDate || activeFilters.interviewStatus;
     
     const hiringNamesOptions = useMemo(() => hiringNames.map(name => ({ label: name, value: name })), [hiringNames]);
 
@@ -397,6 +444,40 @@ const MainSheet = () => {
                 <h1 className="text-xl font-bold text-gray-800">Master Data Sheet</h1>
                 <div className="flex items-center gap-2 flex-wrap">
                     <LocalSearchInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search..." />
+                    
+                    <div className="relative" ref={filterMenuRef}>
+                        <LocalButton variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}>
+                            <FiFilter className="h-4 w-4 mr-2" />
+                            Filter
+                            {isFilterActive && 
+                                <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-2 p-1 rounded-full hover:bg-gray-200">
+                                    <FiX className="h-3 w-3 text-gray-500" />
+                                </span>
+                            }
+                        </LocalButton>
+                        {isFilterMenuOpen && (
+                            <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-md shadow-lg border z-20 p-4">
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Interview Date</label>
+                                        <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(prev => ({ ...prev, interviewDate: date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-300 rounded-md text-sm"/>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Interview Status</label>
+                                        <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(prev => ({...prev, interviewStatus: e.target.value}))} className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm">
+                                            <option value="">All Statuses</option>
+                                            {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="mt-4 pt-4 border-t flex justify-end gap-2">
+                                    <LocalButton variant="outline" onClick={handleClearFilters} className="!text-xs">Clear</LocalButton>
+                                    <LocalButton variant="primary" onClick={handleApplyFilters} className="!text-xs">Apply</LocalButton>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    
                     <LocalButton variant="outline" icon={FiRefreshCw} onClick={handleRefreshRecordings} isLoading={isRefreshing}>{isRefreshing ? 'Refreshing...' : 'Reload'}</LocalButton>
                     <LocalButton variant="outline" icon={FiDownload} onClick={handleExport}>Export</LocalButton>
                     <LocalButton variant="outline" icon={FiUpload} onClick={() => setIsUploadModalOpen(true)}>Import</LocalButton>
