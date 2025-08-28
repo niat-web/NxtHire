@@ -50,7 +50,8 @@ const {
   deleteCustomEmailTemplate,
   sendBulkCustomEmail,
   bulkUploadMainSheetEntries: bulkUploadMainSheet,
-  bulkUploadInterviewers
+  bulkUploadInterviewers, getDashboardAnalytics,
+  getLatestInterviewDate // <-- IMPORT THE NEW FUNCTION
 } = require('../controllers/admin.controller');
 const { protect, adminOnly } = require('../middleware/auth.middleware');
 const { validate, schemas } = require('../middleware/validator.middleware');
@@ -75,8 +76,10 @@ router.post('/custom-email/send', sendBulkCustomEmail);
 
 // --- Dashboard & Reporting ---
 router.get('/stats/dashboard', getDashboardStats);
+router.get('/stats/latest-interview-date', getLatestInterviewDate); // <-- ADD THIS NEW ROUTE
 router.get('/earnings-report', getEarningsReport);
 router.get('/payment-requests', getPaymentRequests); 
+router.get('/stats/analytics', getDashboardAnalytics); // --- ADDITION ---
 router.post('/payment-requests/send-email', sendPaymentEmail); 
 router.post('/payment-requests/send-invoice-mail', sendInvoiceMail);
 router.post('/payment-requests/send-received-mail', sendPaymentReceivedEmail); 
