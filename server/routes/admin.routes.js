@@ -51,7 +51,8 @@ const {
   sendBulkCustomEmail,
   bulkUploadMainSheetEntries: bulkUploadMainSheet,
   bulkUploadInterviewers, getDashboardAnalytics,
-  getLatestInterviewDate // <-- IMPORT THE NEW FUNCTION
+  getLatestInterviewDate, // <-- IMPORT THE NEW FUNCTION
+  getDomainEvaluationSummary
 } = require('../controllers/admin.controller');
 const { protect, adminOnly } = require('../middleware/auth.middleware');
 const { validate, schemas } = require('../middleware/validator.middleware');
@@ -145,5 +146,8 @@ router.route('/domains').get(getDomains).post(createDomain);
 router.route('/domains/:id').put(updateDomain).delete(deleteDomain);
 router.route('/evaluation-sheet/:domainId').get(getEvaluationSheetByDomain).put(updateEvaluationSheet);
 router.get('/evaluation-data', getEvaluationDataForAdmin);
+
+// --- NEW: Route for the domain evaluation summary ---
+router.get('/evaluation-summary', getDomainEvaluationSummary);
 
 module.exports = router;
