@@ -1,6 +1,11 @@
 // client/src/api/admin.api.js
 import api from './axios';
 
+// --- NEW: Get summary statistics for the domain evaluation page ---
+export const getDomainEvaluationSummary = () => {
+    return api.get('/api/admin/evaluation-summary');
+};
+
 // --- MODIFICATION START: New API function for Admin Domain Evaluation ---
 export const getEvaluationDataForAdmin = (params) => {
     return api.get('/api/admin/evaluation-data', { params });
