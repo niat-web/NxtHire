@@ -11,6 +11,10 @@ export const getAssignedDomains = () => {
     return api.get('/api/interviewer/assigned-domains');
 };
 
+export const getInterviewerEvaluationSummary = () => {
+    return api.get('/api/interviewer/evaluation-summary');
+};
+
 export const getEvaluationDataForInterviewer = (params) => {
     return api.get('/api/interviewer/evaluation-data', { params });
 };
