@@ -1,6 +1,7 @@
 // server/controllers/admin.controller.js
 const asyncHandler = require('express-async-handler');
 const mongoose = require('mongoose'); // Import mongoose for transactions
+const { startOfWeek, endOfWeek, startOfDay, endOfDay, startOfMonth, endOfMonth } = require('date-fns');
 const Applicant = require('../models/Applicant');
 const SkillAssessment = require('../models/SkillAssessment');
 const Interviewer = require('../models/Interviewer');
@@ -1858,6 +1859,86 @@ const updateEvaluationSheet = asyncHandler(async (req, res) => {
     res.json({ success: true, data: sheet });
 });
 
+// @desc    Get dashboard analytics data
+// @route   GET /api/admin/stats/analytics
+// @access  Private/Admin
+const getDashboardAnalytics = asyncHandler(async (req, res) => {
+    const { view, targetDate } = req.query;
+    if (!targetDate) {
+        return res.status(400).json({ success: false, message: "Target date is required." });
+    }
+    const date = new Date(targetDate);
+    
+    let startDate, endDate, groupBy, project;
+    
+    // Determine date range and grouping logic based on view
+    switch (view) {
+        case 'daily':
+            startDate = startOfDay(date);
+            endDate = endOfDay(date);
+            groupBy = { $hour: { date: "$interviewDate", timezone: "Asia/Kolkata" } };
+            project = { _id: 0, hour: '$_id' };
+            break;
+        case 'monthly':
+            startDate = startOfMonth(date);
+            endDate = endOfMonth(date);
+            groupBy = { $week: { date: "$interviewDate", timezone: "Asia/Kolkata" } };
+            project = { _id: 0, week: '$_id' };
+            break;
+        case 'weekly':
+        default:
+            startDate = startOfWeek(date, { weekStartsOn: 1 }); // Monday start
+            endDate = endOfWeek(date, { weekStartsOn: 1 });   // Sunday end
+            groupBy = { $isoDayOfWeek: { date: "$interviewDate", timezone: "Asia/Kolkata" } }; // 1=Mon, 7=Sun
+            project = { _id: 0, day: '$_id' };
+            break;
+    }
+    
+    // --- FIX: Corrected Status Names to match MainSheetEntry model ---
+    const statuses = ['Scheduled', 'Completed', 'InProgress', 'Cancelled', 'Pending Student Booking'];
+    const groupStage = { _id: groupBy };
+    const projectStage = { ...project };
+
+    statuses.forEach(status => {
+        // Create a URL-friendly key from the status name (e.g., 'PendingStudentBooking')
+        const key = status.replace(/\s+/g, ''); 
+        groupStage[key] = {
+            $sum: { $cond: [{ $eq: ["$interviewStatus", status] }, 1, 0] }
+        };
+        projectStage[key] = `$${key}`;
+    });
+    
+    const analytics = await MainSheetEntry.aggregate([
+        { $match: { interviewDate: { $gte: startDate, $lte: endDate } } },
+        { $group: groupStage },
+        { $project: projectStage },
+        { $sort: { [Object.keys(project)[1]]: 1 } } // Sort by hour, day, or week
+    ]);
+
+    // --- FIX: Remap the key for the frontend ---
+    const formattedAnalytics = analytics.map(item => {
+        const { PendingStudentBooking, ...rest } = item;
+        return { ...rest, Pending: PendingStudentBooking || 0 };
+    });
+
+    res.json({ success: true, data: formattedAnalytics });
+});
+
+
+// --- FIX: Add new controller for fetching the latest date ---
+// @desc    Get the latest interview date from the main sheet
+// @route   GET /api/admin/stats/latest-interview-date
+// @access  Private/Admin
+const getLatestInterviewDate = asyncHandler(async (req, res) => {
+    const latestEntry = await MainSheetEntry.findOne({ interviewDate: { $ne: null } }).sort({ interviewDate: -1 });
+    res.json({
+        success: true,
+        data: {
+            latestDate: latestEntry ? latestEntry.interviewDate : new Date().toISOString(),
+        }
+    });
+});
+
 
 module.exports = {
     getDashboardStats, getEarningsReport: generateAndGetPayoutSheet, getPaymentRequests, sendPaymentEmail,
@@ -1867,17 +1948,44 @@ module.exports = {
     getInterviewers, getInterviewerDetails, createInterviewer, updateInterviewer, deleteInterviewer,
   bulkDeleteInterviewers,
     getUsers, getUserDetails, createUser, updateUser, deleteUser,
-    createInterviewBooking, getInterviewBookings, getBookingSlots, getInterviewBookingDetails, resetBookingSubmission,
-    updateInterviewBooking, deleteInterviewBooking, getMainSheetEntryById, getMainSheetEntries,
-    bulkUpdateMainSheetEntries, deleteMainSheetEntry, bulkDeleteMainSheetEntries,
-    createPublicBooking, getPublicBookings, updatePublicBooking,
-    getStudentPipeline, getPublicBookingDetails, updateStudentBooking,
-    getUniqueHostEmails, generateMeetLink, sendBookingReminders, getUniqueHiringNames,
-    getDomains, createDomain, updateDomain, deleteDomain,
-    getEvaluationSheetByDomain, updateEvaluationSheet, getEvaluationDataForAdmin, sendInvoiceMail,
-    sendPaymentReceivedEmail, refreshRecordingLinks, createCustomEmailTemplate,
-    getCustomEmailTemplates, getCustomEmailTemplateById, updateCustomEmailTemplate, deleteCustomEmailTemplate,
+    createInterviewBooking, getInterviewBookings, getBookingSlots,
+    getInterviewBookingDetails,
+    resetBookingSubmission,
+    updateInterviewBooking,
+    deleteInterviewBooking,
+    getMainSheetEntryById,
+    getMainSheetEntries,
+    bulkUpdateMainSheetEntries,
+    deleteMainSheetEntry,
+    bulkDeleteMainSheetEntries,
+    createPublicBooking,
+    getPublicBookings,
+    updatePublicBooking,
+    getStudentPipeline,
+    getPublicBookingDetails,
+    updateStudentBooking,
+    getUniqueHostEmails,
+    generateMeetLink,
+    sendBookingReminders,
+    getUniqueHiringNames,
+    getDomains,
+    createDomain,
+    updateDomain,
+    deleteDomain,
+    getEvaluationSheetByDomain,
+    updateEvaluationSheet,
+    getEvaluationDataForAdmin,
+    sendInvoiceMail,
+    sendPaymentReceivedEmail,
+    refreshRecordingLinks,
+    createCustomEmailTemplate,
+    getCustomEmailTemplates,
+    getCustomEmailTemplateById,
+    updateCustomEmailTemplate,
+    deleteCustomEmailTemplate,
     sendBulkCustomEmail,
     bulkUploadMainSheetEntries,
-    bulkUploadInterviewers
+    bulkUploadInterviewers,
+    getDashboardAnalytics,
+    getLatestInterviewDate, // <-- Export the new function
 };
