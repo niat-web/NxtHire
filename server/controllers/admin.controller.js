@@ -483,7 +483,9 @@ const refreshRecordingLinks = asyncHandler(async (req, res) => {
 });
 
 const getEvaluationDataForAdmin = asyncHandler(async (req, res) => {
-    const { domain, search } = req.query;
+    // --- MODIFICATION START: Accept new filter parameters ---
+    const { domain, search, interviewStatus, interviewDate } = req.query;
+    // --- MODIFICATION END ---
     if (!domain) {
         return res.json({ success: true, data: { evaluationSheet: null, interviews: [] } });
     }
@@ -497,6 +499,21 @@ const getEvaluationDataForAdmin = asyncHandler(async (req, res) => {
     const evaluationSheet = await EvaluationSheet.findOne({ domain: domainDoc._id });
     
     const query = { techStack: domain };
+    
+    // --- MODIFICATION START: Add all filters to the query ---
+    if (interviewStatus) {
+        query.interviewStatus = interviewStatus;
+    }
+    if (interviewDate) {
+        const date = new Date(interviewDate);
+        if (!isNaN(date)) {
+            query.interviewDate = {
+                $gte: startOfDay(date),
+                $lte: endOfDay(date)
+            };
+        }
+    }
+    // --- MODIFICATION END ---
     if (search) {
         const searchRegex = { $regex: search, $options: 'i' };
         query.$or = [
@@ -1954,6 +1971,51 @@ const getLatestInterviewDate = asyncHandler(async (req, res) => {
     });
 });
 
+// @desc    Get summary statistics for the Domain Evaluation page
+// @route   GET /api/admin/evaluation-summary
+// @access  Private/Admin
+const getDomainEvaluationSummary = asyncHandler(async (req, res) => {
+    const summary = await MainSheetEntry.aggregate([
+        // Filter out entries with no techStack (domain)
+        { $match: { techStack: { $exists: true, $ne: null, $ne: "" } } },
+
+        // Group by techStack
+        {
+            $group: {
+                _id: '$techStack', // Group by domain name
+                candidateCount: { $sum: 1 }, // Count total interviews (candidates) for the domain
+                scheduledCount: {
+                    $sum: { $cond: [{ $eq: ['$interviewStatus', 'Scheduled'] }, 1, 0] }
+                },
+                completedCount: {
+                    $sum: { $cond: [{ $eq: ['$interviewStatus', 'Completed'] }, 1, 0] }
+                },
+                cancelledCount: {
+                    $sum: { $cond: [{ $eq: ['$interviewStatus', 'Cancelled'] }, 1, 0] }
+                },
+                inProgressCount: {
+                    $sum: { $cond: [{ $eq: ['$interviewStatus', 'InProgress'] }, 1, 0] }
+                },
+                pendingCount: {
+                    $sum: { $cond: [{ $eq: ['$interviewStatus', 'Pending Student Booking'] }, 1, 0] }
+                }
+            }
+        },
+
+        // Reshape the output
+        {
+            $project: {
+                _id: 0,
+                domainName: '$_id',
+                candidateCount: '$candidateCount',
+                ...['scheduledCount', 'completedCount', 'cancelledCount', 'inProgressCount', 'pendingCount'].reduce((acc, field) => ({ ...acc, [field]: `$${field}` }), {})
+            }
+        },
+        { $sort: { domainName: 1 } }
+    ]);
+
+    res.json({ success: true, data: summary });
+});
 
 module.exports = {
     getDashboardStats, getEarningsReport: generateAndGetPayoutSheet, getPaymentRequests, sendPaymentEmail,
@@ -2003,4 +2065,5 @@ module.exports = {
     bulkUploadInterviewers,
     getDashboardAnalytics,
     getLatestInterviewDate, // <-- Export the new function
+    getDomainEvaluationSummary,
 };
