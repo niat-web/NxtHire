@@ -1469,7 +1469,7 @@ const getMainSheetEntryById = asyncHandler(async (req, res) => {
 });
 
 const getMainSheetEntries = asyncHandler(async (req, res) => {
-    const { search, page = 1, limit = 25 } = req.query;
+    const { search, page = 1, limit = 20, interviewStatus, interviewDate } = req.query;
     const query = {};
     if (search) {
         const searchRegex = { $regex: search, $options: 'i' };
@@ -1481,6 +1481,21 @@ const getMainSheetEntries = asyncHandler(async (req, res) => {
             { interviewStatus: searchRegex },
         ];
     }
+
+     // --- MODIFICATION: Add new filtering logic to the query object ---
+     if (interviewStatus) {
+         query.interviewStatus = interviewStatus;
+     }
+     if (interviewDate) {
+         const date = new Date(interviewDate);
+         // Ensure the date is valid before adding it to the query
+         if (!isNaN(date)) {
+             query.interviewDate = {
+                 $gte: startOfDay(date),
+                 $lte: endOfDay(date)
+             };
+         }
+     }
 
     const entries = await MainSheetEntry.find(query)
         .populate({
