@@ -1,12 +1,16 @@
+// client/src/pages/admin/MainSheetForm.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { FiPlus, FiTrash2, FiSave, FiArrowLeft } from 'react-icons/fi';
 import { useAlert } from '@/hooks/useAlert';
-import { bulkUpdateMainSheetEntries, getInterviewers, getMainSheetEntry } from '@/api/admin.api';
-import { MAIN_SHEET_TECH_STACKS, MAIN_SHEET_INTERVIEW_STATUSES } from '@/utils/constants';
+// --- MODIFICATION: Import getDomains ---
+import { bulkUpdateMainSheetEntries, getInterviewers, getMainSheetEntry, getDomains } from '@/api/admin.api';
+import { MAIN_SHEET_INTERVIEW_STATUSES } from '@/utils/constants';
 
 // --- SELF-CONTAINED UI COMPONENTS ---
+// (No changes needed in these local components)
 const LocalButton = ({ children, onClick, type = 'button', isLoading = false, variant = 'primary', icon: Icon, className = '' }) => {
     const baseClasses = "inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md focus:outline-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm";
     const variantClasses = {
@@ -21,22 +25,18 @@ const LocalButton = ({ children, onClick, type = 'button', isLoading = false, va
         </button>
     );
 };
-
 const LocalInput = React.forwardRef(({ className, ...props }, ref) => (
     <input ref={ref} {...props} className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm disabled:bg-gray-100 ${className}`} />
 ));
-
 const LocalSelect = React.forwardRef(({ options, placeholder, className, ...props }, ref) => (
     <select ref={ref} {...props} className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm ${className}`}>
         {placeholder && <option value="">{placeholder}</option>}
         {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
     </select>
 ));
-
 const LocalTextarea = React.forwardRef(({ className, ...props }, ref) => (
     <textarea ref={ref} {...props} className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm ${className}`} />
 ));
-
 const LocalLoader = ({ text }) => (
      <div className="flex h-full w-full items-center justify-center">
         <div className="text-center">
@@ -49,6 +49,7 @@ const LocalLoader = ({ text }) => (
     </div>
 );
 
+
 // --- MAIN FORM COMPONENT ---
 const MainSheetForm = () => {
     const { id } = useParams();
@@ -57,6 +58,10 @@ const MainSheetForm = () => {
     const { showSuccess, showError } = useAlert();
     const [loading, setLoading] = useState(isEditMode);
     const [interviewerOptions, setInterviewerOptions] = useState([]);
+    // --- MODIFICATION START: Add state for dynamic domain options ---
+    const [domainOptions, setDomainOptions] = useState([]);
+    // --- MODIFICATION END ---
+
 
     const defaultEntry = { hiringName: '', techStack: '', interviewId: '', uid: '', candidateName: '', mobileNumber: '', mailId: '', candidateResume: '', meetingLink: '', interviewDate: '', interviewTime: '', interviewDuration: '', interviewStatus: '', remarks: '', interviewer: null, };
 
@@ -70,6 +75,16 @@ const MainSheetForm = () => {
                 setInterviewerOptions(options);
             })
             .catch(() => showError("Failed to load interviewers list."));
+            
+        // --- MODIFICATION START: Fetch domains for the tech stack dropdown ---
+        getDomains()
+            .then(res => {
+                const options = (res.data.data || []).map(d => ({ value: d.name, label: d.name }));
+                setDomainOptions(options);
+            })
+            .catch(() => showError("Failed to load domains from Evaluation Setup."));
+        // --- MODIFICATION END ---
+
     }, [showError]);
 
     useEffect(() => {
@@ -77,7 +92,16 @@ const MainSheetForm = () => {
             getMainSheetEntry(id).then(res => {
                 const entry = res.data.data;
                 if (entry.interviewDate) entry.interviewDate = new Date(entry.interviewDate).toISOString().split('T')[0];
-                reset({ entries: [entry] });
+
+                // --- MODIFICATION START: Prepare form data, ensuring interviewer ID is set correctly ---
+                const formData = { ...entry };
+                if (entry.interviewer && entry.interviewer._id) {
+                    formData.interviewer = entry.interviewer._id; // Use just the ID for the select field
+                } else {
+                    formData.interviewer = null;
+                }
+                reset({ entries: [formData] });
+                // --- MODIFICATION END ---
                 setLoading(false);
             }).catch(() => { showError('Failed to load entry data.'); navigate('/admin/main-sheet'); });
         }
@@ -98,7 +122,6 @@ const MainSheetForm = () => {
             <div className="p-4 border-b border-gray-200 flex justify-between items-center flex-shrink-0">
                 <div>
                     <Link to="/admin/main-sheet" className="text-m text-gray-600 hover:text-gray-900 flex items-center mb-1"><FiArrowLeft className="mr-2"/> Back to Main Sheet</Link>
-                    <h2 className="text-xl font-bold text-gray-800">{isEditMode ? `` : ""}</h2>
                 </div>
                  <LocalButton type="submit" variant="primary" icon={FiSave} isLoading={isSubmitting}>{isSubmitting ? 'Saving...' : 'Save Entries'}</LocalButton>
             </div>
@@ -117,7 +140,16 @@ const MainSheetForm = () => {
                             <tr key={field.id} className="even:bg-gray-50 align-top">
                                 <td className="p-1 border border-gray-300 text-center">{index + 1}</td>
                                 <td className="p-1 border border-gray-300"><LocalInput {...register(`entries.${index}.hiringName`)} style={{minWidth: '150px'}}/></td>
-                                <td className="p-1 border border-gray-300"><LocalSelect {...register(`entries.${index}.techStack`)} options={MAIN_SHEET_TECH_STACKS} placeholder="Select Stack..." style={{minWidth: '200px'}}/></td>
+                                {/* --- MODIFICATION START: Use dynamic domainOptions for the dropdown --- */}
+                                <td className="p-1 border border-gray-300">
+                                    <LocalSelect 
+                                        {...register(`entries.${index}.techStack`)} 
+                                        options={domainOptions} 
+                                        placeholder="Select Stack..." 
+                                        style={{minWidth: '200px'}}
+                                    />
+                                </td>
+                                {/* --- MODIFICATION END --- */}
                                 <td className="p-1 border border-gray-300"><LocalInput {...register(`entries.${index}.interviewId`)} style={{minWidth: '180px'}}/></td>
                                 <td className="p-1 border border-gray-300"><LocalInput {...register(`entries.${index}.uid`)} style={{minWidth: '120px'}}/></td>
                                 <td className="p-1 border border-gray-300"><LocalInput {...register(`entries.${index}.candidateName`, { required: true })} style={{minWidth: '200px'}}/></td>
