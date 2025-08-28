@@ -1,5 +1,6 @@
 // server/controllers/interviewer.controller.js
 const asyncHandler = require('express-async-handler');
+const { startOfDay, endOfDay } = require('date-fns');
 const Interviewer = require('../models/Interviewer');
 const User = require('../models/User');
 const Availability = require('../models/Availability');
@@ -90,6 +91,48 @@ const getPaymentHistory = asyncHandler(async (req, res) => {
 });
 // --- MODIFICATION END ---
 
+const getInterviewerEvaluationSummary = asyncHandler(async (req, res) => {
+    const interviewer = await Interviewer.findOne({ user: req.user.id }).select('_id');
+    if (!interviewer) {
+        res.status(404);
+        throw new Error('Interviewer profile not found.');
+    }
+
+    const summary = await MainSheetEntry.aggregate([
+        { $match: { 
+            interviewer: interviewer._id,
+            techStack: { $exists: true, $ne: null, $ne: "" }
+        }},
+        {
+            $group: {
+                _id: '$techStack',
+                candidateCount: { $sum: 1 },
+                scheduledCount: { $sum: { $cond: [{ $eq: ['$interviewStatus', 'Scheduled'] }, 1, 0] }},
+                completedCount: { $sum: { $cond: [{ $eq: ['$interviewStatus', 'Completed'] }, 1, 0] }},
+                cancelledCount: { $sum: { $cond: [{ $eq: ['$interviewStatus', 'Cancelled'] }, 1, 0] }},
+                inProgressCount: { $sum: { $cond: [{ $eq: ['$interviewStatus', 'InProgress'] }, 1, 0] }},
+                pendingCount: { $sum: { $cond: [{ $eq: ['$interviewStatus', 'Pending Student Booking'] }, 1, 0] }}
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                domainName: '$_id',
+                candidateCount: '$candidateCount',
+                scheduledCount: 1,
+                completedCount: 1,
+                cancelledCount: 1,
+                inProgressCount: 1,
+                pendingCount: 1
+            }
+        },
+        { $sort: { domainName: 1 } }
+    ]);
+
+    res.json({ success: true, data: summary });
+});
+
+
 const getAssignedDomains = asyncHandler(async (req, res) => {
     const interviewer = await Interviewer.findOne({ user: req.user.id });
     if (!interviewer) {
@@ -101,7 +144,9 @@ const getAssignedDomains = asyncHandler(async (req, res) => {
 });
 
 const getEvaluationDataForInterviewer = asyncHandler(async (req, res) => {
-    const { domain, search } = req.query;
+    // --- MODIFICATION START ---
+    const { domain, search, interviewStatus, interviewDate } = req.query;
+    // --- MODIFICATION END ---
     
     if (!domain) {
         return res.json({ success: true, data: { evaluationSheet: null, interviews: [] } });
@@ -125,6 +170,22 @@ const getEvaluationDataForInterviewer = asyncHandler(async (req, res) => {
         interviewer: interviewer._id,
         techStack: domain,
     };
+
+    // --- MODIFICATION START ---
+    if (interviewStatus) {
+        query.interviewStatus = interviewStatus;
+    }
+    if (interviewDate) {
+        const date = new Date(interviewDate);
+        if (!isNaN(date)) {
+            query.interviewDate = {
+                $gte: startOfDay(date),
+                $lte: endOfDay(date)
+            };
+        }
+    }
+    // --- MODIFICATION END ---
+
     if (search) {
         const searchRegex = { $regex: search, $options: 'i' };
         query.$or = [
@@ -499,5 +560,6 @@ module.exports = {
   getEvaluationDataForInterviewer,
   updateEvaluationData,
   getPaymentHistory, 
-  subscribeToPushNotifications
+  subscribeToPushNotifications,
+  getInterviewerEvaluationSummary
 };
