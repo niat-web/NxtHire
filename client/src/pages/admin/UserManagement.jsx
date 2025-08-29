@@ -521,7 +521,6 @@ const UserManagement = () => {
                     </div>
                     <Button 
                         variant="primary" 
-                        icon={<FiPlus />} 
                         onClick={() => setModalState({ type: 'add', data: null })}
                         className="px-4 py-2 shadow-md hover:shadow-lg transition-shadow"
                     >
