@@ -99,24 +99,16 @@ const bookSlot = asyncHandler(async (req, res) => {
         const interviewerSlot = bookingPage.interviewerSlots.find(is => is.interviewer._id.toString() === interviewerId);
         const timeSlot = interviewerSlot?.timeSlots.find(ts => ts.startTime === slot.startTime && ts.endTime === slot.endTime);
         
-        if (!timeSlot || timeSlot.bookedBy) {
-            await session.abortTransaction();
-            res.status(409);
-            throw new Error("Sorry, this time slot has just been booked by someone else. Please select another.");
+        // --- BUG FIX #2 START: Atomic check and update to prevent race conditions ---
+        if (!timeSlot) {
+            res.status(404);
+            throw new Error("The selected time slot could not be found.");
         }
-
-        const domainDoc = await Domain.findOne({ name: allowedStudentData.domain }).session(session);
-
-        let finalEventTitle = '';
-        if (domainDoc && domainDoc.eventTitle) {
-            finalEventTitle = `${domainDoc.eventTitle} || ${studentName}`;
-        } else {
-            finalEventTitle = `${allowedStudentData.domain} Interview || ${studentName}`;
-        }
-
+        
+        // Create the new StudentBooking instance first to get its _id
         const newStudentBooking = new StudentBooking({
             publicBooking: bookingPage._id,
-            interviewId: allowedStudentData.interviewId, 
+            interviewId: allowedStudentData.interviewId,
             hiringName: allowedStudentData.hiringName,
             domain: allowedStudentData.domain,
             userId: allowedStudentData.userId,
@@ -129,13 +121,47 @@ const bookSlot = asyncHandler(async (req, res) => {
             interviewerEmail: interviewerSlot.interviewer.user.email,
             bookedSlot: { startTime: slot.startTime, endTime: slot.endTime },
             bookingDate: interviewerSlot.date,
-            eventTitle: finalEventTitle,
+            eventTitle: '', // Will be updated below
         });
         
-        await newStudentBooking.save({ session });
+        // Atomically find the booking page and update the specific, unbooked time slot
+        const updatedBookingPage = await PublicBooking.findOneAndUpdate(
+            {
+                _id: bookingPage._id,
+                "interviewerSlots._id": interviewerSlot._id,
+                "interviewerSlots.timeSlots": { $elemMatch: { _id: timeSlot._id, bookedBy: null } }
+            },
+            {
+                $set: { "interviewerSlots.$.timeSlots.$[slot].bookedBy": newStudentBooking._id }
+            },
+            {
+                arrayFilters: [{ "slot._id": timeSlot._id }],
+                new: true, // Return the modified document
+                session
+            }
+        );
 
-        timeSlot.bookedBy = newStudentBooking._id;
-        await bookingPage.save({ session });
+        // If the update returned null, it means the slot was booked by another request between the find and update.
+        if (!updatedBookingPage) {
+            await session.abortTransaction();
+            session.endSession();
+            res.status(409); // 409 Conflict is the appropriate HTTP status code
+            throw new Error("Sorry, this time slot has just been booked by someone else. Please refresh and select another.");
+        }
+        
+        // Now that the slot is secured, we can save the new booking record and proceed
+        const domainDoc = await Domain.findOne({ name: allowedStudentData.domain }).session(session);
+
+        let finalEventTitle = '';
+        if (domainDoc && domainDoc.eventTitle) {
+            finalEventTitle = `${domainDoc.eventTitle} || ${studentName}`;
+        } else {
+            finalEventTitle = `${allowedStudentData.domain} Interview || ${studentName}`;
+        }
+        newStudentBooking.eventTitle = finalEventTitle;
+
+        await newStudentBooking.save({ session });
+        // --- BUG FIX #2 END ---
 
         const startTimeParts = newStudentBooking.bookedSlot.startTime.split(':');
         const endTimeParts = newStudentBooking.bookedSlot.endTime.split(':');
