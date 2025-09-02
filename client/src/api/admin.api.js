@@ -61,7 +61,7 @@ export const getInterviewers = (params) => {
     return api.get('/api/admin/interviewers', { params });
 };
 export const getInterviewerDetails = (id) => {
-    return api.get('/api/admin/interviewers/${id}');
+    return api.get(`/api/admin/interviewers/${id}`);
 };
 export const createInterviewer = (data) => {
     return api.post('/api/admin/interviewers', data);
@@ -73,12 +73,17 @@ export const deleteInterviewer = (id) => {
     return api.delete(`/api/admin/interviewers/${id}`);
 };
 
-// --- ADDITION START: API for bulk deleting interviewers ---
+// --- ADDITION START ---
+export const sendWelcomeEmail = (interviewerId) => {
+    return api.post(`/api/admin/interviewers/${interviewerId}/send-welcome-email`);
+};
+// --- ADDITION END ---
+
+
 export const bulkDeleteInterviewers = (ids) => {
     // Axios DELETE requests with a body need to be wrapped in a 'data' object
     return api.delete('/api/admin/interviewers/bulk', { data: { ids } });
 };
-// --- ADDITION END ---
 
 
 // --- Users ---
@@ -102,14 +107,12 @@ export const deleteUser = (id) => {
 export const getDashboardStats = (params) => {
     return api.get('/api/admin/stats/dashboard', { params });
 };
-// --- FIX START: Add new API functions ---
 export const getDashboardAnalytics = (params) => {
   return api.get('/api/admin/stats/analytics', { params });
 };
 export const getLatestInterviewDate = () => {
     return api.get('/api/admin/stats/latest-interview-date');
 };
-// --- FIX END ---
 export const getPayoutSheet = (params) => {
     return api.get('/api/admin/earnings-report', { params });
 };
