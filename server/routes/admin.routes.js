@@ -7,7 +7,6 @@ const {
   getSkillAssessments, getGuidelinesSubmissions, processGuidelinesReview,
   getInterviewers, getInterviewerDetails, createInterviewer, updateInterviewer,
   deleteInterviewer,
-  // --- ADDITION: Import new bulk delete function ---
   bulkDeleteInterviewers,
   getUsers, getUserDetails, createUser, updateUser, deleteUser,
   createInterviewBooking, getInterviewBookings, getBookingSlots,
@@ -49,10 +48,11 @@ const {
   updateCustomEmailTemplate,
   deleteCustomEmailTemplate,
   sendBulkCustomEmail,
-  bulkUploadMainSheetEntries: bulkUploadMainSheet,
+  bulkUploadMainSheetEntries,
   bulkUploadInterviewers, getDashboardAnalytics,
-  getLatestInterviewDate, // <-- IMPORT THE NEW FUNCTION
-  getDomainEvaluationSummary
+  getLatestInterviewDate,
+  getDomainEvaluationSummary,
+  sendWelcomeEmail
 } = require('../controllers/admin.controller');
 const { protect, adminOnly } = require('../middleware/auth.middleware');
 const { validate, schemas } = require('../middleware/validator.middleware');
@@ -77,10 +77,10 @@ router.post('/custom-email/send', sendBulkCustomEmail);
 
 // --- Dashboard & Reporting ---
 router.get('/stats/dashboard', getDashboardStats);
-router.get('/stats/latest-interview-date', getLatestInterviewDate); // <-- ADD THIS NEW ROUTE
+router.get('/stats/latest-interview-date', getLatestInterviewDate);
 router.get('/earnings-report', getEarningsReport);
 router.get('/payment-requests', getPaymentRequests); 
-router.get('/stats/analytics', getDashboardAnalytics); // --- ADDITION ---
+router.get('/stats/analytics', getDashboardAnalytics);
 router.post('/payment-requests/send-email', sendPaymentEmail); 
 router.post('/payment-requests/send-invoice-mail', sendInvoiceMail);
 router.post('/payment-requests/send-received-mail', sendPaymentReceivedEmail); 
@@ -104,10 +104,10 @@ router.post('/guidelines/:id/review', processGuidelinesReview);
 
 // --- Interviewer Management ---
 router.route('/interviewers').get(getInterviewers).post(createInterviewer);
-// --- ADDITION: Route for bulk deleting interviewers ---
 router.delete('/interviewers/bulk', bulkDeleteInterviewers);
 router.route('/interviewers/:id').get(getInterviewerDetails).put(updateInterviewer).delete(deleteInterviewer);
 router.post('/interviewers/bulk-upload', bulkUploadInterviewers);
+router.post('/interviewers/:id/send-welcome-email', sendWelcomeEmail);
 
 
 // --- User Management ---
@@ -127,7 +127,7 @@ router.route('/main-sheet').get(getMainSheetEntries);
 router.route('/main-sheet/bulk').post(bulkUpdateMainSheetEntries).delete(bulkDeleteMainSheetEntries);
 router.get('/main-sheet/hiring-names', getUniqueHiringNames); 
 router.post('/main-sheet/refresh-recordings', refreshRecordingLinks);
-router.post('/main-sheet/bulk-upload', bulkUploadMainSheet);
+router.post('/main-sheet/bulk-upload', bulkUploadMainSheetEntries);
 router.route('/main-sheet/:id').get(getMainSheetEntryById).delete(deleteMainSheetEntry); 
 
 
