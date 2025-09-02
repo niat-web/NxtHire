@@ -121,14 +121,12 @@ const Profile = () => {
     setSubmittingSection('basic');
     try {
       await updateAuthProfile({ firstName: data.firstName, lastName: data.lastName, phoneNumber: data.phoneNumber, whatsappNumber: data.whatsappNumber });
-      // --- MODIFICATION START ---
       await updateProfile({ 
           currentEmployer: data.currentEmployer, 
           jobTitle: data.jobTitle,
           yearsOfExperience: data.yearsOfExperience,
           companyType: data.companyType
       });
-      // --- MODIFICATION END ---
       showSuccess('Profile updated successfully!');
     } catch (error) { showError('Failed to update profile.'); } 
     finally { setSubmittingSection(null); }
@@ -222,9 +220,7 @@ const Profile = () => {
   const tabs = ['Experience', 'Skills', 'Profile Details', 'Security'];
   
   return (
-    // --- MODIFICATION START: Add padding classes for full-page layout ---
     <div className="space-y-6 container mx-auto px-4 py-6 lg:px-6 lg:py-8">
-        {/* --- MODIFICATION END --- */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex flex-col sm:flex-row items-center space-x-0 sm:space-x-5">
                 <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-bold flex-shrink-0 mb-4 sm:mb-0">
@@ -285,7 +281,6 @@ const Profile = () => {
                 <div className="space-y-6">
                     <form onSubmit={handleSubmitBasic(onSubmitBasicInfo)}>
                         <SectionCard title="Personal & Professional Details" icon={FiUser} footer={<LocalButton type="submit" isLoading={submittingSection === 'basic'} icon={FiSave}>Save Info</LocalButton>}>
-                             {/* --- MODIFICATION START --- */}
                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                                 <div className="col-span-full"><h4 className="text-md font-semibold text-gray-700 mb-2 border-b pb-2">Personal Information</h4></div>
                                 <InputField label="First Name" name="firstName" register={{...registerBasic('firstName', { required: 'First name is required' })}} error={errorsBasic.firstName} />
@@ -296,7 +291,7 @@ const Profile = () => {
                                 <div className="col-span-full mt-4"><h4 className="text-md font-semibold text-gray-700 mb-2 border-b pb-2">Professional Information</h4></div>
                                 <InputField label="Current Company / Employer" name="currentEmployer" register={{...registerBasic('currentEmployer', { required: 'Current employer is required' })}} error={errorsBasic.currentEmployer}/>
                                 <InputField label="Job Title" name="jobTitle" register={{...registerBasic('jobTitle', { required: 'Job title is required' })}} error={errorsBasic.jobTitle} />
-                                <InputField label="Total Years of Experience" name="yearsOfExperience" type="number" register={{...registerBasic('yearsOfExperience', { required: 'Experience is required', valueAsNumber: true, min: { value: 0, message: 'Cannot be negative' }})}} error={errorsBasic.yearsOfExperience} />
+                                <InputField label="Total Years of Experience" name="yearsOfExperience" type="number" step="0.1" register={{...registerBasic('yearsOfExperience', { required: 'Experience is required', valueAsNumber: true, min: { value: 0, message: 'Cannot be negative' }})}} error={errorsBasic.yearsOfExperience} />
                                 <SelectField label="Company Type" name="companyType" register={{...registerBasic('companyType', { required: 'Company type is required' })}} options={[
                                     { value: 'Product-based', label: 'Product-based'},
                                     { value: 'Service-based', label: 'Service-based'},
@@ -304,7 +299,6 @@ const Profile = () => {
                                     { value: 'Other', label: 'Other'}
                                 ]} error={errorsBasic.companyType} />
                             </div>
-                             {/* --- MODIFICATION END --- */}
                         </SectionCard>
                     </form>
                     <form onSubmit={handleSubmitBank(onSubmitBankDetails)}>
