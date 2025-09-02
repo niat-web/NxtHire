@@ -70,22 +70,30 @@ const Guidelines = () => {
 
     const handlePageChange = (page) => { fetchGuidelines(page); };
 
-    const handleReviewDecision = async () => {
-        if (!confirmState.id || !confirmState.action) return;
-
-        setProcessingIds(prev => new Set(prev).add(confirmState.id));
+    const handleReviewDecision = async (e) => {
+        // Prevent the click event from bubbling up to elements behind the modal
+        if (e && typeof e.stopPropagation === 'function') {
+            e.stopPropagation();
+        }
+ 
+        // Capture the state at the beginning of the function to avoid stale state issues
+        const { id, action } = confirmState;
+        if (!id || !action) return;
+ 
+        setProcessingIds(prev => new Set(prev).add(id));
         setConfirmState({ isOpen: false, id: null, action: null });
-
+ 
         try {
-            await reviewGuidelinesSubmission(confirmState.id, { decision: confirmState.action });
-            showSuccess(`Submission successfully ${confirmState.action === 'approve' ? 'approved and applicant onboarded' : 'rejected'}.`);
+            await reviewGuidelinesSubmission(id, { decision: action });
+            showSuccess(`Submission successfully ${action === 'approve' ? 'approved and applicant onboarded' : 'rejected'}.`);
             fetchGuidelines(pagination.currentPage);
         } catch (error) {
             showError(error.response?.data?.message || 'Failed to process decision.');
         } finally {
             setProcessingIds(prev => {
                 const newSet = new Set(prev);
-                newSet.delete(confirmState.id);
+                // Use the captured 'id' to ensure the correct item is updated
+                newSet.delete(id);
                 return newSet;
             });
         }
@@ -211,7 +219,7 @@ const Guidelines = () => {
             <ConfirmDialog
                 isOpen={confirmState.isOpen}
                 onClose={() => setConfirmState({ isOpen: false, id: null, action: null })}
-                onConfirm={handleReviewDecision}
+                onConfirm={(e) => handleReviewDecision(e)}
                 title={`Confirm ${confirmState.action}`}
                 message={`Are you sure you want to ${confirmState.action} this submission? This action cannot be undone.`}
                 confirmText={confirmState.action === 'approve' ? 'Approve & Onboard' : 'Confirm Rejection'}
