@@ -75,7 +75,7 @@ const InterviewDetailsModal = ({ isOpen, onClose, interview, onStatusChange }) =
                       <a href={interview.meetingLink} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline truncate">{interview.meetingLink}</a>
                     </div>
                   )}
-                  <div>
+                  <div className='pt-2'>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Update Status:</label>
                     <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full p-2 border border-slate-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                       {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
