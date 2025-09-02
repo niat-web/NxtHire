@@ -1,6 +1,6 @@
 // client/src/pages/public/SkillAssessment.jsx
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiCode, FiCheck, FiArrowRight, FiArrowLeft, FiChevronDown, FiBriefcase, FiAward } from 'react-icons/fi';
@@ -55,13 +55,14 @@ const VerticalStepper = ({ steps, currentStep }) => (
     </div>
 );
 
-const InputField = ({ label, name, error, register, ...props }) => ( 
+const InputField = React.forwardRef(({ label, name, error, register, ...props }, ref) => ( 
     <div>
         <label htmlFor={name} className="block text-sm font-medium text-slate-300 mb-2">{label}</label>
         <input id={name} {...register} {...props} className={`w-full p-3 bg-slate-800 border-2 rounded-lg focus:outline-none focus:ring-2 transition-colors duration-300 text-slate-200 ${error ? 'border-red-500/50 focus:ring-red-500 focus:border-red-500' : 'border-slate-700 focus:ring-indigo-500 focus:border-indigo-500'}`} />
         {error && <p className="mt-1.5 text-xs text-red-400">{error.message}</p>}
     </div>
-);
+));
+InputField.displayName = 'InputField';
 
 const AccordionItem = ({ tech, register, setValue, watch, isOpen, onToggle }) => {
     const allSubSkills = tech.subSkills.map(s => s.value);
@@ -227,7 +228,20 @@ const SkillAssessment = () => {
                                                 </div>
                                                 <InputField label="Current Company / Employer *" name="currentEmployer" register={{...register('currentEmployer', { required: "This field is required" })}} error={errors.currentEmployer} placeholder="e.g., Google" />
                                                 <InputField label="Your Job Title / Role *" name="jobTitle" register={{...register('jobTitle', { required: "This field is required" })}} error={errors.jobTitle} placeholder="e.g., Senior Software Engineer"/>
-                                                <InputField label="Total Years of Professional Experience *" name="yearsOfExperience" type="number" register={{...register('yearsOfExperience', { required: "This field is required", min: {value: 0, message: 'Experience cannot be negative'} })}} error={errors.yearsOfExperience} placeholder="e.g., 5" />
+                                                {/* --- MODIFICATION: Added step="0.1" and valueAsNumber: true --- */}
+                                                <InputField 
+                                                    label="Total Years of Professional Experience *" 
+                                                    name="yearsOfExperience" 
+                                                    type="number" 
+                                                    step="0.1"
+                                                    register={{...register('yearsOfExperience', { 
+                                                        required: "This field is required", 
+                                                        valueAsNumber: true, 
+                                                        min: {value: 0, message: 'Experience cannot be negative'} 
+                                                    })}} 
+                                                    error={errors.yearsOfExperience} 
+                                                    placeholder="e.g., 5.5" 
+                                                />
                                             </div>
                                         </motion.div>
                                     )}
@@ -245,7 +259,7 @@ const SkillAssessment = () => {
                                     )}
                                 </AnimatePresence>
 
-                                <div className="mt-10 border-t border-slate-800 flex justify-between items-center">
+                                <div className="mt-10 pt-8 border-t border-slate-800 flex justify-between items-center">
                                     {step > 1 ? (<LocalButton type="button" variant="outline" onClick={handlePrev} icon={FiArrowLeft}>Previous</LocalButton>) : (<div></div>)}
                                     {step < 2 ? (<LocalButton type="button" onClick={handleNext}>Next<FiArrowRight className="ml-2"/></LocalButton>) : (<LocalButton type="submit" isLoading={isSubmitting} icon={FiAward}>Submit Assessment</LocalButton>)}
                                 </div>
