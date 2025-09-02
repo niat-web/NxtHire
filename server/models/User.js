@@ -25,7 +25,6 @@ const UserSchema = new mongoose.Schema({
   },
   lastName: {
     type: String,
-    required: [true, 'Last name is required'],
     trim: true
   },
   phoneNumber: {
