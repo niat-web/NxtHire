@@ -97,7 +97,7 @@ const LinkedInReviewPage = () => {
   }, [fetchApplicants, showError, showSuccess, pagination.currentPage]);
 
   const applicantColumns = useMemo(() => [
-    { key: 'fullName', title: 'Applicant', render: (row) => <Link to={`/admin/applicants/${row._id}`} className="font-medium text-primary-600 hover:underline">{row.fullName}</Link> },
+    { key: 'fullName', title: 'Applicant', render: (row) => row.fullName },
     { key: 'email', title: 'Contact', render: (row) => row.email },
     { key: 'linkedinProfileUrl', title: 'LinkedIn Profile', render: (row) => <a href={row.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline flex items-center">View <FiExternalLink className="ml-1"/></a>},
     { key: 'status', title: 'Status', render: (row) => <StatusBadge status={row.status} /> },
