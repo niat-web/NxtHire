@@ -1,8 +1,8 @@
+// client/src/components/forms/InitialApplicationForm.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import Select from 'react-select';
-// --- FIX IS ON THIS LINE ---
 import { FiSend, FiUser, FiMail, FiPhone, FiLinkedin, FiUsers } from 'react-icons/fi';
 import { submitApplication } from '../../api/applicant.api';
 import { useAlert } from '../../hooks/useAlert';
@@ -16,7 +16,13 @@ const InitialApplicationForm = ({ onSuccess }) => {
     handleSubmit,
     control,
     formState: { errors, isSubmitting } 
-  } = useForm({ mode: 'onBlur' });
+  } = useForm({ 
+    mode: 'onBlur',
+    // Set default value for the checkbox
+    defaultValues: {
+      interestedInJoining: true
+    }
+  });
 
   const onSubmit = async (data) => {
     try {
@@ -31,104 +37,202 @@ const InitialApplicationForm = ({ onSuccess }) => {
     }
   };
 
-  // Reusable Tailwind classes for the new dark theme design
-  const formInputBaseClasses = "block w-full pl-10 pr-3 py-2.5 border placeholder-gray-500 text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50 text-sm transition-all duration-200 bg-white/5";
-  const formInputNormalClasses = "border-gray-700 focus:border-cyan-400 focus:ring-cyan-400/30";
-  const formInputErrorClasses = "border-red-500 focus:border-red-500 focus:ring-red-500/30";
-  const formLabelClasses = "block text-sm font-semibold text-gray-300 mb-1.5";
-  const formErrorClasses = "mt-1.5 text-sm text-red-400";
-  const formIconClasses = "absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500";
-
-  // Custom styles for react-select to match the dark theme
   const customSelectStyles = {
     control: (provided, state) => ({
       ...provided,
-      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-      borderColor: state.isFocused ? '#22d3ee' : (errors.sourcingChannel ? '#ef4444' : '#4b5563'),
+      backgroundColor: '#f8fafc', 
+      borderColor: state.isFocused ? '#3b82f6' : (errors.sourcingChannel ? '#ef4444' : '#e2e8f0'), 
       borderRadius: '0.5rem',
-      paddingLeft: '2.5rem', // Make space for an icon
-      paddingTop: '0.30rem',
-      paddingBottom: '0.30rem',
-      boxShadow: state.isFocused ? `0 0 0 2px rgba(34, 211, 238, 0.2)` : 'none',
-      fontSize: '0.875rem',
-      transition: 'all 150ms ease-in-out',
-      '&:hover': { borderColor: '#9ca3af' },
+      boxShadow: state.isFocused ? '0 0 0 1px #3b82f6' : 'none',
+      paddingLeft: '2.25rem',
+      minHeight: '44px',
+      '&:hover': { borderColor: state.isFocused ? '#3b82f6' : '#cbd5e1' }, 
     }),
-    placeholder: (provided) => ({ ...provided, color: '#6b7280' }),
-    singleValue: (provided) => ({ ...provided, color: '#d1d5db' }),
-    menu: (provided) => ({ ...provided, backgroundColor: '#14162B', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.5rem' }),
+    placeholder: (provided) => ({ ...provided, color: '#94a3b8' }),
+    singleValue: (provided) => ({ ...provided, color: '#1e293b' }), 
+    menu: (provided) => ({ ...provided, backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '0.5rem', zIndex: 20 }),
     option: (provided, state) => ({
       ...provided,
-      backgroundColor: state.isSelected ? '#22d3ee' : state.isFocused ? 'rgba(255,255,255,0.1)' : 'transparent',
-      color: state.isSelected ? '#111827' : '#d1d5db',
+      backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#f1f5f9' : 'transparent',
+      color: state.isSelected ? '#ffffff' : '#1e293b',
     }),
     indicatorSeparator: () => ({ display: 'none' }),
-    dropdownIndicator: (provided) => ({ ...provided, color: '#6b7280' }),
+    dropdownIndicator: (provided) => ({ ...provided, color: '#94a3b8' }),
   };
 
+  const inputBaseClasses = "w-full py-2.5 pl-10 pr-4 bg-slate-100 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200";
+  const inputErrorClasses = "!border-red-500 !focus:ring-red-500 !focus:border-red-500";
+  const iconClasses = "absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400";
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
-        <div>
-          <label htmlFor="fullName" className={formLabelClasses}>Full Name <span className="text-red-400">*</span></label>
-          <div className="relative"><FiUser className={formIconClasses} /><input id="fullName" type="text" className={`${formInputBaseClasses} ${errors.fullName ? formInputErrorClasses : formInputNormalClasses}`} placeholder="e.g., Jane Doe" {...register('fullName', { required: 'Full name is required' })} /></div>
-          {errors.fullName && <p className={formErrorClasses}>{errors.fullName.message}</p>}
+    <>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
+          {/* Full Name Field */}
+          <div>
+            <label htmlFor="fullName" className="block text-sm font-medium text-slate-700 mb-1.5">
+              Full Name
+            </label>
+            <div className="relative">
+              <FiUser className={iconClasses} />
+              <input 
+                id="fullName" 
+                type="text" 
+                placeholder="John Doe" 
+                className={`${inputBaseClasses} ${errors.fullName && inputErrorClasses}`}
+                {...register('fullName', { required: 'Full name is required' })} 
+              />
+            </div>
+          </div>
+
+          {/* Email Field */}
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1.5">
+              Email Address
+            </label>
+            <div className="relative">
+              <FiMail className={iconClasses} />
+              <input 
+                id="email" 
+                type="email" 
+                placeholder="you@example.com" 
+                className={`${inputBaseClasses} ${errors.email && inputErrorClasses}`}
+                {...register('email', { required: 'Email is required', pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Please enter a valid email address' } })} 
+              />
+            </div>
+          </div>
+
+          {/* Phone Number Field */}
+          <div>
+            <label htmlFor="phoneNumber" className="block text-sm font-medium text-slate-700 mb-1.5">
+              Phone Number
+            </label>
+            <div className="relative">
+              <FiPhone className={iconClasses} />
+              <input 
+                id="phoneNumber" 
+                type="tel" 
+                placeholder="9876543210" 
+                className={`${inputBaseClasses} ${errors.phoneNumber && inputErrorClasses}`}
+                {...register('phoneNumber', { required: 'Phone number is required', pattern: { value: /^\d{10,15}$/, message: 'Please enter a valid phone number' } })} 
+              />
+            </div>
+          </div>
+
+          {/* WhatsApp Number Field */}
+          <div>
+            <label htmlFor="whatsappNumber" className="block text-sm font-medium text-slate-700 mb-1.5">
+              WhatsApp Number <span className="text-slate-400 text-xs">(Optional)</span>
+            </label>
+            <div className="relative">
+              <FiPhone className={iconClasses} />
+              <input 
+                id="whatsappNumber" 
+                type="tel" 
+                placeholder="Same as phone" 
+                className={`${inputBaseClasses} ${errors.whatsappNumber && inputErrorClasses}`}
+                {...register('whatsappNumber')} 
+              />
+            </div>
+          </div>
         </div>
+
+        {/* LinkedIn URL Field */}
         <div>
-          <label htmlFor="email" className={formLabelClasses}>Email Address <span className="text-red-400">*</span></label>
-          <div className="relative"><FiMail className={formIconClasses} /><input id="email" type="email" className={`${formInputBaseClasses} ${errors.email ? formInputErrorClasses : formInputNormalClasses}`} placeholder="you@example.com" {...register('email', { required: 'Email is required', pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Please enter a valid email address' } })} /></div>
-          {errors.email && <p className={formErrorClasses}>{errors.email.message}</p>}
-        </div>
-        <div>
-          <label htmlFor="phoneNumber" className={formLabelClasses}>Phone Number <span className="text-red-400">*</span></label>
-          <div className="relative"><FiPhone className={formIconClasses} /><input id="phoneNumber" type="tel" className={`${formInputBaseClasses} ${errors.phoneNumber ? formInputErrorClasses : formInputNormalClasses}`} placeholder="e.g., 9876543210" {...register('phoneNumber', { required: 'Phone number is required', pattern: { value: /^\d{10,15}$/, message: 'Please enter a valid phone number' } })} /></div>
-          {errors.phoneNumber && <p className={formErrorClasses}>{errors.phoneNumber.message}</p>}
-        </div>
-        <div>
-          <label htmlFor="whatsappNumber" className={formLabelClasses}>WhatsApp Number</label>
-          <div className="relative"><FiPhone className={formIconClasses} /><input id="whatsappNumber" type="tel" className={`${formInputBaseClasses} ${errors.whatsappNumber ? formInputErrorClasses : formInputNormalClasses}`} placeholder="If different from phone" {...register('whatsappNumber')} /></div>
-          {errors.whatsappNumber && <p className={formErrorClasses}>{errors.whatsappNumber.message}</p>}
-        </div>
-      </div>
-      <div>
-        <label htmlFor="linkedinProfileUrl" className={formLabelClasses}>LinkedIn Profile URL <span className="text-red-400">*</span></label>
-        <div className="relative"><FiLinkedin className={formIconClasses} /><input id="linkedinProfileUrl" type="url" className={`${formInputBaseClasses} ${errors.linkedinProfileUrl ? formInputErrorClasses : formInputNormalClasses}`} placeholder="https://linkedin.com/in/your-profile" {...register('linkedinProfileUrl', { required: 'LinkedIn profile URL is required', validate: value => value.includes('linkedin.com/') || 'Please enter a valid LinkedIn profile URL' })} /></div>
-        {errors.linkedinProfileUrl && <p className={formErrorClasses}>{errors.linkedinProfileUrl.message}</p>}
-      </div>
-      <div className="relative">
-        <label htmlFor="sourcingChannel" className={formLabelClasses}>How did you hear about us? <span className="text-red-400">*</span></label>
-        <Controller name="sourcingChannel" control={control} rules={{ required: 'Please select an option' }}
-          render={({ field }) => (
-            <Select
-              {...field}
-              instanceId="sourcing-channel-select" options={SOURCING_CHANNELS}
-              value={SOURCING_CHANNELS.find(c => c.value === field.value)}
-              onChange={val => field.onChange(val.value)}
-              styles={customSelectStyles} placeholder="Select an option"
+          <label htmlFor="linkedinProfileUrl" className="block text-sm font-medium text-slate-700 mb-1.5">
+            LinkedIn Profile URL
+          </label>
+          <div className="relative">
+            <FiLinkedin className={iconClasses} />
+            <input 
+              id="linkedinProfileUrl" 
+              type="url" 
+              placeholder="https://www.linkedin.com/in/your-profile" 
+              className={`${inputBaseClasses} ${errors.linkedinProfileUrl && inputErrorClasses}`}
+              {...register('linkedinProfileUrl', { required: 'LinkedIn profile URL is required', validate: value => value.includes('linkedin.com/') || 'Please enter a valid LinkedIn profile URL' })} 
             />
-          )}
-        />
-        <FiUsers className={`${formIconClasses} top-10`} />
-        {errors.sourcingChannel && <p className={formErrorClasses}>{errors.sourcingChannel.message}</p>}
-      </div>
-      <div>
-        <label htmlFor="additionalComments" className={formLabelClasses}>Additional Comments</label>
-        <textarea id="additionalComments" className={`${formInputBaseClasses} pl-3 h-24`} placeholder="Anything else you'd like to share..." rows={4} {...register('additionalComments')} />
-      </div>
-      
-      <div className="pt-4 flex justify-end">
-        <button
-          type="submit" disabled={isSubmitting}
-          className="group relative inline-flex w-full items-center justify-center overflow-hidden rounded-full py-3 px-8 text-base font-semibold text-white shadow-lg transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_20px_rgba(147,51,234,0.5)] disabled:opacity-60"
-        >
-          <span className="absolute inset-0 bg-gradient-to-r from-fuchsia-600 via-purple-600 to-cyan-600"></span>
-          <span className="relative flex items-center">
-            {isSubmitting ? 'Submitting...' : 'Submit Application'}
-            {!isSubmitting && <FiSend className="ml-2 h-5 w-5"/>}
-          </span>
-        </button>
-      </div>
-    </form>
+          </div>
+        </div>
+
+        {/* Sourcing Channel Field */}
+        <div>
+          <label htmlFor="sourcingChannel" className="block text-sm font-medium text-slate-700 mb-1.5">
+            How did you hear about us?
+          </label>
+          <div className="relative">
+            <FiUsers className={`${iconClasses} z-10`} />
+            <Controller 
+              name="sourcingChannel" 
+              control={control} 
+              rules={{ required: 'Please select an option' }}
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  instanceId="sourcing-channel-select" 
+                  options={SOURCING_CHANNELS}
+                  value={SOURCING_CHANNELS.find(c => c.value === field.value)}
+                  onChange={val => field.onChange(val.value)}
+                  styles={customSelectStyles} 
+                  placeholder="Select an option"
+                />
+              )}
+            />
+          </div>
+        </div>
+
+        {/* Additional Comments Field */}
+        <div>
+          <label htmlFor="additionalComments" className="block text-sm font-medium text-slate-700 mb-1.5">
+            Additional Comments <span className="text-slate-400 text-xs">(Optional)</span>
+          </label>
+          <textarea 
+            id="additionalComments" 
+            rows={3} 
+            placeholder="Anything else you'd like to share..." 
+            className="w-full py-2.5 px-4 bg-slate-100 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+            {...register('additionalComments')} 
+          />
+        </div>
+        
+        {/* --- ADDITION START: Interested Checkbox --- */}
+        <div>
+          <div className="flex items-start">
+            <div className="flex h-5 items-center">
+              <input
+                id="interestedInJoining"
+                type="checkbox"
+                className="h-4 w-4 rounded border-slate-400 bg-slate-100 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                {...register('interestedInJoining')}
+              />
+            </div>
+            <div className="ml-3 text-sm">
+              <label htmlFor="interestedInJoining" className="font-medium text-slate-700 cursor-pointer">
+                I am interested in joining the Interviewer.
+              </label>
+            </div>
+          </div>
+        </div>
+        {/* --- ADDITION END --- */}
+        
+        {/* Submit Button */}
+        <div className="pt-2">
+          <button
+            type="submit" 
+            disabled={isSubmitting}
+            className="w-full flex items-center justify-center bg-blue-600 hover:bg-blue-700 py-3 px-4 rounded-lg text-white font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg hover:shadow-blue-500/20"
+          >
+            {isSubmitting ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+            ) : (
+              <>
+                <FiSend className="h-5 w-5 mr-2"/>
+                Submit Application
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+    </>
   );
 };
 
