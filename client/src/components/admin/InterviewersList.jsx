@@ -128,9 +128,15 @@ const InterviewersList = () => {
         render: (row) => row.user?.email || ''
       },
       {
-        key: 'primaryDomain',
-        title: 'Domain',
-        render: (row) => row.primaryDomain
+        key: 'domains',
+        title: 'Domains',
+        render: (row) => (
+            <div className="flex flex-wrap gap-1">
+                {(row.domains || []).map((domain, index) => (
+                    <Badge key={index} variant="primary" size="sm">{domain}</Badge>
+                ))}
+            </div>
+        )
       },
       {
         key: 'status',
