@@ -26,6 +26,16 @@ const InterviewerSchema = new mongoose.Schema({
     default: () => crypto.randomUUID(),
     index: true,
   },
+  payoutId: {
+    type: String,
+    trim: true,
+    unique: true,
+    sparse: true, 
+  },
+  welcomeEmailSentAt: {
+    type: Date,
+    default: null,
+  },
   applicant: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Applicant',
@@ -33,26 +43,25 @@ const InterviewerSchema = new mongoose.Schema({
   },
   currentEmployer: {
     type: String,
-    required: true,
+    // MODIFICATION: Removed 'required: true' to make it optional
     trim: true
   },
   jobTitle: {
     type: String,
-    required: true,
+    // MODIFICATION: Removed 'required: true' to make it optional
     trim: true
   },
   yearsOfExperience: {
     type: Number,
-    required: true,
+    // MODIFICATION: Set a default value to handle cases where it might be empty
+    default: 0,
     min: 0
   },
-  // --- MODIFICATION START ---
   companyType: {
     type: String,
     enum: ['Product-based', 'Service-based', 'Startup', 'Other'],
     default: 'Other'
   },
-  // --- MODIFICATION END ---
   domains: [{
     type: String,
     enum: [
@@ -61,22 +70,10 @@ const InterviewerSchema = new mongoose.Schema({
       'PYTHON', 
       'DA', 
       'QA', 
-      'Other'
+      'OTHER'
     ],
     required: true
   }],
-  primaryDomain: {
-    type: String,
-    enum: [
-        'MERN', 
-        'JAVA', 
-        'PYTHON', 
-        'DA', 
-        'QA', 
-        'Other'
-    ],
-    required: true
-  },
   skills: [{
     skill: {
       type: String,
@@ -181,7 +178,6 @@ const InterviewerSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// --- MODIFICATION START ---
 // Auto-calculate payment amount when experience or company type changes
 InterviewerSchema.pre('save', function(next) {
   if (this.isModified('yearsOfExperience') || this.isModified('companyType')) {
@@ -204,7 +200,6 @@ InterviewerSchema.pre('save', function(next) {
   }
   next();
 });
-// --- MODIFICATION END ---
 
 InterviewerSchema.pre('save', function(next) {
   const { interviewsCompleted, averageRating, completionRate } = this.metrics;
