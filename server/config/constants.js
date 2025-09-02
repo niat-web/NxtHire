@@ -62,7 +62,7 @@ const DOMAINS = [
   'PYTHON',
   'DA',
   'QA',
-  'Other'
+  'OTHER'
 ];
 
 const GUIDELINES_QUESTIONS = [
