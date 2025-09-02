@@ -11,14 +11,14 @@ const InterviewBooking = require("../models/InterviewBooking");
 const MainSheetEntry = require('../models/MainSheetEntry');
 const PublicBooking = require('../models/PublicBooking');
 const StudentBooking = require('../models/StudentBooking');
-const Domain = require('../models/Domain'); 
-const EvaluationSheet = require('../models/EvaluationSheet'); 
+const Domain = require('../models/Domain');
+const EvaluationSheet = require('../models/EvaluationSheet');
 const Counter = require('../models/Counter');
 const PaymentConfirmation = require('../models/PaymentConfirmation');
 const jwt = require('jsonwebtoken');
 const PayoutSheet = require('../models/PayoutSheet');
 const CustomEmailTemplate = require('../models/CustomEmailTemplate');
-const { APPLICATION_STATUS, INTERVIEWER_STATUS, EMAIL_TEMPLATES } = require("../config/constants");
+const { APPLICATION_STATUS, INTERVIEWER_STATUS, EMAIL_TEMPLATES, DOMAINS } = require("../config/constants");
 const { sendEmail, sendAccountCreationEmail, sendNewInterviewerWelcomeEmail, sendStudentBookingInvitationEmail } = require('../services/email.service');
 const { sendNotificationToInterviewer } = require('../services/push.service');
 const { sendWelcomeWhatsApp } = require('../services/whatsapp.service');
@@ -127,79 +127,196 @@ const bulkUploadMainSheetEntries = asyncHandler(async (req, res) => {
 const bulkUploadInterviewers = asyncHandler(async (req, res) => {
     const interviewersData = req.body;
     const { _id: adminId } = req.user;
-    
+
     if (!interviewersData || !Array.isArray(interviewersData) || interviewersData.length === 0) {
         res.status(400);
         throw new Error('No interviewer data provided for upload.');
     }
-    
-    const results = { created: 0, skipped: 0, errors: [] };
-    
+
+    // --- NEW VALIDATION LOGIC ---
+    const validEntries = [];
+    const failedEntries = [];
+
+    // Pre-fetch existing emails for efficient checking
+    const existingEmails = new Set((await User.find({}, 'email')).map(u => u.email));
+    // Keep track of emails in the current CSV to detect duplicates within the file
+    const emailsInCsv = new Set();
+
     for (const [index, data] of interviewersData.entries()) {
-        const { email, firstName, lastName, primaryDomain, phoneNumber } = data;
+        const rowNumber = index + 2; // CSVs are usually 1-indexed with a header row
+        const errors = [];
+        const email = (data.email || '').trim().toLowerCase();
+
+        // 1. Check for required fields
+        if (!email) errors.push({ field: 'email', message: 'Email is required but missing.' });
+        if (!data.firstName) errors.push({ field: 'firstName', message: 'firstName is required but missing.' });
+        if (!data.phoneNumber) errors.push({ field: 'phoneNumber', message: 'phoneNumber is required but missing.' });
+        if (!data.domains) errors.push({ field: 'domains', message: 'domains column is required but missing.' });
+        if (!data.temporaryPassword) errors.push({ field: 'temporaryPassword', message: 'temporaryPassword is required but missing.' });
+
+        // 2. Check email format and uniqueness
+        if (email) {
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                errors.push({ field: 'email', message: `Invalid email format: "${data.email}"` });
+            }
+            if (existingEmails.has(email)) {
+                errors.push({ field: 'email', message: 'Email already exists in the database.' });
+            }
+            if (emailsInCsv.has(email)) {
+                errors.push({ field: 'email', message: 'Email is duplicated within this import file.' });
+            }
+        }
+        emailsInCsv.add(email);
         
-        if (!email || !firstName || !lastName || !primaryDomain || !phoneNumber) {
-            results.errors.push({ row: index + 2, message: `Missing required fields (email, firstName, lastName, phoneNumber, primaryDomain) for ${email || 'N/A'}.` });
-            continue;
+        // 3. Check LinkedIn URL format
+        if (data.linkedinProfileUrl && !data.linkedinProfileUrl.startsWith('http')) {
+            errors.push({ field: 'linkedinProfileUrl', message: 'URL must start with http:// or https://' });
+        }
+        
+        // 4. Validate and parse domains
+        const validDomains = DOMAINS;
+        let processedDomains = [];
+        if (typeof data.domains === 'string') {
+            processedDomains = data.domains.split(',').map(d => d.trim().toUpperCase()).filter(Boolean);
+            const invalidDomains = processedDomains.filter(d => !validDomains.includes(d));
+            if (invalidDomains.length > 0) {
+                errors.push({ field: 'domains', message: `Contains invalid domains: ${invalidDomains.join(', ')}.` });
+            }
+        } else {
+             errors.push({ field: 'domains', message: 'Domains field must be a comma-separated string.' });
         }
 
-        const userExists = await User.findOne({ email });
-        if (userExists) {
-            results.skipped++;
-            results.errors.push({ row: index + 2, message: `User with email ${email} already exists. Skipped.` });
-            continue;
+        if (errors.length > 0) {
+            failedEntries.push({ rowNumber, data, errors });
+        } else {
+            validEntries.push({ ...data, domains: processedDomains });
         }
-        
+    }
+    // --- END NEW VALIDATION LOGIC ---
+
+    // Now, process only the valid entries
+    const results = { created: 0, errors: [] };
+
+    for (const data of validEntries) {
         const session = await mongoose.startSession();
         try {
             await session.withTransaction(async () => {
-                const tempPassword = crypto.randomBytes(10).toString('hex');
+                const { email, firstName, lastName, phoneNumber, temporaryPassword, domains } = data;
                 
-                // Create a corresponding Applicant record
+                // Applicant and User creation remains the same
                 const applicant = await Applicant.create([{
-                    fullName: `${firstName} ${lastName}`, email, phoneNumber,
-                    linkedinProfileUrl: 'https://linkedin.com/in/imported-via-bulk',
+                    fullName: `${firstName} ${lastName || ''}`.trim(), email, phoneNumber,
+                    linkedinProfileUrl: data.linkedinProfileUrl || 'N/A (Bulk Import)', 
                     sourcingChannel: 'Other', status: APPLICATION_STATUS.ONBOARDED,
                 }], { session });
 
-                // Create the User record for login
                 const newUser = await User.create([{
-                    email, password: tempPassword, firstName, lastName,
+                    email, password: temporaryPassword, firstName, lastName: lastName || '',
                     phoneNumber, whatsappNumber: data.whatsappNumber || phoneNumber,
                     role: 'interviewer'
                 }], { session });
-                
-                // Create the Interviewer record
-                const interviewer = await Interviewer.create([{
+
+                // Interviewer payload construction remains similar
+                const interviewerPayload = {
                     ...data,
                     user: newUser[0]._id,
                     applicant: applicant[0]._id,
-                    domains: [primaryDomain], // Sets the primary domain as the initial domain
-                }], { session });
+                    domains: domains,
+                    primaryDomain: domains[0] || 'Other',
+                    payoutId: data.payoutId || data['Payout Ids'], 
+                    bankDetails: {
+                        accountName: data['bankDetails.accountName'],
+                        accountNumber: data['bankDetails.accountNumber'],
+                        bankName: data['bankDetails.bankName'],
+                        ifscCode: data['bankDetails.ifscCode'],
+                    }
+                };
                 
+                await Interviewer.create([interviewerPayload], { session });
                 results.created++;
             });
         } catch (error) {
-            results.errors.push({ row: index + 2, message: `Failed to import ${email}: ${error.message}` });
+            // Even with validation, a transaction could fail (e.g., db connection drop)
+            // We add this back to the failed list for the log.
+            failedEntries.push({ 
+                rowNumber: 'N/A', 
+                data: data, 
+                errors: [{ field: 'Database', message: `Transaction failed: ${error.message}` }]
+            });
         } finally {
             session.endSession();
         }
     }
     
-    logEvent('interviewers_bulk_uploaded', { ...results, adminId });
+    logEvent('interviewers_bulk_uploaded_v2', {
+        created: results.created,
+        failed: failedEntries.length,
+        adminId: req.user._id,
+    });
+    
+    // Sort failed entries by row number for a clean log file
+    failedEntries.sort((a, b) => a.rowNumber - b.rowNumber);
 
-    if (results.errors.length > 0) {
-        return res.status(207).json({ 
-            success: true, 
-            message: `Process completed with some issues. Created: ${results.created}, Skipped: ${results.skipped}, Failed: ${results.errors.length}.`,
-            data: results 
-        });
-    }
-
-    res.status(201).json({ success: true, message: `${results.created} interviewers created successfully.`, data: results });
+    res.status(207).json({ // 207 Multi-Status is perfect for partial success
+        success: true, 
+        message: `Process completed. Created: ${results.created}, Failed: ${failedEntries.length}.`,
+        data: {
+            created: results.created,
+            skipped: 0, // We are no longer just "skipping", we are reporting failure.
+            failedEntries: failedEntries
+        }
+    });
 });
 // --- ADDITIONS END ---
 
+// --- MODIFICATION START ---
+// @desc    Send a welcome/account creation email manually
+// @route   POST /api/admin/interviewers/:id/send-welcome-email
+// @access  Private/Admin
+const sendWelcomeEmail = asyncHandler(async (req, res) => {
+    const interviewer = await Interviewer.findById(req.params.id).populate('user');
+
+    if (!interviewer) {
+        res.status(404);
+        throw new Error('Interviewer not found.');
+    }
+
+    if (interviewer.welcomeEmailSentAt) {
+        res.status(400);
+        throw new Error('A welcome email has already been sent to this interviewer.');
+    }
+    
+    const user = interviewer.user;
+    if (!user) {
+        res.status(404);
+        throw new Error('Associated user account not found.');
+    }
+    
+    const applicant = await Applicant.findById(interviewer.applicant);
+    if (!applicant) {
+         // This is an edge case, but good to handle
+         res.status(404);
+         throw new Error('Associated applicant record not found.');
+    }
+
+    // Generate a secure one-time-use token for password creation
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    user.passwordResetExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+    await user.save();
+    
+    // Send the account creation email with the setup link
+    await sendAccountCreationEmail(user, resetToken, applicant);
+
+    // Mark the email as sent
+    interviewer.welcomeEmailSentAt = new Date();
+    await interviewer.save();
+    
+    logEvent('welcome_email_sent_manually', { interviewerId: interviewer._id, adminId: req.user._id });
+    
+    res.json({ success: true, message: 'Welcome email sent successfully.' });
+});
+// --- MODIFICATION END ---
 
 // --- Custom Email Feature Controllers ---
 // @desc    Create a custom email template
@@ -697,9 +814,6 @@ const getPaymentRequests = asyncHandler(async (req, res) => {
         matchStage.interviewDate = { $gte: new Date(startDate), $lte: new Date(endDate) };
     }
     
-    // --- THIS IS THE OLD, BUGGY PART ---
-    // const monthYearForLookup = startDate ? new Date(startDate).toLocaleString('en-US', { month: 'long', year: 'numeric' }) : null;
-
     const pipeline = [
         { $match: matchStage },
         { $lookup: { from: 'interviewers', localField: 'interviewer', foreignField: '_id', as: 'interviewerInfo' }},
@@ -719,12 +833,10 @@ const getPaymentRequests = asyncHandler(async (req, res) => {
             totalAmount: { $sum: '$paymentAmountNum' }
         }},
         {
-            // --- FIX STARTS HERE ---
             $lookup: {
                 from: 'paymentconfirmations',
                 let: {
                     interviewerId: '$_id',
-                    // Pass the exact date objects to the sub-pipeline
                     periodStart: new Date(startDate), 
                     periodEnd: new Date(endDate)
                 },
@@ -734,7 +846,6 @@ const getPaymentRequests = asyncHandler(async (req, res) => {
                             $expr: {
                                 $and: [
                                     { $eq: ["$interviewer", "$$interviewerId"] },
-                                    // Match on the exact dates, not the formatted month string
                                     { $eq: ["$startDate", "$$periodStart"] },
                                     { $eq: ["$endDate", "$$periodEnd"] }
                                 ]
@@ -746,7 +857,6 @@ const getPaymentRequests = asyncHandler(async (req, res) => {
                 ],
                 as: 'confirmation'
             }
-            // --- FIX ENDS HERE ---
         },
         { $unwind: { path: '$confirmation', preserveNullAndEmptyArrays: true } },
         {
@@ -910,7 +1020,13 @@ const exportApplicants = asyncHandler(async (req, res) => {
 });
 
 const getInterviewers = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, search, status, domain, paymentTier, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+    // --- MODIFICATION START ---
+    const { search, status, domain, paymentTier, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+
+    // Get the absolute total count before applying any filters
+    const absoluteTotal = await Interviewer.countDocuments();
+    // --- MODIFICATION END ---
+    
     const query = {};
 
     if (status) {
@@ -942,14 +1058,13 @@ const getInterviewers = asyncHandler(async (req, res) => {
     
     pipeline.push({ $match: query });
     
+    // This count now represents the filtered total
     const countPipeline = [...pipeline, { $count: 'totalDocs' }];
     const totalResult = await Interviewer.aggregate(countPipeline);
     const totalDocs = totalResult[0]?.totalDocs || 0;
     
     const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
     pipeline.push({ $sort: sort });
-    pipeline.push({ $skip: (parseInt(page) - 1) * parseInt(limit) });
-    pipeline.push({ $limit: parseInt(limit) });
     
     pipeline.push({
       $project: {
@@ -963,8 +1078,8 @@ const getInterviewers = asyncHandler(async (req, res) => {
           },
           _id: 1, 
           interviewerId: 1,
+          payoutId: 1,
           status: 1, 
-          primaryDomain: 1, 
           domains: 1, 
           paymentTier: 1, 
           paymentAmount: 1,
@@ -973,6 +1088,7 @@ const getInterviewers = asyncHandler(async (req, res) => {
           yearsOfExperience: 1,
           companyType: 1,
           bankDetails: 1,
+          welcomeEmailSentAt: 1,
           'metrics.interviewsCompleted': 1, 
           onboardingDate: 1, 
           createdAt: 1
@@ -981,14 +1097,16 @@ const getInterviewers = asyncHandler(async (req, res) => {
 
     const interviewers = await Interviewer.aggregate(pipeline);
 
+    // --- MODIFICATION START: Add 'absoluteTotal' to the response ---
     res.json({
         success: true,
         data: {
             interviewers,
-            page: parseInt(page), limit: parseInt(limit), totalDocs,
-            totalPages: Math.ceil(totalDocs / parseInt(limit))
+            totalDocs, // This is the filtered count
+            absoluteTotal // This is the total count of all interviewers
         }
     });
+    // --- MODIFICATION END ---
 });
 
 const getInterviewerDetails = asyncHandler(async (req, res) => {
@@ -1007,7 +1125,7 @@ const createInterviewer = asyncHandler(async (req, res) => {
     }
 
     const applicant = await Applicant.create({
-        fullName: `${firstName} ${lastName}`,
+        fullName: lastName ? `${firstName} ${lastName}`.trim() : firstName,
         email,
         phoneNumber,
         whatsappNumber: whatsappNumber || phoneNumber,
@@ -1030,15 +1148,8 @@ const createInterviewer = asyncHandler(async (req, res) => {
         ...interviewerData,
         user: newUser._id,
         applicant: applicant._id,
-        domains: [interviewerData.primaryDomain],
     });
     
-    await sendNewInterviewerWelcomeEmail(newUser, newInterviewer, password);
-    
-    if (newUser.whatsappNumber || applicant.whatsappNumber) {
-        await sendWelcomeWhatsApp(newUser, applicant);
-    }
-
     logEvent('interviewer_created_by_admin', {
         interviewerId: newInterviewer._id,
         adminId: req.user._id
@@ -1062,6 +1173,11 @@ const updateInterviewer = asyncHandler(async (req, res) => {
         user.email = email;
     }
     await user.save();
+    
+    if (interviewerData.domains && interviewerData.domains.length > 0 && !interviewerData.primaryDomain) {
+      interviewerData.primaryDomain = interviewerData.domains[0];
+    }
+    
     Object.assign(interviewer, interviewerData);
     const updatedInterviewer = await interviewer.save();
     res.json({ success: true, data: updatedInterviewer });
@@ -1138,7 +1254,7 @@ const processLinkedInReview = asyncHandler(async (req, res) => {
         applicant.status = APPLICATION_STATUS.PROFILE_APPROVED;
         if (notes) applicant.reviewNotes = notes;
         await applicant.save();
-        await sendEmail({ recipient: applicant._id, recipientModel: 'Applicant', recipientEmail: applicant.email, templateName: 'skillAssessmentInvitation', subject: 'Next Steps: Skill Assessment - NxtWave Interviewer Program', templateData: { name: applicant.fullName, skillAssessmentLink: `${process.env.CLIENT_URL}/skill-assessment/${applicant._id}` }, relatedTo: 'Skill Assessment', sentBy: req.user._id, isAutomated: false });
+        await sendEmail({ recipient: applicant._id, recipientModel: 'Applicant', recipientEmail: applicant.email, templateName: 'skillAssessmentInvitation', subject: 'Next Steps: Skills Details Form - NxtWave Interviewer Program', templateData: { name: applicant.fullName, skillAssessmentLink: `${process.env.CLIENT_URL}/skill-assessment/${applicant._id}` }, relatedTo: 'Skill Assessment', sentBy: req.user._id, isAutomated: false });
         applicant.status = APPLICATION_STATUS.SKILLS_ASSESSMENT_SENT;
         await applicant.save();
         logEvent('linkedin_review_approved', { applicantId: applicant._id, reviewedBy: req.user._id, email: applicant.email });
@@ -1211,6 +1327,13 @@ const processGuidelinesReview = asyncHandler(async (req, res) => {
       const interviewer = await Interviewer.create({ user: user._id, applicant: applicant._id, currentEmployer: skillAssessment.currentEmployer, jobTitle: skillAssessment.jobTitle, yearsOfExperience: skillAssessment.yearsOfExperience, domains: skillAssessment.domains, primaryDomain: skillAssessment.domains[0] || 'Other', skills: interviewerSkills });
       applicant.status = APPLICATION_STATUS.ONBOARDED; applicant.interviewer = interviewer._id; await applicant.save();
       await sendAccountCreationEmail(user, resetToken, applicant);
+       // --- CORRECTION START ---
+      // Record that the welcome email was sent.
+      // Interviewer.create() returns a single object here, not an array, so we use the 'interviewer' object directly.
+      interviewer.welcomeEmailSentAt = new Date();
+      await interviewer.save();
+      // --- CORRECTION END ---
+      
       if (applicant.whatsappNumber) { await sendWelcomeWhatsApp(user, applicant); }
       logEvent('applicant_onboarded_by_admin', { applicantId: applicant._id, interviewerId: interviewer._id, adminId: req.user._id });
     } else if (decision === 'reject') {
@@ -1690,7 +1813,7 @@ const sendBookingReminders = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error('Active public booking link not found.');
     }
-    const bookedStudents = await StudentBooking.find({ publicBooking: id }).select('studentEmail -_id');
+    const bookedStudents = await StudentBooking.find({ publicBooking: id }).select('studentEmail -_id').lean();
     const bookedEmails = new Set(bookedStudents.map(s => s.studentEmail));
     const studentsToRemind = publicBooking.allowedStudents.filter(student => !bookedEmails.has(student.email));
 
@@ -2062,8 +2185,10 @@ module.exports = {
     deleteCustomEmailTemplate,
     sendBulkCustomEmail,
     bulkUploadMainSheetEntries,
-    bulkUploadInterviewers,
-    getDashboardAnalytics,
+    bulkUploadInterviewers, getDashboardAnalytics,
     getLatestInterviewDate, // <-- Export the new function
     getDomainEvaluationSummary,
+    // --- MODIFICATION START ---
+    sendWelcomeEmail,
+    // --- MODIFICATION END ---
 };
