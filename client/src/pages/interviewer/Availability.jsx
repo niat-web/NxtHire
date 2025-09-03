@@ -1,18 +1,17 @@
 // client/src/pages/interviewer/Availability.jsx
 import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import Loader from '@/components/common/Loader';
 import Button from '@/components/common/Button';
 import EmptyState from '@/components/common/EmptyState';
-import SlotSubmissionModal from '@/components/interviewer/SlotSubmissionModal';
-import Modal from '@/components/common/Modal'; // Import the Modal component
+import Modal from '@/components/common/Modal'; 
 import Textarea from '@/components/common/Textarea';
 import { getBookingRequests, declineBookingRequest } from '@/api/interviewer.api';
 import { useAlert } from '@/hooks/useAlert';
-import { FiCalendar, FiClock, FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import { FiCalendar, FiClock, FiCheckCircle, FiXCircle, FiX } from 'react-icons/fi';
 import { formatDate } from '@/utils/formatters';
 
-// --- MODIFICATION START: New Modal Component for Declining ---
 const DeclineModal = ({ isOpen, onClose, onSubmit, request }) => {
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
     return (
@@ -43,17 +42,14 @@ const DeclineModal = ({ isOpen, onClose, onSubmit, request }) => {
         </Modal>
     );
 };
-// --- MODIFICATION END ---
 
 
 const Availability = () => {
   const { showSuccess, showError } = useAlert();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [requests, setRequests] = useState([]);
-  const [slotModalState, setSlotModalState] = useState({ isOpen: false, request: null });
-  // --- MODIFICATION START: State for the new decline modal ---
   const [declineModalState, setDeclineModalState] = useState({ isOpen: false, request: null });
-  // --- MODIFICATION END ---
 
   const fetchRequests = useCallback(async () => {
     setLoading(true);
@@ -72,14 +68,10 @@ const Availability = () => {
     fetchRequests();
   }, [fetchRequests]);
 
-  const handleOpenSlotModal = (request) => {
-    setSlotModalState({ isOpen: true, request });
-  };
-  const handleCloseSlotModal = () => {
-    setSlotModalState({ isOpen: false, request: null });
+  const handleProvideAvailability = (request) => {
+    navigate(`/interviewer/provide-availability/${request.bookingId}`);
   };
   
-  // --- MODIFICATION START: Handlers for decline modal ---
   const handleOpenDeclineModal = (request) => {
     setDeclineModalState({ isOpen: true, request });
   };
@@ -95,16 +87,14 @@ const Availability = () => {
         showError("Failed to submit. Please try again.");
     }
   };
-  // --- MODIFICATION END ---
   
   const handleSuccess = () => {
-    handleCloseSlotModal();
-    handleCloseDeclineModal(); // Also close this modal on success
-    fetchRequests(); // Re-fetch to show updated status
+    handleCloseDeclineModal();
+    fetchRequests();
   };
 
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // Set time to midnight for accurate date-only comparison
+  today.setHours(0, 0, 0, 0);
 
   if (loading) {
     return (
@@ -159,7 +149,7 @@ const Availability = () => {
                         </Button>
                         <Button
                           variant="primary"
-                          onClick={() => handleOpenSlotModal(req)}
+                          onClick={() => handleProvideAvailability(req)}
                           icon={<FiClock />}
                           iconPosition="left"
                         >
@@ -179,16 +169,7 @@ const Availability = () => {
           icon={<FiCheckCircle className="h-12 w-12" />}
         />
       )}
-
-      {slotModalState.isOpen && (
-        <SlotSubmissionModal
-          isOpen={slotModalState.isOpen}
-          onClose={handleCloseSlotModal}
-          request={slotModalState.request}
-          onSuccess={handleSuccess}
-        />
-      )}
-
+      
       {declineModalState.isOpen && (
           <DeclineModal
             isOpen={declineModalState.isOpen}
