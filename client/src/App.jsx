@@ -46,7 +46,7 @@ import InterviewerBookingTrackingPage from '@/pages/admin/InterviewerBookingTrac
 import AdminDomainEvaluationPage from '@/pages/admin/AdminDomainEvaluationPage';
 import EarningsReportPage from '@/pages/admin/EarningsReportPage';
 import CustomEmailPage from '@/pages/admin/CustomEmailPage';
-import NewInterviewBooking from '@/pages/admin/NewInterviewBooking'; // --- 1. IMPORT THE NEW PAGE ---
+import NewInterviewBooking from '@/pages/admin/NewInterviewBooking';
 
 // Interviewer Pages
 import InterviewerDashboard from '@/pages/interviewer/Dashboard';
@@ -55,6 +55,8 @@ import Availability from '@/pages/interviewer/Availability';
 import InterviewEvaluation from '@/pages/interviewer/InterviewEvaluation';
 import PaymentDetails from '@/pages/interviewer/PaymentDetails.jsx';
 import InterviewerDomainEvaluationPage from '@/pages/interviewer/InterviewerDomainEvaluationPage';
+import ProvideAvailabilityPage from '@/pages/interviewer/ProvideAvailabilityPage';
+
 
 // Route Protection Components
 import AdminRoutes from './router/AdminRoutes';
@@ -133,7 +135,6 @@ function App() {
           <Route path="/admin/evaluation-setup" element={<DomainManagement />} />
           <Route path="/admin/domain-evaluation" element={<AdminDomainEvaluationPage />} />
           <Route path="/admin/custom-email" element={<CustomEmailPage />} />
-          {/* --- 2. ADD THE NEW ROUTES HERE --- */}
           <Route path="/admin/bookings/new" element={<NewInterviewBooking />} />
           <Route path="/admin/bookings/edit/:id" element={<NewInterviewBooking />} />
         </Route>
@@ -150,6 +151,7 @@ function App() {
           <Route path="/interviewer/domain-evaluation" element={<InterviewerDomainEvaluationPage />} />
           <Route path="/interviewer/profile" element={<Profile />} />
           <Route path="/interviewer/availability" element={<Availability />} />
+          <Route path="/interviewer/provide-availability/:bookingId" element={<ProvideAvailabilityPage />} />
           <Route path="/interviewer/payment-details" element={<PaymentDetails />} />
         </Route>
       </Route>
