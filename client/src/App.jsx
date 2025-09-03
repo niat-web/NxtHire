@@ -1,3 +1,4 @@
+// client/src/App.jsx
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 
@@ -36,7 +37,7 @@ import UserManagement from '@/pages/admin/UserManagement';
 import InterviewBookings from '@/pages/admin/InterviewBookings';
 import BookingSlots from '@/pages/admin/BookingSlots';
 import MainSheet from '@/pages/admin/MainSheet';
-import MainSheetForm from '@/pages/admin/MainSheetForm'; 
+import MainSheetForm from '@/pages/admin/MainSheetForm';
 import StudentBookings from '@/pages/admin/StudentBookings';
 import ConfirmedSlots from '@/pages/admin/ConfirmedSlots';
 import EmailTrackingPage from '@/pages/admin/EmailTrackingPage';
@@ -45,6 +46,7 @@ import InterviewerBookingTrackingPage from '@/pages/admin/InterviewerBookingTrac
 import AdminDomainEvaluationPage from '@/pages/admin/AdminDomainEvaluationPage';
 import EarningsReportPage from '@/pages/admin/EarningsReportPage';
 import CustomEmailPage from '@/pages/admin/CustomEmailPage';
+import NewInterviewBooking from '@/pages/admin/NewInterviewBooking'; // --- 1. IMPORT THE NEW PAGE ---
 
 // Interviewer Pages
 import InterviewerDashboard from '@/pages/interviewer/Dashboard';
@@ -131,6 +133,9 @@ function App() {
           <Route path="/admin/evaluation-setup" element={<DomainManagement />} />
           <Route path="/admin/domain-evaluation" element={<AdminDomainEvaluationPage />} />
           <Route path="/admin/custom-email" element={<CustomEmailPage />} />
+          {/* --- 2. ADD THE NEW ROUTES HERE --- */}
+          <Route path="/admin/bookings/new" element={<NewInterviewBooking />} />
+          <Route path="/admin/bookings/edit/:id" element={<NewInterviewBooking />} />
         </Route>
         
         {/* Pages with their own full-screen layout */}
