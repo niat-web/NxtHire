@@ -5,10 +5,10 @@ import CreatableSelect from 'react-select/creatable';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from 'date-fns';
-import { FiDownload, FiPlus, FiEdit, FiTrash2, FiMoreVertical, FiSearch, FiInbox, FiAlertTriangle, FiChevronLeft, FiChevronRight, FiRefreshCw, FiUpload, FiFilter, FiX } from 'react-icons/fi';
+import { FiDownload, FiPlus, FiEdit, FiTrash2, FiMoreVertical, FiSearch, FiInbox, FiAlertTriangle, FiChevronLeft, FiChevronRight, FiRefreshCw, FiUpload, FiFilter, FiX, FiLoader } from 'react-icons/fi';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
-import { getMainSheetEntries, deleteMainSheetEntry, getInterviewers, bulkUpdateMainSheetEntries, getUniqueHiringNames, getDomains, refreshRecordingLinks, bulkUploadMainSheetEntries as bulkUpload } from '@/api/admin.api';
+import { getMainSheetEntries, deleteMainSheetEntry, getInterviewers, bulkUpdateMainSheetEntries, getUniqueHiringNames, getDomains, refreshRecordingLinks, bulkUploadMainSheetEntries as bulkUpload, exportMainSheet } from '@/api/admin.api';
 import { useAlert } from '@/hooks/useAlert';
 import { debounce } from '@/utils/helpers';
 import { formatDate } from '@/utils/formatters';
@@ -223,6 +223,66 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, title, instructions, re
     ) : null;
 };
 
+// --- Remarks Modal ---
+const RemarksModal = ({ isOpen, onClose, content }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm transition-opacity" 
+            onClick={onClose}
+        >
+            <div 
+                className="relative w-full max-w-lg bg-white rounded-lg shadow-xl" 
+                onClick={e => e.stopPropagation()}
+            >
+                <div className="px-6 py-4 border-b flex justify-between items-center">
+                    <h3 className="text-lg font-semibold text-gray-900">Full Remarks</h3>
+                    <button onClick={onClose} className="p-1 rounded-full text-gray-400 hover:bg-gray-200">
+                        <FiX className="h-5 w-5"/>
+                    </button>
+                </div>
+                <div className="p-6">
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{content}</p>
+                </div>
+                <div className="bg-gray-50 px-6 py-3 flex justify-end rounded-b-lg">
+                    <LocalButton variant="outline" onClick={onClose}>Close</LocalButton>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// --- Directly editable remarks cell component ---
+const EditableCell = ({ value, onSave, isLoading, fieldName, rowId }) => {
+    const [currentValue, setCurrentValue] = useState(value || '');
+
+    useEffect(() => {
+        setCurrentValue(value || '');
+    }, [value]);
+
+    const handleSave = () => {
+        if (currentValue.trim() !== (value || '').trim()) {
+            onSave(rowId, fieldName, currentValue.trim());
+        }
+    };
+
+    return (
+        <div className="relative">
+            <textarea
+                value={currentValue}
+                onChange={(e) => setCurrentValue(e.target.value)}
+                onBlur={handleSave}
+                disabled={isLoading}
+                placeholder=""
+                // --- MODIFICATION: Adjusted height class ---
+                className="w-full text-xs p-2 border border-transparent rounded-md bg-transparent focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-400 resize-none h-[38px] leading-tight"
+            />
+            {isLoading && <FiLoader className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-gray-400" />}
+        </div>
+    );
+};
+
 
 const MainSheet = () => {
     const { showSuccess, showError } = useAlert();
@@ -241,9 +301,11 @@ const MainSheet = () => {
     const [hiringNames, setHiringNames] = useState([]);
     const [domainOptions, setDomainOptions] = useState([]);
     const [isRefreshing, setIsRefreshing] = useState(false);
-    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
     const [sortConfig, setSortConfig] = useState({ key: 'interviewId', direction: 'desc' });
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [remarksModal, setRemarksModal] = useState({ isOpen: false, content: '' }); 
 
     const handleSort = (key) => {
         setSortConfig(prevConfig => {
@@ -384,8 +446,18 @@ const MainSheet = () => {
         finally { setDeleteDialog({ isOpen: false, entry: null, isLoading: false }); }
     };
     
-    const handleExport = () => {
-        showError("Export functionality is not yet implemented.");
+    const handleExport = async () => {
+        setIsExporting(true);
+        try {
+            const response = await exportMainSheet(activeFilters);
+            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            saveAs(blob, `MainSheet_Export_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+            showSuccess("Export started successfully.");
+        } catch (err) {
+            showError("Failed to export Main Sheet data.");
+        } finally {
+            setIsExporting(false);
+        }
     };
 
     const handleApplyFilters = () => {
@@ -398,6 +470,10 @@ const MainSheet = () => {
         setActiveFilters({ interviewDate: null, interviewStatus: '' });
         setIsFilterMenuOpen(false);
     };
+
+    const openRemarksModal = useCallback((remarks) => {
+        setRemarksModal({ isOpen: true, content: remarks });
+    }, []);
 
     const isFilterActive = activeFilters.interviewDate || activeFilters.interviewStatus;
     
@@ -418,11 +494,25 @@ const MainSheet = () => {
         { key: 'interviewTime', title: 'Time' },
         { key: 'interviewDuration', title: 'Duration' },
         { key: 'interviewStatus', title: 'Status', minWidth: '150px', render: (row) => { const statusColors = {'Completed': 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200','Scheduled': 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200','InProgress': 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200','Cancelled': 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200' }; return (<select value={row.interviewStatus || ''} onChange={(e) => handleStatusChange(row._id, e.target.value)} disabled={updatingId === row._id} className={`w-full text-xs font-semibold px-2 py-1.5 border rounded-md shadow-sm focus:outline-none focus:ring-1 transition-colors cursor-pointer ${statusColors[row.interviewStatus] || 'bg-gray-100'}`} onClick={(e) => e.stopPropagation()}><option value="" disabled>Select Status</option>{MAIN_SHEET_INTERVIEW_STATUSES.map(status => (<option key={status.value} value={status.value}>{status.label}</option>))}</select>); } },
-        { key: 'remarks', title: 'Remarks', minWidth: '200px' },
+        { key: 'remarks', title: 'Remarks', minWidth: '250px', render: (row) => <EditableCell value={row.remarks} onSave={handleCellSave} fieldName="remarks" rowId={row._id} isLoading={updatingId === row._id} /> },
         { key: 'interviewerName', title: 'Interviewer', minWidth: '180px', render: (row) => (<select value={row.interviewer?._id || ''} onChange={(e) => handleInterviewerChange(row._id, e.target.value)} disabled={updatingId === row._id} className="w-full p-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors" onClick={(e) => e.stopPropagation()}><option value="">Unassigned</option>{interviewerOptions.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select>) },
         { key: 'interviewerMail', title: "Interviewer Mail", minWidth: '200px', render: (row) => row.interviewer?.user?.email || '' },
+        { key: 'interviewerRemarks', title: 'Interviewer Remarks', minWidth: '250px', render: (row) => {
+            const remarks = row.interviewerRemarks;
+            const charLimit = 50;
+            if (!remarks) { return <span className="text-gray-400"></span>; }
+            if (remarks.length <= charLimit) { return <div className="p-2 whitespace-normal break-words" title={remarks}>{remarks}</div>; }
+            return (
+                <div className="flex items-center overflow-hidden p-2">
+                    <span className="truncate" title={remarks}>{remarks.substring(0, charLimit)}...</span>
+                    <button onClick={() => openRemarksModal(remarks)} className="ml-1 text-blue-600 hover:underline text-xs font-semibold flex-shrink-0">
+                        more
+                    </button>
+                </div>
+            );
+        }},
         { key: 'actions', title: 'Actions', minWidth: '60px', render: (row) => (<LocalDropdownMenu options={[{ label: 'Edit', icon: FiEdit, onClick: () => navigate(`/admin/main-sheet/edit/${row._id}`) }, { label: 'Delete', icon: FiTrash2, isDestructive: true, onClick: () => handleDeleteRequest(row) },]}/>)}
-    ], [navigate, handleDeleteRequest, handleStatusChange, handleInterviewerChange, updatingId, interviewerOptions, hiringNamesOptions, handleCellSave, domainOptions]);
+    ], [navigate, handleDeleteRequest, handleStatusChange, handleInterviewerChange, updatingId, interviewerOptions, hiringNamesOptions, handleCellSave, domainOptions, openRemarksModal]);
     
     const mainSheetUploadProps = {
         isOpen: isUploadModalOpen,
@@ -480,7 +570,7 @@ const MainSheet = () => {
                     </div>
                     
                     <LocalButton variant="outline" icon={FiRefreshCw} onClick={handleRefreshRecordings} isLoading={isRefreshing}>{isRefreshing ? 'Refreshing...' : 'Reload'}</LocalButton>
-                    <LocalButton variant="outline" icon={FiDownload} onClick={handleExport}>Export</LocalButton>
+                    <LocalButton variant="outline" icon={FiDownload} onClick={handleExport} isLoading={isExporting}>{isExporting ? 'Exporting...' : 'Export'}</LocalButton>
                     <LocalButton variant="outline" icon={FiUpload} onClick={() => setIsUploadModalOpen(true)}>Import</LocalButton>
                     <LocalButton variant="primary" icon={FiPlus} onClick={() => navigate('/admin/main-sheet/add')}>Add Entries</LocalButton>
                 </div>
@@ -516,6 +606,11 @@ const MainSheet = () => {
                 isLoading={deleteDialog.isLoading}
             />
             <UploadModal {...mainSheetUploadProps} />
+            <RemarksModal
+                isOpen={remarksModal.isOpen}
+                onClose={() => setRemarksModal({ isOpen: false, content: '' })}
+                content={remarksModal.content}
+            />
         </div>
     );
 };
