@@ -434,7 +434,7 @@ const BenefitsSection = () => {
         </svg>
       ),
       title: "Competitive Compensation",
-      description: "Earn up to ₹1250 per interview with a transparent, tier-based payment system. Your expertise is valued and rewarded properly.",
+      description: "Earn up to ₹900 per interview with a transparent, tier-based payment system. Your expertise is valued and rewarded properly.",
     },
     {
       icon: (
