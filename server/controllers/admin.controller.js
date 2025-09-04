@@ -48,60 +48,96 @@ async function getNextSequenceValue(sequenceName) {
 const bulkUploadMainSheetEntries = asyncHandler(async (req, res) => {
     const entries = req.body;
     const { _id: adminId } = req.user;
-    
+
     if (!entries || !Array.isArray(entries) || entries.length === 0) {
         res.status(400);
         throw new Error('No entries provided for upload.');
     }
 
-    // Pre-fetch all interviewers to create a lookup map from full name to ID
     const allInterviewers = await Interviewer.find().populate('user', 'firstName lastName');
     const interviewerNameMap = new Map();
     allInterviewers.forEach(interviewer => {
-        if (interviewer.user && interviewer.user.firstName && interviewer.user.lastName) {
-            const fullName = `${interviewer.user.firstName} ${interviewer.user.lastName}`.toLowerCase().trim();
-            interviewerNameMap.set(fullName, interviewer._id);
+        if (interviewer.user && interviewer.user.firstName) {
+            const firstName = (interviewer.user.firstName || '').toLowerCase().trim();
+            const lastName = (interviewer.user.lastName || '').toLowerCase().trim();
+            const fullName = `${firstName} ${lastName}`.trim();
+            if (fullName) {
+                interviewerNameMap.set(fullName, interviewer._id);
+            }
         }
     });
+
+    const findInterviewerId = (name) => {
+        if (!name) return null;
+        const normalizedName = String(name).toLowerCase().trim();
+        if (interviewerNameMap.has(normalizedName)) {
+            return interviewerNameMap.get(normalizedName);
+        }
+        for (const [key, value] of interviewerNameMap.entries()) {
+            if (key.includes(normalizedName) || normalizedName.includes(key)) {
+                return value;
+            }
+        }
+        return null;
+    };
 
     const results = { created: 0, errors: [] };
     const bulkOps = [];
 
-    entries.forEach((entry, index) => {
+    for (const [index, entry] of entries.entries()) {
         const {
             candidateName,
             mailId,
+            interviewDate, // <-- Destructure the date field
             interviewerName,
             'Interviewer Name': interviewerNameAlt1,
             Interviewer: interviewerNameAlt2,
             ...rest
         } = entry;
-        
+
         if (!candidateName || !mailId) {
             results.errors.push({ row: index + 2, message: 'Missing required fields: candidateName or mailId' });
-            return;
+            continue; // Skip this entry
         }
-        
-        const providedInterviewerName = interviewerName || interviewerNameAlt1 || interviewerNameAlt2;
-        const interviewerId = providedInterviewerName ? interviewerNameMap.get(String(providedInterviewerName).toLowerCase().trim()) : null;
 
+        const providedInterviewerName = interviewerName || interviewerNameAlt1 || interviewerNameAlt2;
+        const interviewerId = findInterviewerId(providedInterviewerName);
+
+        // --- NEW DATE PARSING LOGIC START ---
+        let parsedDate = null;
+        if (interviewDate) {
+            // XLSX can pass dates as strings or Excel's serial numbers
+            let dateValue = new Date(interviewDate);
+            if (typeof interviewDate === 'number' && interviewDate > 25569) {
+                // Handle Excel date serial numbers (epoch starts on a different day)
+                dateValue = new Date(Math.round((interviewDate - 25569) * 86400 * 1000));
+            }
+            
+            // Final check to ensure it's a valid date and not the 1970 epoch
+            if (!isNaN(dateValue.getTime()) && dateValue.getFullYear() > 1970) {
+                 parsedDate = dateValue;
+            }
+        }
+        // --- NEW DATE PARSING LOGIC END ---
+        
         if (providedInterviewerName && !interviewerId) {
              results.errors.push({ row: index + 2, message: `Interviewer '${providedInterviewerName}' not found.` });
         }
-        
+
         bulkOps.push({
             insertOne: {
                 document: {
                     ...rest,
                     candidateName,
                     mailId,
-                    interviewer: interviewerId, // Will be null if not provided or not found
+                    interviewDate: parsedDate, // <-- Use the parsed date
+                    interviewer: interviewerId,
                     createdBy: adminId,
                     updatedBy: adminId,
                 }
             }
         });
-    });
+    }
 
     if (bulkOps.length > 0) {
         const result = await MainSheetEntry.bulkWrite(bulkOps, { ordered: false });
@@ -111,7 +147,7 @@ const bulkUploadMainSheetEntries = asyncHandler(async (req, res) => {
     logEvent('main_sheet_bulk_uploaded', { ...results, adminId });
 
     if (results.errors.length > 0) {
-        return res.status(207).json({ // 207 Multi-Status
+        return res.status(207).json({
             success: true,
             message: `Processed with some issues. Created: ${results.created}. See errors for details.`,
             data: results
@@ -1609,8 +1645,11 @@ const getMainSheetEntryById = asyncHandler(async (req, res) => {
 });
 
 const getMainSheetEntries = asyncHandler(async (req, res) => {
-    const { search, page = 1, limit = 20, interviewStatus, interviewDate } = req.query;
+    // Add sortBy and sortOrder to the destructuring
+    const { search, page = 1, limit = 20, interviewStatus, interviewDate, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
     const query = {};
+
+    // --- All your existing filter logic here remains the same ---
     if (search) {
         const searchRegex = { $regex: search, $options: 'i' };
         query.$or = [
@@ -1621,14 +1660,11 @@ const getMainSheetEntries = asyncHandler(async (req, res) => {
             { interviewStatus: searchRegex },
         ];
     }
-
-     // --- MODIFICATION: Add new filtering logic to the query object ---
      if (interviewStatus) {
          query.interviewStatus = interviewStatus;
      }
      if (interviewDate) {
          const date = new Date(interviewDate);
-         // Ensure the date is valid before adding it to the query
          if (!isNaN(date)) {
              query.interviewDate = {
                  $gte: startOfDay(date),
@@ -1636,6 +1672,9 @@ const getMainSheetEntries = asyncHandler(async (req, res) => {
              };
          }
      }
+     // --- End of existing logic ---
+
+    const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 }; // Create a dynamic sort object
 
     const entries = await MainSheetEntry.find(query)
         .populate({
@@ -1648,7 +1687,7 @@ const getMainSheetEntries = asyncHandler(async (req, res) => {
         })
         .populate('createdBy', 'firstName lastName')
         .populate('updatedBy', 'firstName lastName')
-        .sort({ createdAt: -1 })
+        .sort(sort) // Use the dynamic sort object here
         .skip((page - 1) * limit)
         .limit(parseInt(limit));
         
@@ -1960,15 +1999,36 @@ const generateMeetLink = asyncHandler(async (req, res) => {
 
     const googleEvent = await createCalendarEvent(eventData);
 
-    booking.meetLink = googleEvent.hangoutLink;
-    await booking.save();
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+        booking.meetLink = googleEvent.hangoutLink;
+        await booking.save({ session });
 
-    if (booking.interviewId && googleEvent.hangoutLink) {
-        await MainSheetEntry.findOneAndUpdate( { interviewId: booking.interviewId }, { $set: { meetingLink: googleEvent.hangoutLink, updatedBy: req.user._id } } );
+        if (booking.interviewId && googleEvent.hangoutLink) {
+            const mainSheetUpdate = await MainSheetEntry.findOneAndUpdate(
+                { interviewId: booking.interviewId },
+                { $set: { meetingLink: googleEvent.hangoutLink, updatedBy: req.user._id } },
+                { session }
+            );
+            // Optional: Check if update was successful
+            if (!mainSheetUpdate) {
+                // This would be a data integrity issue, but we can handle it
+                throw new Error(`MainSheetEntry with interviewId ${booking.interviewId} not found.`);
+            }
+        }
+        
+        await session.commitTransaction();
+        
         logEvent('main_sheet_meetlink_synced', { studentBookingId: booking._id, interviewId: booking.interviewId, adminId: req.user._id });
-    }
+        res.json({ success: true, data: booking });
 
-    res.json({ success: true, data: booking });
+    } catch (error) {
+        await session.abortTransaction();
+        throw error; // Re-throw the error to be caught by asyncHandler
+    } finally {
+        session.endSession();
+    }
 });
 
 const getDomains = asyncHandler(async (req, res) => {
@@ -1979,8 +2039,12 @@ const getDomains = asyncHandler(async (req, res) => {
 const createDomain = asyncHandler(async (req, res) => {
     const { name, eventTitle } = req.body;
     if (!name) { res.status(400); throw new Error('Domain name is required.'); }
-    const existing = await Domain.findOne({ name: new RegExp(`^${name}$`, 'i') });
-    if (existing) { res.status(400); throw new Error('A domain with this name already exists.'); }
+    const escapeRegExp = (string) => {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+    };
+    const escapedName = escapeRegExp(name);
+
+    const existing = await Domain.findOne({ name: new RegExp(`^${escapedName}$`, 'i') });    if (existing) { res.status(400); throw new Error('A domain with this name already exists.'); }
     const domain = await Domain.create({ name, eventTitle, createdBy: req.user._id, updatedBy: req.user._id });
     res.status(201).json({ success: true, data: domain });
 });
