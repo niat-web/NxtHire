@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import CreatableSelect from 'react-select/creatable'; 
+import CreatableSelect from 'react-select/creatable';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
-import { format } from 'date-fns'; // --- FIX: Import the 'format' function ---
+import { format } from 'date-fns';
 import { FiDownload, FiPlus, FiEdit, FiTrash2, FiMoreVertical, FiSearch, FiInbox, FiAlertTriangle, FiChevronLeft, FiChevronRight, FiRefreshCw, FiUpload, FiFilter, FiX } from 'react-icons/fi';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
-import { getMainSheetEntries, deleteMainSheetEntry, getInterviewers, bulkUpdateMainSheetEntries, getUniqueHiringNames, getDomains, refreshRecordingLinks, bulkUploadMainSheetEntries as bulkUpload } from '@/api/admin.api'; 
+import { getMainSheetEntries, deleteMainSheetEntry, getInterviewers, bulkUpdateMainSheetEntries, getUniqueHiringNames, getDomains, refreshRecordingLinks, bulkUploadMainSheetEntries as bulkUpload } from '@/api/admin.api';
 import { useAlert } from '@/hooks/useAlert';
 import { debounce } from '@/utils/helpers';
 import { formatDate } from '@/utils/formatters';
@@ -104,8 +104,8 @@ const LocalLoader = () => (
 const LocalEmptyState = ({ message, icon: Icon }) => (
     <div className="text-center py-20 text-gray-500"><Icon className="mx-auto h-10 w-10 text-gray-400 mb-2" /><h3 className="font-semibold text-gray-700">No Data Found</h3><p className="text-sm">{message}</p></div>
 );
-const LocalTable = ({ columns, data, isLoading, emptyMessage, emptyIcon }) => (
-    <div className="w-full overflow-x-auto"><table className="min-w-full bg-white divide-y divide-gray-200 border-collapse"><thead className="bg-gray-50 sticky top-0 z-[5]"><tr>{columns.map(col => (<th key={col.key} scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b" style={{ minWidth: col.minWidth }}>{col.title}</th>))}</tr></thead><tbody className="divide-y divide-gray-200">{isLoading ? (<tr><td colSpan={columns.length}><LocalLoader /></td></tr>) : data.length === 0 ? (<tr><td colSpan={columns.length}><LocalEmptyState message={emptyMessage} icon={emptyIcon} /></td></tr>) : (data.map((row, rowIndex) => (<tr key={row._id || rowIndex} className="hover:bg-gray-50 transition-colors align-top">{columns.map(col => (<td key={col.key} className="px-3 whitespace-nowrap text-sm text-gray-700 align-middle">{col.render ? col.render(row, rowIndex) : row[col.key]}</td>))}</tr>)))}</tbody></table></div>
+const LocalTable = ({ columns, data, isLoading, emptyMessage, emptyIcon, sortConfig, onSort }) => (
+    <div className="w-full overflow-x-auto"><table className="min-w-full bg-white divide-y divide-gray-200 border-collapse"><thead className="bg-gray-50 sticky top-0 z-[5]"><tr>{columns.map(col => (<th key={col.key} scope="col" onClick={() => col.sortable && onSort && onSort(col.key)} className={`px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b ${col.sortable ? 'cursor-pointer hover:bg-gray-100' : ''}`} style={{ minWidth: col.minWidth }}><div className="flex items-center gap-2">{col.title} {col.sortable && (sortConfig.key === col.key ? (sortConfig.direction === 'asc' ? '▲' : '▼') : <span className="text-gray-300">▲▼</span>)}</div></th>))}</tr></thead><tbody className="divide-y divide-gray-200">{isLoading ? (<tr><td colSpan={columns.length}><LocalLoader /></td></tr>) : data.length === 0 ? (<tr><td colSpan={columns.length}><LocalEmptyState message={emptyMessage} icon={emptyIcon} /></td></tr>) : (data.map((row, rowIndex) => (<tr key={row._id || rowIndex} className="hover:bg-gray-50 transition-colors align-top">{columns.map(col => (<td key={col.key} className="px-3 whitespace-nowrap text-sm text-gray-700 align-middle">{col.render ? col.render(row, rowIndex) : row[col.key]}</td>))}</tr>)))}</tbody></table></div>
 );
 
 const EditableHiringName = ({ entry, options, onSave }) => {
@@ -209,7 +209,7 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, title, instructions, re
                 <div className="p-4 border-b"><h3 className="text-lg font-semibold text-gray-800">{title}</h3></div>
                 <div className="p-6 flex-grow overflow-y-auto space-y-4">
                     <div className="flex items-center gap-4"><input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>{error && <p className="text-red-600 text-sm font-semibold">{error}</p>}</div>
-                    {parsedData.length > 0 && (<div className="border border-gray-200 rounded-lg overflow-hidden max-h-80 overflow-auto"><table className="min-w-full text-xs"><thead className="bg-gray-100 sticky top-0"><tr className="text-left font-semibold text-gray-600">{Object.keys(parsedData[0]).map(h => <th key={h} className="p-2 border-b">{h}</th>)}</tr></thead><tbody>{parsedData.slice(0, 10).map((row, i) => (<tr key={i} className="bg-white border-b">{Object.values(row).map((val, j) => <td key={j} className="p-2 truncate" title={val}>{String(val)}</td>)}</tr>))}</tbody></table>{parsedData.length > 10 && <div className="p-2 text-center text-sm bg-gray-50">...and {parsedData.length - 10} more rows</div>}</div>)}
+                    {parsedData.length > 0 && (<div className="border border-gray-200 rounded-lg max-h-80 overflow-y-auto overflow-x-auto"><table className="min-w-full text-xs"><thead className="bg-gray-100 sticky top-0"><tr className="text-left font-semibold text-gray-600">{Object.keys(parsedData[0]).map(h => <th key={h} className="p-2 border-b">{h}</th>)}</tr></thead><tbody>{parsedData.slice(0, 10).map((row, i) => (<tr key={i} className="bg-white border-b">{Object.values(row).map((val, j) => <td key={j} className="p-2 truncate" title={val}>{String(val)}</td>)}</tr>))}</tbody></table>{parsedData.length > 10 && <div className="p-2 text-center text-sm bg-gray-50">...and {parsedData.length - 10} more rows</div>}</div>)}
                 </div>
                 <div className="bg-gray-50 p-4 flex justify-between items-center border-t">
                     <p className="text-sm text-gray-600">{parsedData.length > 0 ? `${parsedData.length} records detected and ready for import.` : "Please select a file to preview."}</p>
@@ -224,21 +224,16 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, title, instructions, re
 };
 
 
-// --- MAIN SHEET COMPONENT ---
 const MainSheet = () => {
     const { showSuccess, showError } = useAlert();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [entries, setEntries] = useState([]);
-    
-    // --- State management for new filters ---
     const [search, setSearch] = useState('');
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
     const [tempFilters, setTempFilters] = useState({ interviewDate: null, interviewStatus: '' });
     const [activeFilters, setActiveFilters] = useState({ interviewDate: null, interviewStatus: '' });
-    // --- Ref for the filter menu to detect outside clicks ---
     const filterMenuRef = useRef(null);
-
     const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalItems: 0 });
     const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, entry: null, isLoading: false });
     const [updatingId, setUpdatingId] = useState(null);
@@ -248,8 +243,18 @@ const MainSheet = () => {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
-    
-    // --- Logic to close the filter menu on outside click ---
+    const [sortConfig, setSortConfig] = useState({ key: 'interviewId', direction: 'desc' });
+
+    const handleSort = (key) => {
+        setSortConfig(prevConfig => {
+            const isAsc = prevConfig.key === key && prevConfig.direction === 'asc';
+            return {
+                key: key,
+                direction: isAsc ? 'desc' : 'asc'
+            };
+        });
+    };
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (filterMenuRef.current && !filterMenuRef.current.contains(event.target)) {
@@ -266,10 +271,8 @@ const MainSheet = () => {
 
     const silentFetchEntries = useCallback(async (page = 1) => {
         try {
-            // --- FIX: Pass new filter params to the API call ---
-            const params = { search, page, limit: 20, ...activeFilters };
+            const params = { search, page, limit: 100, ...activeFilters, sortBy: sortConfig.key, sortOrder: sortConfig.direction };
             if (activeFilters.interviewDate) {
-                // Send date as YYYY-MM-DD to avoid timezone issues
                 params.interviewDate = format(activeFilters.interviewDate, 'yyyy-MM-dd');
             }
             const response = await getMainSheetEntries(params);
@@ -278,15 +281,13 @@ const MainSheet = () => {
         } catch (error) { 
             showError("Failed to refresh main sheet data.");
         }
-    }, [search, activeFilters, showError]);
+    }, [search, activeFilters, sortConfig, showError]);
     
     const fetchEntries = useCallback(async (page = 1) => {
         setLoading(true);
         try {
-            // --- FIX: Pass new filter params to the API call ---
-            const params = { search, page, limit: 20, ...activeFilters };
+            const params = { search, page, limit: 100, ...activeFilters, sortBy: sortConfig.key, sortOrder: sortConfig.direction };
             if (activeFilters.interviewDate) {
-                 // Send date as YYYY-MM-DD to avoid timezone issues
                 params.interviewDate = format(activeFilters.interviewDate, 'yyyy-MM-dd');
             }
             const response = await getMainSheetEntries(params);
@@ -297,7 +298,7 @@ const MainSheet = () => {
         } finally { 
             setLoading(false);
         }
-    }, [search, activeFilters, showError]);
+    }, [search, activeFilters, sortConfig, showError]);
 
     useEffect(() => {
         getUniqueHiringNames().then(res => setHiringNames(res.data.data)).catch(() => showError("Failed to load hiring names list."));
@@ -309,7 +310,7 @@ const MainSheet = () => {
     }, [showError]);
     
     const debouncedFetch = useMemo(() => debounce(() => fetchEntries(1), 300), [fetchEntries]);
-    useEffect(() => { debouncedFetch(); return () => debouncedFetch.cancel(); }, [debouncedFetch, activeFilters]);
+    useEffect(() => { debouncedFetch(); return () => debouncedFetch.cancel(); }, [debouncedFetch, activeFilters, sortConfig]);
     
     const handleCellSave = async (entryId, fieldKey, newValue) => {
         setUpdatingId(entryId);
@@ -405,7 +406,7 @@ const MainSheet = () => {
     const columns = useMemo(() => [
         { key: 'hiringName', title: 'Hiring Name', minWidth: '150px', render: (row) => <EditableHiringName entry={row} options={hiringNamesOptions} onSave={handleCellSave} /> },
         { key: 'techStack', title: 'Tech Stack', minWidth: '150px', render: (row) => <EditableDomainCell entry={row} domainOptions={domainOptions} onSave={handleCellSave} /> },
-        { key: 'interviewId', title: 'Interview ID', minWidth: '150px'},
+        { key: 'interviewId', title: 'Interview ID', minWidth: '150px', sortable: true},
         { key: 'uid', title: 'UID', minWidth: '120px' },
         { key: 'candidateName', title: 'Candidate', minWidth: '180px' },
         { key: 'mobileNumber', title: 'Mobile', minWidth: '120px' },
@@ -485,11 +486,21 @@ const MainSheet = () => {
                 </div>
             </div>
             <div className="flex-grow overflow-auto">
-                <LocalTable columns={columns} data={entries} isLoading={loading} emptyMessage="No entries found in the main sheet." emptyIcon={FiInbox}/>
+                <LocalTable
+                    columns={columns}
+                    data={entries}
+                    isLoading={loading}
+                    emptyMessage="No entries found in the main sheet."
+                    emptyIcon={FiInbox}
+                    onSort={handleSort}
+                    sortConfig={sortConfig}
+                />
             </div>
             {pagination && pagination.totalItems > 0 && (
                 <div className="p-3 border-t border-gray-200 flex justify-between items-center flex-shrink-0">
-                    <p className="text-sm text-gray-600">Showing <span className="font-medium">{(pagination.currentPage - 1) * 20 + 1}</span> to <span className="font-medium">{Math.min(pagination.currentPage * 20, pagination.totalItems)}</span> of <span className="font-medium">{pagination.totalItems}</span> results</p>
+                    <p className="text-sm text-gray-600">
+                        Showing <span className="font-medium">{(pagination.currentPage - 1) * 100 + 1}</span> to <span className="font-medium">{Math.min(pagination.currentPage * 100, pagination.totalItems)}</span> of <span className="font-medium">{pagination.totalItems}</span> results
+                    </p>
                     <div className="flex items-center gap-2">
                         <LocalButton variant="outline" icon={FiChevronLeft} onClick={() => fetchEntries(pagination.currentPage - 1)} disabled={loading || pagination.currentPage <= 1}/>
                         <LocalButton variant="outline" icon={FiChevronRight} onClick={() => fetchEntries(pagination.currentPage + 1)} disabled={loading || pagination.currentPage >= pagination.totalPages}/>
