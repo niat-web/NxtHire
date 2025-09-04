@@ -19,6 +19,7 @@ const {
   bulkUpdateMainSheetEntries,
   deleteMainSheetEntry,
   bulkDeleteMainSheetEntries,
+  exportMainSheetEntries, // Added
   createPublicBooking,
   getPublicBookings,
   updatePublicBooking,
@@ -124,6 +125,7 @@ router.get('/booking-slots', getBookingSlots);
 
 // --- Main Sheet Routes ---
 router.route('/main-sheet').get(getMainSheetEntries);
+router.get('/main-sheet/export', exportMainSheetEntries); // Added this route
 router.route('/main-sheet/bulk').post(bulkUpdateMainSheetEntries).delete(bulkDeleteMainSheetEntries);
 router.get('/main-sheet/hiring-names', getUniqueHiringNames); 
 router.post('/main-sheet/refresh-recordings', refreshRecordingLinks);
