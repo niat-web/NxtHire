@@ -1,4 +1,3 @@
-// client/src/api/admin.api.js
 import api from './axios';
 
 // --- NEW: Get summary statistics for the domain evaluation page ---
@@ -178,6 +177,9 @@ export const deleteMainSheetEntry = (id) => {
 };
 export const bulkDeleteMainSheetEntries = (ids) => {
     return api.delete('/api/admin/main-sheet/bulk', { data: { ids } });
+};
+export const exportMainSheet = (params) => {
+    return api.get('/api/admin/main-sheet/export', { params, responseType: 'blob' });
 };
 export const getUniqueHiringNames = () => {
     return api.get('/api/admin/main-sheet/hiring-names');
