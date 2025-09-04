@@ -96,7 +96,7 @@ const AdminLayout = () => {
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        { !useFullPageLayout && (
+      { !useFullPageLayout && location.pathname !== '/admin/dashboard' && (
           <header className="bg-white border-b border-gray-200 px-4 py-3 lg:px-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
