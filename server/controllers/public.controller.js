@@ -169,23 +169,8 @@ const bookSlot = asyncHandler(async (req, res) => {
         const endMinutes = parseInt(endTimeParts[0]) * 60 + parseInt(endTimeParts[1]);
         const duration = endMinutes - startMinutes;
 
-        const mainSheetEntryData = {
-            hiringName: newStudentBooking.hiringName,
-            techStack: newStudentBooking.domain, 
-            interviewId: newStudentBooking.interviewId,
-            uid: newStudentBooking.userId, 
-            candidateName: newStudentBooking.studentName,
-            mobileNumber: newStudentBooking.mobileNumber || newStudentBooking.studentPhone,
-            mailId: newStudentBooking.studentEmail,
-            candidateResume: newStudentBooking.resumeLink,
-            interviewDate: interviewerSlot.date,
-            interviewTime: `${newStudentBooking.bookedSlot.startTime} - ${newStudentBooking.bookedSlot.endTime}`,
-            interviewDuration: `${duration} mins`,
-            interviewStatus: 'Scheduled',
-            interviewer: newStudentBooking.bookedInterviewer,
-            createdBy: bookingPage.createdBy,
-            updatedBy: bookingPage.createdBy
-        };
+        // Find and update the Main Sheet entry, or create it if it doesn't exist (upsert).
+        // This makes the process more robust.
         await MainSheetEntry.findOneAndUpdate(
             { interviewId: newStudentBooking.interviewId },
             {
@@ -196,9 +181,20 @@ const bookSlot = asyncHandler(async (req, res) => {
                     interviewStatus: 'Scheduled',
                     interviewer: newStudentBooking.bookedInterviewer,
                     updatedBy: bookingPage.createdBy,
+                },
+                $setOnInsert: {
+                    hiringName: newStudentBooking.hiringName,
+                    techStack: newStudentBooking.domain,
+                    interviewId: newStudentBooking.interviewId,
+                    uid: newStudentBooking.userId,
+                    candidateName: newStudentBooking.studentName,
+                    mobileNumber: newStudentBooking.mobileNumber || newStudentBooking.studentPhone,
+                    mailId: newStudentBooking.studentEmail,
+                    candidateResume: newStudentBooking.resumeLink,
+                    createdBy: bookingPage.createdBy
                 }
             },
-            { session } // This ensures the update is part of the transaction
+            { upsert: true, new: true, session } // Upsert ensures record is created if missing
         );
         
         await session.commitTransaction();
