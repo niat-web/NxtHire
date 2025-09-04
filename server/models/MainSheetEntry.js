@@ -8,7 +8,7 @@ const MainSheetEntrySchema = new mongoose.Schema({
         trim: true, 
         default: ''
     },
-    interviewId: { type: String, trim: true, unique: true, sparse: true },
+    interviewId: { type: String, trim: true, sparse: true },
     uid: { type: String, trim: true, default: '' },
     candidateName: { type: String, required: true, trim: true },
     mobileNumber: { type: String, trim: true, default: '' },
