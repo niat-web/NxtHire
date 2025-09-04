@@ -1037,6 +1037,75 @@ const deleteApplicant = asyncHandler(async (req, res) => {
     res.json({ success: true, message: 'Applicant deleted successfully' });
 });
 
+// @desc    Export Main Sheet entries to Excel
+// @route   GET /api/admin/main-sheet/export
+// @access  Private/Admin
+const exportMainSheetEntries = asyncHandler(async (req, res) => {
+    const { search, interviewStatus, interviewDate } = req.query;
+
+    const query = {};
+    if (search) {
+        const searchRegex = { $regex: search, $options: 'i' };
+        query.$or = [
+            { hiringName: searchRegex }, { techStack: searchRegex },
+            { candidateName: searchRegex }, { mailId: searchRegex },
+        ];
+    }
+    if (interviewStatus) query.interviewStatus = interviewStatus;
+    if (interviewDate) {
+        const date = new Date(interviewDate);
+        if (!isNaN(date)) {
+            query.interviewDate = { $gte: startOfDay(date), $lte: endOfDay(date) };
+        }
+    }
+
+    const entries = await MainSheetEntry.find(query)
+        .populate({
+            path: 'interviewer',
+            populate: { path: 'user', select: 'firstName lastName email' }
+        })
+        .sort({ interviewDate: -1 });
+
+    const workbook = new excel.Workbook();
+    const worksheet = workbook.addWorksheet('Main Sheet');
+
+    worksheet.columns = [
+        { header: 'Hiring Name', key: 'hiringName', width: 20 },
+        { header: 'Tech Stack', key: 'techStack', width: 20 },
+        { header: 'Interview ID', key: 'interviewId', width: 20 },
+        { header: 'UID', key: 'uid', width: 15 },
+        { header: 'Candidate Name', key: 'candidateName', width: 30 },
+        { header: 'Mobile Number', key: 'mobileNumber', width: 15 },
+        { header: 'Mail ID', key: 'mailId', width: 30 },
+        { header: 'Candidate Resume', key: 'candidateResume', width: 40 },
+        { header: 'Meeting Link', key: 'meetingLink', width: 40 },
+        { header: 'Recording Link', key: 'recordingLink', width: 40 },
+        { header: 'Interview Date', key: 'interviewDate', width: 15 },
+        { header: 'Interview Time', key: 'interviewTime', width: 15 },
+        { header: 'Interview Duration', key: 'interviewDuration', width: 15 },
+        { header: 'Interview Status', key: 'interviewStatus', width: 20 },
+        { header: 'Remarks', key: 'remarks', width: 40 },
+        { header: 'Interviewer Remarks', key: 'interviewerRemarks', width: 40 },
+        { header: 'Interviewer', key: 'interviewerName', width: 30 },
+        { header: 'Interviewer Mail', key: 'interviewerMail', width: 30 },
+    ];
+    
+    worksheet.addRows(entries.map(entry => {
+        return {
+            ...entry.toObject(),
+            interviewDate: entry.interviewDate ? new Date(entry.interviewDate).toISOString().split('T')[0] : '',
+            interviewerName: entry.interviewer ? `${entry.interviewer.user.firstName} ${entry.interviewer.user.lastName}`.trim() : '',
+            interviewerMail: entry.interviewer ? entry.interviewer.user.email : ''
+        };
+    }));
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="MainSheet_${new Date().toISOString().slice(0,10)}.xlsx"`);
+
+    await workbook.xlsx.write(res);
+    res.end();
+});
+
 const exportApplicants = asyncHandler(async (req, res) => {
     const { status, search } = req.query; const query = {};
     if (status) query.status = status; if (search) { query.$or = [{ fullName: { $regex: search, $options: 'i' } }, { email: { $regex: search, $options: 'i' } }]; }
@@ -1221,7 +1290,7 @@ const updateInterviewer = asyncHandler(async (req, res) => {
 
 const deleteInterviewer = asyncHandler(async (req, res) => {
     const interviewer = await Interviewer.findById(req.params.id);
-    if (!interviewer) { res.status(404); throw new Error('Interviewer not found.'); }
+    if (!interviewer) { res.status(404); throw new Error('Interviewer not found'); }
     await User.findByIdAndDelete(interviewer.user);
     await interviewer.deleteOne();
     res.json({ success: true, message: 'Interviewer and associated user deleted.' });
@@ -2252,6 +2321,7 @@ module.exports = {
     bulkUploadInterviewers, getDashboardAnalytics,
     getLatestInterviewDate, // <-- Export the new function
     getDomainEvaluationSummary,
+    exportMainSheetEntries,
     // --- MODIFICATION START ---
     sendWelcomeEmail,
     // --- MODIFICATION END ---
