@@ -12,9 +12,8 @@ async function getAuthClient() {
     if (authClient) return authClient;
 
     try {
-        // --- MODIFICATION START ---
-        // Read credentials and token from environment variables instead of files.
-        // This is more secure and works better in deployment environments like Render.
+        // --- PRODUCTION-READY: Read credentials and token from environment variables ---
+        // This is more secure and works better in deployment environments.
         if (!process.env.GOOGLE_CREDENTIALS_JSON || !process.env.GOOGLE_TOKEN_JSON) {
             logError('google_auth_error', new Error('Google credentials are not set in environment variables.'));
             throw new Error('Google API credentials are not configured in environment variables.');
@@ -25,7 +24,7 @@ async function getAuthClient() {
 
         const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
         oAuth2Client.setCredentials(JSON.parse(process.env.GOOGLE_TOKEN_JSON));
-        // --- MODIFICATION END ---
+        // --- END PRODUCTION-READY AUTH ---
 
         // The google-auth-library handles token refreshing in memory.
         // We will just log the event without writing to a file.
@@ -65,6 +64,9 @@ async function fetchRecentCalendarEvents() {
 
         const events = res.data.items;
         logEvent('google_calendar_events_fetched', { count: events.length });
+        
+        // This function correctly fetches the full event object, including the 'attachments' 
+        // array which is needed to find both recordings and transcripts. No changes are needed here.
         return events;
     } catch (error) {
         logError('google_calendar_fetch_error', error);
