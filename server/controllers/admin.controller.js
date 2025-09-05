@@ -589,38 +589,54 @@ const refreshRecordingLinks = asyncHandler(async (req, res) => {
             const recording = event.attachments.find(
                 att => att.mimeType && att.mimeType.startsWith('video/')
             );
+            const transcript = event.attachments.find(
+                att => att.mimeType === 'application/vnd.google-apps.document'
+            );
             
-            if (recording && recording.fileUrl) {
-                recordingsMap.set(event.hangoutLink, recording.fileUrl);
+            if (recording || transcript) {
+                recordingsMap.set(event.hangoutLink, {
+                    recordingLink: recording ? recording.fileUrl : null,
+                    transcriptLink: transcript ? transcript.fileUrl : null
+                });
             }
         }
     }
     
     if (recordingsMap.size === 0) {
-        return res.json({ success: true, message: "Found calendar events, but no new recordings were identified." });
+        return res.json({ success: true, message: "Found calendar events, but no new recordings or transcripts were identified." });
     }
 
     const entriesToUpdate = await MainSheetEntry.find({
         meetingLink: { $in: [...recordingsMap.keys()] },
         $or: [
-            { recordingLink: { $exists: false } },
-            { recordingLink: '' }
+            { recordingLink: { $exists: false } }, { recordingLink: '' },
+            { transcriptLink: { $exists: false } }, { transcriptLink: '' }
         ]
     });
 
     if (entriesToUpdate.length === 0) {
-        return res.json({ success: true, message: "All existing recording links are already up to date." });
+        return res.json({ success: true, message: "All existing recording and transcript links are already up to date." });
     }
 
     const bulkOps = entriesToUpdate.map(entry => {
-        const recordingLink = recordingsMap.get(entry.meetingLink);
-        if (recordingLink) {
-            return {
-                updateOne: {
-                    filter: { _id: entry._id },
-                    update: { $set: { recordingLink: recordingLink, updatedBy: req.user._id } }
-                }
-            };
+        const links = recordingsMap.get(entry.meetingLink);
+        if (links) {
+            const updatePayload = {};
+            if (links.recordingLink && !entry.recordingLink) {
+                updatePayload.recordingLink = links.recordingLink;
+            }
+            if (links.transcriptLink && !entry.transcriptLink) {
+                updatePayload.transcriptLink = links.transcriptLink;
+            }
+
+            if (Object.keys(updatePayload).length > 0) {
+                return {
+                    updateOne: {
+                        filter: { _id: entry._id },
+                        update: { $set: { ...updatePayload, updatedBy: req.user._id } }
+                    }
+                };
+            }
         }
         return null;
     }).filter(Boolean);
@@ -632,7 +648,7 @@ const refreshRecordingLinks = asyncHandler(async (req, res) => {
         logEvent('recording_links_refreshed', { count: updatedCount, adminId: req.user._id });
     }
 
-    res.json({ success: true, message: `${updatedCount} recording link(s) updated successfully.` });
+    res.json({ success: true, message: `${updatedCount} recording/transcript link(s) updated successfully.` });
 });
 
 const getEvaluationDataForAdmin = asyncHandler(async (req, res) => {
@@ -1037,9 +1053,6 @@ const deleteApplicant = asyncHandler(async (req, res) => {
     res.json({ success: true, message: 'Applicant deleted successfully' });
 });
 
-// @desc    Export Main Sheet entries to Excel
-// @route   GET /api/admin/main-sheet/export
-// @access  Private/Admin
 const exportMainSheetEntries = asyncHandler(async (req, res) => {
     const { search, interviewStatus, interviewDate } = req.query;
 
@@ -2047,13 +2060,11 @@ const generateMeetLink = asyncHandler(async (req, res) => {
     const attendees = [studentEmail, interviewerEmail, hostEmail].filter(Boolean);
     if (attendees.length < 2) { res.status(400); throw new Error('At least two attendees (student, interviewer, or host) must have a valid email.'); }
 
-    // --- THIS IS THE CORRECTED CODE BLOCK ---
     const date = new Date(bookingDate);
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const year = date.getFullYear();
     const formattedDate = `${year}-${month}-${day}`;
-    // --- END CORRECTION ---
 
     const startDateTime = `${formattedDate}T${bookedSlot.startTime}:00`;
     const endDateTime = `${formattedDate}T${bookedSlot.endTime}:00`;
@@ -2080,9 +2091,7 @@ const generateMeetLink = asyncHandler(async (req, res) => {
                 { $set: { meetingLink: googleEvent.hangoutLink, updatedBy: req.user._id } },
                 { session }
             );
-            // Optional: Check if update was successful
             if (!mainSheetUpdate) {
-                // This would be a data integrity issue, but we can handle it
                 throw new Error(`MainSheetEntry with interviewId ${booking.interviewId} not found.`);
             }
         }
@@ -2094,7 +2103,7 @@ const generateMeetLink = asyncHandler(async (req, res) => {
 
     } catch (error) {
         await session.abortTransaction();
-        throw error; // Re-throw the error to be caught by asyncHandler
+        throw error;
     } finally {
         session.endSession();
     }
@@ -2147,9 +2156,6 @@ const updateEvaluationSheet = asyncHandler(async (req, res) => {
     res.json({ success: true, data: sheet });
 });
 
-// @desc    Get dashboard analytics data
-// @route   GET /api/admin/stats/analytics
-// @access  Private/Admin
 const getDashboardAnalytics = asyncHandler(async (req, res) => {
     const { view, targetDate } = req.query;
     if (!targetDate) {
@@ -2159,7 +2165,6 @@ const getDashboardAnalytics = asyncHandler(async (req, res) => {
     
     let startDate, endDate, groupBy, project;
     
-    // Determine date range and grouping logic based on view
     switch (view) {
         case 'daily':
             startDate = startOfDay(date);
@@ -2182,13 +2187,11 @@ const getDashboardAnalytics = asyncHandler(async (req, res) => {
             break;
     }
     
-    // --- FIX: Corrected Status Names to match MainSheetEntry model ---
     const statuses = ['Scheduled', 'Completed', 'InProgress', 'Cancelled', 'Pending Student Booking'];
     const groupStage = { _id: groupBy };
     const projectStage = { ...project };
 
     statuses.forEach(status => {
-        // Create a URL-friendly key from the status name (e.g., 'PendingStudentBooking')
         const key = status.replace(/\s+/g, ''); 
         groupStage[key] = {
             $sum: { $cond: [{ $eq: ["$interviewStatus", status] }, 1, 0] }
@@ -2203,7 +2206,6 @@ const getDashboardAnalytics = asyncHandler(async (req, res) => {
         { $sort: { [Object.keys(project)[1]]: 1 } } // Sort by hour, day, or week
     ]);
 
-    // --- FIX: Remap the key for the frontend ---
     const formattedAnalytics = analytics.map(item => {
         const { PendingStudentBooking, ...rest } = item;
         return { ...rest, Pending: PendingStudentBooking || 0 };
@@ -2212,11 +2214,6 @@ const getDashboardAnalytics = asyncHandler(async (req, res) => {
     res.json({ success: true, data: formattedAnalytics });
 });
 
-
-// --- FIX: Add new controller for fetching the latest date ---
-// @desc    Get the latest interview date from the main sheet
-// @route   GET /api/admin/stats/latest-interview-date
-// @access  Private/Admin
 const getLatestInterviewDate = asyncHandler(async (req, res) => {
     const latestEntry = await MainSheetEntry.findOne({ interviewDate: { $ne: null } }).sort({ interviewDate: -1 });
     res.json({
@@ -2227,15 +2224,9 @@ const getLatestInterviewDate = asyncHandler(async (req, res) => {
     });
 });
 
-// @desc    Get summary statistics for the Domain Evaluation page
-// @route   GET /api/admin/evaluation-summary
-// @access  Private/Admin
 const getDomainEvaluationSummary = asyncHandler(async (req, res) => {
     const summary = await MainSheetEntry.aggregate([
-        // Filter out entries with no techStack (domain)
         { $match: { techStack: { $exists: true, $ne: null, $ne: "" } } },
-
-        // Group by techStack
         {
             $group: {
                 _id: '$techStack', // Group by domain name
@@ -2257,8 +2248,6 @@ const getDomainEvaluationSummary = asyncHandler(async (req, res) => {
                 }
             }
         },
-
-        // Reshape the output
         {
             $project: {
                 _id: 0,
@@ -2291,6 +2280,7 @@ module.exports = {
     bulkUpdateMainSheetEntries,
     deleteMainSheetEntry,
     bulkDeleteMainSheetEntries,
+    exportMainSheetEntries, // Added
     createPublicBooking,
     getPublicBookings,
     updatePublicBooking,
