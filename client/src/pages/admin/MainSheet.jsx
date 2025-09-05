@@ -1,3 +1,4 @@
+// client/src/pages/admin/MainSheet.jsx
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
@@ -222,7 +223,6 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, title, instructions, re
         </div>
     ) : null;
 };
-
 // --- Remarks Modal ---
 const RemarksModal = ({ isOpen, onClose, content }) => {
     if (!isOpen) return null;
@@ -252,8 +252,6 @@ const RemarksModal = ({ isOpen, onClose, content }) => {
         </div>
     );
 };
-
-// --- Directly editable remarks cell component ---
 const EditableCell = ({ value, onSave, isLoading, fieldName, rowId }) => {
     const [currentValue, setCurrentValue] = useState(value || '');
 
@@ -490,6 +488,16 @@ const MainSheet = () => {
         { key: 'candidateResume', title: 'Resume', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Link</a> : '' },
         { key: 'meetingLink', title: 'Meeting Link', minWidth: '250px', render: (row) => row.meetingLink ? (<a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate block max-w-[250px]" title={row.meetingLink}>{row.meetingLink}</a>) : '' },
         { key: 'recordingLink', title: 'Recording Link', minWidth: '250px', render: (row) => row.recordingLink ? (<a href={row.recordingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate block max-w-[250px]" title={row.recordingLink}>{row.recordingLink}</a>) : '' },
+        { 
+            key: 'transcriptLink', 
+            title: 'Transcript Link', 
+            minWidth: '250px', 
+            render: (row) => row.transcriptLink ? (
+                <a href={row.transcriptLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate block max-w-[250px]" title={row.transcriptLink}>
+                    {row.transcriptLink}
+                </a>
+            ) : '' 
+        },
         { key: 'interviewDate', title: 'Date', render: (row) => row.interviewDate ? formatDate(row.interviewDate) : '' },
         { key: 'interviewTime', title: 'Time' },
         { key: 'interviewDuration', title: 'Duration' },
