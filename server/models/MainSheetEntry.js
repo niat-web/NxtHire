@@ -16,6 +16,11 @@ const MainSheetEntrySchema = new mongoose.Schema({
     candidateResume: { type: String, trim: true, default: '' },
     meetingLink: { type: String, trim: true, default: '' },
     recordingLink: { type: String, trim: true, default: '' },
+    transcriptLink: {
+        type: String,
+        trim: true,
+        default: ''
+    },
     interviewDate: { type: Date },
     interviewTime: { type: String, trim: true, default: '' },
     interviewDuration: { type: String, trim: true, default: '' },
