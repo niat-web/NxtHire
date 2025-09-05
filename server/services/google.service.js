@@ -1,12 +1,8 @@
 // server/services/google.service.js
-const fs = require('fs').promises;
-const path = require('path');
 const { google } = require('googleapis');
 const { logEvent, logError } = require('../middleware/logger.middleware');
 
 const SCOPES = ['https://www.googleapis.com/auth/calendar'];
-const CREDENTIALS_PATH = path.join(__dirname, '../config/credentials.json');
-const TOKEN_PATH = path.join(__dirname, '../config/token.json');
 const TIMEZONE = "Asia/Kolkata";
 
 let authClient = null;
@@ -16,33 +12,33 @@ async function getAuthClient() {
     if (authClient) return authClient;
 
     try {
-        const credentialsContent = await fs.readFile(CREDENTIALS_PATH);
-        const credentials = JSON.parse(credentialsContent);
-        const { client_secret, client_id, redirect_uris } = credentials.installed;
-        const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
-
-        try {
-            const tokenContent = await fs.readFile(TOKEN_PATH);
-            oAuth2Client.setCredentials(JSON.parse(tokenContent));
-        } catch (err) {
-            logError('google_token_error', err, { message: 'token.json not found or invalid.' });
-            console.error('Error loading token.json. Please generate a new one.');
-            throw new Error('Google API token is missing or invalid.');
+        // --- MODIFICATION START ---
+        // Read credentials and token from environment variables instead of files.
+        // This is more secure and works better in deployment environments like Render.
+        if (!process.env.GOOGLE_CREDENTIALS_JSON || !process.env.GOOGLE_TOKEN_JSON) {
+            logError('google_auth_error', new Error('Google credentials are not set in environment variables.'));
+            throw new Error('Google API credentials are not configured in environment variables.');
         }
 
-        // *** SIMPLIFIED TOKEN REFRESH HANDLER ***
+        const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
+        const { client_secret, client_id, redirect_uris } = credentials.installed;
+
+        const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+        oAuth2Client.setCredentials(JSON.parse(process.env.GOOGLE_TOKEN_JSON));
+        // --- MODIFICATION END ---
+
         // The google-auth-library handles token refreshing in memory.
-        // We will just log the event without writing to the file to avoid potential crashes.
+        // We will just log the event without writing to a file.
         oAuth2Client.on('tokens', (tokens) => {
             logEvent('google_token_refresh_event_triggered');
             if (tokens.access_token) {
-                 logEvent('google_access_token_refreshed_in_memory');
+                logEvent('google_access_token_refreshed_in_memory');
             }
         });
 
+        // Cache the authenticated client for subsequent requests
         authClient = oAuth2Client;
         return authClient;
-
     } catch (error) {
         logError('google_auth_error', error);
         console.error('Error during Google authentication setup:', error.message);
@@ -50,12 +46,11 @@ async function getAuthClient() {
     }
 }
 
-// --- ADDITION START ---
 async function fetchRecentCalendarEvents() {
     try {
         const oAuth2Client = await getAuthClient();
         const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
-        
+
         // Fetch events from the last 7 days.
         const timeMin = new Date();
         timeMin.setDate(timeMin.getDate() - 7);
@@ -71,20 +66,18 @@ async function fetchRecentCalendarEvents() {
         const events = res.data.items;
         logEvent('google_calendar_events_fetched', { count: events.length });
         return events;
-
     } catch (error) {
         logError('google_calendar_fetch_error', error);
         console.error('Error fetching Google Calendar events:', error.message);
         throw new Error('Could not fetch Google Calendar events.');
     }
 }
-// --- ADDITION END ---
 
 const createCalendarEvent = async ({ summary, description, start, end, attendees }) => {
     try {
         const oAuth2Client = await getAuthClient();
         const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
-        
+
         const validAttendees = attendees
             .filter(email => email && typeof email === 'string' && email.includes('@'))
             .map(email => ({ email }));
@@ -102,7 +95,7 @@ const createCalendarEvent = async ({ summary, description, start, end, attendees
                 }
             },
         };
-        
+
         const res = await calendar.events.insert({
             calendarId: 'primary',
             requestBody: event,
@@ -111,7 +104,6 @@ const createCalendarEvent = async ({ summary, description, start, end, attendees
 
         logEvent('google_calendar_event_created', { eventId: res.data.id, summary });
         return res.data;
-
     } catch (error) {
         logError('google_calendar_creation_error', error, { summary });
         console.error('Error creating Google Calendar event:', error.message);
