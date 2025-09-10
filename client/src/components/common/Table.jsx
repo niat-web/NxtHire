@@ -28,8 +28,9 @@ const Table = ({
     }
   };
   
-  const showingFrom = pagination?.totalItems > 0 ? (pagination.currentPage - 1) * 10 + 1 : 0;
-  const showingTo = Math.min(pagination?.currentPage * 10, pagination?.totalItems);
+  const showingFrom = pagination?.totalItems > 0 ? ((pagination.currentPage - 1) * 10) + 1 : 0;
+  const showingTo = Math.min((pagination?.currentPage * 10), pagination?.totalItems);
+
 
   const getSortIcon = (key) => {
     if (!sortConfig || !onSort) {
@@ -54,7 +55,9 @@ const Table = ({
                   <th
                     key={column.key}
                     scope="col"
-                    className={`sticky top-0 z-10 px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider bg-gray-50/95 backdrop-blur-sm whitespace-nowrap ${column.sortable ? 'cursor-pointer hover:text-gray-800' : ''}`}
+                    className={`sticky top-0 px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap ${
+                        column.isSticky ? 'left-0 z-20 bg-gray-50 border-r' : 'z-10 bg-gray-50/95 backdrop-blur-sm'
+                    } ${column.sortable ? 'cursor-pointer hover:text-gray-800' : ''}`}
                     style={{ minWidth: column.minWidth }}
                     onClick={() => column.sortable && onSort && onSort(column.key)}
                   >
@@ -81,11 +84,13 @@ const Table = ({
                 </tr>
               ) : (
                 data.map((row, rowIndex) => (
-                  <tr key={row._id || rowIndex} className="even:bg-gray-50/60 hover:bg-indigo-50 transition-colors duration-150">
-                    {columns.map((column, colIndex) => (
+                  <tr key={row._id || rowIndex} className="even:bg-gray-50 hover:bg-indigo-50 transition-colors duration-150 group">
+                    {columns.map((column) => (
                       <td 
-                        key={`${column.key}-${rowIndex}-${colIndex}`} 
-                        className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 align-middle"
+                        key={`${column.key}-${rowIndex}`} 
+                        className={`px-4 py-2 whitespace-nowrap text-sm text-gray-700 align-middle ${
+                            column.isSticky ? 'sticky left-0 z-1 border-r bg-white group-even:bg-gray-50 group-hover:bg-indigo-50' : ''
+                        }`}
                       >
                          {column.render ? column.render(row, rowIndex) : (row[column.key] !== null && row[column.key] !== undefined ? row[column.key].toString() : '')}
                       </td>
@@ -112,7 +117,7 @@ const Table = ({
                 </div>
                 <div>
                     <Button variant="outline" onClick={handlePreviousPage} disabled={pagination.currentPage === 1} icon={<FiChevronLeft />}>Previous</Button>
-                    <Button variant="outline" onClick={handleNextPage} disabled={pagination.currentPage === pagination.totalPages} icon={<FiChevronRight />} iconPosition="right" className="ml-3">Next</Button>
+                    <Button variant="outline" onClick={handleNextPage} disabled={pagination.currentPage >= pagination.totalPages} icon={<FiChevronRight />} iconPosition="right" className="ml-3">Next</Button>
                 </div>
               </div>
           </nav>
