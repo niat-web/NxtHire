@@ -5,8 +5,9 @@
 @tailwind utilities;
 
 @layer base {
-  body {
+  html, body {
     @apply font-sans antialiased text-gray-800;
+    overscroll-behavior-x: none;
   }
   
   h1 {
