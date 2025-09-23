@@ -1,6 +1,6 @@
 // client/src/components/forms/LoginForm.jsx
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../../hooks/useAuth';
 import { FiEye, FiEyeOff } from 'react-icons/fi'; // Import icons
@@ -154,6 +154,11 @@ const LoginForm = () => {
             <label htmlFor="remember_me" className="ml-3 block text-sm text-slate-700 font-medium">
               Remember me
             </label>
+          </div>
+          <div className="text-sm">
+            <Link to="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
+              Forgot password?
+            </Link>
           </div>
         </div>
         
