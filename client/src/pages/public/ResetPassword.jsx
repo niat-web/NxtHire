@@ -1,61 +1,21 @@
 // client/src/pages/public/ResetPassword.jsx
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { FiLock } from 'react-icons/fi';
-import Card from '../../components/common/Card';
-import Input from '../../components/common/Input';
-import Button from '../../components/common/Button';
+import { useLocation, Link } from 'react-router-dom';
+import ResetPasswordForm from '../../components/forms/ResetPasswordForm'; // <-- IMPORT a new, dedicated form component
 import Alert from '../../components/common/Alert';
-import { resetPassword } from '../../api/auth.api';
-import { useAlert } from '../../hooks/useAlert';
+import Button from '../../components/common/Button';
 
 const ResetPassword = () => {
-  const navigate = useNavigate();
   const location = useLocation();
-  const { showSuccess, showError } = useAlert();
-  
-  // Get token from URL query params
-  const queryParams = new URLSearchParams(location.search);
-  const token = queryParams.get('token');
-  
-  const { 
-    register, 
-    handleSubmit, 
-    watch,
-    formState: { errors, isSubmitting } 
-  } = useForm();
-  
-  const password = watch('password', '');
-  
-  const onSubmit = async (data) => {
-    if (!token) {
-      showError('Invalid or missing token. Please check your link and try again.');
-      return;
-    }
-    
-    try {
-      await resetPassword({
-        token,
-        password: data.password,
-        confirmPassword: data.confirmPassword
-      });
-      
-      showSuccess('Password reset successfully! You can now log in with your new password.');
-      navigate('/login');
-    } catch (error) {
-      console.error('Error resetting password:', error);
-      showError('Failed to reset password. The link may be invalid or expired.');
-    }
-  };
-  
+  const token = new URLSearchParams(location.search).get('token');
+
   if (!token) {
     return (
-      <div className="max-w-md mx-auto px-4 py-12">
-        <Card>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="max-w-md w-full">
           <Alert
             type="error"
-            title="Invalid Reset Link"
+            title="Invalid Link"
             message="The password reset link is invalid or has expired. Please request a new one."
             className="mb-6"
           />
@@ -67,62 +27,32 @@ const ResetPassword = () => {
               Request New Link
             </Button>
           </div>
-        </Card>
+        </div>
       </div>
     );
   }
-  
+
   return (
-    <div className="max-w-md mx-auto px-4 py-12">
-      <Card title="Reset Password">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="mb-6">
-            <p className="text-gray-600">
-              Please enter a new password for your account.
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
+      {/* Background grid pattern */}
+      <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10"></div>
+      
+      {/* The main content card */}
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 sm:p-10 border border-slate-200/50 relative overflow-hidden">
+        {/* Decorative gradient overlay inside the card */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-indigo-600/5 to-purple-600/5 -z-10"></div>
+        
+        <div className="text-center mb-8">
+            <h1 className="text-3xl font-extrabold bg-gradient-to-r from-slate-800 via-blue-800 to-indigo-800 bg-clip-text text-transparent">
+              Reset Your Password
+            </h1>
+            <p className="mt-2 text-slate-600">
+              Choose a new, secure password for your account.
             </p>
-          </div>
-          
-          <Input
-            label="New Password"
-            type="password"
-            {...register('password', { 
-              required: 'Password is required',
-              minLength: {
-                value: 8,
-                message: 'Password must be at least 8 characters long'
-              }
-            })}
-            error={errors.password?.message}
-            placeholder="Enter your new password"
-            required
-          />
-          
-          <Input
-            label="Confirm Password"
-            type="password"
-            {...register('confirmPassword', { 
-              required: 'Please confirm your password',
-              validate: value => value === password || 'Passwords do not match'
-            })}
-            error={errors.confirmPassword?.message}
-            placeholder="Confirm your new password"
-            required
-          />
-          
-          <div className="mt-6">
-            <Button
-              type="submit"
-              variant="primary"
-              fullWidth
-              disabled={isSubmitting}
-              icon={<FiLock />}
-              iconPosition="left"
-            >
-              {isSubmitting ? 'Resetting...' : 'Reset Password'}
-            </Button>
-          </div>
-        </form>
-      </Card>
+        </div>
+        
+        <ResetPasswordForm />
+      </div>
     </div>
   );
 };
