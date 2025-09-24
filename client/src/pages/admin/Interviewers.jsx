@@ -16,8 +16,8 @@
 // import ConfirmDialog from '../../components/common/ConfirmDialog';
 // import InterviewerFormModal from './InterviewerFormModal'; 
 // import { saveAs } from 'file-saver';
+// import DropdownMenu from '../../components/common/DropdownMenu';
 
-// // --- NEW HELPER FUNCTION TO GENERATE THE LOG FILE CONTENT ---
 // const generateErrorLogText = (failedEntries) => {
 //     let logContent = `Bulk Import Error Report - ${new Date().toLocaleString()}\n`;
 //     logContent += `Total Failed Entries: ${failedEntries.length}\n`;
@@ -162,10 +162,8 @@
 //     const [loading, setLoading] = useState(true);
 //     const [interviewers, setInterviewers] = useState([]);
     
-//     // --- MODIFICATION START: State for filtered and total counts ---
 //     const [filteredCount, setFilteredCount] = useState(0);
 //     const [absoluteTotal, setAbsoluteTotal] = useState(0);
-//     // --- MODIFICATION END ---
     
 //     const [sortConfig, setSortConfig] = useState({ key: 'onboardingDate', direction: 'desc' });
 //     const [filters, setFilters] = useState({ search: '', status: '', domain: '', paymentTier: '' });
@@ -183,7 +181,6 @@
 
 //     const [uploadErrorLog, setUploadErrorLog] = useState(null);
 
-//     // --- MODIFICATION START: Updated fetchInterviewers function ---
 //     const fetchInterviewers = useCallback(async () => {
 //         setLoading(true);
 //         try {
@@ -206,7 +203,6 @@
 //             setLoading(false);
 //         }
 //     }, [filters, sortConfig, showError]);
-//     // --- MODIFICATION END ---
     
 //     const debouncedFetch = useMemo(() => debounce(fetchInterviewers, 300), [fetchInterviewers]);
 
@@ -291,7 +287,7 @@
 
 //     const handleUploadConfirm = async (data) => {
 //         setIsUploading(true);
-//         setUploadErrorLog(null); // Clear previous logs
+//         setUploadErrorLog(null);
 //         try {
 //             const response = await bulkUploadInterviewers(data);
 //             const { created, failedEntries } = response.data.data;
@@ -299,16 +295,14 @@
 //             let finalMessage = `Import finished: ${created} created, ${failedEntries.length} failed.`;
 //             showSuccess(finalMessage);
 
-//             // --- NEW: LOG GENERATION ---
 //             if (failedEntries && failedEntries.length > 0) {
 //                 const errorLogText = generateErrorLogText(failedEntries);
 //                 setUploadErrorLog(errorLogText);
 //                 showError(`${failedEntries.length} entries failed to import. An error log is available for download.`);
 //             }
-//             // --- END: LOG GENERATION ---
 
 //             setIsUploadModalOpen(false);
-//             fetchInterviewers(); // Refresh the list
+//             fetchInterviewers();
 //         } catch(err) {
 //             showError(err.response?.data?.message || 'Bulk upload failed. Please ensure your data is correct and try again.');
 //         } finally {
@@ -334,11 +328,10 @@
 //     };
 
 //     const columns = useMemo(() => [
+//         { key: 'user.firstName', title: 'Name', sortable: true, minWidth: '180px', isSticky: true, render: (row) => `${row.user.firstName || ''} ${row.user.lastName || ''}` },
 //         { key: 'select', title: (<input type="checkbox" className="form-checkbox" onChange={handleSelectAll} checked={selectedRows.length === interviewers.length && interviewers.length > 0} />), render: (row) => (<input type="checkbox" className="form-checkbox" checked={selectedRows.includes(row._id)} onChange={() => handleSelectRow(row._id)} />) },
-//         { key: 'interviewerId', title: 'Interviewer ID', minWidth: '280px', sortable: true, render: (row) => <EditableCell value={row.interviewerId} onSave={handleFieldSave} fieldName="interviewerId" rowId={row._id} isLoading={updatingId === row._id} /> },
-//         { key: 'payoutId', title: 'Payout ID', minWidth: '280px', sortable: true, render: (row) => <EditableCell value={row.payoutId} onSave={handleFieldSave} fieldName="payoutId" rowId={row._id} isLoading={updatingId === row._id} /> },
-//         { key: 'user.firstName', title: 'Name', sortable: true, minWidth: '180px', render: (row) => `${row.user.firstName || ''} ${row.user.lastName || ''}` },
-//         { key: 'user.email', title: 'Email', sortable: true, minWidth: '220px', render: (row) => row.user.email || '' },
+//         { key: 'status', title: 'Status', sortable: true, minWidth: '150px', render: (row) => (<select value={row.status} onChange={(e) => handleStatusChange(row._id, e.target.value)} disabled={updatingId === row._id} className={`w-full text-xs font-semibold px-2 py-1.5 border rounded-md shadow-sm focus:outline-none focus:ring-1 transition-colors cursor-pointer ${ row.status === 'Active' ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' : row.status === 'On Probation' ? 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200' : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'}`} onClick={(e) => e.stopPropagation()}>{Object.values(INTERVIEWER_STATUS).map(statusValue => (<option key={statusValue} value={statusValue}>{statusValue}</option>))}</select>) },
+//         { key: 'domains', title: 'Domain(s)', minWidth: '200px', render: (row) => (<div className="flex flex-wrap gap-1">{(row.domains && row.domains.length > 0) ? ( row.domains.map((domain, index) => (<Badge key={index} variant="primary" size="sm">{domain}</Badge>))) : (<Badge variant="gray" size="sm">N/A</Badge>)}</div>) },
 //         { key: 'sendWelcome', title: 'Send Welcome', minWidth: '140px', render: (row) => (
 //             row.welcomeEmailSentAt ? (
 //                 <div className="flex items-center text-green-600">
@@ -356,11 +349,12 @@
 //                 </Button>
 //             )
 //         )},
-//         { key: 'domains', title: 'Domain(s)', minWidth: '200px', render: (row) => (<div className="flex flex-wrap gap-1">{(row.domains && row.domains.length > 0) ? ( row.domains.map((domain, index) => (<Badge key={index} variant="primary" size="sm">{domain}</Badge>))) : (<Badge variant="gray" size="sm">N/A</Badge>)}</div>) },
-//         { key: 'status', title: 'Status', sortable: true, minWidth: '150px', render: (row) => (<select value={row.status} onChange={(e) => handleStatusChange(row._id, e.target.value)} disabled={updatingId === row._id} className={`w-full text-xs font-semibold px-2 py-1.5 border rounded-md shadow-sm focus:outline-none focus:ring-1 transition-colors cursor-pointer ${ row.status === 'Active' ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' : row.status === 'On Probation' ? 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200' : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'}`} onClick={(e) => e.stopPropagation()}>{Object.values(INTERVIEWER_STATUS).map(statusValue => (<option key={statusValue} value={statusValue}>{statusValue}</option>))}</select>) },
-//         { key: 'paymentAmount', title: 'Amount', minWidth: '120px', render: (row) => <EditableCell value={row.paymentAmount} onSave={handleFieldSave} fieldName="paymentAmount" rowId={row._id} isLoading={updatingId === row._id} /> },
 //         { key: 'metrics.interviewsCompleted', title: 'Interviews', sortable: true, minWidth: '110px', render: (row) => <div className="text-center">{row.metrics?.interviewsCompleted || 0}</div> },
 //         { key: 'onboardingDate', title: 'Onboarded', sortable: true, minWidth: '120px', render: (row) => formatDate(row.onboardingDate) },
+//         { key: 'paymentAmount', title: 'Amount', minWidth: '120px', render: (row) => <EditableCell value={row.paymentAmount} onSave={handleFieldSave} fieldName="paymentAmount" rowId={row._id} isLoading={updatingId === row._id} /> },
+//         { key: 'interviewerId', title: 'Interviewer ID', minWidth: '280px', sortable: true, render: (row) => <EditableCell value={row.interviewerId} onSave={handleFieldSave} fieldName="interviewerId" rowId={row._id} isLoading={updatingId === row._id} /> },
+//         { key: 'payoutId', title: 'Payout ID', minWidth: '280px', sortable: true, render: (row) => <EditableCell value={row.payoutId} onSave={handleFieldSave} fieldName="payoutId" rowId={row._id} isLoading={updatingId === row._id} /> },
+//         { key: 'user.email', title: 'Email', sortable: true, minWidth: '220px', render: (row) => row.user.email || '' },
 //         { key: 'user.phoneNumber', title: 'Phone', minWidth: '150px', render: (row) => row.user.phoneNumber || '' },
 //         { key: 'user.whatsappNumber', title: 'WhatsApp', minWidth: '150px', render: (row) => row.user.whatsappNumber || '' },
 //         { key: 'currentEmployer', title: 'Employer', minWidth: '180px', render: (row) => row.currentEmployer || '' },
@@ -371,6 +365,23 @@
 //         { key: 'bankDetails.bankName', title: 'Bank Name', minWidth: '180px', render: (row) => row.bankDetails?.bankName || '' },
 //         { key: 'bankDetails.accountNumber', title: 'Account Number', minWidth: '160px', render: (row) => row.bankDetails?.accountNumber || '' },
 //         { key: 'bankDetails.ifscCode', title: 'IFSC Code', minWidth: '120px', render: (row) => row.bankDetails?.ifscCode || '' },
+//         { key: 'actions', title: 'Actions', minWidth: '80px', render: (row) => (
+//             <DropdownMenu 
+//                 options={[
+//                     { 
+//                         label: 'Edit User', 
+//                         icon: FiEdit, 
+//                         onClick: () => setModalState({ type: 'edit', data: row }) 
+//                     },
+//                     { 
+//                         label: 'Delete User', 
+//                         icon: FiTrash2, 
+//                         isDestructive: true, 
+//                         onClick: () => setDeleteDialog({ isOpen: true, ids: [row._id], isBulk: false }) 
+//                     },
+//                 ]} 
+//             />
+//         ) },
 //     ], [interviewers, selectedRows, updatingId, sendingEmailId, handleStatusChange, handleSelectAll, handleSelectRow, handleFieldSave]);
   
 //     const interviewerUploadProps = {
@@ -482,9 +493,13 @@
 // };
 
 // export default Interviewers;
+
+
+
+
 // client/src/pages/admin/Interviewers.jsx
 import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
-import { FiUser, FiFilter, FiSearch, FiEdit, FiTrash2, FiPlus, FiUpload, FiCheckCircle, FiAlertTriangle, FiLoader, FiSend, FiDownload, FiX } from 'react-icons/fi';
+import { FiUser, FiFilter, FiSearch, FiEdit, FiTrash2, FiPlus, FiUpload, FiCheckCircle, FiAlertTriangle, FiLoader, FiSend, FiDownload, FiX, FiRefreshCw } from 'react-icons/fi';
 import * as XLSX from 'xlsx';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
@@ -493,7 +508,7 @@ import SearchInput from '../../components/common/SearchInput';
 import FilterDropdown from '../../components/common/FilterDropdown';
 import Badge from '../../components/common/Badge';
 import { getInterviewers, updateInterviewer, bulkUploadInterviewers, bulkDeleteInterviewers, sendWelcomeEmail } from '../../api/admin.api';
-import { formatDate } from '../../utils/formatters';
+import { formatDate, formatDateTime } from '../../utils/formatters';
 import { INTERVIEWER_STATUS, DOMAINS } from '../../utils/constants';
 import { debounce } from '../../utils/helpers';
 import { useAlert } from '../../hooks/useAlert';
@@ -728,7 +743,7 @@ const Interviewers = () => {
         }
     }, [showError, showSuccess]);
 
-    const handleSendWelcomeEmail = async (interviewerId) => {
+    const handleSendWelcomeEmail = useCallback(async (interviewerId) => {
         setSendingEmailId(interviewerId);
         try {
             await sendWelcomeEmail(interviewerId);
@@ -741,7 +756,7 @@ const Interviewers = () => {
         } finally {
             setSendingEmailId(null);
         }
-    };
+    }, [showSuccess, showError]);
     
     const handleFilterChange = (key, value) => {
         setFilters(prev => ({ ...prev, [key]: value }));
@@ -816,23 +831,49 @@ const Interviewers = () => {
         { key: 'select', title: (<input type="checkbox" className="form-checkbox" onChange={handleSelectAll} checked={selectedRows.length === interviewers.length && interviewers.length > 0} />), render: (row) => (<input type="checkbox" className="form-checkbox" checked={selectedRows.includes(row._id)} onChange={() => handleSelectRow(row._id)} />) },
         { key: 'status', title: 'Status', sortable: true, minWidth: '150px', render: (row) => (<select value={row.status} onChange={(e) => handleStatusChange(row._id, e.target.value)} disabled={updatingId === row._id} className={`w-full text-xs font-semibold px-2 py-1.5 border rounded-md shadow-sm focus:outline-none focus:ring-1 transition-colors cursor-pointer ${ row.status === 'Active' ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' : row.status === 'On Probation' ? 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200' : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'}`} onClick={(e) => e.stopPropagation()}>{Object.values(INTERVIEWER_STATUS).map(statusValue => (<option key={statusValue} value={statusValue}>{statusValue}</option>))}</select>) },
         { key: 'domains', title: 'Domain(s)', minWidth: '200px', render: (row) => (<div className="flex flex-wrap gap-1">{(row.domains && row.domains.length > 0) ? ( row.domains.map((domain, index) => (<Badge key={index} variant="primary" size="sm">{domain}</Badge>))) : (<Badge variant="gray" size="sm">N/A</Badge>)}</div>) },
-        { key: 'sendWelcome', title: 'Send Welcome', minWidth: '140px', render: (row) => (
-            row.welcomeEmailSentAt ? (
-                <div className="flex items-center text-green-600">
-                    <FiCheckCircle className="mr-2"/>
-                    Sent
-                </div>
-            ) : (
-                <Button 
-                    variant="primary" 
-                    className="!text-xs !py-1 !px-3" 
-                    onClick={() => handleSendWelcomeEmail(row._id)}
-                    isLoading={sendingEmailId === row._id}
-                >
-                    Send Welcome
-                </Button>
-            )
-        )},
+        {
+            key: 'sendWelcome',
+            title: 'Welcome Mail',
+            minWidth: '140px',
+            render: (row) => {
+                const isSending = sendingEmailId === row._id;
+                
+                if (isSending) {
+                    return (
+                        <div className="flex items-center justify-center text-gray-500">
+                            <FiLoader className="animate-spin h-5 w-5" />
+                        </div>
+                    );
+                }
+
+                if (row.welcomeEmailSentAt) {
+                    return (
+                        <div className="flex items-center justify-center space-x-2">
+                            <FiCheckCircle className="text-green-500" size={20} title={`Sent on ${formatDateTime(row.welcomeEmailSentAt)}`} />
+                            <button
+                                onClick={() => handleSendWelcomeEmail(row._id)}
+                                className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-100 rounded-full transition-colors"
+                                title="Resend welcome email"
+                            >
+                                <FiRefreshCw size={16} />
+                            </button>
+                        </div>
+                    );
+                } else {
+                    return (
+                         <div className="flex items-center justify-center">
+                            <button
+                                onClick={() => handleSendWelcomeEmail(row._id)}
+                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-100 rounded-full transition-colors"
+                                title="Send welcome email"
+                            >
+                                <FiSend size={18} />
+                            </button>
+                        </div>
+                    );
+                }
+            }
+        },
         { key: 'metrics.interviewsCompleted', title: 'Interviews', sortable: true, minWidth: '110px', render: (row) => <div className="text-center">{row.metrics?.interviewsCompleted || 0}</div> },
         { key: 'onboardingDate', title: 'Onboarded', sortable: true, minWidth: '120px', render: (row) => formatDate(row.onboardingDate) },
         { key: 'paymentAmount', title: 'Amount', minWidth: '120px', render: (row) => <EditableCell value={row.paymentAmount} onSave={handleFieldSave} fieldName="paymentAmount" rowId={row._id} isLoading={updatingId === row._id} /> },
@@ -866,7 +907,7 @@ const Interviewers = () => {
                 ]} 
             />
         ) },
-    ], [interviewers, selectedRows, updatingId, sendingEmailId, handleStatusChange, handleSelectAll, handleSelectRow, handleFieldSave]);
+    ], [interviewers, selectedRows, updatingId, sendingEmailId, handleStatusChange, handleSelectAll, handleSelectRow, handleFieldSave, handleSendWelcomeEmail]);
   
     const interviewerUploadProps = {
         isOpen: isUploadModalOpen,
