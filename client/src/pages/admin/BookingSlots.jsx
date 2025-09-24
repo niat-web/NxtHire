@@ -11,7 +11,7 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { getBookingSlots, createPublicBookingLink, resetBookingSubmission } from '@/api/admin.api';
 import { useAlert } from '@/hooks/useAlert';
-import { formatDate } from '@/utils/formatters';
+import { formatDate, formatTime } from '@/utils/formatters';
 import { debounce } from '@/utils/helpers';
 import { FiLink, FiLoader, FiMoreVertical, FiEdit, FiTrash2 } from 'react-icons/fi';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
@@ -176,7 +176,7 @@ const BookingSlots = () => {
                                     onChange={() => handleSlotSelection(row, slot)}
                                     className="form-checkbox h-4 w-4 text-indigo-600 rounded"
                                 />
-                                <span className="text-sm font-medium">{`${slot.startTime} - ${slot.endTime}`}</span>
+                                <span className="text-sm font-medium">{`${formatTime(slot.startTime)} - ${formatTime(slot.endTime)}`}</span>
                             </label>
                         )
                     })}
@@ -214,7 +214,7 @@ const BookingSlots = () => {
                 </Menu>
             )
         }
-    ], [selectedSlots, handleSelectAllForRow, handleSlotSelection, handleEditRequest, handleDeleteRequest]);
+    ], [selectedSlots, handleSelectAllForRow, handleSlotSelection, handleEditRequest, handleDeleteRequest, navigate]);
     
     return (
         <>
