@@ -21,8 +21,7 @@ const login = asyncHandler(async (req, res) => {
 
   // Find user by email
   // const user = await User.findOne({ email }).select('+password');
-
-  const user = await User.findOne({ email: email.toLowerCase() });
+const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
   if (!user) {
     res.status(401);
     throw new Error('Invalid credentials');
