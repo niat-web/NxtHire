@@ -60,6 +60,7 @@ const CommunicationSchema = new mongoose.Schema({
       'Payment Request',
       'Payment Invoice',
       'Payment Received Confirmation',
+      'Interviewer Booking', // --- FIX: Add this line ---
       'Other'
     ],
     required: true
