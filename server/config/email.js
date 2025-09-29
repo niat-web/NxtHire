@@ -20,7 +20,6 @@
 // };
 
 
-
 // server/config/email.js
 const nodemailer = require('nodemailer');
 
@@ -32,14 +31,8 @@ const createTransporter = () => {
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS
-    },
-    // --- ADD THIS BLOCK TO BYPASS CERTIFICATE ISSUE ---
-    tls: {
-      // This is often required on cloud servers to prevent security blocks 
-      // when connecting to commercial SMTP like Gmail or Office 365.
-      rejectUnauthorized: false 
     }
-    // --- END ADDITION ---
+    // REMOVE the tls: { rejectUnauthorized: false } block entirely.
   });
   
   return transporter;
