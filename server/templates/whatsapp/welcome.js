@@ -3,7 +3,7 @@
 module.exports = (data) => {
     const { firstName, portalLink, supportContact } = data;
     
-    return `🎉 *Welcome to NxtWave Interviewer Program!*
+    return `🎉 *Welcome to NxtWave Interviewer!*
   
   Hello ${firstName},
   
