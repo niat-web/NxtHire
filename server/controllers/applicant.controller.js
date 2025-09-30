@@ -59,7 +59,7 @@ const submitApplication = asyncHandler(async (req, res) => {
     recipientModel: 'Applicant',
     recipientEmail: email,
     templateName: 'applicationConfirmation',
-    subject: 'Application Received - NxtWave Interviewer Program',
+    subject: 'Application Received - NxtWave Interviewer',
     templateData: {
       name: fullName,
       applicationId: applicant._id.toString()
