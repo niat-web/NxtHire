@@ -1382,7 +1382,7 @@ const processLinkedInReview = asyncHandler(async (req, res) => {
         applicant.status = APPLICATION_STATUS.PROFILE_APPROVED;
         if (notes) applicant.reviewNotes = notes;
         await applicant.save();
-        await sendEmail({ recipient: applicant._id, recipientModel: 'Applicant', recipientEmail: applicant.email, templateName: 'skillAssessmentInvitation', subject: 'Next Steps: Skills Details Form - NxtWave Interviewer Program', templateData: { name: applicant.fullName, skillAssessmentLink: `${process.env.CLIENT_URL}/skill-assessment/${applicant._id}` }, relatedTo: 'Skill Assessment', sentBy: req.user._id, isAutomated: false });
+        await sendEmail({ recipient: applicant._id, recipientModel: 'Applicant', recipientEmail: applicant.email, templateName: 'skillAssessmentInvitation', subject: 'Next Steps: Skills Details Form - NxtWave Interviewer', templateData: { name: applicant.fullName, skillAssessmentLink: `${process.env.CLIENT_URL}/skill-assessment/${applicant._id}` }, relatedTo: 'Skill Assessment', sentBy: req.user._id, isAutomated: false });
         applicant.status = APPLICATION_STATUS.SKILLS_ASSESSMENT_SENT;
         await applicant.save();
         logEvent('linkedin_review_approved', { applicantId: applicant._id, reviewedBy: req.user._id, email: applicant.email });
@@ -1426,7 +1426,7 @@ const processSkillCategorization = asyncHandler(async (req, res) => {
         recipientModel: 'Applicant',
         recipientEmail: applicant.email,
         templateName: 'guidelinesInvitation',
-        subject: 'Final Step: Interview Guidelines - NxtWave Interviewer Program',
+        subject: 'Final Step: Interview Guidelines - NxtWave Interviewer',
         templateData: { name: applicant.fullName, guidelinesLink: `${process.env.CLIENT_URL}/guidelines/${applicant._id}` },
         relatedTo: 'Guidelines',
         sentBy: req.user._id,
