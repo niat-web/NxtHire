@@ -16,14 +16,46 @@
         border-radius: 5px;
         margin-top: 15px;
     }
+    .summary-table {
+        margin-top: 15px;
+        border-collapse: collapse;
+        width: 100%;
+        max-width: 400px;
+    }
+    .summary-table td {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+    }
+    .summary-table .total {
+        font-weight: bold;
+        border-top: 2px solid #333;
+    }
   </style>
 </head>
 <body>
   <p>Hi {{name}},</p>
   <p>
     You can now redeem the payment for the interviews you conducted between {{startDate}} and {{endDate}}. 
-    You've completed <strong>{{interviewCount}}</strong> interviews, and the total amount to be received is <strong>₹{{totalAmount}}</strong>.
+    You've completed <strong>{{interviewCount}}</strong> interviews. Please see the breakdown below:
   </p>
+
+  <table class="summary-table">
+      <tr>
+          <td>Interview Amount:</td>
+          <td style="text-align: right;">₹{{interviewAmount}}</td>
+      </tr>
+      {{#if bonusAmount}}
+      <tr>
+          <td>Bonus Amount:</td>
+          <td style="text-align: right;">₹{{bonusAmount}}</td>
+      </tr>
+      {{/if}}
+      <tr class="total">
+          <td>Total Amount to Receive:</td>
+          <td style="text-align: right;">₹{{totalAmount}}</td>
+      </tr>
+  </table>
+
   <p>
     Link to redeem: <a href="{{redeemLink}}">{{redeemLink}}</a>
     <br>
