@@ -14,12 +14,13 @@ const {
   resetBookingSubmission,
   updateInterviewBooking,
   deleteInterviewBooking,
+  updateInterviewBookingStatus,
   getMainSheetEntryById,
   getMainSheetEntries,
   bulkUpdateMainSheetEntries,
   deleteMainSheetEntry,
   bulkDeleteMainSheetEntries,
-  exportMainSheetEntries, // Added
+  exportMainSheetEntries,
   createPublicBooking,
   getPublicBookings,
   updatePublicBooking,
@@ -53,7 +54,13 @@ const {
   bulkUploadInterviewers, getDashboardAnalytics,
   getLatestInterviewDate,
   getDomainEvaluationSummary,
-  sendWelcomeEmail
+  sendWelcomeEmail,
+  sendProbationCompleteEmail,
+  markProbationEmailAsSent,
+  getAllEvaluationParameters,
+  getYearlyEarningsSummary,
+  getMonthlyEarningsDetails,
+  updateOrSetPaymentBonus, // <--- THIS IS THE FIX
 } = require('../controllers/admin.controller');
 const { protect, adminOnly } = require('../middleware/auth.middleware');
 const { validate, schemas } = require('../middleware/validator.middleware');
@@ -78,13 +85,16 @@ router.post('/custom-email/send', sendBulkCustomEmail);
 
 // --- Dashboard & Reporting ---
 router.get('/stats/dashboard', getDashboardStats);
+router.get('/stats/analytics', getDashboardAnalytics);
 router.get('/stats/latest-interview-date', getLatestInterviewDate);
 router.get('/earnings-report', getEarningsReport);
 router.get('/payment-requests', getPaymentRequests); 
-router.get('/stats/analytics', getDashboardAnalytics);
 router.post('/payment-requests/send-email', sendPaymentEmail); 
 router.post('/payment-requests/send-invoice-mail', sendInvoiceMail);
 router.post('/payment-requests/send-received-mail', sendPaymentReceivedEmail); 
+router.post('/payment-requests/bonus', updateOrSetPaymentBonus);
+router.get('/earnings/yearly-summary', getYearlyEarningsSummary);
+router.get('/earnings/monthly-details', getMonthlyEarningsDetails);
 
 
 // --- Applicant Management ---
@@ -109,7 +119,8 @@ router.delete('/interviewers/bulk', bulkDeleteInterviewers);
 router.route('/interviewers/:id').get(getInterviewerDetails).put(updateInterviewer).delete(deleteInterviewer);
 router.post('/interviewers/bulk-upload', bulkUploadInterviewers);
 router.post('/interviewers/:id/send-welcome-email', sendWelcomeEmail);
-
+router.post('/interviewers/:id/send-probation-email', sendProbationCompleteEmail);
+router.post('/interviewers/:id/mark-probation-sent', markProbationEmailAsSent);
 
 // --- User Management ---
 router.route('/users').get(getUsers).post(createUser);
@@ -119,13 +130,14 @@ router.route('/users/:id').get(getUserDetails).put(updateUser).delete(deleteUser
 // --- Interview Booking Management ---
 router.route('/bookings').get(getInterviewBookings).post(createInterviewBooking);
 router.route('/bookings/:id').get(getInterviewBookingDetails).put(updateInterviewBooking).delete(deleteInterviewBooking);
+router.put('/bookings/:id/status', updateInterviewBookingStatus);
 router.delete('/bookings/:bookingId/submissions/:submissionId', resetBookingSubmission);
 router.get('/booking-slots', getBookingSlots);
 
 
 // --- Main Sheet Routes ---
 router.route('/main-sheet').get(getMainSheetEntries);
-router.get('/main-sheet/export', exportMainSheetEntries); // Added this route
+router.get('/main-sheet/export', exportMainSheetEntries); 
 router.route('/main-sheet/bulk').post(bulkUpdateMainSheetEntries).delete(bulkDeleteMainSheetEntries);
 router.get('/main-sheet/hiring-names', getUniqueHiringNames); 
 router.post('/main-sheet/refresh-recordings', refreshRecordingLinks);
@@ -148,6 +160,7 @@ router.route('/domains').get(getDomains).post(createDomain);
 router.route('/domains/:id').put(updateDomain).delete(deleteDomain);
 router.route('/evaluation-sheet/:domainId').get(getEvaluationSheetByDomain).put(updateEvaluationSheet);
 router.get('/evaluation-data', getEvaluationDataForAdmin);
+router.get('/evaluation-parameters/all', getAllEvaluationParameters);
 
 // --- NEW: Route for the domain evaluation summary ---
 router.get('/evaluation-summary', getDomainEvaluationSummary);
