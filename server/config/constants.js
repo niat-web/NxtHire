@@ -271,7 +271,9 @@ const EMAIL_TEMPLATES = {
   STUDENT_BOOKING_REMINDER: 'studentBookingReminder', 
   PAYMENT_CONFIRMATION: 'paymentConfirmation', 
   INVOICE_MAIL: 'invoiceMail',
-  PAYMENT_RECEIVED_CONFIRMATION: 'paymentReceivedConfirmation' // ** NEW **
+  PAYMENT_RECEIVED_CONFIRMATION: 'paymentReceivedConfirmation',
+  PROBATION_COMPLETE: 'probationComplete',
+  INTERVIEW_CANCELLED: 'interviewCancelled'
 };
 
 // WhatsApp Template Names
