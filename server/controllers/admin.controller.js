@@ -378,6 +378,42 @@ const createCustomEmailTemplate = asyncHandler(async (req, res) => {
     res.status(201).json({ success: true, data: template });
 });
 
+// @desc    Send a probation completion email manually
+// @route   POST /api/admin/interviewers/:id/send-probation-email
+// @access  Private/Admin
+const sendProbationCompleteEmail = asyncHandler(async (req, res) => {
+    const interviewer = await Interviewer.findById(req.params.id).populate('user', 'firstName email');
+
+    if (!interviewer) {
+        res.status(404);
+        throw new Error('Interviewer not found.');
+    }
+    
+    // Optional: Add logic to change status here if desired
+    // interviewer.status = INTERVIEWER_STATUS.ACTIVE;
+
+    await sendEmail({
+        recipient: interviewer._id,
+        recipientModel: 'Interviewer',
+        recipientEmail: interviewer.user.email,
+        templateName: EMAIL_TEMPLATES.PROBATION_COMPLETE,
+        subject: 'Successful Completion of Probation Period – Continued Engagement',
+        templateData: {
+            name: interviewer.user.firstName,
+        },
+        relatedTo: 'Onboarding',
+        sentBy: req.user._id,
+        isAutomated: false
+    });
+
+    interviewer.probationEmailSentAt = new Date();
+    await interviewer.save();
+    
+    logEvent('probation_email_sent_manually', { interviewerId: interviewer._id, adminId: req.user._id });
+    
+    res.json({ success: true, message: 'Probation completion email sent successfully.' });
+});
+
 // @desc    Get all custom email templates
 // @route   GET /api/admin/custom-email-templates
 // @access  Private/Admin
@@ -647,9 +683,7 @@ const refreshRecordingLinks = asyncHandler(async (req, res) => {
 });
 
 const getEvaluationDataForAdmin = asyncHandler(async (req, res) => {
-    // --- MODIFICATION START: Accept new filter parameters ---
     const { domain, search, interviewStatus, interviewDate } = req.query;
-    // --- MODIFICATION END ---
     if (!domain) {
         return res.json({ success: true, data: { evaluationSheet: null, interviews: [] } });
     }
@@ -664,7 +698,6 @@ const getEvaluationDataForAdmin = asyncHandler(async (req, res) => {
     
     const query = { techStack: domain };
     
-    // --- MODIFICATION START: Add all filters to the query ---
     if (interviewStatus) {
         query.interviewStatus = interviewStatus;
     }
@@ -677,7 +710,6 @@ const getEvaluationDataForAdmin = asyncHandler(async (req, res) => {
             };
         }
     }
-    // --- MODIFICATION END ---
     if (search) {
         const searchRegex = { $regex: search, $options: 'i' };
         query.$or = [
@@ -693,6 +725,26 @@ const getEvaluationDataForAdmin = asyncHandler(async (req, res) => {
         .limit(1000); 
 
     res.json({ success: true, data: { evaluationSheet, interviews } });
+});
+
+// @desc    Manually mark probation email as sent without sending an email
+// @route   POST /api/admin/interviewers/:id/mark-probation-sent
+// @access  Private/Admin
+const markProbationEmailAsSent = asyncHandler(async (req, res) => {
+    const interviewer = await Interviewer.findById(req.params.id);
+
+    if (!interviewer) {
+        res.status(404);
+        throw new Error('Interviewer not found.');
+    }
+
+    // Directly update the timestamp without sending an email
+    interviewer.probationEmailSentAt = new Date();
+    await interviewer.save();
+    
+    logEvent('probation_email_marked_sent', { interviewerId: interviewer._id, adminId: req.user._id });
+    
+    res.json({ success: true, message: 'Probation email status has been manually updated to sent.' });
 });
 
 const getDashboardStats = asyncHandler(async (req, res) => {
@@ -720,7 +772,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
         pendingSkillsReview,
         pendingGuidelinesReview,
         probationInterviewers,
-        upcomingInterviews
+        upcomingInterviews,
+        probationReviewList
     ] = await Promise.all([
         Applicant.countDocuments(dateFilter),
         Applicant.countDocuments({ status: { $in: [APPLICATION_STATUS.SUBMITTED, APPLICATION_STATUS.UNDER_REVIEW, APPLICATION_STATUS.SKILLS_ASSESSMENT_COMPLETED, APPLICATION_STATUS.GUIDELINES_REVIEWED] } }),
@@ -763,7 +816,6 @@ const getDashboardStats = asyncHandler(async (req, res) => {
         SkillAssessment.countDocuments({ status: 'Pending' }),
         Applicant.countDocuments({ status: APPLICATION_STATUS.GUIDELINES_REVIEWED }),
         Interviewer.countDocuments({ status: INTERVIEWER_STATUS.PROBATION }),
-        // Fetch upcoming 5 interviews
         MainSheetEntry.find({
             interviewStatus: 'Scheduled',
             interviewDate: { $gte: today }
@@ -773,7 +825,72 @@ const getDashboardStats = asyncHandler(async (req, res) => {
         .populate({
             path: 'interviewer',
             select: 'user', populate: { path: 'user', select: 'firstName lastName' }
-        }).select('candidateName interviewDate interviewTime meetingLink interviewer')
+        }).select('candidateName interviewDate interviewTime meetingLink interviewer'),
+        
+        // --- THIS IS THE CORRECTED, LIVE-CALCULATING QUERY ---
+        Interviewer.aggregate([
+          {
+            $match: {
+              status: { $in: ['On Probation', 'Active'] },
+              probationEmailSentAt: { $eq: null }
+            }
+          },
+          {
+            $lookup: {
+              from: 'mainsheetentries',
+              let: { interviewerId: '$_id' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $and: [
+                        { $eq: ['$interviewer', '$$interviewerId'] },
+                        { $eq: ['$interviewStatus', 'Completed'] }
+                      ]
+                    }
+                  }
+                },
+                { $count: 'count' }
+              ],
+              as: 'completedInterviews'
+            }
+          },
+          {
+            $addFields: {
+              'metrics.interviewsCompleted': {
+                $ifNull: [{ $arrayElemAt: ['$completedInterviews.count', 0] }, 0]
+              }
+            }
+          },
+          {
+            $match: {
+              'metrics.interviewsCompleted': { $gte: 5 }
+            }
+          },
+          { $sort: { 'metrics.interviewsCompleted': -1 } },
+          { $limit: 5 },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'userInfo'
+            }
+          },
+          { $unwind: '$userInfo' },
+          {
+            $project: {
+              _id: 1,
+              status: 1,
+              probationEmailSentAt: 1,
+              'metrics.interviewsCompleted': 1,
+              user: {
+                firstName: '$userInfo.firstName',
+                lastName: '$userInfo.lastName'
+              }
+            }
+          }
+        ])
     ]);
 
     const totalPlatformEarnings = platformEarningsData[0]?.total || 0;
@@ -789,16 +906,20 @@ const getDashboardStats = asyncHandler(async (req, res) => {
             pendingSkillsReview,
             pendingGuidelinesReview,
             probationInterviewers,
-            upcomingInterviews
+            upcomingInterviews,
+            probationReviewList
         }
     });
 });
 
+// @desc    Generate or Get the Payout Sheet for a specific month, including bonuses
+// @route   GET /api/admin/earnings-report
+// @access  Private/Admin
 const generateAndGetPayoutSheet = asyncHandler(async (req, res) => {
-    const { search, startDate, endDate } = req.query;
+    const { search, startDate, endDate, page = 1, limit = 15 } = req.query;
 
     if (!startDate || !endDate) {
-        return res.status(400).json({ success: false, message: 'Start and end dates are required for the payout period.' });
+        return res.status(400).json({ success: false, message: 'Start and end dates are required.' });
     }
 
     const monthYear = new Date(startDate).toLocaleString('en-US', { month: 'long', year: 'numeric' });
@@ -807,76 +928,107 @@ const generateAndGetPayoutSheet = asyncHandler(async (req, res) => {
         interviewer: { $exists: true, $ne: null },
         interviewDate: { $gte: new Date(startDate), $lte: new Date(endDate) }
     };
-
+    
+    // Step 1: Calculate base earnings from interviews
     const earningsPipeline = [
         { $match: matchStage },
         { $lookup: { from: 'interviewers', localField: 'interviewer', foreignField: '_id', as: 'interviewerInfo' }},
         { $unwind: '$interviewerInfo' },
         { $addFields: { paymentAmountNum: { $toInt: { $replaceAll: { input: { $ifNull: ["$interviewerInfo.paymentAmount", "0"] }, find: "₹", replacement: "" }}}}},
-        { $group: { _id: '$interviewerInfo._id', totalAmount: { $sum: '$paymentAmountNum' }}}
+        { $group: { _id: '$interviewerInfo._id', baseAmount: { $sum: '$paymentAmountNum' }}}
     ];
-
     const earningsData = await MainSheetEntry.aggregate(earningsPipeline);
 
-    const bulkOps = earningsData.map(data => ({
-        updateOne: {
-            filter: { interviewer: data._id, monthYear: monthYear },
-            update: {
-                $set: {
-                    points: data.totalAmount,
-                    activityDatetime: new Date(),
-                    pointsVestingDatetime: new Date(),
+    // Step 2: Get any saved bonuses for the period
+    const confirmationsWithBonuses = await PaymentConfirmation.find({ 
+        startDate: new Date(startDate), 
+        endDate: new Date(endDate),
+        bonusAmount: { $gt: 0 }
+    }).select('interviewer bonusAmount').lean();
+
+    const bonusMap = new Map(confirmationsWithBonuses.map(c => [c.interviewer.toString(), c.bonusAmount]));
+
+    // Step 3: Combine earnings and bonuses, and create/update PayoutSheet
+    const bulkOps = earningsData.map(data => {
+        const bonus = bonusMap.get(data._id.toString()) || 0;
+        const totalPoints = data.baseAmount + bonus;
+        
+        return {
+            updateOne: {
+                filter: { interviewer: data._id, monthYear: monthYear },
+                update: {
+                    $set: {
+                        points: totalPoints,
+                        activityDatetime: new Date(),
+                        pointsVestingDatetime: new Date(),
+                    },
+                    $setOnInsert: { interviewer: data._id, monthYear: monthYear }
                 },
-                $setOnInsert: {
-                    interviewer: data._id,
-                    monthYear: monthYear
-                }
-            },
-            upsert: true
-        }
-    }));
-    if (bulkOps.length > 0) await PayoutSheet.bulkWrite(bulkOps);
+                upsert: true
+            }
+        };
+    });
     
+    if (bulkOps.length > 0) await PayoutSheet.bulkWrite(bulkOps, { ordered: false });
+
+    // Step 4: Query the now-updated PayoutSheet collection for display
     const payoutQuery = { monthYear: monthYear };
-    const payoutPipeline = [
+    const basePipeline = [
         { $match: payoutQuery },
         { $lookup: { from: 'interviewers', localField: 'interviewer', foreignField: '_id', as: 'interviewerInfo' }},
         { $unwind: '$interviewerInfo' }
     ];
 
     if (search) {
-        payoutPipeline.push({
+        basePipeline.push({
             $match: { 'interviewerInfo.interviewerId': { $regex: search, $options: 'i' } }
         });
     }
 
-    payoutPipeline.push({
-        $project: {
-            _id: 1,
-            interviewer: { _id: '$interviewerInfo._id', interviewerId: '$interviewerInfo.interviewerId' },
-            associationName: 1,
-            activityName: 1,
-            activityReferenceId: 1,
-            activityDatetime: 1,
-            points: 1,
-            pointsVestingDatetime: 1
+    const countPipeline = [...basePipeline, { $count: 'totalDocs' }];
+    
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const dataPipeline = [
+        ...basePipeline,
+        {
+            $project: {
+                _id: 1,
+                interviewer: { _id: '$interviewerInfo._id', interviewerId: '$interviewerInfo.interviewerId' },
+                associationName: 1, activityName: 1, activityReferenceId: 1,
+                activityDatetime: 1, points: 1, pointsVestingDatetime: 1
+            }
+        },
+        { $sort: { points: -1 } },
+        { $skip: skip },
+        { $limit: parseInt(limit) }
+    ];
+
+    const [[countResult], payoutSheet] = await Promise.all([
+        PayoutSheet.aggregate(countPipeline).exec(),
+        PayoutSheet.aggregate(dataPipeline).exec()
+    ]);
+
+    const totalDocs = countResult?.totalDocs || 0;
+
+    res.json({
+        success: true,
+        data: {
+            payoutSheet, month: monthYear,
+            page: parseInt(page), limit: parseInt(limit), totalDocs,
+            totalPages: Math.ceil(totalDocs / parseInt(limit)),
         }
     });
-
-    const payoutSheet = await PayoutSheet.aggregate(payoutPipeline);
-
-    res.json({ success: true, data: { payoutSheet, month: monthYear } });
 });
 
 const getPaymentRequests = asyncHandler(async (req, res) => {
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, page = 1, limit = 15 } = req.query;
 
     const matchStage = { interviewStatus: 'Completed' };
     if (startDate && endDate) {
         matchStage.interviewDate = { $gte: new Date(startDate), $lte: new Date(endDate) };
     }
     
-    const pipeline = [
+    const basePipeline = [
         { $match: matchStage },
         { $lookup: { from: 'interviewers', localField: 'interviewer', foreignField: '_id', as: 'interviewerInfo' }},
         { $unwind: '$interviewerInfo' },
@@ -925,6 +1077,7 @@ const getPaymentRequests = asyncHandler(async (req, res) => {
             $project: {
                 _id: 1, fullName: 1, email: 1, interviewerId: 1, mobileNumber: 1,
                 paymentAmount: 1, companyType: 1, interviewsCompleted: 1, totalAmount: 1,
+                bonusAmount: { $ifNull: ["$confirmation.bonusAmount", 0] }, // <-- MODIFIED LINE: Add bonus amount here
                 emailSentStatus: { $cond: { if: { $ifNull: ["$confirmation._id", false] }, then: "Sent", else: "Not Sent" }},
                 confirmationStatus: { $cond: { if: { $in: ["$confirmation.status", ["Confirmed", "Disputed"]] }, then: "$confirmation.status", else: "Pending" }},
                 confirmationRemarks: { $ifNull: ["$confirmation.remarks", ""] },
@@ -937,20 +1090,58 @@ const getPaymentRequests = asyncHandler(async (req, res) => {
         { $sort: { totalAmount: -1 } }
     ];
 
-    const results = await MainSheetEntry.aggregate(pipeline);
-    res.json({ success: true, data: results });
+    const countPipeline = [...basePipeline, { $count: 'totalDocs' }];
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    const dataPipeline = [
+        ...basePipeline,
+        { $skip: skip },
+        { $limit: parseInt(limit) }
+    ];
+
+    const [[countResult], results] = await Promise.all([
+        MainSheetEntry.aggregate(countPipeline).exec(),
+        MainSheetEntry.aggregate(dataPipeline).exec()
+    ]);
+    
+    const totalDocs = countResult?.totalDocs || 0;
+
+    res.json({
+        success: true,
+        data: {
+            requests: results,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            totalDocs,
+            totalPages: Math.ceil(totalDocs / parseInt(limit)),
+        }
+    });
 });
 
 const sendPaymentEmail = asyncHandler(async (req, res) => {
-    const { interviewerId, email, name, monthYear, payPerInterview, interviewCount, totalAmount, startDate, endDate } = req.body;
+    const { interviewerId, email, name, monthYear, payPerInterview, interviewCount, totalAmount, interviewAmount, bonusAmount, startDate, endDate } = req.body;
+    
+    // Recalculate totalAmount on backend for security
+    const finalTotalAmount = (interviewAmount || totalAmount) + (bonusAmount || 0);
+
     const existingConfirmation = await PaymentConfirmation.findOne({ interviewer: interviewerId, startDate: new Date(startDate), endDate: new Date(endDate), });
 
-    if (existingConfirmation && existingConfirmation.status !== 'Email Sent') {
+    if (existingConfirmation && ['Confirmed', 'Disputed'].includes(existingConfirmation.status)) {
         res.status(400);
-        throw new Error(`A confirmation for this period has already been ${existingConfirmation.status.toLowerCase()}.`);
+        throw new Error(`This payment confirmation has already been ${existingConfirmation.status.toLowerCase()}.`);
     }
 
-    const confirmation = existingConfirmation || new PaymentConfirmation({ interviewer: interviewerId, startDate: new Date(startDate), endDate: new Date(endDate), monthYear, totalAmount, interviewCount });
+    const confirmation = existingConfirmation || new PaymentConfirmation({ 
+        interviewer: interviewerId, 
+        startDate: new Date(startDate), 
+        endDate: new Date(endDate), 
+        monthYear, 
+        interviewCount 
+    });
+
+    confirmation.totalAmount = finalTotalAmount;
+    confirmation.bonusAmount = bonusAmount || 0;
     confirmation.status = 'Email Sent';
     confirmation.tokenExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     const token = jwt.sign({ id: confirmation._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
@@ -962,15 +1153,19 @@ const sendPaymentEmail = asyncHandler(async (req, res) => {
     await sendEmail({
         recipient: interviewerId, recipientModel: 'Interviewer', recipientEmail: email,
         templateName: EMAIL_TEMPLATES.PAYMENT_CONFIRMATION, subject: `Interview Payment Confirmation – ${monthYear}`,
-        templateData: { name, payPerInterview, interviewCount, totalAmount, startDate, endDate, confirmationLink },
+        templateData: { name, payPerInterview, interviewCount, totalAmount: finalTotalAmount, interviewAmount: (interviewAmount || totalAmount), bonusAmount, startDate, endDate, confirmationLink },
         relatedTo: "Payment Request", sentBy: req.user._id, isAutomated: false
     });
     res.json({ success: true, message: `Email sent to ${name}`});
 });
 
 const sendInvoiceMail = asyncHandler(async (req, res) => {
-    const { interviewerId, email, name, interviewCount, totalAmount, startDate, endDate } = req.body;
+    const { interviewerId, email, name, interviewCount, totalAmount, interviewAmount, bonusAmount, startDate, endDate } = req.body;
     const monthYear = new Date(startDate).toLocaleString('default', { month: 'long', year: 'numeric' });
+    
+    // Recalculate totalAmount on backend for security
+    const finalTotalAmount = (interviewAmount || totalAmount) + (bonusAmount || 0);
+    
     await PaymentConfirmation.findOneAndUpdate(
         { interviewer: interviewerId, startDate: new Date(startDate), endDate: new Date(endDate) },
         { $set: { invoiceEmailSentStatus: 'Sent', invoiceEmailSentAt: new Date() }},
@@ -978,7 +1173,7 @@ const sendInvoiceMail = asyncHandler(async (req, res) => {
     );
     await sendEmail({
         recipient: interviewerId, recipientModel: 'Interviewer', recipientEmail: email, templateName: 'invoiceMail', subject: `Your NxtWave Interview Payment for ${monthYear}`,
-        templateData: { name, interviewCount, totalAmount, startDate: formatDate(startDate), endDate: formatDate(endDate), redeemLink: "https://nxtrewards.ccbp.in/" },
+        templateData: { name, interviewCount, totalAmount: finalTotalAmount, interviewAmount: (interviewAmount || totalAmount), bonusAmount, startDate: formatDate(startDate), endDate: formatDate(endDate), redeemLink: "https://nxtrewards.ccbp.in/" },
         relatedTo: "Payment Invoice", sentBy: req.user._id, isAutomated: false
     });
     res.json({ success: true, message: `Invoice email sent to ${name}`});
@@ -1004,8 +1199,6 @@ const sendPaymentReceivedEmail = asyncHandler(async (req, res) => {
     });
     res.json({ success: true, message: `Confirmation email sent to ${name}.` });
 });
-
-// --- (keep the rest of the file from getApplicants to the end of the module.exports) ---
 
 const getApplicants = asyncHandler(async (req, res) => {
     const { status, domain, search, page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
@@ -1148,12 +1341,19 @@ const exportApplicants = asyncHandler(async (req, res) => {
 });
 
 const getInterviewers = asyncHandler(async (req, res) => {
-    // --- MODIFICATION START ---
-    const { search, status, domain, paymentTier, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+    // --- MODIFICATION START: Get page and limit from query with defaults ---
+    const { 
+        page = 1, 
+        limit = 15, // Default limit
+        search, 
+        status, 
+        domain, 
+        paymentTier, 
+        sortBy = 'createdAt', 
+        sortOrder = 'desc' 
+    } = req.query;
 
-    // Get the absolute total count before applying any filters
     const absoluteTotal = await Interviewer.countDocuments();
-    // --- MODIFICATION END ---
     
     const query = {};
 
@@ -1174,6 +1374,35 @@ const getInterviewers = asyncHandler(async (req, res) => {
       $lookup: { from: 'users', localField: 'user', foreignField: '_id', as: 'userInfo' }
     });
     pipeline.push({ $unwind: '$userInfo' });
+    
+    pipeline.push({
+        $lookup: {
+            from: 'mainsheetentries',
+            let: { interviewerId: '$_id' },
+            pipeline: [
+                {
+                    $match: {
+                        $expr: {
+                            $and: [
+                                { $eq: ['$interviewer', '$$interviewerId'] },
+                                { $eq: ['$interviewStatus', 'Completed'] }
+                            ]
+                        }
+                    }
+                },
+                { $count: 'count' }
+            ],
+            as: 'completedInterviews'
+        }
+    });
+
+    pipeline.push({
+        $addFields: {
+            'metrics.interviewsCompleted': {
+                $ifNull: [{ $arrayElemAt: ['$completedInterviews.count', 0] }, 0]
+            }
+        }
+    });
 
     if (search) {
       const searchRegex = { $regex: search, $options: 'i' };
@@ -1186,14 +1415,18 @@ const getInterviewers = asyncHandler(async (req, res) => {
     
     pipeline.push({ $match: query });
     
-    // This count now represents the filtered total
     const countPipeline = [...pipeline, { $count: 'totalDocs' }];
     const totalResult = await Interviewer.aggregate(countPipeline);
     const totalDocs = totalResult[0]?.totalDocs || 0;
     
     const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
-    pipeline.push({ $sort: sort });
+    const skip = (parseInt(page) - 1) * parseInt(limit);
     
+    pipeline.push({ $sort: sort });
+    pipeline.push({ $skip: skip });
+    pipeline.push({ $limit: parseInt(limit) });
+    
+    // --- THIS IS THE CRUCIAL FIX ---
     pipeline.push({
       $project: {
           user: {
@@ -1217,25 +1450,56 @@ const getInterviewers = asyncHandler(async (req, res) => {
           companyType: 1,
           bankDetails: 1,
           welcomeEmailSentAt: 1,
+          probationEmailSentAt: 1, // <--- ADD THIS LINE
           'metrics.interviewsCompleted': 1, 
           onboardingDate: 1, 
           createdAt: 1
       }
     });
+    // --- END OF FIX ---
 
     const interviewers = await Interviewer.aggregate(pipeline);
 
-    // --- MODIFICATION START: Add 'absoluteTotal' to the response ---
     res.json({
         success: true,
         data: {
             interviewers,
-            totalDocs, // This is the filtered count
-            absoluteTotal // This is the total count of all interviewers
+            totalDocs,
+            absoluteTotal,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            totalPages: Math.ceil(totalDocs / parseInt(limit)),
         }
     });
-    // --- MODIFICATION END ---
 });
+
+// @desc    Update the status of an interview booking
+// @route   PUT /api/admin/bookings/:id/status
+// @access  Private/Admin
+const updateInterviewBookingStatus = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status || !['Open', 'Closed'].includes(status)) {
+        res.status(400);
+        throw new Error('Invalid status provided. Must be "Open" or "Closed".');
+    }
+
+    const booking = await InterviewBooking.findById(id);
+
+    if (!booking) {
+        res.status(404);
+        throw new Error('Interview booking not found.');
+    }
+
+    booking.status = status;
+    const updatedBooking = await booking.save();
+    
+    logEvent('interview_booking_status_updated', { bookingId: updatedBooking._id, newStatus: status, adminId: req.user._id });
+
+    res.json({ success: true, data: updatedBooking });
+});
+
 
 const getInterviewerDetails = asyncHandler(async (req, res) => {
     const interviewer = await Interviewer.findById(req.params.id).populate('user');
@@ -1319,7 +1583,6 @@ const deleteInterviewer = asyncHandler(async (req, res) => {
     res.json({ success: true, message: 'Interviewer and associated user deleted.' });
 });
 
-// --- ADDITION START: Bulk Delete Interviewers and their associated Users ---
 const bulkDeleteInterviewers = asyncHandler(async (req, res) => {
     const { ids } = req.body;
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
@@ -1327,7 +1590,6 @@ const bulkDeleteInterviewers = asyncHandler(async (req, res) => {
         throw new Error('No interviewer IDs provided for deletion.');
     }
 
-    // First, find the interviewers to get their associated user IDs
     const interviewersToDelete = await Interviewer.find({ _id: { $in: ids } }).select('user');
     if (!interviewersToDelete) {
         res.status(404);
@@ -1336,7 +1598,6 @@ const bulkDeleteInterviewers = asyncHandler(async (req, res) => {
 
     const userIdsToDelete = interviewersToDelete.map(i => i.user);
 
-    // Perform deletions in parallel
     const [interviewerResult, userResult] = await Promise.all([
         Interviewer.deleteMany({ _id: { $in: ids } }),
         User.deleteMany({ _id: { $in: userIdsToDelete } })
@@ -1455,12 +1716,8 @@ const processGuidelinesReview = asyncHandler(async (req, res) => {
       const interviewer = await Interviewer.create({ user: user._id, applicant: applicant._id, currentEmployer: skillAssessment.currentEmployer, jobTitle: skillAssessment.jobTitle, yearsOfExperience: skillAssessment.yearsOfExperience, domains: skillAssessment.domains, primaryDomain: skillAssessment.domains[0] || 'Other', skills: interviewerSkills });
       applicant.status = APPLICATION_STATUS.ONBOARDED; applicant.interviewer = interviewer._id; await applicant.save();
       await sendAccountCreationEmail(user, resetToken, applicant);
-       // --- CORRECTION START ---
-      // Record that the welcome email was sent.
-      // Interviewer.create() returns a single object here, not an array, so we use the 'interviewer' object directly.
       interviewer.welcomeEmailSentAt = new Date();
       await interviewer.save();
-      // --- CORRECTION END ---
       
       if (applicant.whatsappNumber) { await sendWelcomeWhatsApp(user, applicant); }
       logEvent('applicant_onboarded_by_admin', { applicantId: applicant._id, interviewerId: interviewer._id, adminId: req.user._id });
@@ -1576,13 +1833,27 @@ const updateUser = asyncHandler(async (req, res) => {
     res.json({ success: true, data: updatedUser });
 });
 
+// @desc    Delete a user
+// @route   DELETE /api/admin/users/:id
+// @access  Private/Admin
 const deleteUser = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id);
-    if (!user) { res.status(404); throw new Error('User not found'); }
-    user.isActive = false;
-    await user.save();
-    res.json({ success: true, message: 'User has been deactivated' });
+    if (!user) {
+        res.status(404);
+        throw new Error('User not found');
+    }
+
+    // Also delete associated interviewer profile if it exists
+    if (user.role === 'interviewer') {
+        await Interviewer.deleteOne({ user: user._id });
+    }
+
+    await user.deleteOne();
+
+    logEvent('user_deleted_permanently', { userId: req.params.id, deletedBy: req.user._id });
+    res.json({ success: true, message: 'User permanently deleted' });
 });
+
 
 const getInterviewBookings = asyncHandler(async (req, res) => {
     const bookings = await InterviewBooking.find().populate({ path: 'interviewers.interviewer', populate: { path: 'user', select: 'firstName lastName' } }).populate('createdBy', 'firstName lastName').sort({ bookingDate: -1 });
@@ -1665,12 +1936,15 @@ const getBookingSlots = asyncHandler(async (req, res) => {
             interviewerId: '$interviewerInfo._id',
             fullName: { $concat: ['$userInfo.firstName', ' ', '$userInfo.lastName'] }, 
             email: '$userInfo.email',
+            // --- MODIFICATION: ADD submittedAt FIELD ---
+            submittedAt: '$interviewers.submittedAt',
+            // --- END MODIFICATION ---
             interviewDate: '$bookingDate', 
             timeSlots: '$interviewers.providedSlots'
         }
     });
 
-    pipeline.push({ $sort: { interviewDate: -1, fullName: 1 } });
+    pipeline.push({ $sort: { interviewDate: -1, submittedAt: -1, fullName: 1 } });
     
     const slots = await InterviewBooking.aggregate(pipeline);
 
@@ -1687,15 +1961,67 @@ const updateInterviewBooking = asyncHandler(async (req, res) => {
         throw new Error('Interview booking not found.');
     }
 
+    // --- MODIFICATION START ---
+
+    // Store original interviewer IDs to find out who is new
+    const originalInterviewerIds = new Set(booking.interviewers.map(i => i.interviewer.toString()));
+
     booking.bookingDate = bookingDate || booking.bookingDate;
 
     if (interviewerIds && Array.isArray(interviewerIds)) {
         const existingInterviewersMap = new Map(booking.interviewers.map(i => [i.interviewer.toString(), i.status]));
+        
         booking.interviewers = interviewerIds.map(interviewerId => ({
             interviewer: interviewerId,
             status: existingInterviewersMap.get(interviewerId) || 'Pending'
         }));
+
+        // Find newly added interviewers
+        const newInterviewerIds = interviewerIds.filter(newId => !originalInterviewerIds.has(newId));
+
+        if (newInterviewerIds.length > 0) {
+            const interviewersToNotify = await Interviewer.find({ _id: { $in: newInterviewerIds } }).populate("user", "email firstName");
+            
+            const formattedDate = new Date(booking.bookingDate).toLocaleDateString('en-GB', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            for (const interviewer of interviewersToNotify) {
+                if (interviewer.user && interviewer.user.email) {
+                    // Send Email
+                    await sendEmail({
+                        recipient: interviewer._id,
+                        recipientModel: 'Interviewer',
+                        recipientEmail: interviewer.user.email,
+                        templateName: 'bookingRequestNotification', // Re-using the same template
+                        subject: 'New Interview Availability Request from NxtWave',
+                        templateData: {
+                            name: interviewer.user.firstName,
+                            date: formattedDate,
+                            portalLink: `${process.env.CLIENT_URL}/interviewer/availability`,
+                        },
+                        relatedTo: "Interviewer Booking",
+                        sentBy: req.user._id,
+                        isAutomated: true,
+                    });
+
+                    // Send Push Notification
+                    await sendNotificationToInterviewer(interviewer._id, {
+                        title: 'New Interview Request',
+                        body: `You have a new availability request for ${formattedDate}.`,
+                        icon: `${process.env.CLIENT_URL}/logo.svg`, 
+                        data: {
+                            url: '/interviewer/availability'
+                        }
+                    });
+                }
+            }
+            logEvent('new_interviewers_notified_on_update', { bookingId: booking._id, adminId: req.user._id, notifiedCount: interviewersToNotify.length });
+        }
     }
+    // --- MODIFICATION END ---
 
     const updatedBooking = await booking.save();
     logEvent('interview_booking_updated', { bookingId: updatedBooking._id, adminId: req.user._id });
@@ -1737,11 +2063,9 @@ const getMainSheetEntryById = asyncHandler(async (req, res) => {
 });
 
 const getMainSheetEntries = asyncHandler(async (req, res) => {
-    // Add sortBy and sortOrder to the destructuring
     const { search, page = 1, limit = 20, interviewStatus, interviewDate, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
     const query = {};
 
-    // --- All your existing filter logic here remains the same ---
     if (search) {
         const searchRegex = { $regex: search, $options: 'i' };
         query.$or = [
@@ -1764,9 +2088,7 @@ const getMainSheetEntries = asyncHandler(async (req, res) => {
              };
          }
      }
-     // --- End of existing logic ---
-
-    const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 }; // Create a dynamic sort object
+    const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
 
     const entries = await MainSheetEntry.find(query)
         .populate({
@@ -1779,7 +2101,7 @@ const getMainSheetEntries = asyncHandler(async (req, res) => {
         })
         .populate('createdBy', 'firstName lastName')
         .populate('updatedBy', 'firstName lastName')
-        .sort(sort) // Use the dynamic sort object here
+        .sort(sort)
         .skip((page - 1) * limit)
         .limit(parseInt(limit));
         
@@ -1805,9 +2127,55 @@ const bulkUpdateMainSheetEntries = asyncHandler(async (req, res) => {
     for (const entry of entries) {
         try {
             entry.updatedBy = adminId;
+            let originalEntry = null;
+
             if (entry._id) {
+                // Find the original state before updating for comparison
+                originalEntry = await MainSheetEntry.findById(entry._id).populate({
+                    path: 'interviewer',
+                    populate: { path: 'user', select: 'email firstName' }
+                });
+
                 await MainSheetEntry.findByIdAndUpdate(entry._id, entry, { new: true, runValidators: true });
                 results.updated++;
+
+                // --- NEW LOGIC: Check for status change to "Cancelled" ---
+                if (originalEntry && originalEntry.interviewStatus !== 'Cancelled' && entry.interviewStatus === 'Cancelled') {
+                    
+                    const emailData = {
+                        candidateName: originalEntry.candidateName,
+                        interviewDate: formatDate(originalEntry.interviewDate),
+                        techStack: originalEntry.techStack || 'the relevant'
+                    };
+
+                    // Send to student
+                    if (originalEntry.mailId) {
+                        await sendEmail({
+                            recipientEmail: originalEntry.mailId,
+                            templateName: EMAIL_TEMPLATES.INTERVIEW_CANCELLED,
+                            subject: 'Important: Your NxtWave Interview has been Cancelled',
+                            templateData: { ...emailData, name: originalEntry.candidateName },
+                            relatedTo: "Interview Cancellation"
+                        });
+                    }
+
+                    // Send to interviewer
+                    if (originalEntry.interviewer && originalEntry.interviewer.user?.email) {
+                         await sendEmail({
+                            recipientEmail: originalEntry.interviewer.user.email,
+                            templateName: EMAIL_TEMPLATES.INTERVIEW_CANCELLED,
+                            subject: 'Important: Interview Cancellation Notice',
+                            templateData: { ...emailData, name: originalEntry.interviewer.user.firstName },
+                            relatedTo: "Interview Cancellation"
+                        });
+                    }
+
+                    logEvent('interview_cancelled_notification_sent', { 
+                        entryId: originalEntry._id,
+                        adminId: adminId,
+                    });
+                }
+
             } else {
                 entry.createdBy = adminId;
                 await MainSheetEntry.create(entry);
@@ -1879,13 +2247,58 @@ const createPublicBooking = asyncHandler(async (req, res) => {
 });
 
 const getPublicBookings = asyncHandler(async (req, res) => {
-    const bookings = await PublicBooking.find().populate({
+    const bookings = await PublicBooking.aggregate([
+        { $sort: { createdAt: -1 } },
+        {
+            $lookup: {
+                from: 'studentbookings', // The collection name for StudentBooking model is 'studentbookings'
+                localField: '_id',
+                foreignField: 'publicBooking',
+                as: 'bookedStudents'
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'createdBy',
+                foreignField: '_id',
+                as: 'creatorInfo'
+            }
+        },
+        { $unwind: { path: '$creatorInfo', preserveNullAndEmptyArrays: true } },
+        {
+            $project: {
+                _id: 1,
+                publicId: 1,
+                createdAt: 1,
+                status: 1,
+                allowedStudents: 1,
+                interviewerSlots: 1,
+                bookedCount: { $size: '$bookedStudents' },
+                pendingCount: {
+                    $subtract: [
+                        { $size: { $ifNull: ['$allowedStudents', []] } },
+                        { $size: '$bookedStudents' }
+                    ]
+                },
+                createdBy: {
+                    _id: '$creatorInfo._id',
+                    firstName: '$creatorInfo.firstName',
+                    lastName: '$creatorInfo.lastName',
+                }
+            }
+        }
+    ]);
+
+    // Manually populate interviewer details after aggregation because it's complex within aggregation
+    await Interviewer.populate(bookings, {
         path: 'interviewerSlots.interviewer',
-        select: 'user',
         populate: { path: 'user', select: 'firstName lastName' }
-    }).sort({ createdAt: -1 });
+    });
+
     res.json({ success: true, data: bookings });
 });
+
 
 
 const updatePublicBooking = asyncHandler(async (req, res) => {
@@ -1915,7 +2328,6 @@ const updatePublicBooking = asyncHandler(async (req, res) => {
             candidateResume: student.resumeLink,
             createdBy: req.user._id,
             updatedBy: req.user._id,
-            // The interviewStatus will automatically default to 'Pending Student Booking'
         }));
     
         if (entriesToCreate.length > 0) {
@@ -2120,12 +2532,63 @@ const generateMeetLink = asyncHandler(async (req, res) => {
 });
 
 const getDomains = asyncHandler(async (req, res) => {
-    const domains = await Domain.find().sort({ name: 1 });
-    res.json({ success: true, data: domains });
+    const domainsWithSheetStatus = await Domain.aggregate([
+        {
+            $lookup: {
+                from: 'evaluationsheets', // The collection name for EvaluationSheet model
+                localField: '_id',
+                foreignField: 'domain',
+                as: 'evaluationSheetInfo'
+            }
+        },
+        {
+            $addFields: {
+                hasEvaluationSheet: {
+                    // Use $let to safely access the nested array
+                    $let: {
+                        vars: {
+                            // Get the first (and only) sheet document from the lookup array
+                            sheet: { $arrayElemAt: ["$evaluationSheetInfo", 0] }
+                        },
+                        in: {
+                            // The condition now checks two things:
+                            // 1. A sheet document exists.
+                            // 2. The 'columnGroups' array inside that sheet has more than 0 items.
+                            $cond: {
+                                if: {
+                                    $and: [
+                                        { $ifNull: ["$$sheet", false] }, // Check if sheet document is not null
+                                        { $gt: [{ $size: { $ifNull: ["$$sheet.columnGroups", []] } }, 0] } // Check if columnGroups has items
+                                    ]
+                                },
+                                then: true,
+                                else: false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                // Exclude the large lookup field from the final output for performance
+                evaluationSheetInfo: 0 
+            }
+        },
+        {
+            $sort: { name: 1 }
+        }
+    ]);
+
+    res.json({ success: true, data: domainsWithSheetStatus });
 });
 
+// @desc    Create a new domain
+// @route   POST /api/admin/domains
+// @access  Private/Admin
 const createDomain = asyncHandler(async (req, res) => {
-    const { name, eventTitle } = req.body;
+    // --- MODIFIED LINE ---
+    const { name, eventTitle, interviewHelpDoc } = req.body;
     if (!name) { res.status(400); throw new Error('Domain name is required.'); }
     const escapeRegExp = (string) => {
         return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
@@ -2133,13 +2596,19 @@ const createDomain = asyncHandler(async (req, res) => {
     const escapedName = escapeRegExp(name);
 
     const existing = await Domain.findOne({ name: new RegExp(`^${escapedName}$`, 'i') });    if (existing) { res.status(400); throw new Error('A domain with this name already exists.'); }
-    const domain = await Domain.create({ name, eventTitle, createdBy: req.user._id, updatedBy: req.user._id });
+    // --- MODIFIED LINE ---
+    const domain = await Domain.create({ name, eventTitle, interviewHelpDoc, createdBy: req.user._id, updatedBy: req.user._id });
     res.status(201).json({ success: true, data: domain });
 });
 
+// @desc    Update a domain
+// @route   PUT /api/admin/domains/:id
+// @access  Private/Admin
 const updateDomain = asyncHandler(async (req, res) => {
-    const { name, eventTitle } = req.body;
-    const domain = await Domain.findByIdAndUpdate( req.params.id, { name, eventTitle, updatedBy: req.user._id }, { new: true, runValidators: true });
+    // --- MODIFIED LINE ---
+    const { name, eventTitle, interviewHelpDoc } = req.body;
+    // --- MODIFIED LINE ---
+    const domain = await Domain.findByIdAndUpdate( req.params.id, { name, eventTitle, interviewHelpDoc, updatedBy: req.user._id }, { new: true, runValidators: true });
     if (!domain) { res.status(404); throw new Error('Domain not found.'); }
     res.json({ success: true, data: domain });
 });
@@ -2216,12 +2685,25 @@ const getDashboardAnalytics = asyncHandler(async (req, res) => {
         { $sort: { [Object.keys(project)[1]]: 1 } } // Sort by hour, day, or week
     ]);
 
-    const formattedAnalytics = analytics.map(item => {
-        const { PendingStudentBooking, ...rest } = item;
-        return { ...rest, Pending: PendingStudentBooking || 0 };
+    // --- MODIFICATION START: Filter recent interviews by date range ---
+    const recentInterviews = await MainSheetEntry.find({
+        interviewStatus: { $in: ['Scheduled', 'Completed'] },
+        interviewDate: { $gte: startDate, $lte: endDate }
+    })
+    .sort({ interviewDate: -1, interviewTime: -1 })
+    .limit(10)
+    .select('candidateName interviewId interviewDate interviewStatus');
+
+    const formattedAnalytics = analytics.map(item => { 
+        const { PendingStudentBooking, ...rest } = item; 
+        return { ...rest, Pending: PendingStudentBooking || 0 }; 
     });
 
-    res.json({ success: true, data: formattedAnalytics });
+    res.json({ success: true, data: {
+        analytics: formattedAnalytics,
+        recentInterviews: recentInterviews
+    }});
+    // --- MODIFICATION END ---
 });
 
 const getLatestInterviewDate = asyncHandler(async (req, res) => {
@@ -2272,6 +2754,174 @@ const getDomainEvaluationSummary = asyncHandler(async (req, res) => {
     res.json({ success: true, data: summary });
 });
 
+// @desc    Get all evaluation parameters from all domains for the import feature
+// @route   GET /api/admin/evaluation-parameters/all
+// @access  Private/Admin
+const getAllEvaluationParameters = asyncHandler(async (req, res) => {
+    const evaluationSheets = await EvaluationSheet.find()
+        .populate('domain', 'name')
+        .lean(); // .lean() for better performance
+
+    const formattedData = evaluationSheets.map(sheet => {
+        return {
+            domainName: sheet.domain.name,
+            categories: sheet.columnGroups.map(group => {
+                return {
+                    categoryName: group.title,
+                    parameters: group.columns.map(column => {
+                        return {
+                            parameterName: column.header,
+                            options: column.options.map(opt => ({ label: opt.label, value: opt.value }))
+                        }
+                    })
+                }
+            })
+        }
+    });
+
+    res.json({ success: true, data: formattedData });
+});
+
+// @desc    Get yearly earnings summary report
+// @route   GET /api/admin/earnings/yearly-summary
+// @access  Private/Admin
+const getYearlyEarningsSummary = asyncHandler(async (req, res) => {
+    const { year } = req.query;
+    if (!year) {
+        res.status(400);
+        throw new Error('Year is required.');
+    }
+
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year, 11, 31, 23, 59, 59);
+
+    const summary = await PaymentConfirmation.aggregate([
+        { $match: { createdAt: { $gte: startDate, $lte: endDate } } },
+        {
+            $group: {
+                _id: { $month: "$createdAt" }, // Group by month number (1-12)
+                // --- THIS IS THE FIX ---
+                // We now add the base amount and the bonus amount together for the sum.
+                // $ifNull ensures that if bonusAmount doesn't exist, it's treated as 0.
+                totalAmount: { $sum: { $add: ["$totalAmount", { $ifNull: ["$bonusAmount", 0] }] } },
+                // --- END OF FIX ---
+                uniqueInterviewers: { $addToSet: "$interviewer" },
+                confirmations: {
+                    $push: {
+                        received: { $cond: [{ $eq: ["$paymentReceivedStatus", "Received"] }, 1, 0] },
+                        pending: { $cond: [{ $eq: ["$paymentReceivedStatus", "Pending"] }, 1, 0] },
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                month: "$_id",
+                totalAmount: "$totalAmount",
+                totalInterviewers: { $size: "$uniqueInterviewers" },
+                receivedCount: { $sum: "$confirmations.received" },
+                pendingCount: { $sum: "$confirmations.pending" },
+            }
+        },
+        { $sort: { month: 1 } }
+    ]);
+
+    // Create a full 12-month report structure
+    const fullYearReport = Array.from({ length: 12 }, (_, i) => ({
+        month: i + 1,
+        totalAmount: 0,
+        totalInterviewers: 0,
+        receivedCount: 0,
+        pendingCount: 0,
+    }));
+
+    // Merge aggregation results into the full year report
+    summary.forEach(item => {
+        if (item.month >= 1 && item.month <= 12) {
+            fullYearReport[item.month - 1] = item;
+        }
+    });
+
+    res.json({ success: true, data: fullYearReport });
+});
+
+// @desc    Get monthly earnings details report
+// @route   GET /api/admin/earnings/monthly-details
+// @access  Private/Admin
+const getMonthlyEarningsDetails = asyncHandler(async (req, res) => {
+    const { year, month } = req.query;
+    if (!year || !month) {
+        res.status(400); throw new Error('Year and month are required.');
+    }
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0, 23, 59, 59);
+
+    const details = await PaymentConfirmation.find({ createdAt: { $gte: startDate, $lte: endDate } })
+        .populate({
+            path: 'interviewer',
+            select: 'interviewerId user',
+            populate: { path: 'user', select: 'firstName lastName email' }
+        })
+        .select('interviewer totalAmount bonusAmount paymentReceivedStatus') // <-- MODIFIED LINE
+        .sort({ totalAmount: -1 })
+        .lean(); 
+
+    const formattedDetails = details.map(d => ({
+        _id: d._id,
+        interviewerId: d.interviewer.interviewerId,
+        interviewerName: `${d.interviewer.user.firstName} ${d.interviewer.user.lastName}`,
+        interviewerEmail: d.interviewer.user.email,
+        monthPayment: d.totalAmount + (d.bonusAmount || 0), // <-- MODIFIED LINE
+        confirmationStatus: d.paymentReceivedStatus,
+    }));
+
+    res.json({ success: true, data: formattedDetails });
+});
+
+// @desc    Update or create a bonus amount for a payment period
+// @route   POST /api/admin/payment-requests/bonus
+// @access  Private/Admin
+const updateOrSetPaymentBonus = asyncHandler(async (req, res) => {
+    const { interviewerId, startDate, endDate, bonusAmount, monthYear, totalAmount, interviewCount } = req.body;
+
+    if (!interviewerId || !startDate || !endDate) {
+        res.status(400);
+        throw new Error('Interviewer ID and date range are required.');
+    }
+
+    const numericBonus = Number(bonusAmount) || 0;
+
+    const confirmation = await PaymentConfirmation.findOneAndUpdate(
+        { 
+            interviewer: interviewerId,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate)
+        },
+        { 
+            $set: { bonusAmount: numericBonus },
+            $setOnInsert: { // These fields are only set if a new document is created
+                monthYear,
+                totalAmount,
+                interviewCount
+            }
+        },
+        { 
+            upsert: true, // Create the document if it doesn't exist
+            new: true, // Return the new or updated document
+            runValidators: true 
+        }
+    );
+
+    logEvent('bonus_amount_updated', {
+        paymentConfirmationId: confirmation._id,
+        interviewerId: interviewerId,
+        bonus: numericBonus,
+        adminId: req.user._id,
+    });
+    
+    res.json({ success: true, message: 'Bonus amount saved.', data: confirmation });
+});
+
 module.exports = {
     getDashboardStats, getEarningsReport: generateAndGetPayoutSheet, getPaymentRequests, sendPaymentEmail,
     getApplicants, createApplicant, updateApplicant, deleteApplicant, exportApplicants,
@@ -2290,7 +2940,7 @@ module.exports = {
     bulkUpdateMainSheetEntries,
     deleteMainSheetEntry,
     bulkDeleteMainSheetEntries,
-    exportMainSheetEntries, // Added
+    exportMainSheetEntries,
     createPublicBooking,
     getPublicBookings,
     updatePublicBooking,
@@ -2319,10 +2969,14 @@ module.exports = {
     sendBulkCustomEmail,
     bulkUploadMainSheetEntries,
     bulkUploadInterviewers, getDashboardAnalytics,
-    getLatestInterviewDate, // <-- Export the new function
+    getLatestInterviewDate,
     getDomainEvaluationSummary,
-    exportMainSheetEntries,
-    // --- MODIFICATION START ---
     sendWelcomeEmail,
-    // --- MODIFICATION END ---
+    sendProbationCompleteEmail,
+    markProbationEmailAsSent,
+    updateInterviewBookingStatus,
+    getAllEvaluationParameters,
+    getYearlyEarningsSummary,
+    getMonthlyEarningsDetails,
+    updateOrSetPaymentBonus,
 };
