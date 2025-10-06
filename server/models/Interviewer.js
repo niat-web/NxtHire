@@ -32,6 +32,10 @@ const InterviewerSchema = new mongoose.Schema({
     unique: true,
     sparse: true, 
   },
+  probationEmailSentAt: {
+    type: Date,
+    default: null,
+  },
   welcomeEmailSentAt: {
     type: Date,
     default: null,
@@ -43,17 +47,14 @@ const InterviewerSchema = new mongoose.Schema({
   },
   currentEmployer: {
     type: String,
-    // MODIFICATION: Removed 'required: true' to make it optional
     trim: true
   },
   jobTitle: {
     type: String,
-    // MODIFICATION: Removed 'required: true' to make it optional
     trim: true
   },
   yearsOfExperience: {
     type: Number,
-    // MODIFICATION: Set a default value to handle cases where it might be empty
     default: 0,
     min: 0
   },
@@ -90,11 +91,6 @@ const InterviewerSchema = new mongoose.Schema({
     type: String,
     enum: ['On Probation', 'Active', 'Inactive', 'Suspended', 'Terminated'],
     default: 'On Probation'
-  },
-  paymentTier: {
-    type: String,
-    enum: ['Tier 1', 'Tier 2', 'Tier 3'],
-    default: 'Tier 1'
   },
   paymentAmount: {
     type: String,
@@ -176,49 +172,6 @@ const InterviewerSchema = new mongoose.Schema({
   }
 }, {
   timestamps: true
-});
-
-// Auto-calculate payment amount when experience or company type changes
-InterviewerSchema.pre('save', function(next) {
-  if (this.isModified('yearsOfExperience') || this.isModified('companyType')) {
-    const years = this.yearsOfExperience;
-    const type = this.companyType;
-    let amount = '';
-
-    if (years >= 3 && years <= 5) {
-      if (type === 'Product-based') amount = '700';
-      else if (type === 'Service-based') amount = '600';
-    } else if (years > 5) {
-      if (type === 'Product-based') amount = '1000';
-      else if (type === 'Service-based') amount = '700';
-    }
-    
-    // Set the calculated amount if a value was determined
-    if (amount) {
-        this.paymentAmount = `₹${amount}`;
-    }
-  }
-  next();
-});
-
-InterviewerSchema.pre('save', function(next) {
-  const { interviewsCompleted, averageRating, completionRate } = this.metrics;
-  
-  if (this.paymentTier === 'Tier 1' &&
-      interviewsCompleted >= 20 &&
-      averageRating >= 4.0 &&
-      completionRate >= 90) {
-    this.paymentTier = 'Tier 2';
-  }
-  
-  if (this.paymentTier === 'Tier 2' &&
-      interviewsCompleted >= 50 &&
-      averageRating >= 4.5 &&
-      completionRate >= 95) {
-    this.paymentTier = 'Tier 3';
-  }
-  
-  next();
 });
 
 InterviewerSchema.pre('save', function(next) {
