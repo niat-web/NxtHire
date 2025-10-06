@@ -16,23 +16,53 @@
         border-radius: 5px;
         margin-top: 15px;
     }
+    .summary-table {
+        margin-top: 15px;
+        border-collapse: collapse;
+        width: 100%;
+        max-width: 400px;
+    }
+    .summary-table td {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+    }
+    .summary-table .total {
+        font-weight: bold;
+        border-top: 2px solid #333;
+    }
   </style>
 </head>
 <body>
   <p>Hi {{name}},</p>
   <p>Thank you for conducting interviews as part of our Interviewer Community.</p>
-  <p>Based on the technologies covered, interview duration, and your experience level, the payment for a 1-hour interview is <strong>{{payPerInterview}}</strong>.</p>
   <p>
-    As per our records, you’ve completed <strong>{{interviewCount}}</strong> interviews between {{startDate}} and {{endDate}}, and the total payment amount is <strong>₹{{totalAmount}}</strong>.
+    As per our records, you’ve completed <strong>{{interviewCount}}</strong> interviews between {{startDate}} and {{endDate}}.
   </p>
+  <p>Please find the payment breakdown below:</p>
+
+  <table class="summary-table">
+      <tr>
+          <td>Interview Amount:</td>
+          <td style="text-align: right;">₹{{interviewAmount}}</td>
+      </tr>
+      {{#if bonusAmount}}
+      <tr>
+          <td>Bonus Amount:</td>
+          <td style="text-align: right;">₹{{bonusAmount}}</td>
+      </tr>
+      {{/if}}
+      <tr class="total">
+          <td>Total Amount:</td>
+          <td style="text-align: right;">₹{{totalAmount}}</td>
+      </tr>
+  </table>
+
   <p>
-    Kindly confirm if the interview count and payment amount are accurate from your end. Once confirmed, we will initiate the payment process, and you will receive it within 7 working days.
+    Kindly confirm if the interview count and total payment amount are accurate from your end. Once confirmed, we will initiate the payment process, and you will receive it within 7 working days.
   </p>
   
-  <!-- --- MODIFICATION START --- -->
   <a href="{{confirmationLink}}" class="button">Confirm Payment Details</a>
   <p style="font-size: 12px; color: #666; margin-top: 10px;">If the button does not work, please copy and paste this link into your browser: {{confirmationLink}}</p>
-  <!-- --- MODIFICATION END --- -->
 
   <p>Feel free to reach out if you have any questions.</p>
   <br>
