@@ -2,18 +2,37 @@
 const mongoose = require('mongoose');
 
 const OptionSchema = new mongoose.Schema({
-    label: { type: String, required: true },
-    // value can be used for scoring in the future
-    value: { type: String, required: true },
+    label: { 
+        type: String, 
+        required: true 
+    },
+    value: { 
+        type: String, 
+        required: true 
+    },
 });
 
 const ColumnSchema = new mongoose.Schema({
-    header: { type: String, trim: true, default: '' },
+    header: { 
+        type: String, 
+        trim: true, 
+        default: '' 
+    },
+    // --- ADDED: 'type' field to distinguish parameter types ---
+    type: {
+        type: String,
+        enum: ['select', 'text'],
+        default: 'select'
+    },
     options: [OptionSchema]
 });
 
 const ColumnGroupSchema = new mongoose.Schema({
-    title: { type: String, required: true, trim: true },
+    title: { 
+        type: String, 
+        required: true, 
+        trim: true 
+    },
     columns: [ColumnSchema]
 });
 
