@@ -22,13 +22,18 @@ const PaymentConfirmationSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    bonusAmount: {
+        type: Number,
+        default: 0
+    },
     interviewCount: {
         type: Number,
         required: true,
     },
     status: {
         type: String,
-        enum: ['Email Sent', 'Confirmed', 'Disputed'],
+        // --- FIX: ADDED 'Not Sent' TO THE LIST OF ALLOWED VALUES ---
+        enum: ['Email Sent', 'Confirmed', 'Disputed', 'Not Sent'],
         default: 'Email Sent'
     },
     confirmationToken: {
@@ -54,7 +59,6 @@ const PaymentConfirmationSchema = new mongoose.Schema({
     invoiceEmailSentAt: {
         type: Date
     },
-    // --- NEW FIELDS FOR PAYMENT RECEIVED CONFIRMATION ---
     paymentReceivedConfirmationToken: {
         type: String,
         unique: true,
