@@ -44,7 +44,9 @@ const subscribeToPushNotifications = asyncHandler(async (req, res) => {
 });
 
 
-// --- MODIFICATION START: New function to get payment history ---
+// @desc    Get payment history for the logged-in interviewer
+// @route   GET /api/interviewer/payment-history
+// @access  Private/Interviewer
 const getPaymentHistory = asyncHandler(async (req, res) => {
     const { startDate, endDate } = req.query;
     if (!startDate || !endDate) {
@@ -89,14 +91,22 @@ const getPaymentHistory = asyncHandler(async (req, res) => {
 
     res.json({ success: true, data: { breakdown: results, totalInterviews, totalAmount } });
 });
-// --- MODIFICATION END ---
 
+// @desc    Get a summary of interviews per domain for the logged-in interviewer
+// @route   GET /api/interviewer/evaluation-summary
+// @access  Private/Interviewer
 const getInterviewerEvaluationSummary = asyncHandler(async (req, res) => {
     const interviewer = await Interviewer.findOne({ user: req.user.id }).select('_id');
     if (!interviewer) {
         res.status(404);
         throw new Error('Interviewer profile not found.');
     }
+
+    // --- MODIFICATION START ---
+    // 1. Fetch all domains to get their help document links
+    const allDomains = await Domain.find({}).lean();
+    const domainDocMap = new Map(allDomains.map(d => [d.name, d.interviewHelpDoc]));
+    // --- MODIFICATION END ---
 
     const summary = await MainSheetEntry.aggregate([
         { $match: { 
@@ -105,8 +115,8 @@ const getInterviewerEvaluationSummary = asyncHandler(async (req, res) => {
         }},
         {
             $group: {
-                _id: '$techStack',
-                candidateCount: { $sum: 1 },
+                _id: '$techStack', // Group by domain name
+                candidateCount: { $sum: 1 }, // Count total interviews (candidates) for the domain
                 scheduledCount: { $sum: { $cond: [{ $eq: ['$interviewStatus', 'Scheduled'] }, 1, 0] }},
                 completedCount: { $sum: { $cond: [{ $eq: ['$interviewStatus', 'Completed'] }, 1, 0] }},
                 cancelledCount: { $sum: { $cond: [{ $eq: ['$interviewStatus', 'Cancelled'] }, 1, 0] }},
@@ -119,19 +129,22 @@ const getInterviewerEvaluationSummary = asyncHandler(async (req, res) => {
                 _id: 0,
                 domainName: '$_id',
                 candidateCount: '$candidateCount',
-                scheduledCount: 1,
-                completedCount: 1,
-                cancelledCount: 1,
-                inProgressCount: 1,
-                pendingCount: 1
+                ...['scheduledCount', 'completedCount', 'cancelledCount', 'inProgressCount', 'pendingCount'].reduce((acc, field) => ({ ...acc, [field]: `$${field}` }), {})
             }
         },
         { $sort: { domainName: 1 } }
     ]);
 
-    res.json({ success: true, data: summary });
-});
+    // --- MODIFICATION START ---
+    // 2. Add the help document link to the summary results
+    const summaryWithDocs = summary.map(item => ({
+        ...item,
+        interviewHelpDoc: domainDocMap.get(item.domainName) || ''
+    }));
+    // --- MODIFICATION END ---
 
+    res.json({ success: true, data: summaryWithDocs });
+});
 
 const getAssignedDomains = asyncHandler(async (req, res) => {
     const interviewer = await Interviewer.findOne({ user: req.user.id });
@@ -144,9 +157,7 @@ const getAssignedDomains = asyncHandler(async (req, res) => {
 });
 
 const getEvaluationDataForInterviewer = asyncHandler(async (req, res) => {
-    // --- MODIFICATION START ---
     const { domain, search, interviewStatus, interviewDate } = req.query;
-    // --- MODIFICATION END ---
     
     if (!domain) {
         return res.json({ success: true, data: { evaluationSheet: null, interviews: [] } });
@@ -171,7 +182,6 @@ const getEvaluationDataForInterviewer = asyncHandler(async (req, res) => {
         techStack: domain,
     };
 
-    // --- MODIFICATION START ---
     if (interviewStatus) {
         query.interviewStatus = interviewStatus;
     }
@@ -184,7 +194,6 @@ const getEvaluationDataForInterviewer = asyncHandler(async (req, res) => {
             };
         }
     }
-    // --- MODIFICATION END ---
 
     if (search) {
         const searchRegex = { $regex: search, $options: 'i' };
@@ -382,9 +391,8 @@ const getBookingRequests = asyncHandler(async (req, res) => {
 
     const requests = await InterviewBooking.find({
         'interviewers.interviewer': interviewer._id,
-        status: 'Open'
     })
-    .select('bookingDate interviewers status')
+    .select('bookingDate interviewers status') // The parent 'status' is now included
     .sort({ bookingDate: -1 });
 
     const personalRequests = requests.map(booking => {
@@ -396,6 +404,7 @@ const getBookingRequests = asyncHandler(async (req, res) => {
             bookingDate: booking.bookingDate,
             status: myRequest.status,
             providedSlots: myRequest.providedSlots,
+            bookingStatus: booking.status
         };
     });
     
@@ -555,7 +564,6 @@ module.exports = {
   deleteSkill,
   getAssignedInterviews,
   updateAssignedInterviewStatus,
-  // --- MODIFICATION: Export new function ---
   getAssignedDomains,
   getEvaluationDataForInterviewer,
   updateEvaluationData,
