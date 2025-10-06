@@ -13,6 +13,11 @@ const DomainSchema = new mongoose.Schema({
     trim: true,
     default: ''
   },
+  interviewHelpDoc: {
+    type: String,
+    trim: true,
+    default: ''
+  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
