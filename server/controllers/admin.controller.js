@@ -2337,7 +2337,7 @@ const updatePublicBooking = asyncHandler(async (req, res) => {
         publicBooking.allowedStudents.push(...newStudents);
         
         for (const student of newStudents) {
-            await sendStudentBookingInvitationEmail(student.email, id, publicBooking.publicId);
+            await sendStudentBookingInvitationEmail(student, id, publicBooking.publicId);
         }
         
         await publicBooking.save();
