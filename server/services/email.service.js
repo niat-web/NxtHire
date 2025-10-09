@@ -710,16 +710,17 @@ const sendNewInterviewerWelcomeEmail = async (user, interviewer, password) => {
 };
 
 // Send booking invitation to students
-const sendStudentBookingInvitationEmail = async (email, bookingId, publicBookingId) => {
+const sendStudentBookingInvitationEmail = async (student, bookingId, publicBookingId) => {
     const bookingLink = `${process.env.CLIENT_URL}/book/${publicBookingId}`;
 
     return await sendEmail({
         recipient: bookingId, 
         recipientModel: 'PublicBooking',
-        recipientEmail: email,
+        recipientEmail: student.email,
         templateName: EMAIL_TEMPLATES.STUDENT_BOOKING_INVITATION,
         subject: 'Interview Invitation from NxtWave',
         templateData: {
+            name: student.fullName, // This is the fix
             bookingLink,
         },
         relatedTo: 'Student Booking',
