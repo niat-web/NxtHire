@@ -2151,6 +2151,8 @@ const bulkUpdateMainSheetEntries = asyncHandler(async (req, res) => {
                     // Send to student
                     if (originalEntry.mailId) {
                         await sendEmail({
+                            recipient: originalEntry._id, // ADDED
+                            recipientModel: 'Custom',     // ADDED
                             recipientEmail: originalEntry.mailId,
                             templateName: EMAIL_TEMPLATES.INTERVIEW_CANCELLED,
                             subject: 'Important: Your NxtWave Interview has been Cancelled',
@@ -2162,6 +2164,8 @@ const bulkUpdateMainSheetEntries = asyncHandler(async (req, res) => {
                     // Send to interviewer
                     if (originalEntry.interviewer && originalEntry.interviewer.user?.email) {
                          await sendEmail({
+                            recipient: originalEntry.interviewer._id, // ADDED
+                            recipientModel: 'Interviewer',           // ADDED
                             recipientEmail: originalEntry.interviewer.user.email,
                             templateName: EMAIL_TEMPLATES.INTERVIEW_CANCELLED,
                             subject: 'Important: Interview Cancellation Notice',
