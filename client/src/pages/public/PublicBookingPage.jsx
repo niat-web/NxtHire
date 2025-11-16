@@ -258,12 +258,10 @@
 
 
 
-
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { FiMail, FiCheckCircle, FiClock, FiUser, FiPhone, FiCalendar, FiArrowRight, FiCheck } from 'react-icons/fi';
-import { motion, AnimatePresence } from 'framer-motion';
 import { verifyPublicBookingEmail, getPublicAvailableSlots, bookPublicSlot } from '@/api/public.api';
 import { useAlert } from '@/hooks/useAlert';
 import { formatDate, formatTime } from '@/utils/formatters';
@@ -271,12 +269,7 @@ import { formatDate, formatTime } from '@/utils/formatters';
 // --- UI Sub-Components for Each Step ---
 
 const EmailVerificationStep = ({ onSubmit, register, errors, isSubmitting }) => (
-    <motion.div
-        key="verify-email"
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: -20, scale: 0.95 }}
-        transition={{ duration: 0.4, ease: 'easeOut' }}
+    <div
         className="w-full max-w-md bg-slate-200/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20"
     >
         <div className="p-8 border-b border-slate-300/50">
@@ -314,16 +307,11 @@ const EmailVerificationStep = ({ onSubmit, register, errors, isSubmitting }) => 
                 )}
             </button>
         </form>
-    </motion.div>
+    </div>
 );
 
 const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, availableSlots }) => (
-    <motion.form
-        key="booking-form"
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.98 }}
-        transition={{ duration: 0.5, ease: 'easeInOut' }}
+    <form
         onSubmit={onSubmit}
         className="w-full max-w-6xl h-auto md:h-[90vh] bg-white rounded-2xl shadow-2xl border border-slate-200/50 flex flex-col overflow-hidden"
     >
@@ -403,22 +391,17 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                 {isSubmitting ? 'Confirming...' : 'Confirm My Booking'}
             </button>
         </div>
-    </motion.form>
+    </form>
 );
 
 const ConfirmationStep = ({ step, bookingDetails }) => (
-    <motion.div
-        key={step}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        transition={{ duration: 0.3 }}
+    <div
         className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-slate-200"
     >
         <div className="p-6 sm:p-8 text-center">
-            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring', stiffness: 400, damping: 10 }}>
+            <div>
                 <FiCheckCircle className="h-16 w-16 text-green-500 mx-auto mb-5" />
-            </motion.div>
+            </div>
             <h2 className="text-2xl font-bold text-slate-800 mb-2">
                 {step === 'already_booked' ? 'You Have a Booking' : 'Your Interview is Scheduled!'}
             </h2>
@@ -431,7 +414,7 @@ const ConfirmationStep = ({ step, bookingDetails }) => (
                 </div>
             )}
         </div>
-    </motion.div>
+    </div>
 );
 
 const PublicBookingPage = () => {
@@ -480,34 +463,32 @@ const PublicBookingPage = () => {
             <div className="absolute bottom-0 right-0 w-[30rem] h-[30rem] bg-[radial-gradient(ellipse_at_center,_rgba(79,70,229,0.3)_0%,_rgba(255,255,255,0)_70%)] opacity-40"></div>
 
             <div className="w-full min-h-screen flex items-start md:items-center justify-center p-4 md:p-8">
-                <AnimatePresence mode="wait">
-                    {step === 'verify_email' && (
-                        <EmailVerificationStep 
-                            onSubmit={handleSubmit(handleEmailVerification)}
-                            register={register}
-                            errors={errors}
-                            isSubmitting={isSubmitting}
-                        />
-                    )}
-                    
-                    {step === 'booking_form' && (
-                        <BookingStep
-                            onSubmit={handleSubmit(handleBookingSubmit)}
-                            register={register}
-                            errors={errors}
-                            isSubmitting={isSubmitting}
-                            verifiedEmail={verifiedEmail}
-                            availableSlots={availableSlots}
-                        />
-                    )}
+                {step === 'verify_email' && (
+                    <EmailVerificationStep 
+                        onSubmit={handleSubmit(handleEmailVerification)}
+                        register={register}
+                        errors={errors}
+                        isSubmitting={isSubmitting}
+                    />
+                )}
+                
+                {step === 'booking_form' && (
+                    <BookingStep
+                        onSubmit={handleSubmit(handleBookingSubmit)}
+                        register={register}
+                        errors={errors}
+                        isSubmitting={isSubmitting}
+                        verifiedEmail={verifiedEmail}
+                        availableSlots={availableSlots}
+                    />
+                )}
 
-                    {(step === 'confirmed' || step === 'already_booked') && (
-                         <ConfirmationStep 
-                             step={step}
-                             bookingDetails={confirmedBooking} 
-                         />
-                    )}
-                </AnimatePresence>
+                {(step === 'confirmed' || step === 'already_booked') && (
+                     <ConfirmationStep 
+                         step={step}
+                         bookingDetails={confirmedBooking} 
+                     />
+                )}
             </div>
         </div>
     );
