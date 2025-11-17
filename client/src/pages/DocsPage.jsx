@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 
 const documentationContent = `
-# NxtHire Application: User Experience & Feature Documentation
 
 ## 1. Introduction
 NxtHire is a comprehensive, end-to-end platform designed to manage the recruitment, onboarding, scheduling, and payment workflow for freelance technical interviewers. The system provides distinct portals for Administrators to manage the entire process and for Interviewers to manage their profiles, availability, and assigned interviews.
