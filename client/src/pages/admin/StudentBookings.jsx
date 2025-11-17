@@ -436,7 +436,7 @@ const LinkRow = ({ booking, onAuthorize, onTrack, onCopy, onDelete }) => {
 
             <div className="col-span-6 md:col-span-3 flex items-center justify-end gap-2">
                  <button onClick={onTrack} className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 rounded-lg transition-colors">
-                     <FiEye size={14}/> Track
+                     <FiEye size={14}/>
                  </button>
                  <button onClick={onAuthorize} className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors">
                     <FiUsers size={14} />
