@@ -2405,7 +2405,12 @@ const getStudentPipeline = asyncHandler(async (req, res) => {
         { $unwind: { path: "$bookingInfo", preserveNullAndEmptyArrays: true } },
         {
             $project: {
-                _id: { $ifNull: ["$bookingInfo._id", "$allowedStudents.email"] },
+                // THIS IS THE FIX: Ensure a stable and unique ID is always present.
+                // If a booking exists, use its _id. If not, use the MongoDB _id of the PublicBooking parent, 
+                // concatenated with the student's email to ensure uniqueness in the list.
+                _id: { $ifNull: ["$bookingInfo._id", { $concat: [ { $toString: "$_id" }, "-", "$allowedStudents.email" ] } ] },
+                isPending: { $not: "$bookingInfo" }, // Flag to identify pending entries
+                // --- END FIX ---
                 publicBookingId: "$publicId",
                 interviewId: "$allowedStudents.interviewId", 
                 hiringName: "$allowedStudents.hiringName",
@@ -2443,13 +2448,24 @@ const getStudentPipeline = asyncHandler(async (req, res) => {
 
 const getPublicBookingDetails = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const booking = await PublicBooking.findById(id).lean().populate('createdBy', 'firstName lastName');
+    const booking = await PublicBooking.findOne({ publicId: id })
+        .populate({
+            path: 'interviewerSlots.interviewer',
+            populate: {
+                path: 'user',
+                select: 'firstName lastName'
+            }
+        })
+        .populate('createdBy', 'firstName lastName')
+        .lean();
 
     if (!booking) {
         res.status(404);
         throw new Error('Public booking details not found.');
     }
-    const bookedStudents = await StudentBooking.find({ publicBooking: id }).select('studentEmail -_id').lean();
+
+    const bookedStudents = await StudentBooking.find({ publicBooking: booking._id }).select('studentEmail -_id').lean();
+    
     const bookedEmails = new Set(bookedStudents.map(s => s.studentEmail));
     const trackedStudents = booking.allowedStudents.map(student => ({ ...student, status: bookedEmails.has(student.email) ? 'Submitted' : 'Not Submitted' }));
     booking.trackedEmails = trackedStudents;
@@ -2461,6 +2477,32 @@ const updateStudentBooking = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
     if (!updateData || Object.keys(updateData).length === 0) { res.status(400); throw new Error('Update data is required in the request body.'); }
+
+    if (id.includes('@')) {
+            const studentEmail = id;
+            const updateOperation = { $set: {} };
+            
+            // --- THIS IS THE FIX ---
+            // Build the `$set` object directly with the correct syntax
+            Object.keys(updateData).forEach(key => {
+                updateOperation.$set[`allowedStudents.$[elem].${key}`] = updateData[key];
+            });
+            // --- END OF FIX ---
+
+            const result = await PublicBooking.findOneAndUpdate(
+                { "allowedStudents.email": studentEmail },
+                updateOperation, // Use the correctly structured update object
+                { 
+                    arrayFilters: [{ "elem.email": studentEmail }], 
+                    new: true,
+                    timestamps: false // <-- THIS IS THE CRUCIAL FIX
+                }
+            );
+
+            if (!result) { res.status(404); throw new Error('Pending student invitation not found.'); }
+            return res.json({ success: true, data: result });
+        }
+    
     const booking = await StudentBooking.findById(id);
     if (!booking) { res.status(404); throw new Error('Student booking not found.'); }
     if (updateData.domain && updateData.domain !== booking.domain) {
@@ -2726,35 +2768,26 @@ const getLatestInterviewDate = asyncHandler(async (req, res) => {
 });
 
 const getDomainEvaluationSummary = asyncHandler(async (req, res) => {
-    const summary = await MainSheetEntry.aggregate([
-        { $match: { techStack: { $exists: true, $ne: null, $ne: "" } } },
+    const summary = await Domain.aggregate([
         {
-            $group: {
-                _id: '$techStack', // Group by domain name
-                candidateCount: { $sum: 1 }, // Count total interviews (candidates) for the domain
-                scheduledCount: {
-                    $sum: { $cond: [{ $eq: ['$interviewStatus', 'Scheduled'] }, 1, 0] }
-                },
-                completedCount: {
-                    $sum: { $cond: [{ $eq: ['$interviewStatus', 'Completed'] }, 1, 0] }
-                },
-                cancelledCount: {
-                    $sum: { $cond: [{ $eq: ['$interviewStatus', 'Cancelled'] }, 1, 0] }
-                },
-                inProgressCount: {
-                    $sum: { $cond: [{ $eq: ['$interviewStatus', 'InProgress'] }, 1, 0] }
-                },
-                pendingCount: {
-                    $sum: { $cond: [{ $eq: ['$interviewStatus', 'Pending Student Booking'] }, 1, 0] }
-                }
+            $lookup: {
+                from: 'mainsheetentries',
+                localField: 'name',
+                foreignField: 'techStack',
+                as: 'interviews'
             }
         },
         {
             $project: {
                 _id: 0,
-                domainName: '$_id',
-                candidateCount: '$candidateCount',
-                ...['scheduledCount', 'completedCount', 'cancelledCount', 'inProgressCount', 'pendingCount'].reduce((acc, field) => ({ ...acc, [field]: `$${field}` }), {})
+                domainName: '$name',
+                interviewHelpDoc: '$interviewHelpDoc',
+                candidateCount: { $size: '$interviews' },
+                scheduledCount: { $size: { $filter: { input: '$interviews', as: 'interview', cond: { $eq: ['$$interview.interviewStatus', 'Scheduled'] } } } },
+                completedCount: { $size: { $filter: { input: '$interviews', as: 'interview', cond: { $eq: ['$$interview.interviewStatus', 'Completed'] } } } },
+                cancelledCount: { $size: { $filter: { input: '$interviews', as: 'interview', cond: { $eq: ['$$interview.interviewStatus', 'Cancelled'] } } } },
+                inProgressCount: { $size: { $filter: { input: '$interviews', as: 'interview', cond: { $eq: ['$$interview.interviewStatus', 'InProgress'] } } } },
+                pendingCount: { $size: { $filter: { input: '$interviews', as: 'interview', cond: { $eq: ['$$interview.interviewStatus', 'Pending Student Booking'] } } } }
             }
         },
         { $sort: { domainName: 1 } }
@@ -2931,6 +2964,136 @@ const updateOrSetPaymentBonus = asyncHandler(async (req, res) => {
     res.json({ success: true, message: 'Bonus amount saved.', data: confirmation });
 });
 
+const deletePublicBooking = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const publicBooking = await PublicBooking.findById(id).session(session);
+        if (!publicBooking) {
+            await session.abortTransaction();
+            session.endSession();
+            res.status(404);
+            throw new Error('Public booking not found.');
+        }
+
+        // Delete all associated student bookings
+        await StudentBooking.deleteMany({ publicBooking: id }, { session });
+        
+        // Delete the public booking itself
+        await publicBooking.deleteOne({ session });
+        
+        await session.commitTransaction();
+        session.endSession();
+
+        logEvent('public_booking_deleted', { publicBookingId: id, adminId: req.user._id });
+        res.json({ success: true, message: 'Public booking and all associated data deleted successfully.' });
+
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        throw error;
+    }
+});
+
+const manualBookSlot = asyncHandler(async (req, res) => {
+    const { id: studentEmail } = req.params; // The ID is now correctly identified as the student's email
+    const { interviewerId, date, slot, hostEmail, eventTitle } = req.body;
+
+    if (!interviewerId || !date || !slot || !hostEmail || !eventTitle) {
+        res.status(400);
+        throw new Error('Missing required booking information.');
+    }
+    
+    // Find the original public booking to get necessary IDs
+    const studentPipelineEntry = await PublicBooking.aggregate([
+        { $unwind: "$allowedStudents" },
+        { $match: { "allowedStudents.email": studentEmail } }, // Find the student by their unique email
+    ]);
+
+    if (!studentPipelineEntry || studentPipelineEntry.length === 0) {
+        res.status(404);
+        throw new Error("Student invitation not found.");
+    }
+    
+    const { publicBookingId, ...allowedStudentData } = studentPipelineEntry[0].allowedStudents;
+    const publicBooking = studentPipelineEntry[0];
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const newStudentBooking = new StudentBooking({
+            publicBooking: publicBooking._id,
+            ...allowedStudentData,
+            studentPhone: allowedStudentData.mobileNumber,
+            bookedInterviewer: interviewerId,
+            interviewerEmail: (await Interviewer.findById(interviewerId).populate('user', 'email')).user.email,
+            bookedSlot: { startTime: slot.startTime, endTime: slot.endTime },
+            bookingDate: date,
+            hostEmail,
+            eventTitle
+        });
+        
+        await newStudentBooking.save({ session });
+
+        // Atomically find and update the booked slot in the public booking
+        const updateResult = await PublicBooking.updateOne(
+            { 
+                _id: publicBooking._id, 
+                "interviewerSlots.interviewer": interviewerId,
+                "interviewerSlots.date": new Date(date)
+            },
+            { $set: { "interviewerSlots.$[i].timeSlots.$[j].bookedBy": newStudentBooking._id } },
+            { 
+                arrayFilters: [
+                    { "i.interviewer": interviewerId, "i.date": new Date(date) },
+                    { "j.startTime": slot.startTime, "j.endTime": slot.endTime, "j.bookedBy": null }
+                ],
+                session
+            }
+        );
+
+        if (updateResult.modifiedCount === 0) {
+            throw new Error("Slot could not be booked. It may have already been taken.");
+        }
+
+        const duration = (new Date(`1970-01-01T${slot.endTime}:00Z`) - new Date(`1970-01-01T${slot.startTime}:00Z`)) / 60000;
+        
+        await MainSheetEntry.findOneAndUpdate(
+            { interviewId: newStudentBooking.interviewId },
+            {
+                $set: {
+                    interviewDate: newStudentBooking.bookingDate,
+                    interviewTime: `${slot.startTime} - ${slot.endTime}`,
+                    interviewDuration: `${duration} mins`,
+                    interviewStatus: 'Scheduled',
+                    interviewer: newStudentBooking.bookedInterviewer,
+                    updatedBy: req.user._id,
+                }
+            },
+            { upsert: true, new: true, session }
+        );
+
+        await session.commitTransaction();
+        session.endSession();
+        
+        logEvent('admin_manual_slot_booking', {
+            studentEmail: newStudentBooking.studentEmail,
+            bookingId: newStudentBooking._id,
+            adminId: req.user._id,
+        });
+
+        res.status(201).json({ success: true, message: 'Slot manually booked successfully!', data: newStudentBooking });
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        throw error;
+    }
+});
+
 module.exports = {
     getDashboardStats, getEarningsReport: generateAndGetPayoutSheet, getPaymentRequests, sendPaymentEmail,
     getApplicants, createApplicant, updateApplicant, deleteApplicant, exportApplicants,
@@ -2988,4 +3151,6 @@ module.exports = {
     getYearlyEarningsSummary,
     getMonthlyEarningsDetails,
     updateOrSetPaymentBonus,
+    deletePublicBooking,
+    manualBookSlot,
 };
