@@ -1,8 +1,7 @@
-// import React, { useState, useEffect } from 'react';
+// import React, { useState } from 'react';
 // import { useParams } from 'react-router-dom';
 // import { useForm } from 'react-hook-form';
 // import { FiMail, FiCheckCircle, FiClock, FiUser, FiPhone, FiCalendar, FiArrowRight, FiCheck } from 'react-icons/fi';
-// import { motion, AnimatePresence } from 'framer-motion';
 // import { verifyPublicBookingEmail, getPublicAvailableSlots, bookPublicSlot } from '@/api/public.api';
 // import { useAlert } from '@/hooks/useAlert';
 // import { formatDate, formatTime } from '@/utils/formatters';
@@ -10,15 +9,10 @@
 // // --- UI Sub-Components for Each Step ---
 
 // const EmailVerificationStep = ({ onSubmit, register, errors, isSubmitting }) => (
-//     <motion.div
-//         key="verify-email"
-//         initial={{ opacity: 0, y: 20, scale: 0.95 }}
-//         animate={{ opacity: 1, y: 0, scale: 1 }}
-//         exit={{ opacity: 0, y: -20, scale: 0.95 }}
-//         transition={{ duration: 0.4, ease: 'easeOut' }}
-//         className="w-full max-w-md bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50"
+//     <div
+//         className="w-full max-w-md bg-slate-200/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20"
 //     >
-//         <div className="p-8 border-b border-slate-200">
+//         <div className="p-8 border-b border-slate-300/50">
 //             <h2 className="text-2xl font-bold text-slate-800">Book Your Interview</h2>
 //             <p className="mt-2 text-slate-600 text-sm">
 //                 Please verify your email address to access available time slots.
@@ -53,60 +47,48 @@
 //                 )}
 //             </button>
 //         </form>
-//     </motion.div>
+//     </div>
 // );
 
 // const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, availableSlots }) => (
-//     <motion.form
-//         key="booking-form"
-//         initial={{ opacity: 0, scale: 0.98 }}
-//         animate={{ opacity: 1, scale: 1 }}
-//         exit={{ opacity: 0, scale: 0.98 }}
-//         transition={{ duration: 0.5, ease: 'easeInOut' }}
+//     <form
 //         onSubmit={onSubmit}
 //         className="w-full max-w-6xl h-auto md:h-[90vh] bg-white rounded-2xl shadow-2xl border border-slate-200/50 flex flex-col overflow-hidden"
 //     >
-//         <div className="flex flex-col md:flex-row w-full flex-grow md:h-full">
+//         <div className="flex-grow flex flex-col md:flex-row w-full md:overflow-hidden">
 //             {/* Left Side: User Details */}
-//             <div className="w-full md:w-[380px] flex-shrink-0 border-b md:border-b-0 md:border-r border-slate-200 p-6 flex flex-col bg-slate-50/70 md:overflow-y-auto">
-//                 <div className="md:sticky md:top-6">
-//                     <h2 className="text-xl font-bold text-slate-800 mb-2">Step 2: Your Details</h2>
-//                     <p className="text-sm text-slate-500 mb-6 pb-4 border-b border-slate-200">Confirm your information and select a time slot.</p>
-//                     <div className="flex-grow space-y-5">
-//                         <div>
-//                             <label className="text-xs font-semibold text-slate-600 uppercase">Email Address</label>
-//                             <div className="flex items-center gap-3 mt-2 p-3 bg-white border border-slate-300 rounded-lg shadow-inner">
-//                                 <FiCheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-//                                 <span className="text-sm text-slate-800 break-all">{verifiedEmail}</span>
-//                             </div>
-//                         </div>
-//                         <div>
-//                             <label className="block text-sm font-semibold text-slate-700 mb-2">Full Name</label>
-//                             <div className="relative">
-//                                 <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-//                                 <input className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-sm ${errors.studentName ? 'border-red-400' : 'border-slate-300'} focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500`} {...register('studentName', { required: "Full name is required" })} placeholder="Enter your full name" />
-//                             </div>
-//                             {errors.studentName && <p className="mt-1 text-xs text-red-600">{errors.studentName.message}</p>}
-//                         </div>
-//                         <div>
-//                             <label className="block text-sm font-semibold text-slate-700 mb-2">Phone Number</label>
-//                             <div className="relative">
-//                                 <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-//                                 <input type="tel" className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-sm ${errors.studentPhone ? 'border-red-400' : 'border-slate-300'} focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500`} {...register('studentPhone', { required: "Phone number is required" })} placeholder="Enter your 10-digit number" />
-//                             </div>
-//                             {errors.studentPhone && <p className="mt-1 text-xs text-red-600">{errors.studentPhone.message}</p>}
+//             <div className="w-full md:w-[380px] flex-shrink-0 border-b md:border-b-0 md:border-r border-slate-200 p-4 md:p-6 flex flex-col bg-slate-50/70">
+//                 <h2 className="text-xl font-bold text-slate-800 mb-2">Step 2: Your Details</h2>
+//                 <p className="text-sm text-slate-500 mb-6 pb-4 border-b border-slate-200">Confirm your information and select a time slot.</p>
+//                 <div className="flex-grow space-y-5">
+//                     <div>
+//                         <label className="text-xs font-semibold text-slate-600 uppercase">Email Address</label>
+//                         <div className="flex items-center gap-3 mt-2 p-3 bg-white border border-slate-300 rounded-lg shadow-inner">
+//                             <FiCheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+//                             <span className="text-sm text-slate-800 break-all">{verifiedEmail}</span>
 //                         </div>
 //                     </div>
-//                     <div className="mt-auto pt-6 flex-shrink-0">
-//                          <button type="submit" disabled={isSubmitting} className="w-full flex justify-center py-3.5 px-4 border rounded-xl text-white font-semibold bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 shadow-lg">
-//                             {isSubmitting ? 'Confirming...' : 'Confirm My Booking'}
-//                         </button>
+//                     <div>
+//                         <label className="block text-sm font-semibold text-slate-700 mb-2">Full Name</label>
+//                         <div className="relative">
+//                             <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+//                             <input className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-sm ${errors.studentName ? 'border-red-400' : 'border-slate-300'} focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500`} {...register('studentName', { required: "Full name is required" })} placeholder="Enter your full name" />
+//                         </div>
+//                         {errors.studentName && <p className="mt-1 text-xs text-red-600">{errors.studentName.message}</p>}
+//                     </div>
+//                     <div>
+//                         <label className="block text-sm font-semibold text-slate-700 mb-2">Phone Number</label>
+//                         <div className="relative">
+//                             <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+//                             <input type="tel" className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-sm ${errors.studentPhone ? 'border-red-400' : 'border-slate-300'} focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500`} {...register('studentPhone', { required: "Phone number is required" })} placeholder="Enter your 10-digit number" />
+//                         </div>
+//                         {errors.studentPhone && <p className="mt-1 text-xs text-red-600">{errors.studentPhone.message}</p>}
 //                     </div>
 //                 </div>
 //             </div>
             
 //             {/* Right Side: Slot Selection */}
-//             <div className="w-full md:flex-1 p-6 flex flex-col overflow-hidden">
+//             <div className="w-full md:flex-1 p-4 md:p-6 flex flex-col overflow-hidden">
 //                 <h2 className="text-xl font-bold text-slate-800 mb-4 pb-4 border-b border-slate-200 flex-shrink-0">Select an Available Time Slot</h2>
 //                 {errors.selectedSlot && <p className="mb-4 text-xs text-red-600 flex-shrink-0 bg-red-50 p-3 rounded-lg border border-red-200">{errors.selectedSlot.message}</p>}
 //                 <div className="flex-grow overflow-y-auto space-y-8 pr-3 -mr-3">
@@ -144,22 +126,22 @@
 //                 </div>
 //             </div>
 //         </div>
-//     </motion.form>
+//         <div className="md:hidden flex-shrink-0 p-4 border-t border-slate-200 bg-slate-50">
+//             <button type="submit" disabled={isSubmitting} className="w-full flex justify-center py-3.5 px-4 border rounded-xl text-white font-semibold bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 shadow-lg">
+//                 {isSubmitting ? 'Confirming...' : 'Confirm My Booking'}
+//             </button>
+//         </div>
+//     </form>
 // );
 
 // const ConfirmationStep = ({ step, bookingDetails }) => (
-//     <motion.div
-//         key={step}
-//         initial={{ opacity: 0, scale: 0.95 }}
-//         animate={{ opacity: 1, scale: 1 }}
-//         exit={{ opacity: 0, scale: 0.95 }}
-//         transition={{ duration: 0.3 }}
+//     <div
 //         className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-slate-200"
 //     >
-//         <div className="p-8 text-center">
-//             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring', stiffness: 400, damping: 10 }}>
+//         <div className="p-6 sm:p-8 text-center">
+//             <div>
 //                 <FiCheckCircle className="h-16 w-16 text-green-500 mx-auto mb-5" />
-//             </motion.div>
+//             </div>
 //             <h2 className="text-2xl font-bold text-slate-800 mb-2">
 //                 {step === 'already_booked' ? 'You Have a Booking' : 'Your Interview is Scheduled!'}
 //             </h2>
@@ -172,7 +154,7 @@
 //                 </div>
 //             )}
 //         </div>
-//     </motion.div>
+//     </div>
 // );
 
 // const PublicBookingPage = () => {
@@ -221,34 +203,32 @@
 //             <div className="absolute bottom-0 right-0 w-[30rem] h-[30rem] bg-[radial-gradient(ellipse_at_center,_rgba(79,70,229,0.3)_0%,_rgba(255,255,255,0)_70%)] opacity-40"></div>
 
 //             <div className="w-full min-h-screen flex items-start md:items-center justify-center p-4 md:p-8">
-//                 <AnimatePresence mode="wait">
-//                     {step === 'verify_email' && (
-//                         <EmailVerificationStep 
-//                             onSubmit={handleSubmit(handleEmailVerification)}
-//                             register={register}
-//                             errors={errors}
-//                             isSubmitting={isSubmitting}
-//                         />
-//                     )}
-                    
-//                     {step === 'booking_form' && (
-//                         <BookingStep
-//                             onSubmit={handleSubmit(handleBookingSubmit)}
-//                             register={register}
-//                             errors={errors}
-//                             isSubmitting={isSubmitting}
-//                             verifiedEmail={verifiedEmail}
-//                             availableSlots={availableSlots}
-//                         />
-//                     )}
+//                 {step === 'verify_email' && (
+//                     <EmailVerificationStep 
+//                         onSubmit={handleSubmit(handleEmailVerification)}
+//                         register={register}
+//                         errors={errors}
+//                         isSubmitting={isSubmitting}
+//                     />
+//                 )}
+                
+//                 {step === 'booking_form' && (
+//                     <BookingStep
+//                         onSubmit={handleSubmit(handleBookingSubmit)}
+//                         register={register}
+//                         errors={errors}
+//                         isSubmitting={isSubmitting}
+//                         verifiedEmail={verifiedEmail}
+//                         availableSlots={availableSlots}
+//                     />
+//                 )}
 
-//                     {(step === 'confirmed' || step === 'already_booked') && (
-//                          <ConfirmationStep 
-//                              step={step}
-//                              bookingDetails={confirmedBooking} 
-//                          />
-//                     )}
-//                 </AnimatePresence>
+//                 {(step === 'confirmed' || step === 'already_booked') && (
+//                      <ConfirmationStep 
+//                          step={step}
+//                          bookingDetails={confirmedBooking} 
+//                      />
+//                 )}
 //             </div>
 //         </div>
 //     );
@@ -261,7 +241,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { FiMail, FiCheckCircle, FiClock, FiUser, FiPhone, FiCalendar, FiArrowRight, FiCheck } from 'react-icons/fi';
+import { FiMail, FiCheckCircle, FiClock, FiUser, FiPhone, FiCalendar, FiArrowRight, FiCheck, FiArrowLeft } from 'react-icons/fi';
 import { verifyPublicBookingEmail, getPublicAvailableSlots, bookPublicSlot } from '@/api/public.api';
 import { useAlert } from '@/hooks/useAlert';
 import { formatDate, formatTime } from '@/utils/formatters';
@@ -310,89 +290,130 @@ const EmailVerificationStep = ({ onSubmit, register, errors, isSubmitting }) => 
     </div>
 );
 
-const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, availableSlots }) => (
-    <form
-        onSubmit={onSubmit}
-        className="w-full max-w-6xl h-auto md:h-[90vh] bg-white rounded-2xl shadow-2xl border border-slate-200/50 flex flex-col overflow-hidden"
-    >
-        <div className="flex-grow flex flex-col md:flex-row w-full md:overflow-hidden">
-            {/* Left Side: User Details */}
-            <div className="w-full md:w-[380px] flex-shrink-0 border-b md:border-b-0 md:border-r border-slate-200 p-4 md:p-6 flex flex-col bg-slate-50/70">
-                <h2 className="text-xl font-bold text-slate-800 mb-2">Step 2: Your Details</h2>
-                <p className="text-sm text-slate-500 mb-6 pb-4 border-b border-slate-200">Confirm your information and select a time slot.</p>
-                <div className="flex-grow space-y-5">
-                    <div>
-                        <label className="text-xs font-semibold text-slate-600 uppercase">Email Address</label>
-                        <div className="flex items-center gap-3 mt-2 p-3 bg-white border border-slate-300 rounded-lg shadow-inner">
-                            <FiCheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                            <span className="text-sm text-slate-800 break-all">{verifiedEmail}</span>
+const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, availableSlots, trigger }) => {
+    const [mobileStep, setMobileStep] = useState(1);
+
+    const handleNextStep = async () => {
+        const isValid = await trigger(['studentName', 'studentPhone']);
+        if (isValid) {
+            setMobileStep(2);
+        }
+    };
+    
+    return (
+        <form
+            onSubmit={onSubmit}
+            className="w-full max-w-6xl h-auto md:h-[90vh] bg-white rounded-2xl shadow-2xl border border-slate-200/50 flex flex-col overflow-hidden"
+        >
+            <div className="flex flex-col md:flex-row w-full flex-grow md:h-full">
+                <div className={`w-full md:w-[380px] flex-shrink-0 border-b md:border-b-0 md:border-r border-slate-200 p-4 md:p-6 bg-slate-50/70 md:overflow-y-auto ${mobileStep === 1 ? 'flex flex-col' : 'hidden md:flex md:flex-col'}`}>
+                    <div className="md:sticky md:top-6">
+                        <h2 className="text-xl font-bold text-slate-800 mb-2">Step 2: Your Details</h2>
+                        <p className="text-sm text-slate-500 mb-6 pb-4 border-b border-slate-200">Confirm your information and select a time slot.</p>
+                        <div className="flex-grow space-y-5">
+                            <div>
+                                <label className="text-xs font-semibold text-slate-600 uppercase">Email Address</label>
+                                <div className="flex items-center gap-3 mt-2 p-3 bg-white border border-slate-300 rounded-lg shadow-inner">
+                                    <FiCheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                                    <span className="text-sm text-slate-800 break-all">{verifiedEmail}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-2">Full Name</label>
+                                <div className="relative">
+                                    <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-sm ${errors.studentName ? 'border-red-400' : 'border-slate-300'} focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500`} {...register('studentName', { required: "Full name is required" })} placeholder="Enter your full name" />
+                                </div>
+                                {errors.studentName && <p className="mt-1 text-xs text-red-600">{errors.studentName.message}</p>}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-2">Phone Number</label>
+                                <div className="relative">
+                                    <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input type="tel" className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-sm ${errors.studentPhone ? 'border-red-400' : 'border-slate-300'} focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500`} {...register('studentPhone', { required: "Phone number is required" })} placeholder="Enter your 10-digit number" />
+                                </div>
+                                {errors.studentPhone && <p className="mt-1 text-xs text-red-600">{errors.studentPhone.message}</p>}
+                            </div>
+                        </div>
+                        <div className="mt-auto pt-6 flex-shrink-0 hidden md:block">
+                            <button type="submit" disabled={isSubmitting} className="w-full flex justify-center py-3.5 px-4 border rounded-xl text-white font-semibold bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 shadow-lg">
+                                {isSubmitting ? 'Confirming...' : 'Confirm My Booking'}
+                            </button>
                         </div>
                     </div>
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-2">Full Name</label>
-                        <div className="relative">
-                            <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                            <input className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-sm ${errors.studentName ? 'border-red-400' : 'border-slate-300'} focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500`} {...register('studentName', { required: "Full name is required" })} placeholder="Enter your full name" />
-                        </div>
-                        {errors.studentName && <p className="mt-1 text-xs text-red-600">{errors.studentName.message}</p>}
-                    </div>
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-2">Phone Number</label>
-                        <div className="relative">
-                            <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                            <input type="tel" className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-sm ${errors.studentPhone ? 'border-red-400' : 'border-slate-300'} focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500`} {...register('studentPhone', { required: "Phone number is required" })} placeholder="Enter your 10-digit number" />
-                        </div>
-                        {errors.studentPhone && <p className="mt-1 text-xs text-red-600">{errors.studentPhone.message}</p>}
+                </div>
+                
+                <div className={`w-full md:flex-1 p-4 md:p-6 flex flex-col overflow-hidden ${mobileStep === 2 ? 'flex' : 'hidden md:flex'}`}>
+                    <h2 className="text-xl font-bold text-slate-800 mb-4 pb-4 border-b border-slate-200 flex-shrink-0">Step 3: Select an Available Time Slot</h2>
+                    {errors.selectedSlot && <p className="mb-4 text-xs text-red-600 flex-shrink-0 bg-red-50 p-3 rounded-lg border border-red-200">{errors.selectedSlot.message}</p>}
+                    <div className="flex-grow overflow-y-auto space-y-8 pr-3 -mr-3">
+                        {availableSlots.length > 0 ? (
+                            availableSlots.map((interviewerSlot) => (
+                                <div key={interviewerSlot._id}>
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <FiCalendar className="h-5 w-5 text-indigo-500" />
+                                        <h3 className="text-lg font-bold text-slate-800">{formatDate(interviewerSlot.date)}</h3>
+                                        <div className="text-xs text-slate-500 ml-auto bg-slate-100 px-2 py-1 rounded">
+                                            <FiUser className="inline-block mr-1.5 h-3 w-3" />
+                                            {interviewerSlot.interviewer.user.firstName} {interviewerSlot.interviewer.user.lastName}
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                                        {interviewerSlot.timeSlots.map((slot) => (
+                                            <label key={slot._id} className="relative block">
+                                                <input type="radio" className="sr-only peer" {...register('selectedSlot', { required: "Please select one time slot" })} value={`${interviewerSlot.interviewer._id}|${slot.startTime}|${slot.endTime}`} />
+                                                <div className="text-center p-3 border-2 border-slate-300 rounded-lg cursor-pointer text-sm text-slate-700 hover:border-indigo-500 hover:bg-indigo-50 peer-checked:bg-indigo-100 peer-checked:border-indigo-600 peer-checked:font-semibold peer-checked:text-indigo-800 transition-all duration-200 relative">
+                                                    {`${formatTime(slot.startTime)} - ${formatTime(slot.endTime)}`}
+                                                    <FiCheck className="h-4 w-4 text-white bg-indigo-600 rounded-full p-0.5 absolute -top-1.5 -right-1.5 opacity-0 peer-checked:opacity-100 transition-opacity" />
+                                                </div>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="flex flex-col items-center justify-center h-full text-center text-slate-500 p-10">
+                                <FiClock className="h-10 w-10 mb-4" />
+                                <p className="font-semibold text-slate-700">No Slots Currently Available</p>
+                                <p className="text-sm mt-1">Please check back later or contact support if you believe this is an error.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
             
-            {/* Right Side: Slot Selection */}
-            <div className="w-full md:flex-1 p-4 md:p-6 flex flex-col overflow-hidden">
-                <h2 className="text-xl font-bold text-slate-800 mb-4 pb-4 border-b border-slate-200 flex-shrink-0">Select an Available Time Slot</h2>
-                {errors.selectedSlot && <p className="mb-4 text-xs text-red-600 flex-shrink-0 bg-red-50 p-3 rounded-lg border border-red-200">{errors.selectedSlot.message}</p>}
-                <div className="flex-grow overflow-y-auto space-y-8 pr-3 -mr-3">
-                    {availableSlots.length > 0 ? (
-                        availableSlots.map((interviewerSlot) => (
-                            <div key={interviewerSlot._id}>
-                                <div className="flex items-center gap-3 mb-4">
-                                    <FiCalendar className="h-5 w-5 text-indigo-500" />
-                                    <h3 className="text-lg font-bold text-slate-800">{formatDate(interviewerSlot.date)}</h3>
-                                    <div className="text-xs text-slate-500 ml-auto bg-slate-100 px-2 py-1 rounded">
-                                        <FiUser className="inline-block mr-1.5 h-3 w-3" />
-                                        {interviewerSlot.interviewer.user.firstName} {interviewerSlot.interviewer.user.lastName}
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                                    {interviewerSlot.timeSlots.map((slot) => (
-                                        <label key={slot._id} className="relative block">
-                                            <input type="radio" className="sr-only peer" {...register('selectedSlot', { required: "Please select one time slot" })} value={`${interviewerSlot.interviewer._id}|${slot.startTime}|${slot.endTime}`} />
-                                            <div className="text-center p-3 border-2 border-slate-300 rounded-lg cursor-pointer text-sm text-slate-700 hover:border-indigo-500 hover:bg-indigo-50 peer-checked:bg-indigo-100 peer-checked:border-indigo-600 peer-checked:font-semibold peer-checked:text-indigo-800 transition-all duration-200 relative">
-                                                {`${formatTime(slot.startTime)} - ${formatTime(slot.endTime)}`}
-                                                <FiCheck className="h-4 w-4 text-white bg-indigo-600 rounded-full p-0.5 absolute -top-1.5 -right-1.5 opacity-0 peer-checked:opacity-100 transition-opacity" />
-                                            </div>
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-center text-slate-500 p-10">
-                            <FiClock className="h-10 w-10 mb-4" />
-                            <p className="font-semibold text-slate-700">No Slots Currently Available</p>
-                            <p className="text-sm mt-1">Please check back later or contact support if you believe this is an error.</p>
-                        </div>
-                    )}
-                </div>
+            <div className="p-4 border-t border-slate-200 bg-slate-50/70 md:hidden">
+                {mobileStep === 1 && (
+                    <button
+                        type="button"
+                        onClick={handleNextStep}
+                        className="w-full flex justify-center items-center gap-2 py-3.5 px-4 border rounded-xl text-white font-semibold bg-indigo-600 hover:bg-indigo-700 shadow-lg"
+                    >
+                        Next <FiArrowRight />
+                    </button>
+                )}
+                {mobileStep === 2 && (
+                    <div className="flex items-center gap-4">
+                        <button
+                            type="button"
+                            onClick={() => setMobileStep(1)}
+                            className="flex justify-center items-center gap-2 py-3.5 px-4 border-2 border-slate-300 rounded-xl text-slate-700 font-semibold bg-white hover:bg-slate-50"
+                        >
+                            <FiArrowLeft /> Back
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="w-full flex justify-center items-center gap-2 py-3.5 px-4 border rounded-xl text-white font-semibold bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 shadow-lg"
+                        >
+                            {isSubmitting ? 'Confirming...' : 'Confirm Booking'}
+                        </button>
+                    </div>
+                )}
             </div>
-        </div>
-        <div className="md:hidden flex-shrink-0 p-4 border-t border-slate-200 bg-slate-50">
-            <button type="submit" disabled={isSubmitting} className="w-full flex justify-center py-3.5 px-4 border rounded-xl text-white font-semibold bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 shadow-lg">
-                {isSubmitting ? 'Confirming...' : 'Confirm My Booking'}
-            </button>
-        </div>
-    </form>
-);
+        </form>
+    );
+};
 
 const ConfirmationStep = ({ step, bookingDetails }) => (
     <div
@@ -420,7 +441,7 @@ const ConfirmationStep = ({ step, bookingDetails }) => (
 const PublicBookingPage = () => {
     const { publicId } = useParams();
     const { showSuccess, showError } = useAlert();
-    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
+    const { register, handleSubmit, formState: { errors, isSubmitting }, trigger } = useForm();
     
     const [step, setStep] = useState('verify_email');
     const [verifiedEmail, setVerifiedEmail] = useState('');
@@ -480,6 +501,7 @@ const PublicBookingPage = () => {
                         isSubmitting={isSubmitting}
                         verifiedEmail={verifiedEmail}
                         availableSlots={availableSlots}
+                        trigger={trigger}
                     />
                 )}
 
