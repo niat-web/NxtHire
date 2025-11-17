@@ -95,7 +95,22 @@ const DocsPage = () => {
                             <p>An email confirmation is sent to the applicant with their unique Application ID. This ID is crucial for tracking their progress.</p>
                             <p>The applicant's status is set to <strong>"Application Submitted"</strong>.</p>
                         </InfoBox>
-                        <p>[Screenshot: Application Form Page]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763402013/Screenshot_2025-11-17_230902_mpllcj.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+
 
                         <h4>1.2. Skills Assessment</h4>
                         <p>This stage is designed to capture detailed information about the applicant's technical proficiency.</p>
