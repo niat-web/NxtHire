@@ -599,7 +599,7 @@
 // export default ConfirmedSlots;
 
 
-
+// client/src/pages/admin/ConfirmedSlots.jsx
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import CreatableSelect from 'react-select/creatable';
 import Select from 'react-select';
@@ -807,7 +807,7 @@ const StatusBadge = ({ status }) => {
 
 const ManualBookingControls = ({ row, onBooking, publicBookingDetails, onInterviewerSelect }) => {
     const [bookingState, setBookingState] = useState({ date: '', slot: '' });
-    const { showError, showSuccess } = useAlert();
+    const { showError } = useAlert();
     const [isLoading, setIsLoading] = useState(false);
 
     const availableDates = useMemo(() => {
@@ -860,9 +860,9 @@ const ManualBookingControls = ({ row, onBooking, publicBookingDetails, onIntervi
                 date: bookingState.date,
                 slot: { startTime, endTime },
             });
-            showSuccess('Slot booked manually!');
         } catch (error) {
-            showError(error?.response?.data?.message || 'Failed to book slot.');
+            // The parent's catch block now handles the error toast.
+            // This catch block simply prevents the code from crashing.
         } finally {
             setIsLoading(false);
         }
@@ -958,17 +958,18 @@ const ConfirmedSlotsView = () => {
     }, [pendingInvitations, publicBookingDetailsCache, fetchPublicBookingDetails]);
 
     const handleManualBooking = async (student, bookingInfo) => {
-         try {
-            await manualBookStudentSlot(student.studentEmail, bookingInfo);
+        try {
             const payload = {
                 ...bookingInfo,
                 hostEmail: student.hostEmail,
                 eventTitle: student.eventTitle
             };
             await manualBookStudentSlot(student.studentEmail, payload);
-             fetchInitialData();
-         } catch(err) {
-             showError(err?.response?.data?.message || 'Manual booking failed.');
+            showSuccess('Slot booked manually!');
+            fetchInitialData(); // Refetch data to move the row from pending to confirmed
+        } catch(err) {
+            showError(err?.response?.data?.message || 'Manual booking failed.');
+            throw err; // Re-throw the error so the child component's catch block works
         }
     };
     
