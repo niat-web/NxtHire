@@ -47,6 +47,7 @@
 // import EarningsReportPage from '@/pages/admin/EarningsReportPage';
 // import CustomEmailPage from '@/pages/admin/CustomEmailPage';
 // import NewInterviewBooking from '@/pages/admin/NewInterviewBooking';
+// import AuthorizeStudentsPage from '@/pages/admin/AuthorizeStudentsPage';
 
 // // Interviewer Pages
 // import InterviewerDashboard from '@/pages/interviewer/Dashboard';
@@ -116,7 +117,6 @@
 //                 <Route path="interviewer-bookings" element={<InterviewBookings />} />
 //                 <Route path="booking-slots" element={<BookingSlots />} />
 //                 <Route path="student-bookings" element={<StudentBookings />} />
-//                 <Route path="public-bookings/:id/tracking" element={<EmailTrackingPage />} />
 //                 <Route path="confirmed-slots" element={<ConfirmedSlots />} />
 //             </Route>
 //         </Route>
@@ -125,6 +125,7 @@
 //         <Route element={<AdminLayout />}>
 //           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
 //           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+//           <Route path="/admin/public-bookings/:id/authorize" element={<AuthorizeStudentsPage />} />
 //           <Route path="/admin/main-sheet" element={<MainSheet />} />
 //           <Route path="/admin/main-sheet/add" element={<MainSheetForm />} />     
 //           <Route path="/admin/main-sheet/edit/:id" element={<MainSheetForm />} />
@@ -164,6 +165,7 @@
 // export default App;
 
 
+
 // client/src/App.jsx
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
@@ -191,6 +193,7 @@ import PaymentConfirmationPage from '@/pages/public/PaymentConfirmationPage';
 import PaymentReceivedConfirmationPage from '@/pages/public/PaymentReceivedConfirmationPage';
 import InterviewerApplication from '@/pages/public/InterviewerApplication';
 import ApplicationFormPage from '@/pages/public/ApplicationFormPage';
+import DocsPage from '@/pages/DocsPage';
 
 // Admin Pages
 import AdminDashboard from '@/pages/admin/Dashboard';
@@ -248,6 +251,8 @@ function App() {
 
       {/* New route for direct application form */}
       <Route path="/applicationform" element={<ApplicationFormPage />} />
+      
+      <Route path="/docs" element={<DocsPage />} />
       
       <Route path="/InterviewerApplication" element={<InterviewerApplication />} />
       <Route path="/login" element={<Login />} />
