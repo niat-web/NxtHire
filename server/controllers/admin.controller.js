@@ -2448,7 +2448,7 @@ const getStudentPipeline = asyncHandler(async (req, res) => {
 
 const getPublicBookingDetails = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const booking = await PublicBooking.findOne({ publicId: id })
+    const booking = await PublicBooking.findById(id)
         .populate({
             path: 'interviewerSlots.interviewer',
             populate: {
