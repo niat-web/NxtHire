@@ -958,11 +958,17 @@ const ConfirmedSlotsView = () => {
     }, [pendingInvitations, publicBookingDetailsCache, fetchPublicBookingDetails]);
 
     const handleManualBooking = async (student, bookingInfo) => {
-        try {
+         try {
             await manualBookStudentSlot(student.studentEmail, bookingInfo);
-            fetchInitialData();
-        } catch(err) {
-            showError(err?.response?.data?.message || 'Manual booking failed.');
+            const payload = {
+                ...bookingInfo,
+                hostEmail: student.hostEmail,
+                eventTitle: student.eventTitle
+            };
+            await manualBookStudentSlot(student.studentEmail, payload);
+             fetchInitialData();
+         } catch(err) {
+             showError(err?.response?.data?.message || 'Manual booking failed.');
         }
     };
     
