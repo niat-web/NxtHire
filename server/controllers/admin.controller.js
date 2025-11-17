@@ -2447,8 +2447,10 @@ const getStudentPipeline = asyncHandler(async (req, res) => {
 });
 
 const getPublicBookingDetails = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const booking = await PublicBooking.findById(id)
+    const isObjectId = mongoose.Types.ObjectId.isValid(id);
+    const query = isObjectId ? { _id: id } : { publicId: id };
+
+    const booking = await PublicBooking.findOne(query)
         .populate({
             path: 'interviewerSlots.interviewer',
             populate: {
