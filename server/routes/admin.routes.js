@@ -60,7 +60,9 @@ const {
   getAllEvaluationParameters,
   getYearlyEarningsSummary,
   getMonthlyEarningsDetails,
-  updateOrSetPaymentBonus, // <--- THIS IS THE FIX
+  updateOrSetPaymentBonus,
+  deletePublicBooking,
+  manualBookSlot,
 } = require('../controllers/admin.controller');
 const { protect, adminOnly } = require('../middleware/auth.middleware');
 const { validate, schemas } = require('../middleware/validator.middleware');
@@ -147,7 +149,8 @@ router.route('/main-sheet/:id').get(getMainSheetEntryById).delete(deleteMainShee
 
 // --- Student Booking System Routes ---
 router.route('/public-bookings').get(getPublicBookings).post(createPublicBooking);
-router.route('/public-bookings/:id').get(getPublicBookingDetails).put(updatePublicBooking);
+router.route('/public-bookings/:id').get(getPublicBookingDetails).put(updatePublicBooking).delete(deletePublicBooking);
+router.post('/student-bookings/:id/manual-book', manualBookSlot);
 router.post('/public-bookings/:id/reminders', sendBookingReminders);
 router.get('/student-bookings/pipeline', getStudentPipeline);
 router.put('/student-bookings/:id', updateStudentBooking);
