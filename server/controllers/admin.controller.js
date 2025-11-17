@@ -2372,7 +2372,12 @@ const sendBookingReminders = asyncHandler(async (req, res) => {
     for (const student of studentsToRemind) {
         await sendEmail({
             recipient: publicBooking._id, recipientModel: 'PublicBooking', recipientEmail: student.email, templateName: EMAIL_TEMPLATES.STUDENT_BOOKING_REMINDER, subject: 'Reminder: Schedule Your NxtWave Interview',
-            templateData: { name: student.fullName, bookingLink: `${process.env.CLIENT_URL}/book/${publicBooking.publicId}` }, relatedTo: 'Student Booking Reminder', sentBy: req.user._id, isAutomated: false
+// Changed lines
+            templateData: {
+                name: student.fullName,
+                bookingLink: `${process.env.CLIENT_URL}/book/${publicBooking.publicId}`
+            }, 
+            relatedTo: 'Student Booking Reminder', sentBy: req.user._id, isAutomated: false
         });
         remindersSent++;
     }
