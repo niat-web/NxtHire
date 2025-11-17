@@ -2447,6 +2447,7 @@ const getStudentPipeline = asyncHandler(async (req, res) => {
 });
 
 const getPublicBookingDetails = asyncHandler(async (req, res) => {
+    const { id } = req.params;
     const isObjectId = mongoose.Types.ObjectId.isValid(id);
     const query = isObjectId ? { _id: id } : { publicId: id };
 
