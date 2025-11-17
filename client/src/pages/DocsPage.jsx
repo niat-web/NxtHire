@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from 'react';
 
 const documentationContent = `
+# NxtHire Application: User Experience & Feature Documentation
+
 ## 1. Introduction
 NxtHire is a comprehensive, end-to-end platform designed to manage the recruitment, onboarding, scheduling, and payment workflow for freelance technical interviewers. The system provides distinct portals for Administrators to manage the entire process and for Interviewers to manage their profiles, availability, and assigned interviews.
 It also includes a public-facing side for Applicants to apply to the program and for external Students to book their scheduled interviews.
@@ -169,18 +171,16 @@ const DocsPage = () => {
             if (line.startsWith('## ')) return <h2 key={index} id={slug} className="text-2xl font-bold mt-12 mb-4 pb-2 border-b border-gray-300 text-gray-900 scroll-mt-20">{line.substring(3)}</h2>;
             if (line.startsWith('# ')) return <h1 key={index} id={slug} className="text-4xl font-extrabold mb-6 pb-4 border-b-2 border-blue-500 text-gray-900 scroll-mt-20">{line.substring(2)}</h1>;
             
-            // --- START OF FIX ---
-            // Add this new condition to handle lines like "**Purpose**:"
+            // FIX: Add this new condition to handle lines starting directly with "**"
             if (line.startsWith('**')) {
-                const boldPartMatch = line.match(/\*\*(.*?)\*\*/); // Find text between **
+                const boldPartMatch = line.match(/\*\*(.*?)\*\*/);
                 if (boldPartMatch) {
                     const boldPart = boldPartMatch[1];
                     const rest = line.replace(`**${boldPart}**`, '');
                     return <p key={index} className="mb-2"><strong className="font-semibold text-gray-800">{boldPart}</strong>{rest}</p>;
                 }
             }
-            // --- END OF FIX ---
-            
+
             if (line.startsWith('- **')) {
                 const boldPart = line.match(/\*\*(.*?)\*\*/)[1];
                 const rest = line.replace(`- **${boldPart}**`, '');
@@ -194,8 +194,6 @@ const DocsPage = () => {
             return <p key={index} className="mb-4 text-gray-700 leading-relaxed">{line}</p>;
         });
     };
-
-    // ... (keep the rest of your component's return statement the same)
     
     return (
         <div className="bg-gray-100 font-sans">
