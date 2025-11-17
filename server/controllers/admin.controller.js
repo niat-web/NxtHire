@@ -3002,7 +3002,7 @@ const deletePublicBooking = asyncHandler(async (req, res) => {
 });
 
 const manualBookSlot = asyncHandler(async (req, res) => {
-    const { id: studentEmail } = req.params; // The ID is now correctly identified as the student's email
+    const { studentEmailId: studentEmail } = req.params; // The ID is now correctly identified as the student's email
     const { interviewerId, date, slot, hostEmail, eventTitle } = req.body;
 
     if (!interviewerId || !date || !slot || !hostEmail || !eventTitle) {
