@@ -64,7 +64,7 @@ const DocsPage = () => {
                 <>
                     <p>NxtHire is a comprehensive, end-to-end platform designed to manage the recruitment, onboarding, scheduling, and payment workflow for freelance technical interviewers. This documentation will guide you through the features and functionalities available to you based on your role.</p>
                     <InfoBox title="What is NxtHire?" icon={<Info />}>
-                        <p>NxtHire streamlines the entire process of engaging freelance technical interviewers, from their initial application to payment processing. It connects aspiring talent with industry experts, ensuring high-quality evaluations and a smooth operational workflow.</p>
+                        <p>NxtHire streamlines the entire process of engaging freelance technical interviewers, from their initial application to payment processing. It connects aspiring talent with industry experts, ensuring evaluations and a smooth operational workflow.</p>
                     </InfoBox>
                 </>
             )},
@@ -110,7 +110,36 @@ const DocsPage = () => {
     </html>
   `}
 />
-
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763580703/Screenshot_2025-11-20_010049_avdhan.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763580720/Screenshot_2025-11-20_010151_hh0k0t.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
 
                         <h4>1.2. Skills Assessment</h4>
                         <p>This stage is designed to capture detailed information about the applicant's technical proficiency.</p>
@@ -126,7 +155,66 @@ const DocsPage = () => {
                         <WarningBox title="Important Validation" icon={<AlertCircle />}>
                             <p>Applicants must select at least one technical skill or provide details in the "Other Skills" section to submit the form.</p>
                         </WarningBox>
-                        <p>[Screenshot: Skill Assessment Form Page]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763580930/Screenshot_2025-11-20_010417_leugxk.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763580931/Screenshot_2025-11-20_010430_uqmwik.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763580929/Screenshot_2025-11-20_010453_b932qh.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763581224/Screenshot_2025-11-20_010805_xvpymj.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
 
                         <h4>1.3. Guidelines Questionnaire</h4>
                         <p>This step ensures that all new interviewers understand NxtWave's standards and best practices for conducting interviews.</p>
@@ -143,8 +231,36 @@ const DocsPage = () => {
                         <WarningBox title="Critical Requirement" icon={<AlertCircle />}>
                             <p>The questionnaire is timed. If the time limit is exceeded or not all questions are answered, the submission will be incomplete.</p>
                         </WarningBox>
-                        <p>[Screenshot: Guidelines Questionnaire Page]</p>
-
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763581223/Screenshot_2025-11-20_010928_ywsuk2.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763581223/Screenshot_2025-11-20_010942_dj4zgs.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
                         <h4>1.4. Account Creation (for Onboarded Interviewers)</h4>
                         <p>This is the final step for successful applicants to gain access to their Interviewer Portal.</p>
                         <ol>
@@ -177,7 +293,21 @@ const DocsPage = () => {
                         <WarningBox title="Access Denied" icon={<AlertCircle />}>
                             <p>If the email is not authorized for this specific link, the student will receive an error message and cannot proceed.</p>
                         </WarningBox>
-                        <p>[Screenshot: Student Email Verification Page]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763557163/Screenshot_2025-11-19_181612_lpb18x.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
 
                         <h4>2.2. Slot Selection</h4>
                         <p>After successful email verification, students can select their preferred interview slot.</p>
@@ -190,7 +320,21 @@ const DocsPage = () => {
                         <InfoBox title="Real-time Availability" icon={<Info />}>
                             <p>The displayed slots are live. If a slot is booked by another student, it will instantly become unavailable. The system performs an atomic check at the point of submission to prevent double-bookings.</p>
                         </InfoBox>
-                        <p>[Screenshot: Student Booking Form - Details & Slots]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763557344/Screenshot_2025-11-19_183154_j5rne0.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
 
                         <h4>2.3. Booking Confirmation</h4>
                         <p>Once a slot is successfully booked, the student receives immediate confirmation.</p>
@@ -202,7 +346,21 @@ const DocsPage = () => {
                             <p>The selected slot is marked as "booked" in the system, removing it from future availability for other students.</p>
                             <p>A new entry or an update to an existing entry is made in the Admin's Main Sheet, reflecting the scheduled interview.</p>
                         </InfoBox>
-                        <p>[Screenshot: Student Booking Confirmation Page]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763557343/Screenshot_2025-11-19_183214_c2fxov.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
 
                         <h4>2.4. Payment Confirmation / Payment Received Confirmation (for Interviewers)</h4>
                         <p>These are public-facing forms specifically for interviewers to confirm payment-related statuses, triggered by Admins.</p>
@@ -212,6 +370,51 @@ const DocsPage = () => {
                             <li>On the form, they can select "Confirmed" or "Disputed" and add optional remarks.</li>
                             <li>Upon submission, their response is recorded in the Admin's system.</li>
                         </ol>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763558676/Screenshot_2025-11-19_185422_igcvfw.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763558698/Screenshot_2025-11-19_185450_eer6lr.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763558784/Screenshot_2025-11-19_185559_eegsrr.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
                         <p><strong>Payment Received Confirmation:</strong></p>
                         <ol>
                             <li>After payment is disbursed, an interviewer receives another unique email link asking them to confirm if they have received the payment.</li>
@@ -221,8 +424,36 @@ const DocsPage = () => {
                         <WarningBox title="One-Time Use Links" icon={<AlertCircle />}>
                             <p>These confirmation links are typically one-time use and expire after a set period to prevent multiple submissions or unauthorized access.</p>
                         </WarningBox>
-                        <p>[Screenshot: Payment Confirmation Page (Interviewer View)]</p>
-
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763559117/Screenshot_2025-11-19_185907_yhxs36.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763559704/Screenshot_2025-11-19_191136_jy4wmx.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
                     </SubSection>
                 </>
             )},
@@ -247,7 +478,21 @@ const DocsPage = () => {
                                     <li><strong>Interview Trends:</strong> Bar charts showing scheduled, completed, in-progress, and cancelled interviews by daily, weekly, or monthly views.</li>
                                     <li><strong>Recent Activity:</strong> A list of the most recent interviews with their candidate, date, and status.</li>
                                 </ul>
-                                <p>[Screenshot: Dashboard - Analytics]</p>
+                                <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763557866/Screenshot_2025-11-19_184058_ov09aq.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
                             </li>
                             <li><strong>Probation Review Queue:</strong> A dedicated section that highlights interviewers who are on probation and have completed 5 or more interviews, indicating they might be eligible to move to 'Active' status.
                                 <ul>
@@ -276,7 +521,21 @@ const DocsPage = () => {
                                 </ul>
                             </li>
                         </ul>
-                        <p>[Screenshot: Applicants List]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763558269/Screenshot_2025-11-19_184737_l3cb5t.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
 
                         <h4>2.2. LinkedIn Review</h4>
                         <p>This is the first stage for new applicants. You review their LinkedIn profiles for initial suitability.</p>
@@ -294,7 +553,21 @@ const DocsPage = () => {
                             <p><strong>Upon Approval:</strong> Applicant's status changes to <strong>"Profile Approved"</strong>, and an email is automatically sent inviting them to complete the <strong>"Skills Assessment"</strong>. Their status then immediately moves to <strong>"Skills Assessment Sent"</strong>.</p>
                             <p><strong>Upon Rejection:</strong> Applicant's status changes to <strong>"Profile Rejected"</strong>, and an email is automatically sent informing them of the rejection with the provided reason.</p>
                         </InfoBox>
-                        <p>[Screenshot: LinkedIn Review Page]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763558404/Screenshot_2025-11-19_184920_gxjpjo.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
 
                         <h4>2.3. Skill Categorization</h4>
                         <p>This stage focuses on validating and formalizing the technical domains of applicants who have completed their skills assessment.</p>
@@ -307,7 +580,21 @@ const DocsPage = () => {
                         <InfoBox title="System Automation" icon={<Info />}>
                             <p>Upon "Confirm & Send Guidelines", the applicant's status changes to <strong>"Guidelines Sent"</strong>. An email is automatically triggered inviting them to complete the <strong>"Guidelines Questionnaire"</strong>.</p>
                         </InfoBox>
-                        <p>[Screenshot: Skill Categorization Page]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763558405/Screenshot_2025-11-19_184935_st9fhq.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
 
                         <h4>2.4. Guidelines Review</h4>
                         <p>The final step in the hiring funnel, where you assess the applicant's understanding of NxtWave's interviewing standards.</p>
@@ -330,7 +617,21 @@ const DocsPage = () => {
                             </ul>
                             <p><strong>Upon Rejection:</strong> The applicant's status is updated to <strong>"Guidelines Failed"</strong>.</p>
                         </InfoBox>
-                        <p>[Screenshot: Guidelines Review Page - Details Modal]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763558403/Screenshot_2025-11-19_184948_tc0hpy.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
                     </SubSection>
 
                     <SubSection id="admin-scheduling" title="3. Bookings & Scheduling">
@@ -352,8 +653,36 @@ const DocsPage = () => {
                         <InfoBox title="System Automation" icon={<Info />}>
                             <p>When a new request is created, an email notification is sent to each selected interviewer, directing them to their portal to provide availability.</p>
                         </InfoBox>
-                        <p>[Screenshot: Interviewer Booking Requests List]</p>
-
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763567131/Screenshot_2025-11-19_211515_zemvuo.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763567131/Screenshot_2025-11-19_211410_jngbma.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
                         <h4>3.2. Booking Slots (Slot Aggregation)</h4>
                         <p>This page consolidates all available time slots submitted by interviewers, making it easy to create public booking links for students.</p>
                         <ol>
@@ -366,7 +695,21 @@ const DocsPage = () => {
                             <p>Only "Submitted" slots (i.e., those provided by interviewers) are available for selection here.</p>
                             <p>Once a public link is created, the selected slots are reserved and cannot be part of another public link unless they are unselected from the current link (currently not supported). </p>
                         </WarningBox>
-                        <p>[Screenshot: Booking Slots - Slot Selection]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763578754/Screenshot_2025-11-20_002411_ow2adf.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
 
                         <h4>3.3. Manage Public Links (Student Bookings)</h4>
                         <p>An overview of all public booking links you've created, with tools to manage student access and invitations.</p>
@@ -386,8 +729,36 @@ const DocsPage = () => {
                             <p>When students are authorized via upload, NxtHire automatically pre-creates corresponding entries in the Main Sheet for future tracking, linking them to a unique <code>Interview ID</code>.</p>
                             <p>An email invitation is sent to each authorized student with their unique booking link.</p>
                         </InfoBox>
-                        <p>[Screenshot: Manage Public Links List]</p>
-                        <p>[Screenshot: Authorize Students Page - Upload/Paste]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763578741/Screenshot_2025-11-20_002424_vf71tp.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763578739/Screenshot_2025-11-20_002605_ojugcn.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
 
                         <h4>3.4. Confirmed Slots</h4>
                         <p>This is your pipeline for all interviews that students have either booked or are still pending booking. It's the central hub for preparing and initiating scheduled interviews.</p>
@@ -418,8 +789,36 @@ const DocsPage = () => {
                         <WarningBox title="Meet Link Generation" icon={<AlertCircle />}>
                             <p>To successfully generate a Google Meet link, ensure that the <strong>Student Email</strong>, <strong>Interviewer Email</strong>, and <strong>Host Email</strong> fields are populated, along with the <strong>Event Title</strong>.</p>
                         </WarningBox>
-                        <p>[Screenshot: Confirmed Slots - Confirmed Bookings Tab]</p>
-                        <p>[Screenshot: Confirmed Slots - Pending Invitations Tab with Manual Booking Controls]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763578712/Screenshot_2025-11-20_002629_jgvezb.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763578711/Screenshot_2025-11-20_002646_kv6dfa.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
                     </SubSection>
 
                     <SubSection id="admin-data" title="4. Core Data Management">
@@ -454,7 +853,21 @@ const DocsPage = () => {
                         <WarningBox title="Reload Recording Links" icon={<AlertCircle />}>
                             <p>The "Reload" button for recording/transcript links checks recent Google Calendar events for attachments. It will <strong>overwrite existing empty fields</strong> but typically won't overwrite already populated links unless Google API indicates a new or updated attachment for that specific meeting link.</p>
                         </WarningBox>
-                        <p>[Screenshot: Main Sheet Table]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579119/Screenshot_2025-11-20_003205_opuq2z.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
 
                         <h4>4.2. Interviewer Management</h4>
                         <p>A central place to manage all onboarded interviewers, their profiles, and statuses.</p>
@@ -474,7 +887,21 @@ const DocsPage = () => {
                         <InfoBox title="Probation to Active Transition" icon={<Info />}>
                             <p>The system flags interviewers on probation who have completed 5+ interviews in the dashboard. An admin must then manually send the "Probation Completion" email and/or update their status to "Active".</p>
                         </InfoBox>
-                        <p>[Screenshot: Interviewer Management Table]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579117/Screenshot_2025-11-20_003253_hfyplq.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
 
                         <h4>4.3. User Management</h4>
                         <p>Manage access and details for all user accounts (Admins and Interviewers) within the NxtHire platform.</p>
@@ -488,7 +915,21 @@ const DocsPage = () => {
                                 </ul>
                             </li>
                         </ul>
-                        <p>[Screenshot: User Management Table]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579116/Screenshot_2025-11-20_003310_xz9usm.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
                     </SubSection>
                     
                     <SubSection id="admin-finance" title="5. System & Finance">
@@ -516,7 +957,21 @@ const DocsPage = () => {
                         <WarningBox title="Domain Deletion" icon={<AlertCircle />}>
                             <p>Deleting a domain will also permanently delete its associated evaluation sheet configuration. This action cannot be undone.</p>
                         </WarningBox>
-                        <p>[Screenshot: Evaluation Setup - Domain Fields Tab]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579116/Screenshot_2025-11-20_003342_twirib.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
 
                         <h4>5.2. Domain Evaluation</h4>
                         <p>A powerful data review tool allowing you to analyze historical interviewer evaluation data in a structured, spreadsheet-like format.</p>
@@ -527,7 +982,36 @@ const DocsPage = () => {
                             <li><strong>Filters & Search:</strong> Filter by interview date, status, or search by candidate/interviewer details.</li>
                             <li><strong>Export:</strong> Download the evaluation data (reflecting the current label/value display) to an Excel file.</li>
                         </ul>
-                        <p>[Screenshot: Domain Evaluation Page]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579115/Screenshot_2025-11-20_003401_gjaxuw.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579115/Screenshot_2025-11-20_003451_ohkini.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
 
                         <h4>5.3. Earnings Report</h4>
                         <p>A multi-tab page for managing interviewer payments, generating reports, and tracking payment statuses.</p>
@@ -550,8 +1034,36 @@ const DocsPage = () => {
                             <p>3. Admin can then send <strong>Invoice Mail</strong> for redemption.</p>
                             <p>4. After payment is disbursed, Admin sends <strong>Payment Received Confirmation</strong> email to interviewer.</p>
                         </InfoBox>
-                        <p>[Screenshot: Earnings Report - Payment Requests Tab]</p>
-                        <p>[Screenshot: Earnings Report - Payout Sheet Tab]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579494/Screenshot_2025-11-20_004022_uifice.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579491/Screenshot_2025-11-20_004031_phx6vg.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
                     </SubSection>
 
                     <SubSection id="admin-comms" title="6. Communication Center">
@@ -568,8 +1080,36 @@ const DocsPage = () => {
                         <WarningBox title="Placeholders & CSV Headers" icon={<AlertCircle />}>
                             <p>Ensure that the column headers in your uploaded CSV/XLSX file exactly match the placeholders you use in your email template (e.g., if template has <code>{"{{CandidateName}}"}</code>, your CSV needs a column named "CandidateName"). An "Email" column is always required.</p>
                         </WarningBox>
-                        <p>[Screenshot: Custom Email - Create/Edit Templates]</p>
-                        <p>[Screenshot: Custom Email - Send Emails with Preview]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579491/Screenshot_2025-11-20_004105_fu9j5q.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579490/Screenshot_2025-11-20_004118_yvng0x.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
                     </SubSection>
                 </>
             )},
@@ -589,7 +1129,21 @@ const DocsPage = () => {
                             </li>
                             <li><strong>Upcoming Interviews:</strong> A list of your next few scheduled interviews, showing the candidate, date, time, and status.</li>
                         </ul>
-                        <p>[Screenshot: Interviewer Dashboard]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579965/Screenshot_2025-11-20_004336_crhwhi.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
                     </SubSection>
 
                     <SubSection id="interviewer-profile" title="2. My Profile">
@@ -609,7 +1163,21 @@ const DocsPage = () => {
                         <WarningBox title="Profile Completeness" icon={<AlertCircle />}>
                             <p>Keeping your profile fully updated (especially bank details and skills) is crucial for receiving interview assignments and timely payments. Your profile completeness percentage is visible on your dashboard.</p>
                         </WarningBox>
-                        <p>[Screenshot: Interviewer Profile Page]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579964/Screenshot_2025-11-20_004354_pc93ds.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
                     </SubSection>
 
                     <SubSection id="interviewer-availability" title="3. Availability">
@@ -634,8 +1202,51 @@ const DocsPage = () => {
                         <InfoBox title="Timely Responses" icon={<Info />}>
                             <p>Responding promptly to availability requests helps the Admin schedule interviews efficiently and ensures you get assigned available slots.</p>
                         </InfoBox>
-                        <p>[Screenshot: Interviewer Availability Page - Requests List]</p>
-                        <p>[Screenshot: Provide Availability Form]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579962/Screenshot_2025-11-20_004414_rc4qx6.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579961/Screenshot_2025-11-20_004454_c1zb8n.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579960/Screenshot_2025-11-20_004509_la4prc.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
                     </SubSection>
 
                     <SubSection id="interviewer-evaluation" title="4. Scheduled Interviews">
@@ -658,7 +1269,21 @@ const DocsPage = () => {
                         <InfoBox title="Post-Interview Action" icon={<Info />}>
                             <p>After completing an interview, it is critical to update its status to "Completed" for accurate tracking and to ensure your earnings are calculated correctly.</p>
                         </InfoBox>
-                        <p>[Screenshot: Interviewer Scheduled Interviews Calendar]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579958/Screenshot_2025-11-20_004536_mp3srb.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
                     </SubSection>
 
                     <SubSection id="interviewer-performance" title="5. Domain Evaluation & Payment History">
@@ -670,7 +1295,51 @@ const DocsPage = () => {
                             <li><strong>Data View:</strong> A table displays all your past evaluations for that domain, showing the candidate, interview details, and the scores/remarks you provided for each parameter.</li>
                             <li><strong>Purpose:</strong> Use this to analyze your consistency in evaluations, identify areas of focus, and ensure accurate record-keeping of your contributions.</li>
                         </ul>
-                        <p>[Screenshot: Interviewer Domain Evaluation Page]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579957/Screenshot_2025-11-20_004557_hgdtpu.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579954/Screenshot_2025-11-20_004650_ppxj1w.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579953/Screenshot_2025-11-20_004701_efpgzi.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
 
                         <h4>5.2. Payment History</h4>
                         <p>A transparent record of all your past earnings from completed interviews.</p>
@@ -679,7 +1348,21 @@ const DocsPage = () => {
                             <li><strong>Summary:</strong> View your total interviews completed and total amount earned for the selected period.</li>
                             <li><strong>Breakdown:</strong> See a detailed breakdown of your earnings by domain, including how many interviews you completed for each and the corresponding amount.</li>
                         </ul>
-                        <p>[Screenshot: Interviewer Payment History Page]</p>
+                        <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763579874/Screenshot_2025-11-20_004725_wktcls.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
                     </SubSection>
                 </>
             )},
@@ -692,7 +1375,21 @@ const DocsPage = () => {
                         <li><strong>Fields:</strong> Email Address, Password.</li>
                         <li><strong>Features:</strong> "Remember me" option, "Forgot password?" link.</li>
                     </ul>
-                    <p>[Screenshot: Login Page]</p>
+                    <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763580267/Screenshot_2025-11-20_005315_opoidj.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
                     <h4>Forgot/Reset Password</h4>
                     <p>A standard workflow for users who have forgotten their password.</p>
                     <ol>
@@ -704,8 +1401,51 @@ const DocsPage = () => {
                     <InfoBox title="Security Best Practices" icon={<Info />}>
                         <p>Always use strong, unique passwords. Avoid reusing passwords across different platforms.</p>
                     </InfoBox>
-                    <p>[Screenshot: Forgot Password Page]</p>
-                    <p>[Screenshot: Reset Password Page]</p>
+                    <iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763580267/Screenshot_2025-11-20_005322_qujfcw.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763580266/Screenshot_2025-11-20_005344_b8sdfd.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
+<iframe
+  width="900"
+  height="500"
+  style={{ border: 0 }}
+  srcDoc={`
+    <html>
+      <body style='margin:0;padding:0;overflow:hidden;'>
+        <img 
+          src='https://res.cloudinary.com/dg8n2jeur/image/upload/v1763580265/Screenshot_2025-11-20_005352_fg4bqd.png'
+          style='width:100%;height:100%;object-fit:cover;'
+        />
+      </body>
+    </html>
+  `}
+/>
                 </>
             )},
             { id: 'support', title: 'Troubleshooting & Support', icon: <LifeBuoy />, level: 1, content: (
@@ -719,17 +1459,6 @@ const DocsPage = () => {
                         <p><strong>I need to change my bank details.</strong><br/>Navigate to "My Profile" and then the "Bank Information" tab to update your details. Ensure they are correct for timely payments.</p>
                     </InfoBox>
                     <p>For any technical issues or questions not covered here, please contact our support team at <a href="mailto:interviewercommunity@nxtwave.in" className="font-semibold text-blue-600">interviewercommunity@nxtwave.in</a>.</p>
-                </>
-            )},
-            { id: 'accessibility', title: 'Accessibility', icon: <Accessibility />, level: 1, content: (
-                <>
-                    <p>We are committed to making NxtHire accessible to all users. Our platform is designed with the following principles in mind:</p>
-                    <ul>
-                        <li><strong>Keyboard Navigation:</strong> The application can be navigated using a keyboard for all interactive elements.</li>
-                        <li><strong>Semantic HTML:</strong> We use appropriate HTML elements to ensure screen readers can interpret the content correctly.</li>
-                        <li><strong>Contrast Ratios:</strong> We strive to meet WCAG AA contrast ratios for text and UI elements to ensure readability for users with visual impairments.</li>
-                    </ul>
-                    <p>If you encounter any accessibility barriers or have suggestions for improvements, please contact us so we can enhance the user experience for everyone.</p>
                 </>
             )}
         ],
