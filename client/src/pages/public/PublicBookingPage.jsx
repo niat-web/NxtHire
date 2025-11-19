@@ -568,7 +568,7 @@ const ConfirmationStep = ({ step, bookingDetails }) => (
         {step === 'already_booked' ? 'Booking Exists' : 'Interview Scheduled!'}
       </h2>
       <p className="text-base text-gray-600">
-        A meeting link and confirmation details have been sent to your email.
+        A meeting link and confirmation details have been sent to your email shortly.
       </p>
       
       {bookingDetails && (
