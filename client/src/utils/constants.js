@@ -31,6 +31,7 @@ export const DOMAINS = [
   { value: 'PYTHON', label: 'PYTHON' },
   { value: 'DA', label: 'DA' },
   { value: 'QA', label: 'QA' },
+  { value: 'DSA', label: 'DSA' },
   { value: 'Other', label: 'Other' }
 ];
 
