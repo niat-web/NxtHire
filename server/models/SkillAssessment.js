@@ -43,7 +43,8 @@ const SkillAssessmentSchema = new mongoose.Schema({
       'JAVA', 
       'PYTHON', 
       'DA', 
-      'QA', 
+      'QA',
+      'DSA',
       'Other'
     ]
   }],
@@ -54,7 +55,8 @@ const SkillAssessmentSchema = new mongoose.Schema({
       'JAVA', 
       'PYTHON', 
       'DA', 
-      'QA', 
+      'QA',
+      'DSA',
       'Other'
     ]
   },
@@ -110,6 +112,8 @@ SkillAssessmentSchema.methods.detectDomain = function() {
     'PYTHON': ['python', 'django', 'flask', 'fastapi', 'python full stack'],
     'DA': ['sql', 'tableau', 'power bi', 'data analytics', 'data science', 'excel', 'data visualization', 'statistics'],
     'QA': ['testing', 'selenium', 'qa', 'quality assurance', 'junit', 'test automation', 'qa testing(selenium)']
+    'DSA': ['dsa', 'data structures', 'algorithms', 'c++', 'cpp', 'sorting', 'searching', 'graph', 'tree', 'dynamic programming', 'recursion'] 
+
   };
   
   // Count matches for each domain
