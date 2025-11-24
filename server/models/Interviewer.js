@@ -70,7 +70,8 @@ const InterviewerSchema = new mongoose.Schema({
       'JAVA', 
       'PYTHON', 
       'DA', 
-      'QA', 
+      'QA',
+      'DSA',
       'OTHER'
     ],
     required: true
