@@ -111,7 +111,7 @@ SkillAssessmentSchema.methods.detectDomain = function() {
     'JAVA': ['java', 'spring', 'hibernate', 'jsp', 'servlet', 'j2ee', 'spring boot', 'java full stack'],
     'PYTHON': ['python', 'django', 'flask', 'fastapi', 'python full stack'],
     'DA': ['sql', 'tableau', 'power bi', 'data analytics', 'data science', 'excel', 'data visualization', 'statistics'],
-    'QA': ['testing', 'selenium', 'qa', 'quality assurance', 'junit', 'test automation', 'qa testing(selenium)']
+    'QA': ['testing', 'selenium', 'qa', 'quality assurance', 'junit', 'test automation', 'qa testing(selenium)'],
     'DSA': ['dsa', 'data structures', 'algorithms', 'c++', 'cpp', 'sorting', 'searching', 'graph', 'tree', 'dynamic programming', 'recursion'] 
 
   };
