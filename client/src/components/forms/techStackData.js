@@ -187,4 +187,19 @@ export const techStacks = [
             { label: 'API Testing (Postman)', value: 'Postman' },
         ]
     },
+    {
+        id: 15, // Ensure this ID is unique (increment the last one)
+        name: 'Data Structures & Algorithms', // <--- ADD THIS OBJECT
+        subSkills: [
+            { label: 'Time & Space Complexity', value: 'Time & Space Complexity' },
+            { label: 'Arrays & Strings', value: 'Arrays & Strings' },
+            { label: 'Linked Lists', value: 'Linked Lists' },
+            { label: 'Stacks & Queues', value: 'Stacks & Queues' },
+            { label: 'Recursion & Backtracking', value: 'Recursion & Backtracking' },
+            { label: 'Trees & Graphs', value: 'Trees & Graphs' },
+            { label: 'Dynamic Programming', value: 'Dynamic Programming' },
+            { label: 'Sorting & Searching Algorithms', value: 'Sorting & Searching' },
+            { label: 'C++ STL / Java Collections', value: 'STL/Collections' },
+        ]
+    },
 ];
