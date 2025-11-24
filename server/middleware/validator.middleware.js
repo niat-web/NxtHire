@@ -85,7 +85,7 @@ const schemas = {
   skillCategorization: Joi.object({
     domains: Joi.array().items(
         Joi.string().valid(
-            'MERN', 'JAVA', 'PYTHON', 'DA', 'QA', 'Other'
+            'MERN', 'JAVA', 'PYTHON', 'DA', 'QA', 'DSA', 'Other'
         )
     ).min(1).required(),
     notes: Joi.string().allow('', null)
