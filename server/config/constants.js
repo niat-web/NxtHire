@@ -62,6 +62,7 @@ const DOMAINS = [
   'PYTHON',
   'DA',
   'QA',
+  'DSA',
   'OTHER'
 ];
 
