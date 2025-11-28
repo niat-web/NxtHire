@@ -1,453 +1,97 @@
-// import React, { useState, useEffect, useCallback, useMemo } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import { FiEye, FiInfo, FiLink, FiUsers, FiClipboard, FiSearch, FiChevronDown, FiPlus, FiCheckCircle, FiClock } from 'react-icons/fi';
-// import { getPublicBookings } from '@/api/admin.api';
-// import { useAlert } from '@/hooks/useAlert';
-// import { formatDateTime } from '@/utils/formatters';
-// import { motion, AnimatePresence } from 'framer-motion';
-
-
-// const Header = ({ onSearch, onSortChange, onAddNew, totalLinks, sortOption, creatorOptions, onCreatorChange, creatorFilter }) => (
-//     <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 border-b border-gray-200 bg-white">
-//         <div>
-//             <h1 className="text-xl font-bold text-gray-800">Manage Public Links</h1>
-//             <p className="text-sm text-gray-500">{totalLinks} links found</p>
-//         </div>
-//         <div className="flex items-center gap-2 flex-wrap">
-//             <div className="relative w-full md:w-auto">
-//                 <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-//                 <input
-//                     type="text"
-//                     onChange={onSearch}
-//                     placeholder="Search by Public ID..."
-//                     className="w-full md:w-48 pl-9 pr-3 py-2 border border-gray-300 rounded-md text-sm"
-//                 />
-//             </div>
-
-//             <div className="relative w-full md:w-auto">
-//                 <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-//                 <select
-//                     value={creatorFilter}
-//                     onChange={onCreatorChange}
-//                     className="w-full md:w-48 appearance-none pl-3 pr-8 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-//                 >
-//                     <option value="">All Creators</option>
-//                     {creatorOptions.map(creator => (
-//                         <option key={creator.value} value={creator.value}>{creator.label}</option>
-//                     ))}
-//                 </select>
-//             </div>
-            
-//             <div className="relative w-full md:w-auto">
-//                 <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-//                 <select
-//                     value={sortOption}
-//                     onChange={onSortChange}
-//                     className="w-full md:w-48 appearance-none pl-3 pr-8 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-//                 >
-//                     <option value="newest">Newest First</option>
-//                     <option value="oldest">Oldest First</option>
-//                     <option value="most_students">Most Students</option>
-//                     <option value="fewest_students">Fewest Students</option>
-//                 </select>
-//             </div>
-
-//              <button onClick={onAddNew} className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors">
-//                 <FiPlus size={16} /> New Link
-//             </button>
-//         </div>
-//     </div>
-// );
-
-
-// const Loader = () => (
-//     <div className="text-center py-20 text-gray-500">
-//         <div className="w-8 h-8 mx-auto border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
-//         <span className="mt-4 block">Loading Links...</span>
-//     </div>
-// );
-
-// const EmptyState = ({ message, onAction, actionText }) => (
-//     <div className="text-center py-20 bg-white rounded-lg border border-dashed mt-4">
-//         <FiLink className="mx-auto h-12 w-12 text-gray-300 mb-4" />
-//         <h3 className="font-semibold text-gray-800">No Links Found</h3>
-//         <p className="text-sm text-gray-500 mt-1">{message}</p>
-//         {onAction && actionText && (
-//              <button onClick={onAction} className="mt-6 flex items-center justify-center gap-2 mx-auto px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors">
-//                 <FiPlus size={16} /> {actionText}
-//             </button>
-//         )}
-//     </div>
-// );
-
-// const StatusBreakdown = ({ booked, pending }) => (
-//     <div className="flex items-center gap-4">
-//         <div className="flex items-center gap-1.5" title={`${booked} Students have booked`}>
-//             <FiCheckCircle className="h-4 w-4 text-green-500" />
-//             <span className="text-sm font-semibold text-gray-700">{booked}</span>
-//         </div>
-//         <div className="flex items-center gap-1.5" title={`${pending} Students are pending`}>
-//             <FiClock className="h-4 w-4 text-yellow-500" />
-//             <span className="text-sm font-semibold text-gray-700">{pending}</span>
-//         </div>
-//     </div>
-// );
-
-// const LinkRow = ({ booking, onAuthorize, onTrack, onCopy }) => {
-//     const uniqueInterviewers = useMemo(() => [
-//         ...new Set(
-//             booking.interviewerSlots
-//                 .map(slot => slot.interviewer?.user ? `${slot.interviewer.user.firstName} ${slot.interviewer.user.lastName}`.trim() : 'Unknown')
-//                 .filter(Boolean)
-//         )
-//     ], [booking.interviewerSlots]);
-
-//     const url = `${window.location.origin}/book/${booking.publicId}`;
-//     const creatorName = booking.createdBy ? `${booking.createdBy.firstName} ${booking.createdBy.lastName || ''}`.trim() : 'N/A';
-
-//     return (
-//         <motion.div
-//             layout
-//             initial={{ opacity: 0, y: 10 }}
-//             animate={{ opacity: 1, y: 0 }}
-//             exit={{ opacity: 0 }}
-//             transition={{ duration: 0.3 }}
-//             className="grid grid-cols-12 gap-x-4 gap-y-2 items-center bg-white p-4 rounded-xl border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all duration-300"
-//         >
-//             <div className="col-span-12 md:col-span-2">
-//                 <p className="text-sm text-gray-800 font-medium whitespace-nowrap">{formatDateTime(booking.createdAt)}</p>
-//                 <p className="text-xs text-gray-500 truncate" title={`Created by ${creatorName}`}>
-//                     by {creatorName}
-//                 </p>
-//             </div>
-            
-//             <div className="col-span-12 md:col-span-2">
-//                  <div className="flex items-center gap-2 group">
-//                     <a href={url} target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-600 hover:underline font-mono text-xs">{booking.publicId}</a>
-//                     <button onClick={() => onCopy(url)} title="Copy link">
-//                         <FiClipboard className="h-4 w-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
-//                     </button>
-//                 </div>
-//             </div>
-
-//             <div className="col-span-12 md:col-span-3 flex items-center gap-6">
-//                 <div className="relative group flex items-center gap-2">
-//                     <span className="font-medium text-sm text-gray-800">{uniqueInterviewers.length}</span>
-//                     <span className="text-sm text-gray-600">Assigned</span>
-//                     {uniqueInterviewers.length > 0 && <FiInfo className="text-gray-400 cursor-pointer"/>}
-                    
-//                     <div className="absolute left-0 bottom-full mb-2 w-max max-w-xs p-2 bg-gray-800 text-white text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
-//                         <ul className="list-disc list-inside mt-1">
-//                             {uniqueInterviewers.map((name, index) => <li key={index}>{name}</li>)}
-//                         </ul>
-//                     </div>
-//                 </div>
-//                 <div className="flex items-center gap-2">
-//                     <span className="font-medium text-sm text-gray-800">{booking.allowedStudents?.length || 0}</span>
-//                     <span className="text-sm text-gray-600">Students</span>
-//                 </div>
-//             </div>
-
-//             <div className="col-span-6 md:col-span-2">
-//                  <StatusBreakdown booked={booking.bookedCount} pending={booking.pendingCount} />
-//             </div>
-
-//             <div className="col-span-6 md:col-span-3 flex items-center justify-end gap-2">
-//                  <button onClick={onTrack} className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 rounded-lg transition-colors">
-//                      <FiEye size={14}/> Track
-//                  </button>
-//                  <button onClick={onAuthorize} className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors">
-//                     <FiUsers size={14} />
-//                 </button>
-//             </div>
-//         </motion.div>
-//     );
-// };
-
-// const StudentBookings = () => {
-//     const { showSuccess, showError } = useAlert();
-//     const navigate = useNavigate();
-//     const [loading, setLoading] = useState(true);
-//     const [publicBookings, setPublicBookings] = useState([]);
-//     const [searchTerm, setSearchTerm] = useState('');
-//     const [sortOption, setSortOption] = useState('newest');
-//     const [creatorFilter, setCreatorFilter] = useState('');
-
-//     const fetchPublicBookings = useCallback(async () => {
-//         setLoading(true);
-//         try {
-//             const response = await getPublicBookings();
-//             setPublicBookings(response.data.data);
-//         } catch (err) {
-//             showError("Failed to fetch public booking links.");
-//         } finally {
-//             setLoading(false);
-//         }
-//     }, [showError]);
-    
-//     useEffect(() => {
-//         fetchPublicBookings();
-//     }, [fetchPublicBookings]);
-
-//     const creatorOptions = useMemo(() => {
-//         const creators = new Map();
-//         publicBookings.forEach(booking => {
-//             if (booking.createdBy) {
-//                 const name = `${booking.createdBy.firstName} ${booking.createdBy.lastName || ''}`.trim();
-//                 creators.set(booking.createdBy._id, name);
-//             }
-//         });
-//         return Array.from(creators, ([value, label]) => ({ value, label }));
-//     }, [publicBookings]);
-    
-//     const filteredAndSortedBookings = useMemo(() => {
-//         let items = [...publicBookings];
-
-//         if (searchTerm) {
-//             items = items.filter(b => b.publicId.toLowerCase().includes(searchTerm.toLowerCase()));
-//         }
-        
-//         if (creatorFilter) {
-//             items = items.filter(b => b.createdBy?._id === creatorFilter);
-//         }
-
-//         switch (sortOption) {
-//             case 'oldest':
-//                 items.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-//                 break;
-//             case 'most_students':
-//                 items.sort((a, b) => (b.allowedStudents?.length || 0) - (a.allowedStudents?.length || 0));
-//                 break;
-//             case 'fewest_students':
-//                 items.sort((a, b) => (a.allowedStudents?.length || 0) - (b.allowedStudents?.length || 0));
-//                 break;
-//             case 'newest':
-//             default:
-//                 items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-//         }
-
-//         return items;
-//     }, [publicBookings, searchTerm, sortOption, creatorFilter]);
-
-
-//     return (
-//         <div className="h-full w-full flex flex-col bg-gray-50">
-//             <Header
-//                 onSearch={(e) => setSearchTerm(e.target.value)}
-//                 onSortChange={(e) => setSortOption(e.target.value)}
-//                 onAddNew={() => navigate('/admin/bookings/booking-slots')}
-//                 totalLinks={filteredAndSortedBookings.length}
-//                 sortOption={sortOption}
-//                 creatorOptions={creatorOptions}
-//                 creatorFilter={creatorFilter}
-//                 onCreatorChange={(e) => setCreatorFilter(e.target.value)}
-//             />
-
-//             <div className="flex-grow p-4 md:p-6 overflow-y-auto">
-//                 {loading ? (
-//                     <Loader />
-//                 ) : (
-//                     <>
-//                         <div className="hidden md:grid grid-cols-12 gap-x-4 px-4 pb-2 border-b border-gray-200">
-//                             <div className="col-span-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Created</div>
-//                             <div className="col-span-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Public Link</div>
-//                             <div className="col-span-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Details</div>
-//                             <div className="col-span-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</div>
-//                             <div className="col-span-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Actions</div>
-//                         </div>
-
-//                         {filteredAndSortedBookings.length > 0 ? (
-//                             <div className="space-y-3 mt-3">
-//                                 <AnimatePresence>
-//                                     {filteredAndSortedBookings.map(booking => (
-//                                         <LinkRow
-//                                             key={booking._id} 
-//                                             booking={booking} 
-//                                             onAuthorize={() => navigate(`/admin/public-bookings/${booking._id}/authorize`)} 
-//                                             onTrack={() => navigate(`/admin/public-bookings/${booking._id}/tracking`)}
-//                                             onCopy={(url) => {
-//                                                 navigator.clipboard.writeText(url);
-//                                                 showSuccess("Public link copied to clipboard!");
-//                                             }}
-//                                         />
-//                                     ))}
-//                                 </AnimatePresence>
-//                             </div>
-//                         ) : (
-//                             <EmptyState message="No links match your search or filters." />
-//                         )}
-//                     </>
-//                 )}
-//             </div>
-//         </div>
-//     );
-// };
-
-// export default StudentBookings;
-
-
+// client/src/pages/admin/StudentBookings.jsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiEye, FiInfo, FiLink, FiUsers, FiClipboard, FiSearch, FiChevronDown, FiPlus, FiCheckCircle, FiClock, FiTrash2 } from 'react-icons/fi';
+import {
+    FiEye,
+    FiInfo,
+    FiLink,
+    FiUsers,
+    FiClipboard,
+    FiSearch,
+    FiChevronDown,
+    FiPlus,
+    FiCheckCircle,
+    FiClock,
+    FiTrash2,
+    FiCalendar,
+    FiFilter,
+    FiUser
+} from 'react-icons/fi';
 import { getPublicBookings, deletePublicBookingLink } from '@/api/admin.api';
 import { useAlert } from '@/hooks/useAlert';
 import { formatDateTime } from '@/utils/formatters';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 
-const Header = ({ onSearch, onSortChange, onAddNew, totalLinks, sortOption, creatorOptions, onCreatorChange, creatorFilter }) => (
-    <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 border-b border-gray-200 bg-white">
-        <div>
-            <h1 className="text-xl font-bold text-gray-800">Manage Public Links</h1>
-            <p className="text-sm text-gray-500">{totalLinks} links found</p>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-            <div className="relative w-full md:w-auto">
-                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                <input
-                    type="text"
-                    onChange={onSearch}
-                    placeholder="Search by Public ID..."
-                    className="w-full md:w-48 pl-9 pr-3 py-2 border border-gray-300 rounded-md text-sm"
-                />
-            </div>
+// ---------- Reusable Button (Same as AuthorizeStudentsPage for consistency) ----------
+const LocalButton = ({
+    children,
+    onClick,
+    type = 'button',
+    isLoading = false,
+    variant = 'primary',
+    icon: Icon,
+    disabled = false,
+    size = 'md',
+    className = '',
+    title = '',
+}) => {
+    const base =
+        'inline-flex items-center justify-center font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]';
 
-            <div className="relative w-full md:w-auto">
-                <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                <select
-                    value={creatorFilter}
-                    onChange={onCreatorChange}
-                    className="w-full md:w-48 appearance-none pl-3 pr-8 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                    <option value="">All Creators</option>
-                    {creatorOptions.map(creator => (
-                        <option key={creator.value} value={creator.value}>{creator.label}</option>
-                    ))}
-                </select>
-            </div>
-            
-            <div className="relative w-full md:w-auto">
-                <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                <select
-                    value={sortOption}
-                    onChange={onSortChange}
-                    className="w-full md:w-48 appearance-none pl-3 pr-8 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                    <option value="most_students">Most Students</option>
-                    <option value="fewest_students">Fewest Students</option>
-                </select>
-            </div>
+    const sizes = {
+        xs: 'text-xs px-2 py-1 rounded-md',
+        sm: 'text-xs px-3 py-1.5 rounded-lg',
+        md: 'text-sm px-5 py-2.5 rounded-xl',
+        lg: 'text-base px-6 py-3 rounded-xl',
+        icon: 'p-2 rounded-lg',
+    };
 
-             <button onClick={onAddNew} className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors">
-                <FiPlus size={16} /> New Link
-            </button>
-        </div>
-    </div>
-);
-
-
-const Loader = () => (
-    <div className="text-center py-20 text-gray-500">
-        <div className="w-8 h-8 mx-auto border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
-        <span className="mt-4 block">Loading Links...</span>
-    </div>
-);
-
-const EmptyState = ({ message, onAction, actionText }) => (
-    <div className="text-center py-20 bg-white rounded-lg border border-dashed mt-4">
-        <FiLink className="mx-auto h-12 w-12 text-gray-300 mb-4" />
-        <h3 className="font-semibold text-gray-800">No Links Found</h3>
-        <p className="text-sm text-gray-500 mt-1">{message}</p>
-        {onAction && actionText && (
-             <button onClick={onAction} className="mt-6 flex items-center justify-center gap-2 mx-auto px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors">
-                <FiPlus size={16} /> {actionText}
-            </button>
-        )}
-    </div>
-);
-
-const StatusBreakdown = ({ booked, pending }) => (
-    <div className="flex items-center gap-4">
-        <div className="flex items-center gap-1.5" title={`${booked} Students have booked`}>
-            <FiCheckCircle className="h-4 w-4 text-green-500" />
-            <span className="text-sm font-semibold text-gray-700">{booked}</span>
-        </div>
-        <div className="flex items-center gap-1.5" title={`${pending} Students are pending`}>
-            <FiClock className="h-4 w-4 text-yellow-500" />
-            <span className="text-sm font-semibold text-gray-700">{pending}</span>
-        </div>
-    </div>
-);
-
-const LinkRow = ({ booking, onAuthorize, onTrack, onCopy, onDelete }) => {
-    const uniqueInterviewers = useMemo(() => [
-        ...new Set(
-            booking.interviewerSlots
-                .map(slot => slot.interviewer?.user ? `${slot.interviewer.user.firstName} ${slot.interviewer.user.lastName}`.trim() : 'Unknown')
-                .filter(Boolean)
-        )
-    ], [booking.interviewerSlots]);
-
-    const url = `${window.location.origin}/book/${booking.publicId}`;
-    const creatorName = booking.createdBy ? `${booking.createdBy.firstName} ${booking.createdBy.lastName || ''}`.trim() : 'N/A';
+    const variants = {
+        primary:
+            'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 hover:from-blue-700 hover:to-blue-800 border border-transparent',
+        outline:
+            'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 shadow-sm',
+        subtle:
+            'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-transparent',
+        danger:
+            'bg-white text-red-600 border border-red-200 hover:bg-red-50 hover:border-red-300 shadow-sm',
+        ghost:
+            'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+    };
 
     return (
-        <div
-            className="grid grid-cols-12 gap-x-4 gap-y-2 items-center bg-white p-4 rounded-xl border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all duration-300"
+        <button
+            type={type}
+            onClick={onClick}
+            disabled={isLoading || disabled}
+            className={`${base} ${sizes[size]} ${variants[variant]} ${className}`}
+            title={title}
         >
-            <div className="col-span-12 md:col-span-2">
-                <p className="text-sm text-gray-800 font-medium whitespace-nowrap">{formatDateTime(booking.createdAt)}</p>
-                <p className="text-xs text-gray-500 truncate" title={`Created by ${creatorName}`}>
-                    by {creatorName}
-                </p>
-            </div>
-            
-            <div className="col-span-12 md:col-span-2">
-                 <div className="flex items-center gap-2 group">
-                    <a href={url} target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-600 hover:underline font-mono text-xs">{booking.publicId}</a>
-                    <button onClick={() => onCopy(url)} title="Copy link">
-                        <FiClipboard className="h-4 w-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
-                    </button>
-                </div>
-            </div>
-
-            <div className="col-span-12 md:col-span-3 flex items-center gap-6">
-                <div className="relative group flex items-center gap-2">
-                    <span className="font-medium text-sm text-gray-800">{uniqueInterviewers.length}</span>
-                    <span className="text-sm text-gray-600">Assigned</span>
-                    {uniqueInterviewers.length > 0 && <FiInfo className="text-gray-400 cursor-pointer"/>}
-                    
-                    <div className="absolute left-0 bottom-full mb-2 w-max max-w-xs p-2 bg-gray-800 text-white text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
-                        <ul className="list-disc list-inside mt-1">
-                            {uniqueInterviewers.map((name, index) => <li key={index}>{name}</li>)}
-                        </ul>
-                    </div>
-                </div>
-                <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm text-gray-800">{booking.allowedStudents?.length || 0}</span>
-                    <span className="text-sm text-gray-600">Students</span>
-                </div>
-            </div>
-
-            <div className="col-span-6 md:col-span-2">
-                 <StatusBreakdown booked={booking.bookedCount} pending={booking.pendingCount} />
-            </div>
-
-            <div className="col-span-6 md:col-span-3 flex items-center justify-end gap-2">
-                 <button onClick={onTrack} className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 rounded-lg transition-colors">
-                     <FiEye size={14}/>
-                 </button>
-                 <button onClick={onAuthorize} className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors">
-                    <FiUsers size={14} />
-                </button>
-                <button onClick={onDelete} className="p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors" title="Delete Link">
-                    <FiTrash2 size={14}/>
-                </button>
-            </div>
-        </div>
+            {isLoading ? (
+                <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Processing...</span>
+                </>
+            ) : (
+                <>
+                    {Icon && <Icon className={`${children ? 'mr-2' : ''} ${size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'}`} />}
+                    {children}
+                </>
+            )}
+        </button>
     );
 };
+
+const StatusBadge = ({ count, icon: Icon, colorClass, label }) => (
+    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border ${colorClass}`}>
+        <Icon className="h-3.5 w-3.5" />
+        <span className="text-xs font-semibold">{count}</span>
+        <span className="text-xs opacity-80 hidden sm:inline">{label}</span>
+    </div>
+);
 
 const StudentBookings = () => {
     const { showSuccess, showError } = useAlert();
@@ -470,7 +114,7 @@ const StudentBookings = () => {
             setLoading(false);
         }
     }, [showError]);
-    
+
     useEffect(() => {
         fetchPublicBookings();
     }, [fetchPublicBookings]);
@@ -485,14 +129,14 @@ const StudentBookings = () => {
         });
         return Array.from(creators, ([value, label]) => ({ value, label }));
     }, [publicBookings]);
-    
+
     const filteredAndSortedBookings = useMemo(() => {
         let items = [...publicBookings];
 
         if (searchTerm) {
             items = items.filter(b => b.publicId.toLowerCase().includes(searchTerm.toLowerCase()));
         }
-        
+
         if (creatorFilter) {
             items = items.filter(b => b.createdBy?._id === creatorFilter);
         }
@@ -514,7 +158,7 @@ const StudentBookings = () => {
 
         return items;
     }, [publicBookings, searchTerm, sortOption, creatorFilter]);
-    
+
     const handleDeleteRequest = (id) => {
         setDeleteDialog({ isOpen: true, id });
     };
@@ -524,7 +168,7 @@ const StudentBookings = () => {
         try {
             await deletePublicBookingLink(deleteDialog.id);
             showSuccess('Public booking link deleted successfully!');
-            fetchPublicBookings(); // Re-fetch the data to update the list
+            fetchPublicBookings();
         } catch (err) {
             showError("Failed to delete the link.");
         } finally {
@@ -532,57 +176,250 @@ const StudentBookings = () => {
         }
     };
 
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-slate-50 p-8 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="h-12 w-12 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
+                    <p className="text-slate-500 font-medium animate-pulse">Loading links...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="h-full w-full flex flex-col bg-gray-50">
-            <Header
-                onSearch={(e) => setSearchTerm(e.target.value)}
-                onSortChange={(e) => setSortOption(e.target.value)}
-                onAddNew={() => navigate('/admin/bookings/booking-slots')}
-                totalLinks={filteredAndSortedBookings.length}
-                sortOption={sortOption}
-                creatorOptions={creatorOptions}
-                creatorFilter={creatorFilter}
-                onCreatorChange={(e) => setCreatorFilter(e.target.value)}
-            />
+        <div className="min-h-screen w-full flex flex-col bg-slate-50/50">
+            {/* Header */}
+            <div className="bg-white border-b border-slate-200 sticky top-0 z-30 px-6 py-4 shadow-sm">
+                <div className="max-w-[1600px] mx-auto w-full flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-xl font-bold text-slate-900">Manage Public Links</h1>
+                    </div>
+                    <LocalButton
+                        onClick={() => navigate('/admin/bookings/booking-slots')}
+                        icon={FiPlus}
+                        variant="primary"
+                        className="w-full sm:w-auto shadow-blue-600/20"
+                    >
+                        New Link
+                    </LocalButton>
+                </div>
+            </div>
 
-            <div className="flex-grow p-4 md:p-6 overflow-y-auto">
-                {loading ? (
-                    <Loader />
-                ) : (
-                    <>
-                        <div className="hidden md:grid grid-cols-12 gap-x-4 px-4 pb-2 border-b border-gray-200">
-                            <div className="col-span-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Created</div>
-                            <div className="col-span-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Public Link</div>
-                            <div className="col-span-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Details</div>
-                            <div className="col-span-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</div>
-                            <div className="col-span-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Actions</div>
+            {/* Content */}
+            <div className="flex-1 overflow-hidden">
+                <div className="h-full max-w-[1600px] mx-auto p-6">
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-full overflow-hidden">
+
+                        {/* Toolbar */}
+                        <div className="p-4 border-b border-slate-200 flex flex-col lg:flex-row items-center justify-between gap-4 bg-white">
+                            <div className="relative flex-1 w-full lg:max-w-md">
+                                <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                <input
+                                    type="text"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    placeholder="Search by Public ID..."
+                                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
+                                />
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+                                <div className="relative w-full sm:w-48">
+                                    <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                    <select
+                                        value={creatorFilter}
+                                        onChange={(e) => setCreatorFilter(e.target.value)}
+                                        className="w-full pl-9 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm appearance-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer"
+                                    >
+                                        <option value="">All Creators</option>
+                                        {creatorOptions.map(creator => (
+                                            <option key={creator.value} value={creator.value}>{creator.label}</option>
+                                        ))}
+                                    </select>
+                                    <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 h-4 w-4 pointer-events-none" />
+                                </div>
+
+                                <div className="relative w-full sm:w-48">
+                                    <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                    <select
+                                        value={sortOption}
+                                        onChange={(e) => setSortOption(e.target.value)}
+                                        className="w-full pl-9 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm appearance-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer"
+                                    >
+                                        <option value="newest">Newest First</option>
+                                        <option value="oldest">Oldest First</option>
+                                        <option value="most_students">Most Students</option>
+                                        <option value="fewest_students">Fewest Students</option>
+                                    </select>
+                                    <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 h-4 w-4 pointer-events-none" />
+                                </div>
+                            </div>
                         </div>
 
-                        {filteredAndSortedBookings.length > 0 ? (
-                            <div className="space-y-3 mt-3">
-                                {filteredAndSortedBookings.map(booking => (
-                                    <LinkRow
-                                        key={booking._id} 
-                                        booking={booking} 
-                                        onAuthorize={() => navigate(`/admin/public-bookings/${booking._id}/authorize`)} 
-                                        onTrack={() => navigate(`/admin/public-bookings/${booking._id}/tracking`)}
-                                        onCopy={(url) => {
-                                            navigator.clipboard.writeText(url);
-                                            showSuccess("Public link copied to clipboard!");
-                                        }}
-                                        onDelete={() => handleDeleteRequest(booking._id)}
-                                    />
-                                ))}
+                        {/* Table */}
+                        <div className="flex-1 overflow-auto relative">
+                            {filteredAndSortedBookings.length === 0 ? (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
+                                    <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                                        <FiLink className="h-8 w-8 text-slate-300" />
+                                    </div>
+                                    <h3 className="text-lg font-medium text-slate-900 mb-1">No links found</h3>
+                                    <p className="text-slate-500 max-w-xs mx-auto">
+                                        {publicBookings.length === 0
+                                            ? "Create your first public booking link to get started."
+                                            : "No links match your current search filters."}
+                                    </p>
+                                    {publicBookings.length === 0 && (
+                                        <LocalButton
+                                            onClick={() => navigate('/admin/bookings/booking-slots')}
+                                            icon={FiPlus}
+                                            variant="primary"
+                                            className="mt-6"
+                                        >
+                                            Create Link
+                                        </LocalButton>
+                                    )}
+                                </div>
+                            ) : (
+                                <table className="w-full text-left border-collapse">
+                                    <thead className="bg-slate-50 sticky top-0 z-10 shadow-sm">
+                                        <tr>
+                                            <th className="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Created</th>
+                                            <th className="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Public Link</th>
+                                            <th className="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Details</th>
+                                            <th className="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                                            <th className="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100">
+                                        {filteredAndSortedBookings.map((booking) => {
+                                            const uniqueInterviewers = [...new Set(
+                                                booking.interviewerSlots
+                                                    .map(slot => slot.interviewer?.user ? `${slot.interviewer.user.firstName} ${slot.interviewer.user.lastName}`.trim() : 'Unknown')
+                                                    .filter(Boolean)
+                                            )];
+                                            const url = `${window.location.origin}/book/${booking.publicId}`;
+                                            const creatorName = booking.createdBy ? `${booking.createdBy.firstName} ${booking.createdBy.lastName || ''}`.trim() : 'N/A';
+
+                                            return (
+                                                <tr key={booking._id} className="group hover:bg-slate-50 transition-colors">
+                                                    <td className="py-4 px-6">
+                                                        <div className="flex flex-col">
+                                                            <div className="flex items-center gap-2 text-sm font-medium text-slate-900">
+                                                                <FiCalendar className="text-slate-400 h-3.5 w-3.5" />
+                                                                {formatDateTime(booking.createdAt)}
+                                                            </div>
+                                                            <div className="text-xs text-slate-500 mt-1 pl-5.5">
+                                                                by {creatorName}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-4 px-6">
+                                                        <div className="flex items-center gap-2">
+                                                            <a
+                                                                href={url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="font-mono text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded hover:bg-blue-100 transition-colors"
+                                                            >
+                                                                {booking.publicId}
+                                                            </a>
+                                                            <button
+                                                                onClick={() => {
+                                                                    navigator.clipboard.writeText(url);
+                                                                    showSuccess("Public link copied!");
+                                                                }}
+                                                                className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                                                                title="Copy Link"
+                                                            >
+                                                                <FiClipboard className="h-4 w-4" />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-4 px-6">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="flex flex-col gap-1">
+                                                                <span className="text-xs text-slate-500 uppercase tracking-wide">Assigned</span>
+                                                                <div className="flex items-center gap-1.5 text-sm font-medium text-slate-700" title={uniqueInterviewers.join(', ')}>
+                                                                    <FiUsers className="h-4 w-4 text-slate-400" />
+                                                                    {uniqueInterviewers.length}
+                                                                </div>
+                                                            </div>
+                                                            <div className="w-px h-8 bg-slate-200" />
+                                                            <div className="flex flex-col gap-1">
+                                                                <span className="text-xs text-slate-500 uppercase tracking-wide">Students</span>
+                                                                <div className="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                                                                    <FiUsers className="h-4 w-4 text-slate-400" />
+                                                                    {booking.allowedStudents?.length || 0}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-4 px-6">
+                                                        <div className="flex flex-col gap-2">
+                                                            <StatusBadge
+                                                                count={booking.bookedCount}
+                                                                icon={FiCheckCircle}
+                                                                colorClass="bg-green-50 text-green-700 border-green-100"
+                                                                label="Booked"
+                                                            />
+                                                            <StatusBadge
+                                                                count={booking.pendingCount}
+                                                                icon={FiClock}
+                                                                colorClass="bg-yellow-50 text-yellow-700 border-yellow-100"
+                                                                label="Pending"
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-4 px-6 text-right">
+                                                        <div className="flex items-center justify-end gap-2">
+                                                            <LocalButton
+                                                                variant="outline"
+                                                                size="icon"
+                                                                onClick={() => navigate(`/admin/public-bookings/${booking._id}/tracking`)}
+                                                                title="Track Progress"
+                                                            >
+                                                                <FiEye className="h-4 w-4" />
+                                                            </LocalButton>
+                                                            <LocalButton
+                                                                variant="primary"
+                                                                size="icon"
+                                                                onClick={() => navigate(`/admin/public-bookings/${booking._id}/authorize`)}
+                                                                title="Authorize Students"
+                                                                className="shadow-none"
+                                                            >
+                                                                <FiUsers className="h-4 w-4" />
+                                                            </LocalButton>
+                                                            <LocalButton
+                                                                variant="danger"
+                                                                size="icon"
+                                                                onClick={() => handleDeleteRequest(booking._id)}
+                                                                title="Delete Link"
+                                                            >
+                                                                <FiTrash2 className="h-4 w-4" />
+                                                            </LocalButton>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+                            <div className="text-sm text-slate-500 font-medium">
+                                Showing {filteredAndSortedBookings.length} links
                             </div>
-                        ) : (
-                            <EmptyState message="No links match your search or filters." />
-                        )}
-                    </>
-                )}
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-            <ConfirmDialog 
+
+            <ConfirmDialog
                 isOpen={deleteDialog.isOpen}
                 onClose={() => setDeleteDialog({ isOpen: false, id: null })}
                 onConfirm={handleDeleteConfirm}
