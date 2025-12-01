@@ -49,7 +49,6 @@ const CustomEmailPage = () => {
                     <div className="p-2 bg-gray-100 rounded-lg">
                         <FiMail className="h-5 w-5 text-gray-600" />
                     </div>
-                    <h1 className="text-xl font-bold text-gray-900">Custom Email Center</h1>
                  </div>
                  
                  {/* Custom Tab Switcher */}
