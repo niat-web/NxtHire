@@ -1,877 +1,87 @@
-// // client/src/pages/admin/AdminDomainEvaluationPage.jsx
-// import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-// import { getDomains, getEvaluationDataForAdmin, getDomainEvaluationSummary } from '@/api/admin.api';
-// import { useAlert } from '@/hooks/useAlert';
-// import { formatDate } from '@/utils/formatters';
-// import { debounce } from '@/utils/helpers';
-// import Select from 'react-select';
-// import { FiSearch, FiExternalLink, FiDownload, FiX, FiFilter } from 'react-icons/fi';
-// import { saveAs } from 'file-saver';
-// import * as XLSX from 'xlsx';
-// import DatePicker from 'react-datepicker';
-// import "react-datepicker/dist/react-datepicker.css";
-// import { format } from 'date-fns';
-// import { MAIN_SHEET_INTERVIEW_STATUSES } from '@/utils/constants';
-
-
-// // --- Reusable Local Components ---
-// const LocalLoader = ({ text }) => ( <div className="h-full w-full flex items-center justify-center text-gray-500"><div className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div><span className="ml-4">{text}</span></div>);
-
-// const LocalButton = ({ children, onClick, variant = 'primary', className = '' }) => {
-//     const variantClasses = {
-//         primary: 'bg-blue-600 text-white hover:bg-blue-700',
-//         outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
-//     };
-//     return (
-//         <button onClick={onClick} className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-md shadow-sm transition-colors ${variantClasses[variant]} ${className}`}>
-//             {children}
-//         </button>
-//     );
-// };
-
-
-// const StatusBadge = ({ status }) => {
-//     const statusColors = {
-//         'Completed': 'bg-green-100 text-green-800',
-//         'Scheduled': 'bg-yellow-100 text-yellow-800',
-//         'InProgress': 'bg-blue-100 text-blue-800',
-//         'Cancelled': 'bg-red-100 text-red-800'
-//     };
-//     const colorClass = statusColors[status] || 'bg-gray-100 text-gray-800';
-//     return (
-//         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${colorClass}`}>
-//             {status || ''}
-//         </span>
-//     );
-// };
-
-// const RemarksModal = ({ isOpen, onClose, content }) => {
-//     if (!isOpen) return null;
-
-//     return (
-//         <div 
-//             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm transition-opacity" 
-//             onClick={onClose}
-//         >
-//             <div 
-//                 className="relative w-full max-w-lg bg-white rounded-lg shadow-xl" 
-//                 onClick={e => e.stopPropagation()}
-//             >
-//                 <div className="px-6 py-4 border-b flex justify-between items-center">
-//                     <h3 className="text-lg font-semibold text-gray-900">Interviewer Remarks</h3>
-//                     <button onClick={onClose} className="p-1 rounded-full text-gray-400 hover:bg-gray-200">
-//                         <FiX className="h-5 w-5"/>
-//                     </button>
-//                 </div>
-//                 <div className="p-6">
-//                     <p className="text-sm text-gray-700 whitespace-pre-wrap">{content}</p>
-//                 </div>
-//                 <div className="bg-gray-50 px-6 py-3 flex justify-end rounded-b-lg">
-//                     <button 
-//                         onClick={onClose}
-//                         className="px-4 py-2 text-sm font-medium rounded-md border border-gray-300 bg-white hover:bg-gray-50"
-//                     >
-//                         Close
-//                     </button>
-//                 </div>
-//             </div>
-//         </div>
-//     );
-// };
-
-
-// const AdminDomainEvaluationPage = () => {
-//     const { showError, showSuccess } = useAlert();
-//     const [loading, setLoading] = useState(true);
-//     const [domains, setDomains] = useState([]);
-//     const [selectedDomain, setSelectedDomain] = useState(null);
-//     const [search, setSearch] = useState('');
-//     const [summaryData, setSummaryData] = useState([]);
-//     const [evaluationData, setEvaluationData] = useState({ evaluationSheet: null, interviews: [] });
-//     const [remarksModal, setRemarksModal] = useState({ isOpen: false, content: '' });
-    
-//     // States for filtering
-//     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
-//     const [tempFilters, setTempFilters] = useState({ interviewDate: null, interviewStatus: '' });
-//     const [activeFilters, setActiveFilters] = useState({ interviewDate: null, interviewStatus: '' });
-//     const filterMenuRef = useRef(null);
-
-//     // Close filter menu on outside click
-//     useEffect(() => {
-//         const handleClickOutside = (event) => {
-//             if (filterMenuRef.current && !filterMenuRef.current.contains(event.target)) {
-//                 setIsFilterMenuOpen(false);
-//             }
-//         };
-//         document.addEventListener("mousedown", handleClickOutside);
-//         return () => { document.removeEventListener("mousedown", handleClickOutside); };
-//     }, []);
-
-//     useEffect(() => {
-//         getDomains()
-//             .then(res => setDomains(res.data.data.map(d => ({ value: d.name, label: d.name }))))
-//             .catch(() => showError('Failed to load domains.'));
-        
-//         getDomainEvaluationSummary()
-//             .then(res => setSummaryData(res.data.data))
-//             .catch(() => showError('Failed to load domain summary.'))
-//             .finally(() => setLoading(false));
-
-//     }, [showError]);
-    
-//     const fetchData = useCallback(async () => {
-//         if (!selectedDomain) {
-//             setEvaluationData({ evaluationSheet: null, interviews: [] });
-//             setLoading(false);
-//             return;
-//         }
-//         setLoading(true);
-//         try {
-//             const params = { domain: selectedDomain.value, search, ...activeFilters };
-//              if (activeFilters.interviewDate) {
-//                 params.interviewDate = format(activeFilters.interviewDate, 'yyyy-MM-dd');
-//             }
-//             const res = await getEvaluationDataForAdmin(params);
-//             setEvaluationData(res.data.data);
-//         } catch (err) {
-//             showError("Failed to fetch evaluation data for this domain.");
-//             setEvaluationData({ evaluationSheet: null, interviews: [] });
-//         } finally {
-//             setLoading(false);
-//         }
-//     }, [selectedDomain, search, activeFilters, showError]);
-
-//     useEffect(() => {
-//         const handler = debounce(fetchData, 300);
-//         if (selectedDomain) {
-//             handler();
-//         }
-//         return () => handler.cancel();
-//     }, [fetchData]);
-
-//     const handleApplyFilters = () => {
-//         setActiveFilters(tempFilters);
-//         setIsFilterMenuOpen(false);
-//     };
-
-//     const handleClearFilters = () => {
-//         setTempFilters({ interviewDate: null, interviewStatus: '' });
-//         setActiveFilters({ interviewDate: null, interviewStatus: '' });
-//         setIsFilterMenuOpen(false);
-//     };
-
-//     const isFilterActive = activeFilters.interviewDate || activeFilters.interviewStatus;
-    
-//     const openRemarksModal = useCallback((remarks) => {
-//         setRemarksModal({ isOpen: true, content: remarks });
-//     }, []);
-
-//     const closeRemarksModal = useCallback(() => {
-//         setRemarksModal({ isOpen: false, content: '' });
-//     }, []);
-
-//     const staticColumns = useMemo(() => [
-//         { key: 'techStack', title: 'Domain', minWidth: '150px' },
-//         { key: 'interviewId', title: 'Interview ID', minWidth: '120px' },
-//         { key: 'uid', title: 'Candidate UID', minWidth: '280px' },
-//         { key: 'candidateName', title: 'Candidate', minWidth: '180px' },
-//         { key: 'mobileNumber', title: 'Mobile', minWidth: '120px' },
-//         { key: 'mailId', title: 'Mail ID', minWidth: '220px' },
-//         { key: 'candidateResume', title: 'Resume', minWidth: '100px', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Link</a> : '' },
-//         { key: 'meetingLink', title: 'Meeting Link', minWidth: '250px', render: (row) => row.meetingLink ? <a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate block max-w-[250px]" title={row.meetingLink}>{row.meetingLink}</a> : '' },
-//         { key: 'interviewDate', title: 'Date', minWidth: '120px', render: (row) => formatDate(row.interviewDate)},
-//         { key: 'interviewTime', title: 'Time', minWidth: '110px' },
-//         { key: 'interviewDuration', title: 'Duration', minWidth: '100px' },
-//         { key: 'interviewStatus', title: 'Status', minWidth: '130px', render: (row) => <StatusBadge status={row.interviewStatus} /> },
-//         { 
-//             key: 'interviewerRemarks', 
-//             title: 'Interviewer Remarks', 
-//             minWidth: '250px', 
-//             render: (row) => {
-//                 const remarks = row.interviewerRemarks;
-//                 const charLimit = 50;
-//                 if (!remarks) { return <div className="p-1"></div>; }
-//                 if (remarks.length <= charLimit) { return <div className="p-1 truncate" title={remarks}>{remarks}</div>; }
-//                 return (<div className="p-1 flex items-center justify-start overflow-hidden"><span className="truncate" title={remarks}>{remarks.substring(0, charLimit)}...</span><button onClick={() => openRemarksModal(remarks)} className="ml-1 text-blue-600 hover:underline text-xs font-semibold flex-shrink-0">more</button></div>);
-//             } 
-//         },
-//     ], [openRemarksModal]);
-
-//     const handleExport = () => {
-//         if (!evaluationData.interviews || evaluationData.interviews.length === 0) {
-//             showError("No data to export.");
-//             return;
-//         }
-//         const dataToExport = evaluationData.interviews.map(interview => {
-//             let rowData = {};
-//             staticColumns.forEach(col => {
-//                 let value = interview[col.key];
-//                 if (col.key === 'interviewDate' && value) { value = formatDate(value); }
-//                 if (col.key === 'interviewerRemarks') { rowData[col.title] = interview.interviewerRemarks || ''; }
-//                 else if (col.render && typeof value !== 'string' && value !== null) { rowData[col.title] = interview[col.key] || ''; }
-//                 else { rowData[col.title] = value || ''; }
-//             });
-//             (evaluationData.evaluationSheet?.columnGroups || []).forEach(group => {
-//                 group.columns.forEach(col => {
-//                     const headerTitle = col.header ? `${group.title} - ${col.header}` : group.title;
-//                     const headerKey = col.header || group.title;
-//                     rowData[headerTitle] = interview.evaluationData?.[headerKey] || '';
-//                 });
-//             });
-//             return rowData;
-//         });
-//         const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-//         const workbook = XLSX.utils.book_new();
-//         XLSX.utils.book_append_sheet(workbook, worksheet, 'Evaluations');
-//         const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-//         const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
-//         const fileName = `Evaluation_Data_${selectedDomain.label}_${new Date().toISOString().slice(0, 10)}.xlsx`;
-//         saveAs(blob, fileName);
-//         showSuccess("Export started successfully.");
-//     };
-    
-//     const selectStyles = { 
-//         menuPortal: base => ({ ...base, zIndex: 9999 }),
-//         control: base => ({ ...base, fontSize: '0.875rem' }),
-//     };
-
-//     return (
-//         <div className="h-full flex flex-col bg-white">
-//             <div className="p-4 border-b flex flex-col sm:flex-row items-center justify-between gap-4">
-//                  <h1 className="text-xl font-bold text-gray-800">
-//                     {selectedDomain ? `Domain Evaluation: ${selectedDomain.label}` : 'Domain Evaluation Summary'}
-//                  </h1>
-//                  <div className="flex items-center gap-2">
-//                     {selectedDomain && (
-//                         <div className="relative w-full sm:w-64">
-//                              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"/>
-//                             <input
-//                                 type="text"
-//                                 value={search}
-//                                 onChange={(e) => setSearch(e.target.value)}
-//                                 placeholder="Search records..."
-//                                 className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-//                             />
-//                         </div>
-//                     )}
-//                     {selectedDomain && (
-//                         <div className="relative" ref={filterMenuRef}>
-//                             <button onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-//                                 <FiFilter className="h-4 w-4" /> Filter
-//                                 {isFilterActive && <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-2 p-1 rounded-full hover:bg-gray-200 -mr-1"><FiX className="h-3 w-3 text-gray-500" /></span>}
-//                             </button>
-//                             {isFilterMenuOpen && (
-//                                 <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-md shadow-lg border z-20 p-4">
-//                                     <div className="space-y-4">
-//                                         <div><label className="block text-sm font-medium text-gray-700 mb-1">Interview Date</label><DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(prev => ({ ...prev, interviewDate: date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-300 rounded-md text-sm"/></div>
-//                                         <div><label className="block text-sm font-medium text-gray-700 mb-1">Interview Status</label><select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(prev => ({...prev, interviewStatus: e.target.value}))} className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm bg-white"><option value="">All Statuses</option>{MAIN_SHEET_INTERVIEW_STATUSES.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}</select></div>
-//                                     </div>
-//                                     <div className="mt-4 pt-4 border-t flex justify-end gap-2">
-//                                         <LocalButton variant="outline" onClick={handleClearFilters}>Clear</LocalButton>
-//                                         <LocalButton variant="primary" onClick={handleApplyFilters}>Apply</LocalButton>
-//                                     </div>
-//                                 </div>
-//                             )}
-//                         </div>
-//                     )}
-//                     <Select
-//                         options={domains}
-//                         value={selectedDomain}
-//                         onChange={setSelectedDomain}
-//                         placeholder="Select a Domain to View..."
-//                         className="w-full sm:w-64 text-sm"
-//                         classNamePrefix="react-select"
-//                         menuPortalTarget={document.body}
-//                         styles={selectStyles}
-//                         menuPosition={'fixed'}
-//                     />
-//                     {selectedDomain && (
-//                         <>
-//                          <button
-//                             onClick={handleExport}
-//                             disabled={loading || !evaluationData.interviews || evaluationData.interviews.length === 0}
-//                             className="p-2 border border-gray-300 rounded-md bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-//                             title="Export to Excel"
-//                         >
-//                             <FiDownload className="h-5 w-5" />
-//                         </button>
-//                         <button
-//                             onClick={() => {
-//                                 setSelectedDomain(null);
-//                                 handleClearFilters();
-//                             }}
-//                             className="p-2 border border-gray-300 rounded-md bg-white text-gray-600 hover:bg-gray-50"
-//                             title="Back to Summary"
-//                         >
-//                             <FiX className="h-5 w-5" />
-//                         </button>
-//                         </>
-//                     )}
-//                 </div>
-//             </div>
-//             <div className="flex-grow overflow-auto">
-//                 {!selectedDomain ? (
-//                      loading ? <LocalLoader text="Loading summary..."/> : (
-//                         <table className="min-w-full text-sm">
-//                             <thead className="bg-gray-100 sticky top-0 z-10"><tr><th className="p-2 border border-gray-300 text-left font-semibold">Domain Name</th><th className="p-2 border border-gray-300 text-center font-semibold">Candidates</th><th className="p-2 border border-gray-300 text-center font-semibold">Scheduled</th><th className="p-2 border border-gray-300 text-center font-semibold">Completed</th><th className="p-2 border border-gray-300 text-center font-semibold">Cancelled</th><th className="p-2 border border-gray-300 text-center font-semibold">In Progress</th><th className="p-2 border border-gray-300 text-center font-semibold">Pending Booking</th></tr></thead>
-//                             <tbody>{summaryData.map(item => (<tr key={item.domainName} className="even:bg-gray-50"><td className="p-2 border border-gray-200"><button onClick={() => setSelectedDomain({ value: item.domainName, label: item.domainName })} className="font-semibold text-blue-600 hover:underline">{item.domainName}</button></td><td className="p-2 border border-gray-200 text-center">{item.candidateCount}</td><td className="p-2 border border-gray-200 text-center">{item.scheduledCount}</td><td className="p-2 border border-gray-200 text-center">{item.completedCount}</td><td className="p-2 border border-gray-200 text-center">{item.cancelledCount}</td><td className="p-2 border border-gray-200 text-center">{item.inProgressCount}</td><td className="p-2 border border-gray-200 text-center">{item.pendingCount}</td></tr>))}</tbody>
-//                         </table>
-//                     )
-//                 ) : loading ? ( <LocalLoader text="Loading evaluation data..." /> ) : (
-//                     <table className="min-w-full text-sm border-collapse">
-//                         <thead className="bg-gray-100 sticky top-0 z-10">
-//                             <tr>{staticColumns.map(col => (<th key={col.key} className="p-2 border border-gray-300 align-middle text-left" rowSpan={2} style={{minWidth: col.minWidth}}>{col.title}</th>))}{evaluationData.evaluationSheet?.columnGroups.map(group => { const hasSubHeaders = group.columns.some(col => col.header && col.header.trim() !== ''); return (<th key={group.title} colSpan={group.columns.length || 1} rowSpan={hasSubHeaders ? 1 : 2} className="p-2 border border-gray-300 text-center font-semibold bg-gray-200 align-middle">{group.title}</th>);})}</tr>
-//                             <tr>{evaluationData.evaluationSheet?.columnGroups.flatMap(group => { const hasSubHeaders = group.columns.some(col => col.header && col.header.trim() !== ''); if (!hasSubHeaders) return null; return group.columns.map(col => (<th key={col.header} className="p-2 border border-gray-300 font-semibold align-middle" style={{minWidth: '180px'}}>{col.header}</th>));})}</tr>
-//                         </thead>
-//                         <tbody className="bg-white">{evaluationData.interviews.map(interview => (<tr key={interview._id} className="even:bg-gray-50 align-top">{staticColumns.map(col => (<td key={`${col.key}-${interview._id}`} className="p-2 border border-gray-300 text-xs whitespace-nowrap align-middle">{col.render ? col.render(interview) : interview[col.key]}</td>))}{evaluationData.evaluationSheet?.columnGroups.flatMap(group => group.columns.map(col => { const dataKey = col.header || group.title; return ( <td key={`${dataKey}-${interview._id}`} className="p-2 border border-gray-300 text-xs align-middle">{ interview.evaluationData?.[dataKey] || '' }</td> ) }))}</tr>))}
-//                              {Array.from({ length: Math.max(0, 5000 - evaluationData.interviews.length) }).map((_, i) => (<tr key={`empty-${i}`} className="h-[45px] even:bg-gray-50"><td colSpan={staticColumns.length + (evaluationData.evaluationSheet?.columnGroups.flatMap(g => g.columns).length || 0)} className="border border-gray-200"></td></tr>))}
-//                         </tbody>
-//                     </table>
-//                 )}
-//             </div>
-//             <RemarksModal isOpen={remarksModal.isOpen} onClose={closeRemarksModal} content={remarksModal.content}/>
-//         </div>
-//     );
-// };
-
-// export default AdminDomainEvaluationPage;
-
-
-
-// // client/src/pages/admin/AdminDomainEvaluationPage.jsx
-// import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-// import { getDomains, getEvaluationDataForAdmin, getDomainEvaluationSummary } from '@/api/admin.api';
-// import { useAlert } from '@/hooks/useAlert';
-// import { formatDate } from '@/utils/formatters';
-// import { debounce } from '@/utils/helpers';
-// import Select from 'react-select';
-// import { FiSearch, FiExternalLink, FiDownload, FiX, FiFilter } from 'react-icons/fi';
-// import { saveAs } from 'file-saver';
-// import * as XLSX from 'xlsx';
-// import DatePicker from 'react-datepicker';
-// import "react-datepicker/dist/react-datepicker.css";
-// import { format } from 'date-fns';
-// import { MAIN_SHEET_INTERVIEW_STATUSES } from '@/utils/constants';
-
-// // --- Reusable Local Components ---
-// const LocalLoader = ({ text }) => (
-//     <div className="h-full w-full flex items-center justify-center text-gray-500">
-//         <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
-//         <span className="ml-4">{text}</span>
-//     </div>
-// );
-
-// const LocalButton = ({ children, onClick, variant = 'primary', className = '' }) => {
-//     const variantClasses = {
-//         primary: 'bg-blue-600 text-white hover:bg-blue-700',
-//         outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
-//     };
-//     return (
-//         <button
-//             onClick={onClick}
-//             className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-md shadow-sm transition-colors ${variantClasses[variant]} ${className}`}
-//         >
-//             {children}
-//         </button>
-//     );
-// };
-
-// const StatusBadge = ({ status }) => {
-//     const statusColors = {
-//         'Completed': 'bg-green-100 text-green-800',
-//         'Scheduled': 'bg-yellow-100 text-yellow-800',
-//         'InProgress': 'bg-blue-100 text-blue-800',
-//         'Cancelled': 'bg-red-100 text-red-800'
-//     };
-//     const colorClass = statusColors[status] || 'bg-gray-100 text-gray-800';
-//     return (
-//         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${colorClass}`}>
-//             {status || ''}
-//         </span>
-//     );
-// };
-
-// const RemarksModal = ({ isOpen, onClose, content }) => {
-//     if (!isOpen) return null;
-
-//     return (
-//         <div
-//             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm transition-opacity"
-//             onClick={onClose}
-//         >
-//             <div
-//                 className="relative w-full max-w-lg bg-white rounded-lg shadow-xl"
-//                 onClick={e => e.stopPropagation()}
-//             >
-//                 <div className="px-6 py-4 border-b flex justify-between items-center">
-//                     <h3 className="text-lg font-semibold text-gray-900">Interviewer Remarks</h3>
-//                     <button onClick={onClose} className="p-1 rounded-full text-gray-400 hover:bg-gray-200">
-//                         <FiX className="h-5 w-5" />
-//                     </button>
-//                 </div>
-//                 <div className="p-6">
-//                     <p className="text-sm text-gray-700 whitespace-pre-wrap">{content}</p>
-//                 </div>
-//                 <div className="bg-gray-50 px-6 py-3 flex justify-end rounded-b-lg">
-//                     <button
-//                         onClick={onClose}
-//                         className="px-4 py-2 text-sm font-medium rounded-md border border-gray-300 bg-white hover:bg-gray-50"
-//                     >
-//                         Close
-//                     </button>
-//                 </div>
-//             </div>
-//         </div>
-//     );
-// };
-
-
-// const AdminDomainEvaluationPage = () => {
-//     const { showError, showSuccess } = useAlert();
-//     const [loading, setLoading] = useState(true);
-//     const [domains, setDomains] = useState([]);
-//     const [selectedDomain, setSelectedDomain] = useState(null);
-//     const [search, setSearch] = useState('');
-//     const [summaryData, setSummaryData] = useState([]);
-//     const [evaluationData, setEvaluationData] = useState({ evaluationSheet: null, interviews: [] });
-//     const [remarksModal, setRemarksModal] = useState({ isOpen: false, content: '' });
-
-//     // States for filtering
-//     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
-//     const [tempFilters, setTempFilters] = useState({ interviewDate: null, interviewStatus: '' });
-//     const [activeFilters, setActiveFilters] = useState({ interviewDate: null, interviewStatus: '' });
-//     const filterMenuRef = useRef(null);
-
-//     // Close filter menu on outside click
-//     useEffect(() => {
-//         const handleClickOutside = (event) => {
-//             if (filterMenuRef.current && !filterMenuRef.current.contains(event.target)) {
-//                 setIsFilterMenuOpen(false);
-//             }
-//         };
-//         document.addEventListener("mousedown", handleClickOutside);
-//         return () => { document.removeEventListener("mousedown", handleClickOutside); };
-//     }, []);
-
-//     useEffect(() => {
-//         getDomains()
-//             .then(res => setDomains(res.data.data.map(d => ({ value: d.name, label: d.name }))))
-//             .catch(() => showError('Failed to load domains.'));
-
-//         getDomainEvaluationSummary()
-//             .then(res => setSummaryData(res.data.data))
-//             .catch(() => showError('Failed to load domain summary.'))
-//             .finally(() => setLoading(false));
-
-//     }, [showError]);
-
-//     const fetchData = useCallback(async () => {
-//         if (!selectedDomain) {
-//             setEvaluationData({ evaluationSheet: null, interviews: [] });
-//             setLoading(false);
-//             return;
-//         }
-//         setLoading(true);
-//         try {
-//             const params = { domain: selectedDomain.value, search, ...activeFilters };
-//             if (activeFilters.interviewDate) {
-//                 params.interviewDate = format(activeFilters.interviewDate, 'yyyy-MM-dd');
-//             }
-//             const res = await getEvaluationDataForAdmin(params);
-//             setEvaluationData(res.data.data);
-//         } catch (err) {
-//             showError("Failed to fetch evaluation data for this domain.");
-//             setEvaluationData({ evaluationSheet: null, interviews: [] });
-//         } finally {
-//             setLoading(false);
-//         }
-//     }, [selectedDomain, search, activeFilters, showError]);
-
-//     useEffect(() => {
-//         const handler = debounce(fetchData, 300);
-//         if (selectedDomain) {
-//             handler();
-//         }
-//         return () => handler.cancel();
-//     }, [fetchData]);
-
-//     const handleApplyFilters = () => {
-//         setActiveFilters(tempFilters);
-//         setIsFilterMenuOpen(false);
-//     };
-
-//     const handleClearFilters = () => {
-//         setTempFilters({ interviewDate: null, interviewStatus: '' });
-//         setActiveFilters({ interviewDate: null, interviewStatus: '' });
-//         setIsFilterMenuOpen(false);
-//     };
-
-//     const isFilterActive = activeFilters.interviewDate || activeFilters.interviewStatus;
-
-//     const openRemarksModal = useCallback((remarks) => {
-//         setRemarksModal({ isOpen: true, content: remarks });
-//     }, []);
-
-//     const closeRemarksModal = useCallback(() => {
-//         setRemarksModal({ isOpen: false, content: '' });
-//     }, []);
-
-//     const staticColumns = useMemo(() => [
-//         { key: 'techStack', title: 'Domain', minWidth: '150px' },
-//         { key: 'interviewId', title: 'Interview ID', minWidth: '120px' },
-//         { key: 'uid', title: 'Candidate UID', minWidth: '280px' },
-//         { key: 'candidateName', title: 'Candidate', minWidth: '180px' },
-//         { key: 'mobileNumber', title: 'Mobile', minWidth: '120px' },
-//         { key: 'mailId', title: 'Mail ID', minWidth: '220px' },
-//         { key: 'candidateResume', title: 'Resume', minWidth: '100px', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Link</a> : '' },
-//         { key: 'meetingLink', title: 'Meeting Link', minWidth: '250px', render: (row) => row.meetingLink ? <a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate block max-w-[250px]" title={row.meetingLink}>{row.meetingLink}</a> : '' },
-//         { key: 'interviewDate', title: 'Date', minWidth: '120px', render: (row) => formatDate(row.interviewDate) },
-//         { key: 'interviewTime', title: 'Time', minWidth: '110px' },
-//         { key: 'interviewDuration', title: 'Duration', minWidth: '100px' },
-//         { key: 'interviewStatus', title: 'Status', minWidth: '130px', render: (row) => <StatusBadge status={row.interviewStatus} /> },
-//         {
-//             key: 'interviewerRemarks',
-//             title: 'Interviewer Remarks',
-//             minWidth: '250px',
-//             render: (row) => {
-//                 const remarks = row.interviewerRemarks;
-//                 const charLimit = 50;
-//                 if (!remarks) { return <div className="p-1"></div>; }
-//                 if (remarks.length <= charLimit) { return <div className="p-1 truncate" title={remarks}>{remarks}</div>; }
-//                 return (<div className="p-1 flex items-center justify-start overflow-hidden"><span className="truncate" title={remarks}>{remarks.substring(0, charLimit)}...</span><button onClick={() => openRemarksModal(remarks)} className="ml-1 text-blue-600 hover:underline text-xs font-semibold flex-shrink-0">more</button></div>);
-//             }
-//         },
-//     ], [openRemarksModal]);
-
-//     const handleExport = () => {
-//         if (!evaluationData.interviews || evaluationData.interviews.length === 0) {
-//             showError("No data to export.");
-//             return;
-//         }
-//         const dataToExport = evaluationData.interviews.map(interview => {
-//             let rowData = {};
-//             staticColumns.forEach(col => {
-//                 let value = interview[col.key];
-//                 if (col.key === 'interviewDate' && value) { value = formatDate(value); }
-//                 if (col.key === 'interviewerRemarks') { rowData[col.title] = interview.interviewerRemarks || ''; }
-//                 else if (col.render && typeof value !== 'string' && value !== null) { rowData[col.title] = interview[col.key] || ''; }
-//                 else { rowData[col.title] = value || ''; }
-//             });
-//             (evaluationData.evaluationSheet?.columnGroups || []).forEach(group => {
-//                 group.columns.forEach(col => {
-//                     const headerTitle = col.header ? `${group.title} - ${col.header}` : group.title;
-//                     const headerKey = col.header || group.title;
-//                     rowData[headerTitle] = interview.evaluationData?.[headerKey] || '';
-//                 });
-//             });
-//             return rowData;
-//         });
-//         const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-//         const workbook = XLSX.utils.book_new();
-//         XLSX.utils.book_append_sheet(workbook, worksheet, 'Evaluations');
-//         const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-//         const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
-//         const fileName = `Evaluation_Data_${selectedDomain.label}_${new Date().toISOString().slice(0, 10)}.xlsx`;
-//         saveAs(blob, fileName);
-//         showSuccess("Export started successfully.");
-//     };
-
-//     const selectStyles = {
-//         menuPortal: base => ({ ...base, zIndex: 9999 }),
-//         control: base => ({ ...base, fontSize: '0.875rem' }),
-//     };
-
-//     return (
-//         <div className="h-full flex flex-col bg-white">
-//             <div className="p-4 border-b flex flex-col sm:flex-row items-center justify-between gap-4 flex-shrink-0">
-//                 <h1 className="text-xl font-bold text-gray-800">
-//                     {selectedDomain ? `Domain Evaluation: ${selectedDomain.label}` : 'Domain Evaluation Summary'}
-//                 </h1>
-//                 <div className="flex items-center gap-2">
-//                     {selectedDomain && (
-//                         <div className="relative w-full sm:w-64">
-//                             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-//                             <input
-//                                 type="text"
-//                                 value={search}
-//                                 onChange={(e) => setSearch(e.target.value)}
-//                                 placeholder="Search records..."
-//                                 className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-//                             />
-//                         </div>
-//                     )}
-//                     {selectedDomain && (
-//                         <div className="relative" ref={filterMenuRef}>
-//                             <button
-//                                 onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
-//                                 className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-//                             >
-//                                 <FiFilter className="h-4 w-4" /> Filter
-//                                 {isFilterActive &&
-//                                     <span
-//                                         onClick={(e) => { e.stopPropagation(); handleClearFilters(); }}
-//                                         className="ml-2 p-1 rounded-full hover:bg-gray-200 -mr-1"
-//                                     >
-//                                         <FiX className="h-3 w-3 text-gray-500" />
-//                                     </span>
-//                                 }
-//                             </button>
-//                             {isFilterMenuOpen && (
-//                                 <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-md shadow-lg border z-20 p-4">
-//                                     <div className="space-y-4">
-//                                         <div>
-//                                             <label className="block text-sm font-medium text-gray-700 mb-1">Interview Date</label>
-//                                             <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(prev => ({ ...prev, interviewDate: date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-300 rounded-md text-sm" />
-//                                         </div>
-//                                         <div>
-//                                             <label className="block text-sm font-medium text-gray-700 mb-1">Interview Status</label>
-//                                             <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(prev => ({ ...prev, interviewStatus: e.target.value }))} className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm bg-white">
-//                                                 <option value="">All Statuses</option>
-//                                                 {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-//                                             </select>
-//                                         </div>
-//                                     </div>
-//                                     <div className="mt-4 pt-4 border-t flex justify-end gap-2">
-//                                         <LocalButton variant="outline" onClick={handleClearFilters}>Clear</LocalButton>
-//                                         <LocalButton variant="primary" onClick={handleApplyFilters}>Apply</LocalButton>
-//                                     </div>
-//                                 </div>
-//                             )}
-//                         </div>
-//                     )}
-//                     <Select
-//                         options={domains}
-//                         value={selectedDomain}
-//                         onChange={setSelectedDomain}
-//                         placeholder="Select a Domain to View..."
-//                         className="w-full sm:w-64 text-sm"
-//                         classNamePrefix="react-select"
-//                         menuPortalTarget={document.body}
-//                         styles={selectStyles}
-//                         menuPosition={'fixed'}
-//                     />
-//                     {selectedDomain && (
-//                         <>
-//                             <button
-//                                 onClick={handleExport}
-//                                 disabled={loading || !evaluationData.interviews || evaluationData.interviews.length === 0}
-//                                 className="p-2 border border-gray-300 rounded-md bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-//                                 title="Export to Excel"
-//                             >
-//                                 <FiDownload className="h-5 w-5" />
-//                             </button>
-//                             <button
-//                                 onClick={() => {
-//                                     setSelectedDomain(null);
-//                                     handleClearFilters();
-//                                 }}
-//                                 className="p-2 border border-gray-300 rounded-md bg-white text-gray-600 hover:bg-gray-50"
-//                                 title="Back to Summary"
-//                             >
-//                                 <FiX className="h-5 w-5" />
-//                             </button>
-//                         </>
-//                     )}
-//                 </div>
-//             </div>
-
-//             <div className="flex-grow overflow-auto">
-//                 {!selectedDomain ? (
-//                     loading ? <LocalLoader text="Loading summary..." /> : (
-//                         <table className="min-w-full text-sm">
-//                             <thead className="bg-gray-100 sticky top-0 z-10">
-//                                 <tr>
-//                                     <th className="p-2 border border-gray-300 text-left font-semibold">Domain Name</th>
-//                                     <th className="p-2 border border-gray-300 text-center font-semibold">Candidates</th>
-//                                     <th className="p-2 border border-gray-300 text-center font-semibold">Scheduled</th>
-//                                     <th className="p-2 border border-gray-300 text-center font-semibold">Completed</th>
-//                                     <th className="p-2 border border-gray-300 text-center font-semibold">Cancelled</th>
-//                                     <th className="p-2 border border-gray-300 text-center font-semibold">In Progress</th>
-//                                     <th className="p-2 border border-gray-300 text-center font-semibold">Pending Booking</th>
-//                                 </tr>
-//                             </thead>
-//                             <tbody>
-//                                 {summaryData.map(item => (
-//                                     <tr key={item.domainName} className="even:bg-gray-50">
-//                                         <td className="p-2 border border-gray-200">
-//                                             <button
-//                                                 onClick={() => setSelectedDomain({ value: item.domainName, label: item.domainName })}
-//                                                 className="font-semibold text-blue-600 hover:underline"
-//                                             >
-//                                                 {item.domainName}
-//                                             </button>
-//                                         </td>
-//                                         <td className="p-2 border border-gray-200 text-center">{item.candidateCount}</td>
-//                                         <td className="p-2 border border-gray-200 text-center">{item.scheduledCount}</td>
-//                                         <td className="p-2 border border-gray-200 text-center">{item.completedCount}</td>
-//                                         <td className="p-2 border border-gray-200 text-center">{item.cancelledCount}</td>
-//                                         <td className="p-2 border border-gray-200 text-center">{item.inProgressCount}</td>
-//                                         <td className="p-2 border border-gray-200 text-center">{item.pendingCount}</td>
-//                                     </tr>
-//                                 ))}
-//                             </tbody>
-//                         </table>
-//                     )
-//                 ) : loading ? (
-//                     <LocalLoader text="Loading evaluation data..." />
-//                 ) : (
-//                     <table className="min-w-full text-sm border-collapse">
-//                         <thead className="bg-gray-100/95 backdrop-blur-sm sticky top-0 z-10 shadow-sm">
-//                             <tr>
-//                                 {staticColumns.map(col => (
-//                                     <th key={col.key} className="p-2 border border-gray-300 align-middle text-left" rowSpan={2} style={{ minWidth: col.minWidth }}>
-//                                         {col.title}
-//                                     </th>
-//                                 ))}
-//                                 {evaluationData.evaluationSheet?.columnGroups.map(group => {
-//                                     const hasSubHeaders = group.columns.some(col => col.header && col.header.trim() !== '');
-//                                     return (
-//                                         <th key={group.title} colSpan={group.columns.length || 1} rowSpan={hasSubHeaders ? 1 : 2} className="p-2 border border-gray-300 text-center font-semibold bg-gray-200 align-middle">
-//                                             {group.title}
-//                                         </th>
-//                                     );
-//                                 })}
-//                             </tr>
-//                             <tr>
-//                                 {evaluationData.evaluationSheet?.columnGroups.flatMap(group => {
-//                                     const hasSubHeaders = group.columns.some(col => col.header && col.header.trim() !== '');
-//                                     if (!hasSubHeaders) return null;
-//                                     return group.columns.map(col => (
-//                                         <th key={col.header} className="p-2 border border-gray-300 font-semibold align-middle" style={{ minWidth: '180px' }}>
-//                                             {col.header}
-//                                         </th>
-//                                     ));
-//                                 })}
-//                             </tr>
-//                         </thead>
-//                         <tbody className="bg-white">
-//                             {evaluationData.interviews.map(interview => (
-//                                 <tr key={interview._id} className="even:bg-gray-50 align-top">
-//                                     {staticColumns.map(col => (
-//                                         <td key={`${col.key}-${interview._id}`} className="p-2 border border-gray-300 text-xs whitespace-nowrap align-middle">
-//                                             {col.render ? col.render(interview) : interview[col.key]}
-//                                         </td>
-//                                     ))}
-//                                     {evaluationData.evaluationSheet?.columnGroups.flatMap(group =>
-//                                         group.columns.map(col => {
-//                                             const dataKey = col.header || group.title;
-//                                             return (
-//                                                 <td key={`${dataKey}-${interview._id}`} className="p-2 border border-gray-300 text-xs align-middle">
-//                                                     {interview.evaluationData?.[dataKey] || ''}
-//                                                 </td>
-//                                             )
-//                                         })
-//                                     )}
-//                                 </tr>
-//                             ))}
-//                         </tbody>
-//                     </table>
-//                 )}
-//             </div>
-//             <RemarksModal
-//                 isOpen={remarksModal.isOpen}
-//                 onClose={closeRemarksModal}
-//                 content={remarksModal.content}
-//             />
-//         </div>
-//     );
-// };
-
-// export default AdminDomainEvaluationPage;
-
-
 // client/src/pages/admin/AdminDomainEvaluationPage.jsx
-import React, { useState, useEffect, useCallback, useMemo, useRef, Fragment } from 'react';
-import { getDomains, getEvaluationDataForAdmin, getDomainEvaluationSummary } from '@/api/admin.api';
-import { useAlert } from '@/hooks/useAlert';
-import { formatDate } from '@/utils/formatters';
-import { debounce } from '@/utils/helpers';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Select from 'react-select';
-import { FiSearch, FiExternalLink, FiDownload, FiX, FiFilter, FiCheck, FiChevronDown, FiUpload } from 'react-icons/fi';
-import { saveAs } from 'file-saver';
-import * as XLSX from 'xlsx';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from 'date-fns';
-import { MAIN_SHEET_INTERVIEW_STATUSES } from '@/utils/constants';
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
+import { 
+    FiSearch, FiDownload, FiX, FiFilter, FiCheck, FiList, 
+    FiCalendar, FiArrowLeft, FiLoader, FiExternalLink
+} from 'react-icons/fi';
 
-// --- Reusable Local Components ---
-const LocalLoader = ({ text }) => (
-    <div className="h-full w-full flex items-center justify-center text-gray-500">
-        <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
-        <span className="ml-4">{text}</span>
-    </div>
-);
+// API & Utils
+import { getDomains, getEvaluationDataForAdmin, getDomainEvaluationSummary } from '../../api/admin.api';
+import { useAlert } from '../../hooks/useAlert';
+import { formatDate } from '../../utils/formatters';
+import { debounce } from '../../utils/helpers';
+import { MAIN_SHEET_INTERVIEW_STATUSES } from '../../utils/constants';
 
-const LocalButton = ({ children, onClick, variant = 'primary', icon: Icon, className = '' }) => {
-    const variantClasses = {
-        primary: 'bg-blue-600 text-white hover:bg-blue-700',
-        outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
+// --- Styled Components ---
+
+const LocalButton = ({ children, onClick, variant = 'primary', icon: Icon, className = '', disabled = false, size = 'md', title = '' }) => {
+    const base = 'inline-flex items-center justify-center font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] whitespace-nowrap focus:outline-none';
+    
+    const sizes = {
+        sm: 'text-xs px-3 py-2 rounded-lg',
+        md: 'text-sm px-4 py-2.5 rounded-lg',
+        icon: 'p-2.5 rounded-lg',
     };
+
+    const variants = {
+        primary: 'bg-gray-900 text-white hover:bg-black border border-transparent shadow-sm', 
+        accent: 'bg-[#FFD130] text-gray-900 hover:bg-[#FFC400] border border-[#FFD130] shadow-sm',
+        outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
+        ghost: 'bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+    };
+
     return (
-        <button
-            onClick={onClick}
-            className={`
-                inline-flex items-center justify-center px-3 py-1.5 
-                text-xs font-medium rounded-md shadow-sm transition-colors 
-                ${variantClasses[variant]} ${className}
-            `}
-        >
-            {Icon && <Icon className='mr-1.5 h-4 w-4' />}
+        <button onClick={onClick} disabled={disabled} className={`${base} ${sizes[size]} ${variants[variant]} ${className}`} title={title}>
+            {Icon && <Icon className={`${children ? 'mr-2' : ''} h-4 w-4`} />}
             {children}
         </button>
     );
 };
 
 const StatusBadge = ({ status }) => {
-    const statusColors = {
-        'Completed': 'bg-green-100 text-green-800',
-        'Scheduled': 'bg-yellow-100 text-yellow-800',
-        'InProgress': 'bg-blue-100 text-blue-800',
-        'Cancelled': 'bg-red-100 text-red-800'
+    const styles = {
+        'Completed': 'bg-green-50 text-green-700 border-green-200',
+        'Scheduled': 'bg-blue-50 text-blue-700 border-blue-200',
+        'InProgress': 'bg-purple-50 text-purple-700 border-purple-200',
+        'Cancelled': 'bg-red-50 text-red-700 border-red-200',
+        'Pending': 'bg-amber-50 text-amber-700 border-amber-200'
     };
-    const colorClass = statusColors[status] || 'bg-gray-100 text-gray-800';
+    const defaultStyle = 'bg-gray-50 text-gray-700 border-gray-200';
+
     return (
-        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${colorClass}`}>
-            {status || ''}
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold uppercase tracking-wide border ${styles[status] || defaultStyle}`}>
+            {status}
         </span>
     );
 };
 
 const RemarksModal = ({ isOpen, onClose, content }) => {
     if (!isOpen) return null;
-
     return (
-        <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm transition-opacity"
-            onClick={onClose}
-        >
-            <div
-                className="relative w-full max-w-lg bg-white rounded-lg shadow-xl"
-                onClick={e => e.stopPropagation()}
-            >
-                <div className="px-6 py-4 border-b flex justify-between items-center">
-                    <h3 className="text-lg font-semibold text-gray-900">Interviewer Remarks</h3>
-                    <button onClick={onClose} className="p-1 rounded-full text-gray-400 hover:bg-gray-200">
-                        <FiX className="h-5 w-5" />
-                    </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm" onClick={onClose}>
+            <div className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl flex flex-col" onClick={e => e.stopPropagation()}>
+                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-xl">
+                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Interviewer Remarks</h3>
+                    <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500"><FiX className="h-4 w-4" /></button>
                 </div>
-                <div className="p-6">
-                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{content}</p>
+                <div className="p-6 overflow-y-auto max-h-[60vh]">
+                    <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{content}</p>
                 </div>
-                <div className="bg-gray-50 px-6 py-3 flex justify-end rounded-b-lg">
-                    <button
-                        onClick={onClose}
-                        className="px-4 py-2 text-sm font-medium rounded-md border border-gray-300 bg-white hover:bg-gray-50"
-                    >
-                        Close
-                    </button>
+                <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
+                    <LocalButton variant="outline" onClick={onClose} size="sm">Close</LocalButton>
                 </div>
             </div>
         </div>
     );
 };
 
+// --- Main Page Component ---
 
 const AdminDomainEvaluationPage = () => {
     const { showError, showSuccess } = useAlert();
@@ -882,27 +92,15 @@ const AdminDomainEvaluationPage = () => {
     const [summaryData, setSummaryData] = useState([]);
     const [evaluationData, setEvaluationData] = useState({ evaluationSheet: null, interviews: [] });
     const [remarksModal, setRemarksModal] = useState({ isOpen: false, content: '' });
-
-    // --- NEW STATE: Toggle for showing labels or raw values ---
     const [showLabels, setShowLabels] = useState(false);
     
-    // States for filtering
+    // Filter States
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
     const [tempFilters, setTempFilters] = useState({ interviewDate: null, interviewStatus: '' });
     const [activeFilters, setActiveFilters] = useState({ interviewDate: null, interviewStatus: '' });
     const filterMenuRef = useRef(null);
 
-    // Close filter menu on outside click
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (filterMenuRef.current && !filterMenuRef.current.contains(event.target)) {
-                setIsFilterMenuOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => { document.removeEventListener("mousedown", handleClickOutside); };
-    }, []);
-
+    // Initial Load
     useEffect(() => {
         getDomains()
             .then(res => setDomains(res.data.data.map(d => ({ value: d.name, label: d.name }))))
@@ -910,15 +108,22 @@ const AdminDomainEvaluationPage = () => {
 
         getDomainEvaluationSummary()
             .then(res => setSummaryData(res.data.data))
-            .catch(() => showError('Failed to load domain summary.'))
+            .catch(() => showError('Failed to load summary.'))
             .finally(() => setLoading(false));
 
+        const handleClickOutside = (event) => {
+            if (filterMenuRef.current && !filterMenuRef.current.contains(event.target)) {
+                setIsFilterMenuOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [showError]);
 
+    // Fetch Detail Data
     const fetchData = useCallback(async () => {
         if (!selectedDomain) {
             setEvaluationData({ evaluationSheet: null, interviews: [] });
-            setLoading(false);
             return;
         }
         setLoading(true);
@@ -930,7 +135,7 @@ const AdminDomainEvaluationPage = () => {
             const res = await getEvaluationDataForAdmin(params);
             setEvaluationData(res.data.data);
         } catch (err) {
-            showError("Failed to fetch evaluation data for this domain.");
+            showError("Failed to fetch evaluation data.");
             setEvaluationData({ evaluationSheet: null, interviews: [] });
         } finally {
             setLoading(false);
@@ -939,124 +144,89 @@ const AdminDomainEvaluationPage = () => {
 
     useEffect(() => {
         const handler = debounce(fetchData, 300);
-        if (selectedDomain) {
-            handler();
-        }
+        if (selectedDomain) handler();
         return () => handler.cancel();
     }, [fetchData]);
 
-    const handleApplyFilters = () => {
-        setActiveFilters(tempFilters);
-        setIsFilterMenuOpen(false);
+    // Handlers
+    const handleApplyFilters = () => { setActiveFilters(tempFilters); setIsFilterMenuOpen(false); };
+    const handleClearFilters = () => { 
+        setTempFilters({ interviewDate: null, interviewStatus: '' }); 
+        setActiveFilters({ interviewDate: null, interviewStatus: '' }); 
+        setIsFilterMenuOpen(false); 
     };
-
-    const handleClearFilters = () => {
-        setTempFilters({ interviewDate: null, interviewStatus: '' });
-        setActiveFilters({ interviewDate: null, interviewStatus: '' });
-        setIsFilterMenuOpen(false);
-    };
-
-    const isFilterActive = activeFilters.interviewDate || activeFilters.interviewStatus;
-
-    const openRemarksModal = useCallback((remarks) => {
-        setRemarksModal({ isOpen: true, content: remarks });
-    }, []);
-
-    const closeRemarksModal = useCallback(() => {
-        setRemarksModal({ isOpen: false, content: '' });
-    }, []);
 
     const findLabelForValue = (value, options) => {
         const option = options.find(opt => String(opt.value) === String(value));
-        return option ? option.label : value; // Return raw value if label not found
+        return option ? option.label : value;
     };
 
-    // --- MODIFIED: Helper function to render content based on toggle state ---
     const renderCellContent = useCallback((interview, column, group, sheet, showLabels) => {
         const fieldHeader = column.header || group.title;
         const savedValue = interview.evaluationData ? interview.evaluationData[fieldHeader] : '';
-
-        // If it's a text input field, we always display the raw value/text
-        if (column.type === 'text') {
-             return savedValue;
+        if (column.type === 'select' && showLabels) {
+            return findLabelForValue(savedValue, column.options);
         }
-
-        // If it's a select field, apply the toggle logic
-        if (column.type === 'select') {
-            if (showLabels) {
-                // Find the label matching the saved value
-                return findLabelForValue(savedValue, column.options);
-            }
-            // Otherwise, display the raw value
-            return savedValue;
-        }
-
         return savedValue;
-    }, [findLabelForValue]);
+    }, []);
 
-
+    // Static Columns with Sticky Logic
     const staticColumns = useMemo(() => [
+        // Sticky Columns (Candidate Name & UID)
+        { key: 'candidateName', title: 'Candidate Name', minWidth: '180px', isSticky: true, left: 0 },
+        { key: 'uid', title: 'Candidate UID', minWidth: '180px', isSticky: true, left: 180 },
+        
+        // Scrollable Columns
         { key: 'techStack', title: 'Domain', minWidth: '150px' },
         { key: 'interviewId', title: 'Interview ID', minWidth: '120px' },
-        { key: 'uid', title: 'Candidate UID', minWidth: '280px' },
-        { key: 'candidateName', title: 'Candidate', minWidth: '180px' },
         { key: 'mobileNumber', title: 'Mobile', minWidth: '120px' },
-        { key: 'mailId', title: 'Mail ID', minWidth: '220px' },
-        { key: 'candidateResume', title: 'Resume', minWidth: '100px', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Link</a> : '' },
-        { key: 'meetingLink', title: 'Meeting Link', minWidth: '250px', render: (row) => row.meetingLink ? <a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate block max-w-[250px]" title={row.meetingLink}>{row.meetingLink}</a> : '' },
-        { key: 'interviewDate', title: 'Date', minWidth: '120px', render: (row) => formatDate(row.interviewDate) },
-        { key: 'interviewTime', title: 'Time', minWidth: '110px' },
+        { key: 'mailId', title: 'Email ID', minWidth: '220px' },
+        { 
+            key: 'candidateResume', 
+            title: 'Resume', 
+            minWidth: '100px', 
+            render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"><FiExternalLink /> Link</a> : '-' 
+        },
+        { 
+            key: 'meetingLink', 
+            title: 'Meeting Link', 
+            minWidth: '200px', 
+            render: (row) => row.meetingLink ? <a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate block max-w-[200px] text-xs" title={row.meetingLink}>{row.meetingLink}</a> : '-' 
+        },
+        { key: 'interviewDate', title: 'Date', minWidth: '110px', render: (row) => formatDate(row.interviewDate) },
+        { key: 'interviewTime', title: 'Time', minWidth: '100px' },
         { key: 'interviewDuration', title: 'Duration', minWidth: '100px' },
         { key: 'interviewStatus', title: 'Status', minWidth: '130px', render: (row) => <StatusBadge status={row.interviewStatus} /> },
-        {
-            key: 'interviewerRemarks',
-            title: 'Interviewer Remarks',
-            minWidth: '250px',
-            render: (row) => {
-                const remarks = row.interviewerRemarks;
-                const charLimit = 50;
-                if (!remarks) { return <div className="p-1"></div>; }
-                if (remarks.length <= charLimit) { return <div className="p-1 truncate" title={remarks}>{remarks}</div>; }
-                return (<div className="p-1 flex items-center justify-start overflow-hidden"><span className="truncate" title={remarks}>{remarks.substring(0, charLimit)}...</span><button onClick={() => openRemarksModal(remarks)} className="ml-1 text-blue-600 hover:underline text-xs font-semibold flex-shrink-0">more</button></div>);
-            }
+        { 
+            key: 'interviewerRemarks', 
+            title: 'Remarks', 
+            minWidth: '200px', 
+            render: (row) => row.interviewerRemarks ? 
+                <button onClick={() => setRemarksModal({isOpen: true, content: row.interviewerRemarks})} className="text-gray-700 text-xs hover:text-blue-600 hover:underline text-left truncate max-w-[180px] block">
+                    {row.interviewerRemarks}
+                </button> : 
+                <span className="text-gray-300">-</span> 
         },
-    ], [openRemarksModal]);
+    ], []);
 
     const handleExport = () => {
-        if (!evaluationData.interviews || evaluationData.interviews.length === 0) {
-            showError("No data to export.");
-            return;
-        }
-        
-        // Use the current state of showLabels to determine the export format
-        const currentShowLabelsState = showLabels; 
+        if (!evaluationData.interviews?.length) return showError("No data to export.");
         
         const dataToExport = evaluationData.interviews.map(interview => {
             let rowData = {};
-            // Add static columns first
             staticColumns.forEach(col => {
                 let value = interview[col.key];
-                if (col.key === 'interviewDate' && value) { value = formatDate(value); }
-                else if (col.key === 'interviewerRemarks') { value = interview.interviewerRemarks || ''; }
-
+                if (col.key === 'interviewDate' && value) value = formatDate(value);
+                else if (col.key === 'interviewerRemarks') value = interview.interviewerRemarks || '';
                 rowData[col.title] = value || '';
             });
 
-            // Add dynamic columns
             (evaluationData.evaluationSheet?.columnGroups || []).forEach(group => {
                 group.columns.forEach(col => {
                     const headerTitle = col.header ? `${group.title} - ${col.header}` : group.title;
                     const headerKey = col.header || group.title;
-                    
                     let savedValue = interview.evaluationData?.[headerKey] || '';
-                    
-                    // --- APPLY DYNAMIC EXPORT LOGIC (FIX) ---
-                    // Export the label ONLY IF the current UI is set to show labels AND it is a select field.
-                    if (col.type === 'select' && currentShowLabelsState) {
-                       savedValue = findLabelForValue(savedValue, col.options);
-                    }
-                    // If showLabels is false, or if it's a text input, it exports the raw savedValue.
-                    
+                    if (col.type === 'select' && showLabels) savedValue = findLabelForValue(savedValue, col.options);
                     rowData[headerTitle] = savedValue;
                 });
             });
@@ -1068,226 +238,242 @@ const AdminDomainEvaluationPage = () => {
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Evaluations');
         const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
         const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
-        const fileName = `Evaluation_Data_${selectedDomain.label}_${new Date().toISOString().slice(0, 10)}.xlsx`;
-        saveAs(blob, fileName);
-        showSuccess(`Export started successfully. Export format reflects your current UI view (${currentShowLabelsState ? 'Labels' : 'Values'}).`);
+        saveAs(blob, `Evaluation_${selectedDomain.label}_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+        showSuccess(`Export started (${showLabels ? 'Labels' : 'Values'} format).`);
     };
 
+    // React Select Styles
     const selectStyles = {
-        menuPortal: base => ({ ...base, zIndex: 9999 }),
-        control: base => ({ ...base, fontSize: '0.875rem' }),
+        control: (base, state) => ({
+            ...base,
+            borderColor: state.isFocused ? '#111827' : '#E5E7EB',
+            boxShadow: 'none',
+            '&:hover': { borderColor: '#9CA3AF' },
+            padding: '2px',
+            borderRadius: '0.5rem',
+            fontSize: '0.875rem',
+            minHeight: '42px',
+            width: '100%'
+        }),
+        menu: (base) => ({ ...base, zIndex: 60, borderRadius: '0.5rem', border: '1px solid #E5E7EB', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }),
+        option: (base, state) => ({
+            ...base,
+            backgroundColor: state.isSelected ? '#F3F4F6' : state.isFocused ? '#F9FAFB' : 'white',
+            color: state.isSelected ? '#111827' : '#374151',
+            cursor: 'pointer',
+            fontSize: '0.875rem'
+        })
     };
 
     return (
-        <div className="h-full flex flex-col bg-white">
-            <div className="p-4 border-b flex flex-col sm:flex-row items-center justify-between gap-4 flex-shrink-0">
-                <h1 className="text-xl font-bold text-gray-800">
-                    {selectedDomain ? `Domain Evaluation: ${selectedDomain.label}` : 'Domain Evaluation Summary'}
-                </h1>
-                <div className="flex items-center gap-2">
-                    {selectedDomain && (
-                         <> 
-                            {/* --- Label/Value Toggle Button --- */}
-                            <LocalButton
-                                variant={showLabels ? 'primary' : 'outline'}
-                                onClick={() => setShowLabels(!showLabels)}
-                                icon={showLabels ? FiX : FiCheck} 
-                            >
-                                {showLabels ? 'Show Values' : 'Show Labels'}
-                            </LocalButton>
-
-                            {/* Original Search Input */}
-                            <div className="relative w-full sm:w-64">
-                                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                <input
-                                    type="text"
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    placeholder="Search records..."
-                                    className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                />
-                            </div>
-
-                            {/* Filter Menu */}
-                            <div className="relative" ref={filterMenuRef}>
-                                <button
-                                    onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
-                                    className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-                                >
-                                    <FiFilter className="h-4 w-4" /> Filter
-                                    {isFilterActive &&
-                                        <span
-                                            onClick={(e) => { e.stopPropagation(); handleClearFilters(); }}
-                                            className="ml-2 p-1 rounded-full hover:bg-gray-200 -mr-1"
-                                        >
-                                            <FiX className="h-3 w-3 text-gray-500" />
-                                        </span>
-                                    }
-                                </button>
-                                {isFilterMenuOpen && (
-                                    <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-md shadow-lg border z-20 p-4">
-                                        <div className="space-y-4">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">Interview Date</label>
-                                                <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(prev => ({ ...prev, interviewDate: date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-300 rounded-md text-sm" />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">Interview Status</label>
-                                                <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(prev => ({ ...prev, interviewStatus: e.target.value }))} className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm bg-white">
-                                                    <option value="">All Statuses</option>
-                                                    {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="mt-4 pt-4 border-t flex justify-end gap-2">
-                                            <LocalButton variant="outline" onClick={handleClearFilters}>Clear</LocalButton>
-                                            <LocalButton variant="primary" onClick={handleApplyFilters}>Apply</LocalButton>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Export Button */}
-                            <button
-                                onClick={handleExport}
-                                disabled={loading || !evaluationData.interviews || evaluationData.interviews.length === 0}
-                                className="p-2 border border-gray-300 rounded-md bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                title="Export to Excel"
-                            >
-                                <FiDownload className="h-5 w-5" />
-                            </button>
-                            
-                            {/* Back to Summary Button */}
-                            <button
-                                onClick={() => {
-                                    setSelectedDomain(null);
-                                    handleClearFilters();
-                                }}
-                                className="p-2 border border-gray-300 rounded-md bg-white text-gray-600 hover:bg-gray-50"
-                                title="Back to Summary"
-                            >
-                                <FiX className="h-5 w-5" />
-                            </button>
-                         </> 
-                    )}
-                    {/* Domain Select - Always present or only present if selectedDomain is null */}
+        <div className="flex flex-col h-full bg-white overflow-hidden">
+            
+            {/* Top Toolbar */}
+            <div className="bg-white border-b border-gray-200 p-4 flex-shrink-0 flex flex-col md:flex-row items-center justify-between gap-4 z-40 relative">
+                
+                {/* Left: Domain Selector */}
+                <div className="w-full md:w-72">
                     <Select
                         options={domains}
                         value={selectedDomain}
-                        onChange={setSelectedDomain}
-                        placeholder="Select a Domain to View..."
-                        className="w-full sm:w-64 text-sm"
-                        classNamePrefix="react-select"
-                        menuPortalTarget={document.body}
+                        onChange={(val) => { setSelectedDomain(val); handleClearFilters(); }}
+                        placeholder="Select Domain to View..."
                         styles={selectStyles}
-                        menuPosition={'fixed'}
                     />
                 </div>
-            </div>
 
-            <div className="flex-grow overflow-auto">
-                {!selectedDomain ? (
-                    loading ? <LocalLoader text="Loading summary..." /> : (
-                        <table className="min-w-full text-sm">
-                            <thead className="bg-gray-100 sticky top-0 z-10">
-                                <tr>
-                                    <th className="p-2 border border-gray-300 text-left font-semibold">Domain Name</th>
-                                    <th className="p-2 border border-gray-300 text-center font-semibold">Candidates</th>
-                                    <th className="p-2 border border-gray-300 text-center font-semibold">Scheduled</th>
-                                    <th className="p-2 border border-gray-300 text-center font-semibold">Completed</th>
-                                    <th className="p-2 border border-gray-300 text-center font-semibold">Cancelled</th>
-                                    <th className="p-2 border border-gray-300 text-center font-semibold">In Progress</th>
-                                    <th className="p-2 border border-gray-300 text-center font-semibold">Pending Booking</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {summaryData.map(item => (
-                                    <tr key={item.domainName} className="even:bg-gray-50">
-                                        <td className="p-2 border border-gray-200">
-                                            <button
-                                                onClick={() => setSelectedDomain({ value: item.domainName, label: item.domainName })}
-                                                className="font-semibold text-blue-600 hover:underline"
-                                            >
-                                                {item.domainName}
-                                            </button>
-                                        </td>
-                                        <td className="p-2 border border-gray-200 text-center">{item.candidateCount}</td>
-                                        <td className="p-2 border border-gray-200 text-center">{item.scheduledCount}</td>
-                                        <td className="p-2 border border-gray-200 text-center">{item.completedCount}</td>
-                                        <td className="p-2 border border-gray-200 text-center">{item.cancelledCount}</td>
-                                        <td className="p-2 border border-gray-200 text-center">{item.inProgressCount}</td>
-                                        <td className="p-2 border border-gray-200 text-center">{item.pendingCount}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    )
-                ) : loading ? (
-                    <LocalLoader text="Loading evaluation data..." />
-                ) : (
-                    <table className="min-w-full text-sm border-collapse">
-                        <thead className="bg-gray-100/95 backdrop-blur-sm sticky top-0 z-10 shadow-sm">
-                            <tr>
-                                {staticColumns.map(col => (
-                                    <th key={col.key} className="p-2 border border-gray-300 align-middle text-left" rowSpan={2} style={{ minWidth: col.minWidth }}>
-                                        {col.title}
-                                    </th>
-                                ))}
-                                {evaluationData.evaluationSheet?.columnGroups.map(group => {
-                                    const hasSubHeaders = group.columns.some(col => col.header && col.header.trim() !== '');
-                                    return (
-                                        <th key={group.title} colSpan={group.columns.length || 1} rowSpan={hasSubHeaders ? 1 : 2} className="p-2 border border-gray-300 text-center font-semibold bg-gray-200 align-middle">
-                                            {group.title}
-                                        </th>
-                                    );
-                                })}
-                            </tr>
-                            <tr>
-                                {evaluationData.evaluationSheet?.columnGroups.flatMap(group => {
-                                    const hasSubHeaders = group.columns.some(col => col.header && col.header.trim() !== '');
-                                    if (!hasSubHeaders) return null;
-                                    return group.columns.map(col => (
-                                        <th key={col.header} className="p-2 border border-gray-300 font-semibold align-middle" style={{ minWidth: '180px' }}>
-                                            {col.header}
-                                        </th>
-                                    ));
-                                })}
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white">
-                            {evaluationData.interviews.map(interview => (
-                                <tr key={interview._id} className="even:bg-gray-50 align-top">
-                                    {staticColumns.map(col => (
-                                        <td key={`${col.key}-${interview._id}`} className="p-2 border border-gray-300 text-xs whitespace-nowrap align-middle">
-                                            {col.render ? col.render(interview) : interview[col.key]}
-                                        </td>
-                                    ))}
-                                    {evaluationData.evaluationSheet?.columnGroups.flatMap(group =>
-                                        group.columns.map(col => {
-                                            return (
-                                                <td key={`${(col.header || group.title)}-${interview._id}`} className="p-2 border border-gray-300 text-xs align-middle text-center font-medium">
-                                                    {renderCellContent(
-                                                        interview,
-                                                        col,
-                                                        group,
-                                                        evaluationData.evaluationSheet,
-                                                        showLabels
-                                                    )}
-                                                </td>
-                                            )
-                                        })
-                                    )}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                {/* Right: Controls */}
+                {selectedDomain && (
+                    <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
+                        <div className="relative w-full sm:w-64">
+                            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <input
+                                type="text"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder="Search candidate..."
+                                className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-colors"
+                            />
+                        </div>
+
+                        {/* Filter Dropdown */}
+                        <div className="relative z-50" ref={filterMenuRef}>
+                            <LocalButton variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} icon={FiFilter} className={`${(activeFilters.interviewDate || activeFilters.interviewStatus) ? '!border-blue-500 !text-blue-600 !bg-blue-50' : ''}`}>
+                                Filter
+                            </LocalButton>
+                            {isFilterMenuOpen && (
+                                <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 p-4 z-50">
+                                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Filter Records</h4>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-700 mb-1.5">Interview Date</label>
+                                            <div className="relative">
+                                                <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(p => ({ ...p, interviewDate: date }))} isClearable placeholderText="Select date" className="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-gray-900" />
+                                                <FiCalendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-700 mb-1.5">Status</label>
+                                            <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(p => ({ ...p, interviewStatus: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-1 focus:ring-gray-900">
+                                                <option value="">All Statuses</option>
+                                                {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="mt-5 pt-3 border-t border-gray-100 flex justify-end gap-2">
+                                        <LocalButton variant="ghost" size="sm" onClick={handleClearFilters}>Clear</LocalButton>
+                                        <LocalButton variant="primary" size="sm" onClick={handleApplyFilters}>Apply</LocalButton>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <LocalButton variant={showLabels ? 'primary' : 'outline'} onClick={() => setShowLabels(!showLabels)} icon={showLabels ? FiCheck : FiList} title="Toggle between Labels and Values">
+                            {showLabels ? 'Labels' : 'Values'}
+                        </LocalButton>
+
+                        <LocalButton variant="outline" onClick={handleExport} disabled={loading} icon={FiDownload} title="Export to Excel" />
+                        
+                        <LocalButton variant="ghost" onClick={() => { setSelectedDomain(null); handleClearFilters(); }} icon={FiX} title="Close View" />
+                    </div>
                 )}
             </div>
-            <RemarksModal
-                isOpen={remarksModal.isOpen}
-                onClose={closeRemarksModal}
-                content={remarksModal.content}
-            />
+
+            {/* Main Content */}
+            <div className="flex-1 overflow-hidden relative flex flex-col">
+                
+                {!selectedDomain ? (
+                    // Summary View
+                    <div className="flex-1 overflow-auto bg-white">
+                        {loading ? (
+                            <div className="flex h-full items-center justify-center"><FiLoader className="animate-spin h-8 w-8 text-gray-300" /></div>
+                        ) : (
+                            <table className="min-w-full text-sm">
+                                <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Domain</th>
+                                        <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Candidates</th>
+                                        <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Scheduled</th>
+                                        <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Completed</th>
+                                        <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Cancelled</th>
+                                        <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">In Progress</th>
+                                        <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Pending</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50 bg-white">
+                                    {summaryData.map(item => (
+                                        <tr key={item.domainName} className="hover:bg-blue-50/50 transition-colors group">
+                                            <td className="px-6 py-4">
+                                                <button onClick={() => setSelectedDomain({ value: item.domainName, label: item.domainName })} className="font-bold text-gray-900 group-hover:text-blue-600 flex items-center gap-2">
+                                                    {item.domainName}
+                                                    <FiArrowLeft className="rotate-180 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                </button>
+                                            </td>
+                                            <td className="px-6 py-4 text-center text-gray-600 font-medium">{item.candidateCount}</td>
+                                            <td className="px-6 py-4 text-center"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">{item.scheduledCount}</span></td>
+                                            <td className="px-6 py-4 text-center"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700">{item.completedCount}</span></td>
+                                            <td className="px-6 py-4 text-center"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-50 text-red-700">{item.cancelledCount}</span></td>
+                                            <td className="px-6 py-4 text-center"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700">{item.inProgressCount}</span></td>
+                                            <td className="px-6 py-4 text-center text-gray-400">{item.pendingCount}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
+                ) : (
+                    // Detail View (Complex Table) - Full Width/Height
+                    <div className="flex-1 overflow-auto custom-scrollbar bg-white">
+                        {loading ? (
+                            <div className="flex h-full items-center justify-center"><FiLoader className="animate-spin h-8 w-8 text-gray-300" /></div>
+                        ) : evaluationData.interviews.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                                <FiList className="h-12 w-12 mb-3 opacity-20" />
+                                <p>No evaluation data found.</p>
+                            </div>
+                        ) : (
+                            <table className="min-w-full text-sm border-separate border-spacing-0">
+                                <thead className="bg-gray-50 sticky top-0 z-20 shadow-sm">
+                                    <tr>
+                                        {staticColumns.map(col => (
+                                            <th 
+                                                key={col.key} 
+                                                className={`px-4 py-3 border-b border-r border-gray-200 text-left text-xs font-bold text-gray-600 bg-gray-50 sticky top-0 ${col.isSticky ? 'z-30' : 'z-20'}`} 
+                                                style={{ 
+                                                    minWidth: col.minWidth, 
+                                                    left: col.isSticky ? col.left : 'auto',
+                                                    boxShadow: col.isSticky ? '2px 0 5px -2px rgba(0,0,0,0.1)' : 'none'
+                                                }} 
+                                                rowSpan={2}
+                                            >
+                                                {col.title}
+                                            </th>
+                                        ))}
+                                        {evaluationData.evaluationSheet?.columnGroups.map(group => {
+                                            const hasSubHeaders = group.columns.some(col => col.header && col.header.trim() !== '');
+                                            return (
+                                                <th 
+                                                    key={group.title} 
+                                                    colSpan={group.columns.length || 1} 
+                                                    rowSpan={hasSubHeaders ? 1 : 2} 
+                                                    className="px-4 py-2 border-b border-r border-gray-200 text-center text-xs font-bold text-gray-800 bg-gray-100 uppercase tracking-wide sticky top-0 z-20"
+                                                >
+                                                    {group.title}
+                                                </th>
+                                            );
+                                        })}
+                                    </tr>
+                                    <tr>
+                                        {evaluationData.evaluationSheet?.columnGroups.flatMap(group => {
+                                            const hasSubHeaders = group.columns.some(col => col.header && col.header.trim() !== '');
+                                            if (!hasSubHeaders) return null;
+                                            return group.columns.map(col => (
+                                                <th 
+                                                    key={`${group.title}-${col.header}`} 
+                                                    className="px-3 py-2 border-b border-r border-gray-200 text-left text-[11px] font-semibold text-gray-500 bg-gray-50 whitespace-nowrap top-[41px] sticky z-20" 
+                                                    style={{ minWidth: '160px' }}
+                                                >
+                                                    {col.header}
+                                                </th>
+                                            ));
+                                        })}
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-100">
+                                    {evaluationData.interviews.map(interview => (
+                                        <tr key={interview._id} className="hover:bg-gray-50/80 transition-colors group">
+                                            {staticColumns.map(col => (
+                                                <td 
+                                                    key={`${col.key}-${interview._id}`} 
+                                                    className={`px-4 py-3 border-r border-gray-100 text-xs text-gray-700 whitespace-nowrap align-middle ${col.isSticky ? 'sticky z-10 bg-white group-hover:bg-gray-50' : ''} ${col.isCustomCell ? 'p-1' : ''}`}
+                                                    style={{ 
+                                                        left: col.isSticky ? col.left : 'auto',
+                                                        boxShadow: col.isSticky ? '2px 0 5px -2px rgba(0,0,0,0.05)' : 'none'
+                                                    }}
+                                                >
+                                                    {col.render ? col.render(interview) : interview[col.key]}
+                                                </td>
+                                            ))}
+                                            {evaluationData.evaluationSheet?.columnGroups.flatMap(group =>
+                                                group.columns.map(col => (
+                                                    <td 
+                                                        key={`${(col.header || group.title)}-${interview._id}`} 
+                                                        className="px-3 py-3 border-r border-gray-100 text-xs text-gray-600 text-center whitespace-nowrap align-middle"
+                                                    >
+                                                        {renderCellContent(interview, col, group, evaluationData.evaluationSheet, showLabels)}
+                                                    </td>
+                                                ))
+                                            )}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
+                )}
+            </div>
+
+            <RemarksModal isOpen={remarksModal.isOpen} onClose={() => setRemarksModal({ isOpen: false, content: '' })} content={remarksModal.content} />
         </div>
     );
 };
