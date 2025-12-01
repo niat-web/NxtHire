@@ -3105,6 +3105,69 @@ const manualBookSlot = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Manually add interviewer slots for a specific booking date
+// @route   POST /api/admin/booking-slots/manual
+// @access  Private/Admin
+const manualAddBookingSlot = asyncHandler(async (req, res) => {
+    const { interviewerId, date, slots } = req.body;
+    const { _id: adminId } = req.user;
+
+    if (!interviewerId || !date || !slots || !Array.isArray(slots) || slots.length === 0) {
+        res.status(400);
+        throw new Error('Interviewer, date, and at least one time slot are required.');
+    }
+
+    const interviewer = await Interviewer.findById(interviewerId);
+    if (!interviewer) {
+        res.status(404);
+        throw new Error('Interviewer not found.');
+    }
+    
+    // Find or create an InterviewBooking for the specified date
+    const bookingDate = new Date(date);
+    bookingDate.setUTCHours(0, 0, 0, 0); // Normalize date to UTC midnight
+
+    let booking = await InterviewBooking.findOne({ bookingDate: bookingDate });
+
+    if (!booking) {
+        booking = new InterviewBooking({
+            bookingDate: bookingDate,
+            createdBy: adminId,
+            interviewers: []
+        });
+    }
+
+    // Check if an entry for this interviewer already exists and remove it to prevent duplicates
+    booking.interviewers = booking.interviewers.filter(
+        i => i.interviewer.toString() !== interviewerId
+    );
+
+    // Add the new or updated entry
+    booking.interviewers.push({
+        interviewer: interviewerId,
+        status: 'Submitted',
+        providedSlots: slots,
+        remarks: 'Manually added by admin.',
+        submittedAt: new Date(),
+    });
+
+    await booking.save();
+
+    logEvent('manual_slot_added_by_admin', {
+        bookingId: booking._id,
+        interviewerId: interviewerId,
+        date: bookingDate,
+        adminId: adminId
+    });
+
+    res.status(201).json({
+        success: true,
+        message: 'Interviewer slots added manually.',
+        data: booking
+    });
+});
+// --- END OF NEW FUNCTION ---
+
 module.exports = {
     getDashboardStats, getEarningsReport: generateAndGetPayoutSheet, getPaymentRequests, sendPaymentEmail,
     getApplicants, createApplicant, updateApplicant, deleteApplicant, exportApplicants,
@@ -3164,4 +3227,5 @@ module.exports = {
     updateOrSetPaymentBonus,
     deletePublicBooking,
     manualBookSlot,
+    manualAddBookingSlot,
 };
