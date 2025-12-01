@@ -167,6 +167,9 @@ export const getInterviewBookingDetails = (id) => {
 export const getBookingSlots = (params) => {
     return api.get('/api/admin/booking-slots', { params });
 };
+export const manualAddBookingSlot = (data) => {
+    return api.post('/api/admin/booking-slots/manual', data);
+};
 export const updateInterviewBooking = (id, data) => {
     return api.put(`/api/admin/bookings/${id}`, data);
 };
