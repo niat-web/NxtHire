@@ -8,7 +8,7 @@ import {
     getInterviewerEvaluationSummary,
 } from '../../api/interviewer.api';
 import { useAlert } from '../../hooks/useAlert';
-import { formatDate } from '../../utils/formatters';
+import { formatDate, formatTime } from '../../utils/formatters';
 import { debounce } from '../../utils/helpers';
 import Select from 'react-select';
 import { 
@@ -310,8 +310,13 @@ const InterviewerDomainEvaluationPage = () => {
         { key: 'candidateResume', title: 'Resume', minWidth: '100px', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"><FiExternalLink /> Link</a> : '-' }, 
         { key: 'meetingLink', title: 'Link', minWidth: '180px', render: (row) => row.meetingLink ? <a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate block max-w-[180px] text-xs" title={row.meetingLink}>{row.meetingLink}</a> : '-' }, 
         { key: 'interviewDate', title: 'Date', minWidth: '110px', render: (row) => formatDate(row.interviewDate)}, 
-        { key: 'interviewTime', title: 'Time', minWidth: '100px' }, 
-        { key: 'interviewDuration', title: 'Duration', minWidth: '100px' }, 
+        { 
+            key: 'interviewTime', 
+            title: 'Time', 
+            minWidth: '130px', 
+            render: (row) => row.interviewTime ? row.interviewTime.split('-').map(t => formatTime(t.trim())).join(' - ') : '-' 
+        }, 
+        { key: 'interviewDuration', title: 'Duration', minWidth: '100px' },
         { key: 'interviewStatus', title: 'Status', minWidth: '140px', render: (row) => <EditableStatusCell interview={row} onStatusChange={handleStatusChange} isUpdating={updatingStatusId === row._id} /> },
         { key: 'interviewerRemarks', title: 'Remarks', minWidth: '200px', isCustomCell: true, render: (row) => <EditableRemarksCell interview={row} onSave={handleRemarkSave} isUpdating={savingStates[`${row._id}-interviewerRemarks`]} />},
     ], [updatingStatusId, savingStates, handleStatusChange, handleRemarkSave]);
