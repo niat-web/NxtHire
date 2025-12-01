@@ -1,3 +1,5 @@
+// client/src/components/admin/AnalyticsDashboard.jsx
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Calendar, CheckSquare, Clock, X, BarChart2, Inbox, Filter } from 'lucide-react';
