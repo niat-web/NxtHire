@@ -63,6 +63,7 @@ const {
   updateOrSetPaymentBonus,
   deletePublicBooking,
   manualBookSlot,
+  manualAddBookingSlot,
 } = require('../controllers/admin.controller');
 const { protect, adminOnly } = require('../middleware/auth.middleware');
 const { validate, schemas } = require('../middleware/validator.middleware');
@@ -135,6 +136,7 @@ router.route('/bookings/:id').get(getInterviewBookingDetails).put(updateIntervie
 router.put('/bookings/:id/status', updateInterviewBookingStatus);
 router.delete('/bookings/:bookingId/submissions/:submissionId', resetBookingSubmission);
 router.get('/booking-slots', getBookingSlots);
+router.post('/booking-slots/manual', manualAddBookingSlot);
 
 
 // --- Main Sheet Routes ---
