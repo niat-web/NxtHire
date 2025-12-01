@@ -1,55 +1,50 @@
 // client/src/components/forms/ResetPasswordForm.jsx
-import React, { useState, useMemo } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiLock, FiEye, FiEyeOff, FiCheck, FiLoader } from 'react-icons/fi';
 import { resetPassword } from '../../api/auth.api';
 import { useAlert } from '../../hooks/useAlert';
 
-const ResetPasswordForm = () => {
+const ResetPasswordForm = ({ token }) => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { showSuccess, showError } = useAlert();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
-  const token = queryParams.get('token');
 
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm({ mode: 'onBlur' });
+  } = useForm({ mode: 'onChange' });
 
   const passwordValue = watch('password', '');
 
   const checkPasswordStrength = (password) => {
     let score = 0;
     if (!password) return score;
-
-    // Award points for length
     if (password.length >= 8) score++;
     if (password.length >= 12) score++;
-    // Award points for character types
     if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
     if (/\d/.test(password)) score++;
     if (/[^a-zA-Z0-9]/.test(password)) score++;
-    
-    return Math.min(score, 4); // Max score is 4
+    return Math.min(score, 5);
   };
 
   const passwordStrength = checkPasswordStrength(passwordValue);
-  const strengthLabels = ['Very Weak', 'Weak', 'Okay', 'Good', 'Strong'];
-  const strengthColors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-lime-500', 'bg-green-500'];
+  const strengthConfig = [
+    { label: 'Too Weak', color: 'bg-gray-200', text: 'text-gray-400' }, // 0
+    { label: 'Weak', color: 'bg-red-500', text: 'text-red-500' },       // 1
+    { label: 'Fair', color: 'bg-orange-500', text: 'text-orange-500' }, // 2
+    { label: 'Good', color: 'bg-yellow-500', text: 'text-yellow-600' }, // 3
+    { label: 'Strong', color: 'bg-green-500', text: 'text-green-600' }, // 4
+    { label: 'Excellent', color: 'bg-emerald-500', text: 'text-emerald-600' } // 5
+  ];
+  
+  const currentStrength = strengthConfig[passwordStrength];
 
   const onSubmit = async (data) => {
-    if (!token) {
-      showError('Invalid or missing token. Please use the link from your email again.');
-      return;
-    }
-
     try {
       await resetPassword({
         token,
@@ -57,109 +52,125 @@ const ResetPasswordForm = () => {
         confirmPassword: data.confirmPassword,
       });
 
-      showSuccess('Password reset successfully! You can now log in.');
-      navigate('/login');
+      showSuccess('Password reset successfully! Redirecting...');
+      setTimeout(() => navigate('/login'), 2000);
     } catch (error) {
-      showError(error.response?.data?.message || 'Failed to reset password. The link may be expired.');
+      showError(error.response?.data?.message || 'Failed to reset password.');
     }
   };
-  
-  const formInputBaseClasses = "block w-full pl-10 pr-10 py-3 border-2 placeholder-slate-400 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-opacity-50 text-sm font-medium transition-all duration-200 bg-slate-50/50 hover:bg-white focus:bg-white shadow-sm";
-  const formInputNormalClasses = "border-slate-300 focus:border-indigo-500 focus:ring-indigo-500";
-  const formInputErrorClasses = "border-red-300 focus:border-red-500 focus:ring-red-500";
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      
+      {/* New Password Field */}
       <div>
-        <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="password">
+        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2" htmlFor="password">
           New Password
         </label>
         <div className="relative">
-            <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"/>
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FiLock className="h-5 w-5 text-gray-400" />
+            </div>
             <input
               id="password"
               type={showPassword ? 'text' : 'password'}
-              className={`${formInputBaseClasses} ${errors.password ? formInputErrorClasses : formInputNormalClasses}`}
-              placeholder="Enter your new password"
+              className={`block w-full pl-10 pr-10 py-2.5 bg-white border ${
+                  errors.password 
+                    ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
+                    : 'border-gray-300 focus:ring-gray-900 focus:border-gray-900'
+                } text-gray-900 text-sm rounded-lg focus:outline-none focus:ring-1 transition-colors shadow-sm`}
+              placeholder="••••••••"
               {...register('password', {
                 required: 'New password is required',
                 minLength: {
                   value: 8,
-                  message: 'Password must be at least 8 characters long',
+                  message: 'At least 8 characters required',
                 },
               })}
             />
             <button
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
                 onClick={() => setShowPassword(!showPassword)}
             >
                 {showPassword ? <FiEyeOff className="h-5 w-5"/> : <FiEye className="h-5 w-5"/>}
             </button>
         </div>
-        {errors.password && <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>}
-        {passwordValue && (
-            <div className="mt-2">
-                <div className="flex justify-between mb-1">
-                    <span className="text-xs font-medium text-slate-600">Password Strength</span>
-                    <span className={`text-xs font-bold ${['text-red-600', 'text-orange-600', 'text-yellow-600', 'text-lime-600', 'text-green-600'][passwordStrength]}`}>
-                        {strengthLabels[passwordStrength]}
+        {errors.password && <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.password.message}</p>}
+        
+        {/* Strength Meter */}
+        {passwordValue && !errors.password && (
+            <div className="mt-3">
+                <div className="flex justify-between items-end mb-1">
+                    <span className="text-[10px] font-semibold text-gray-500 uppercase">Strength</span>
+                    <span className={`text-xs font-bold ${currentStrength.text}`}>
+                        {currentStrength.label}
                     </span>
                 </div>
-                <div className="w-full bg-slate-200 rounded-full h-2">
+                <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
                     <div
-                    className={`h-2 rounded-full transition-all duration-300 ${strengthColors[passwordStrength]}`}
-                    style={{ width: `${(passwordStrength + 1) * 20}%` }}
+                        className={`h-full transition-all duration-500 ease-out ${currentStrength.color}`}
+                        style={{ width: `${(passwordStrength / 5) * 100}%` }}
                     ></div>
                 </div>
             </div>
         )}
       </div>
 
+      {/* Confirm Password Field */}
       <div>
-        <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="confirmPassword">
+        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2" htmlFor="confirmPassword">
           Confirm Password
         </label>
         <div className="relative">
-            <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"/>
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FiLock className="h-5 w-5 text-gray-400" />
+            </div>
             <input
               id="confirmPassword"
               type={showConfirmPassword ? 'text' : 'password'}
-              className={`${formInputBaseClasses} ${errors.confirmPassword ? formInputErrorClasses : formInputNormalClasses}`}
-              placeholder="Confirm your new password"
+              className={`block w-full pl-10 pr-10 py-2.5 bg-white border ${
+                  errors.confirmPassword 
+                    ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
+                    : 'border-gray-300 focus:ring-gray-900 focus:border-gray-900'
+                } text-gray-900 text-sm rounded-lg focus:outline-none focus:ring-1 transition-colors shadow-sm`}
+              placeholder="••••••••"
               {...register('confirmPassword', {
-                required: 'Please confirm your new password',
+                required: 'Please confirm your password',
                 validate: (value) => value === passwordValue || 'Passwords do not match',
               })}
             />
             <button
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             >
                 {showConfirmPassword ? <FiEyeOff className="h-5 w-5"/> : <FiEye className="h-5 w-5"/>}
             </button>
         </div>
-        {errors.confirmPassword && <p className="mt-2 text-sm text-red-600">{errors.confirmPassword.message}</p>}
+        {errors.confirmPassword && <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.confirmPassword.message}</p>}
       </div>
 
-      <div className="!mt-8">
+      {/* Submit Button */}
+      <div className="pt-2">
         <button
           type="submit"
           disabled={isSubmitting}
-          className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-75 disabled:cursor-not-allowed"
+          className={`w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg text-sm font-bold text-white bg-gray-900 hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 shadow-sm transition-all duration-200 ${
+            isSubmitting ? 'opacity-70 cursor-not-allowed' : 'active:scale-[0.98]'
+        }`}
         >
-            <span className="absolute left-0 inset-y-0 flex items-center pl-4">
-                {isSubmitting ? (
-                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                ) : (
-                    <FiLock className="h-5 w-5 text-white/80 group-hover:text-white" />
-                )}
-            </span>
-          {isSubmitting ? 'Resetting Password...' : 'Reset Password'}
+          {isSubmitting ? (
+              <>
+                <FiLoader className="animate-spin h-5 w-5 mr-2" />
+                Resetting...
+              </>
+          ) : (
+              <>
+                <FiCheck className="h-5 w-5 mr-2" />
+                Reset Password
+              </>
+          )}
         </button>
       </div>
     </form>
