@@ -480,7 +480,7 @@ const CTASection = ({ onApplyNowClick }) => {
             </h2>
 
             <p className="text-2xl text-slate-300 mb-12 max-w-3xl mx-auto">
-              Join <span className="font-bold text-orange-400">500+ tech experts</span> who are already earning while shaping the future of technology
+              Join <span className="font-bold text-orange-400">100+ tech experts</span> who are already earning while shaping the future of technology
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
