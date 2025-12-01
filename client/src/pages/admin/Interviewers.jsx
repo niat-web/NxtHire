@@ -473,7 +473,6 @@ const Interviewers = () => {
                     {/* Filters */}
                     <div className="flex flex-wrap items-end gap-3 flex-1">
                         <div className="w-full sm:w-64">
-                            <label className="block text-xs font-bold text-gray-700 mb-1.5 ml-1">Search</label>
                             <div className="relative">
                                 <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                                 <input 
@@ -486,7 +485,6 @@ const Interviewers = () => {
                             </div>
                         </div>
                         <div className="w-full sm:w-44">
-                            <label className="block text-xs font-bold text-gray-700 mb-1.5 ml-1">Status</label>
                             <CustomSelect 
                                 value={filters.status} 
                                 onChange={(e) => setFilters(p => ({ ...p, status: e.target.value }))} 
@@ -495,7 +493,6 @@ const Interviewers = () => {
                             />
                         </div>
                         <div className="w-full sm:w-44">
-                            <label className="block text-xs font-bold text-gray-700 mb-1.5 ml-1">Domain</label>
                             <CustomSelect 
                                 value={filters.domain} 
                                 onChange={(e) => setFilters(p => ({ ...p, domain: e.target.value }))} 
