@@ -14,7 +14,7 @@ import {
 // API & Utils
 import { getDomains, getEvaluationDataForAdmin, getDomainEvaluationSummary } from '../../api/admin.api';
 import { useAlert } from '../../hooks/useAlert';
-import { formatDate } from '../../utils/formatters';
+import { formatDate, formatTime } from '../../utils/formatters';
 import { debounce } from '../../utils/helpers';
 import { MAIN_SHEET_INTERVIEW_STATUSES } from '../../utils/constants';
 
@@ -194,7 +194,12 @@ const AdminDomainEvaluationPage = () => {
             render: (row) => row.meetingLink ? <a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate block max-w-[200px] text-xs" title={row.meetingLink}>{row.meetingLink}</a> : '-' 
         },
         { key: 'interviewDate', title: 'Date', minWidth: '110px', render: (row) => formatDate(row.interviewDate) },
-        { key: 'interviewTime', title: 'Time', minWidth: '100px' },
+        { 
+            key: 'interviewTime', 
+            title: 'Time', 
+            minWidth: '130px', 
+            render: (row) => row.interviewTime ? row.interviewTime.split('-').map(t => formatTime(t.trim())).join(' - ') : '-' 
+        },
         { key: 'interviewDuration', title: 'Duration', minWidth: '100px' },
         { key: 'interviewStatus', title: 'Status', minWidth: '130px', render: (row) => <StatusBadge status={row.interviewStatus} /> },
         { 
