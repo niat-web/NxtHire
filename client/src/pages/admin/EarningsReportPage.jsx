@@ -1,681 +1,51 @@
-// import React, { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
-// import { Link } from 'react-router-dom';
-// import { Menu, Transition } from '@headlessui/react';
-// import DatePicker from 'react-datepicker';
-// import "react-datepicker/dist/react-datepicker.css";
-// import * as XLSX from 'xlsx';
-// import { saveAs } from 'file-saver';
-// import { FiArrowLeft, FiDollarSign, FiSearch, FiBarChart2, FiDownload, FiMail, FiLoader, FiChevronDown, FiX, FiInbox } from 'react-icons/fi';
-// import { getPaymentRequests, sendPaymentEmail, sendInvoiceEmail, sendPaymentReceivedEmail, getPayoutSheet, updateInterviewer } from '@/api/admin.api';
-// import { useAlert } from '@/hooks/useAlert';
-// import { format as formatDateFns } from 'date-fns';
-// import { formatCurrency, formatDateTime } from '@/utils/formatters';
-// import { debounce } from '@/utils/helpers';
-// import Table from '@/components/common/Table';
-// import SearchInput from '@/components/common/SearchInput';
-// import { startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear } from 'date-fns';
-// import Badge from '@/components/common/Badge';
-
-
-// const LocalButton = ({ children, onClick, isLoading = false, variant = 'primary', icon: Icon, className = '', disabled = false, type = 'button' }) => {
-//     const baseClasses = "inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md focus:outline-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm";
-//     const variantClasses = {
-//         primary: 'bg-blue-600 text-white hover:bg-blue-700',
-//         outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
-//     };
-//     return (
-//         <button type={type} onClick={onClick} disabled={isLoading || disabled} className={`${baseClasses} ${variantClasses[variant]} ${className}`}>
-//             {isLoading ? (
-//                 <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-
-//             ) : (
-//                 <>
-//                     {Icon && <Icon className="mr-2 h-4 w-4" />}
-//                     {children}
-//                 </>
-//             )}
-//         </button>
-//     );
-// };
-// const RemarksModal = ({ isOpen, onClose, content }) => {
-//     if (!isOpen) return null;
-
-//     return (
-//         <div 
-//             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm transition-opacity" 
-//             onClick={onClose}
-//         >
-//             <div 
-//                 className="relative w-full max-w-lg bg-white rounded-lg shadow-xl" 
-//                 onClick={e => e.stopPropagation()}
-//             >
-//                 <div className="px-6 py-4 border-b flex justify-between items-center">
-//                     <h3 className="text-lg font-semibold text-gray-900">Remarks</h3>
-//                     <button onClick={onClose} className="p-1 rounded-full text-gray-400 hover:bg-gray-200">
-//                         <FiX className="h-5 w-5"/>
-//                     </button>
-//                 </div>
-//                 <div className="p-6">
-//                     <p className="text-sm text-gray-700 whitespace-pre-wrap">{content}</p>
-//                 </div>
-//                 <div className="bg-gray-50 px-6 py-3 flex justify-end rounded-b-lg">
-//                     <LocalButton variant="outline" onClick={onClose}>Close</LocalButton>
-//                 </div>
-//             </div>
-//         </div>
-//     );
-// };
-// const LocalPaymentTable = ({ columns, data, isLoading, emptyMessage }) => {
-//     const EmptyState = () => (
-//          <div className="text-center py-16 text-gray-500">
-//             <FiInbox className="mx-auto h-10 w-10 text-gray-400 mb-2" />
-//             <h3 className="font-semibold text-gray-700">No Data Found</h3>
-//             <p className="text-sm">{emptyMessage}</p>
-//         </div>
-//     );
-//     const Loader = () => (
-//          <div className="flex justify-center items-center py-20 text-center text-gray-500">
-//             <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
-//             <span className="ml-4">Loading data...</span>
-//         </div>
-//     );
-
-//     return (
-//         <div className="w-full overflow-x-auto">
-//             <table className="min-w-full bg-white divide-y divide-gray-200">
-//                 <thead className="bg-gray-50">
-//                     <tr>
-//                         {columns.map(col => (
-//                             <th key={col.key} scope="col" className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-//                                 {col.title}
-//                             </th>
-//                         ))}
-//                     </tr>
-//                 </thead>
-//                 <tbody className="divide-y divide-gray-200">
-//                     {isLoading ? (
-//                         <tr><td colSpan={columns.length}><Loader /></td></tr>
-//                     ) : data.length === 0 ? (
-//                         <tr><td colSpan={columns.length}><EmptyState /></td></tr>
-//                     ) : (
-//                         data.map((row, rowIndex) => (
-//                             <tr key={row._id || rowIndex} className="hover:bg-gray-50 transition-colors">
-//                                 {columns.map(col => (
-//                                     <td key={col.key} className="px-2 py-2 whitespace-nowrap text-xs text-gray-700 align-middle">
-//                                         {col.render ? col.render(row) : row[col.key]}
-//                                     </td>
-//                                 ))}
-//                             </tr>
-//                         ))
-//                     )}
-//                 </tbody>
-//             </table>
-//         </div>
-//     );
-// };
-
-
-// const EditableInterviewerIDCell = ({ row, onSave }) => {
-//     const [value, setValue] = useState(row.interviewer?.interviewerId || '');
-//     const [isLoading, setIsLoading] = useState(false);
-//     const { showError } = useAlert();
-
-//     useEffect(() => {
-//         setValue(row.interviewer?.interviewerId || '');
-//     }, [row.interviewer?.interviewerId]);
-
-//     const handleSave = async () => {
-//         const originalValue = row.interviewer?.interviewerId || '';
-//         if (value.trim() === originalValue.trim()) {
-//             return; // No changes to save
-//         }
-
-//         setIsLoading(true);
-//         try {
-//             await onSave(row.interviewer._id, value.trim());
-//         } catch (error) {
-//             setValue(originalValue); // Revert value on error
-//             showError('Failed to update Interviewer ID.');
-//         } finally {
-//             setIsLoading(false);
-//         }
-//     };
-
-//     return (
-//         <div className="relative">
-//             <input
-//                 type="text"
-//                 value={value}
-//                 onChange={(e) => setValue(e.target.value)}
-//                 onBlur={handleSave}
-//                 disabled={isLoading}
-//                 className="w-full text-xs p-2 border border-transparent rounded-md bg-transparent focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
-//             />
-//             {isLoading && <FiLoader className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-gray-400" />}
-//         </div>
-//     );
-// };
-
-// const CompactTable = ({ columns, data, isLoading, emptyMessage }) => {
-//     const EmptyState = () => (
-//          <div className="text-center py-16 text-gray-500">
-//             <FiInbox className="mx-auto h-10 w-10 text-gray-400 mb-2" />
-//             <h3 className="font-semibold text-gray-700">No Data Found</h3>
-//             <p className="text-sm">{emptyMessage}</p>
-//         </div>
-//     );
-//     const Loader = () => (
-//          <div className="flex justify-center items-center py-20 text-center text-gray-500">
-//             <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
-//             <span className="ml-4">Loading data...</span>
-//         </div>
-//     );
-
-//     return (
-//         <div className="w-full overflow-x-auto">
-//             <table className="min-w-full bg-white divide-y divide-gray-200">
-//                 <thead className="bg-gray-50">
-//                     <tr>
-//                         {columns.map(col => (
-//                             <th key={col.key} scope="col" className="px-3 py-2 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-//                                 {col.title}
-//                             </th>
-//                         ))}
-//                     </tr>
-//                 </thead>
-//                 <tbody className="divide-y divide-gray-200">
-//                     {isLoading ? (
-//                         <tr><td colSpan={columns.length}><Loader /></td></tr>
-//                     ) : data.length === 0 ? (
-//                         <tr><td colSpan={columns.length}><EmptyState /></td></tr>
-//                     ) : (
-//                         data.map((row, rowIndex) => (
-//                             <tr key={row._id || rowIndex} className="hover:bg-gray-50 transition-colors">
-//                                 {columns.map(col => (
-//                                     // --- MODIFICATION: Conditionally apply wrapping class ---
-//                                     <td key={col.key} className={`px-3 py-1.5 text-xs align-middle text-gray-700 ${col.allowWrap ? 'whitespace-normal break-words' : 'whitespace-nowrap'}`}>
-//                                         {col.render ? col.render(row) : row[col.key]}
-//                                     </td>
-//                                 ))}
-//                             </tr>
-//                         ))
-//                     )}
-//                 </tbody>
-//             </table>
-//         </div>
-//     );
-// };
-
-
-// const PayoutSheetView = () => {
-//     const { showError, showSuccess } = useAlert();
-//     const [loading, setLoading] = useState(true);
-//     const [payoutData, setPayoutData] = useState([]);
-//     const [searchTerm, setSearchTerm] = useState('');
-//     const [date, setDate] = useState(new Date());
-
-//     const fetchPayoutSheet = useCallback(async (selectedDate) => {
-//         setLoading(true);
-//         try {
-//             const startDate = startOfMonth(selectedDate);
-//             const endDate = endOfMonth(selectedDate);
-//             const params = {
-//                 search: searchTerm,
-//                 startDate: startDate.toISOString(),
-//                 endDate: endDate.toISOString(),
-//             };
-//             const response = await getPayoutSheet(params);
-//             setPayoutData(response.data.data.payoutSheet || []);
-//         } catch (err) {
-//             showError('Failed to fetch Payout Sheet.');
-//             setPayoutData([]);
-//         } finally {
-//             setLoading(false);
-//         }
-//     }, [showError, searchTerm]);
-    
-//     useEffect(() => {
-//         const handler = debounce(() => fetchPayoutSheet(date), 300);
-//         handler();
-//         return () => handler.cancel();
-//     }, [date, searchTerm, fetchPayoutSheet]);
-
-//     const handleExport = () => {
-//         if (!payoutData || payoutData.length === 0) {
-//             return showError("No data available to export.");
-//         }
-        
-//         const dataToExport = payoutData.map(row => ({
-//             "user_id": row.interviewer.interviewerId,
-//             "association_name_enum": row.associationName,
-//             "activity_name_enum": row.activityName,
-//             "activity_reference_id": row.activityReferenceId,
-//             "activity_datetime": formatDateTime(row.activityDatetime),
-//             "points": row.points,
-//             "points_vesting_datetime": formatDateTime(row.pointsVestingDatetime)
-//         }));
-        
-//         const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-//         const workbook = XLSX.utils.book_new();
-//         XLSX.utils.book_append_sheet(workbook, worksheet, 'Payout Sheet');
-//         const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-//         const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
-//         saveAs(blob, `PayoutSheet_${formatDateFns(date, 'MMM-yyyy')}.xlsx`);
-//         showSuccess("Export successful!");
-//     };
-
-//     const handleInterviewerIdSave = useCallback(async (interviewerMongoId, newInterviewerId) => {
-//         await updateInterviewer(interviewerMongoId, { interviewerId: newInterviewerId });
-//         setPayoutData(prevData =>
-//             prevData.map(row => {
-//                 if (row.interviewer && row.interviewer._id === interviewerMongoId) {
-//                     return {
-//                         ...row,
-//                         interviewer: {
-//                             ...row.interviewer,
-//                             interviewerId: newInterviewerId
-//                         }
-//                     };
-//                 }
-//                 return row;
-//             })
-//         );
-//         showSuccess('Interviewer ID updated!');
-//     }, [showSuccess]);
-    
-//     const formatCustomDateTime = (isoDate) => {
-//         if (!isoDate) return '';
-//         return formatDateFns(new Date(isoDate), 'yyyy-MM-dd HH:mm:ss');
-//     };
-
-//     // --- MODIFICATION: Adjusted minWidth and added allowWrap to condense columns ---
-//     const columns = useMemo(() => [
-//         { key: 'interviewer_id', title: 'Interviewer ID', minWidth: '280px', render: (row) => <EditableInterviewerIDCell row={row} onSave={handleInterviewerIdSave} /> },
-//         { key: 'association_name_enum', title: 'Association Name' , allowWrap: true, render: (row) => row.associationName},
-//         { key: 'activity_name_enum', title: 'Activity Name', allowWrap: true, render: (row) => row.activityName },
-//         { key: 'activity_reference_id', title: 'Activity Reference ID', minWidth: '150px', render: (row) => row.activityReferenceId },
-//         { key: 'activity_datetime', title: 'Activity DateTime', minWidth: '150px', render: (row) => formatCustomDateTime(row.activityDatetime) },
-//         { key: 'points', title: 'Points', render: (row) => row.points },
-//         { key: 'points_vesting_datetime', title: 'Points Vesting DateTime', minWidth: '150px', render: (row) => formatCustomDateTime(row.pointsVestingDatetime) }
-//     ], [handleInterviewerIdSave]);
-
-//     const filterOptions = ["This Month", "Last Month"];
-    
-//     const handleFilterClick = (filter) => {
-//         if (filter === 'This Month') setDate(new Date());
-//         if (filter === 'Last Month') setDate(subMonths(new Date(), 1));
-//     };
-
-//     return (
-//         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-//             <div className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-b">
-//                 <SearchInput
-//                     value={searchTerm}
-//                     onChange={(e) => setSearchTerm(e.target.value)}
-//                     placeholder="Search records by Interviewer ID..."
-//                     className="w-full sm:w-64"
-//                 />
-//                 <div className="flex items-center gap-2">
-//                      {filterOptions.map(opt => (
-//                         <button key={opt} onClick={() => handleFilterClick(opt)} className="px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 bg-white hover:bg-gray-50">{opt}</button>
-//                     ))}
-//                     <div className="w-full sm:w-40">
-//                         <DatePicker
-//                             selected={date}
-//                             onChange={(d) => setDate(d)}
-//                             dateFormat="MMM yyyy"
-//                             showMonthYearPicker
-//                             className="w-full form-input py-1 text-center"
-//                             popperClassName="z-50"
-//                             popperPlacement="bottom-end"
-//                         />
-//                     </div>
-//                     <button onClick={handleExport} disabled={loading || payoutData.length === 0} className="p-2 border border-gray-300 rounded-md bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50" title="Export to Excel">
-//                         <FiDownload className="h-5 w-5" />
-//                     </button>
-//                 </div>
-//             </div>
-//             <div className="overflow-x-auto">
-//                 <CompactTable columns={columns} data={payoutData} isLoading={loading} emptyMessage="No payout data for the selected month." />
-//             </div>
-//         </div>
-//     );
-// };
-
-
-// const PaymentRequestsView = () => {
-//     const { showError, showSuccess } = useAlert();
-//     const [loading, setLoading] = useState(true);
-//     const [requests, setRequests] = useState([]);
-//     const [sendingInvoiceId, setSendingInvoiceId] = useState(null); 
-//     const [sendingPaymentReceivedId, setSendingPaymentReceivedId] = useState(null);
-//     const [sendingEmailId, setSendingEmailId] = useState(null);
-//     const [dateRange, setDateRange] = useState([startOfMonth(new Date()), endOfMonth(new Date())]);
-//     const [startDate, endDate] = dateRange;
-//     const [activeFilter, setActiveFilter] = useState("This Month");
-//     const [remarksModal, setRemarksModal] = useState({ isOpen: false, content: '' });
-
-//     const fetchRequests = useCallback(async () => {
-//         setLoading(true);
-//         try {
-//             const params = {
-//                 startDate: startDate ? startDate.toISOString() : null,
-//                 endDate: endDate ? endDate.toISOString() : null,
-//             };
-//             const response = await getPaymentRequests(params);
-//             setRequests(response.data.data);
-//         } catch (err) {
-//             showError('Failed to fetch payment requests.');
-//         } finally {
-//             setLoading(false);
-//         }
-//     }, [showError, startDate, endDate]);
-    
-//     useEffect(() => { fetchRequests(); }, [fetchRequests]);
-
-//     const handleFilterClick = (filter) => {
-//         setActiveFilter(filter);
-//         const now = new Date();
-//         let newStartDate, newEndDate;
-//         switch (filter) {
-//             case "This Month": [newStartDate, newEndDate] = [startOfMonth(now), endOfMonth(now)]; break;
-//             case "Last Month": const last = subMonths(now, 1); [newStartDate, newEndDate] = [startOfMonth(last), endOfMonth(last)]; break;
-//             case "Last 6 Months": [newStartDate, newEndDate] = [startOfMonth(subMonths(now, 5)), endOfMonth(now)]; break;
-//             case "This Year": [newStartDate, newEndDate] = [startOfYear(now), endOfYear(now)]; break;
-//             default: [newStartDate, newEndDate] = [startOfMonth(now), endOfMonth(now)];
-//         }
-//         setDateRange([newStartDate, newEndDate]);
-//     };
-    
-//     const handleDateChange = (update) => {
-//         setDateRange(update);
-//         setActiveFilter('Custom');
-//     };
-
-//     const handleSendEmail = async (rowData) => {
-//         setSendingEmailId(rowData._id);
-//         try {
-//             await sendPaymentEmail({
-//                 interviewerId: rowData._id,
-//                 email: rowData.email,
-//                 name: rowData.fullName,
-//                 monthYear: new Date(startDate).toLocaleString('default', { month: 'long', year: 'numeric' }),
-//                 payPerInterview: rowData.paymentAmount,
-//                 interviewCount: rowData.interviewsCompleted,
-//                 totalAmount: rowData.totalAmount,
-//                 startDate: startDate.toISOString(),
-//                 endDate: endDate.toISOString(),
-//             });
-//             showSuccess(`Payment confirmation sent to ${rowData.fullName}.`);
-//             setRequests(prevRequests =>
-//                 prevRequests.map(req =>
-//                     req._id === rowData._id
-//                         ? { ...req, emailSentStatus: 'Sent', confirmationStatus: 'Pending' }
-//                         : req
-//                 )
-//             );
-//         } catch(err) {
-//             showError("Failed to send email.");
-//         } finally {
-//             setSendingEmailId(null);
-//         }
-//     };
-    
-//     const handleSendInvoiceEmail = async (rowData) => {
-//         setSendingInvoiceId(rowData._id);
-//         try {
-//             const emailPayload = {
-//                 interviewerId: rowData._id,
-//                 email: rowData.email,
-//                 name: rowData.fullName,
-//                 interviewCount: rowData.interviewsCompleted,
-//                 totalAmount: rowData.totalAmount,
-//                 startDate: startDate.toISOString(),
-//                 endDate: endDate.toISOString(),
-//             };
-//             await sendInvoiceEmail(emailPayload);
-//             showSuccess(`Invoice redeem email sent to ${rowData.fullName}.`);
-//             setRequests(prevRequests =>
-//                 prevRequests.map(req =>
-//                     req._id === rowData._id
-//                         ? { ...req, invoiceEmailSentStatus: 'Sent' }
-//                         : req
-//                 )
-//             );
-//         } catch(err) {
-//             showError("Failed to send invoice email.");
-//         } finally {
-//             setSendingInvoiceId(null);
-//         }
-//     };
-    
-//     const handleSendPaymentReceivedEmail = async (rowData) => {
-//         setSendingPaymentReceivedId(rowData._id);
-//         try {
-//             await sendPaymentReceivedEmail({
-//                  interviewerId: rowData._id,
-//                  email: rowData.email,
-//                  name: rowData.fullName,
-//                  startDate: startDate.toISOString(),
-//                  endDate: endDate.toISOString(),
-//                  totalAmount: rowData.totalAmount,
-//                  interviewCount: rowData.interviewsCompleted,
-//             });
-//             showSuccess(`"Payment Received" confirmation sent to ${rowData.fullName}.`);
-//             setRequests(prev => prev.map(r => r._id === rowData._id ? {...r, paymentReceivedEmailSentAt: new Date()} : r));
-//         } catch(err) {
-//             showError("Failed to send email.");
-//         } finally {
-//             setSendingPaymentReceivedId(null);
-//         }
-//     };
-
-//     const columns = useMemo(() => [
-//         { key: 'month', title: 'Month', render: () => startDate ? startDate.toLocaleString('default', { month: 'long', year: 'numeric' }) : '' },
-//         { key: 'interviewerId', title: 'Interviewer ID' },
-//         { key: 'fullName', title: 'Interviewer Name' },
-//         { key: 'email', title: 'Interviewer Email' },
-//         { key: 'mobileNumber', title: 'Mobile Number' },
-//         { key: 'paymentAmount', title: 'Amount', render: (row) => row.paymentAmount },
-//         { key: 'companyType', title: 'Type of Company' },
-//         { key: 'interviewsCompleted', title: 'Count', render: (row) => (<div className="text-center font-semibold">{row.interviewsCompleted}</div>) },
-//         { key: 'totalAmount', title: 'Total Amount', render: (row) => <span className="font-bold">{formatCurrency(row.totalAmount)}</span> },
-//         { key: 'actions', title: 'Actions', render: (row) => (
-//             <LocalButton onClick={() => handleSendEmail(row)} isLoading={sendingEmailId === row._id} variant="primary" className="!text-xs !py-1 !px-3" title="Send Payment Confirmation" disabled={row.emailSentStatus === 'Sent'}>
-//                 {row.emailSentStatus === 'Sent' ? 'Sent' : 'Send'}
-//             </LocalButton>
-//         )},
-//         { key: 'emailSentStatus', title: 'Status', render: (row) => <Badge variant={row.emailSentStatus === 'Sent' ? 'success' : 'gray'}>{row.emailSentStatus}</Badge>},
-//         { key: 'confirmationStatus', title: 'Confirmation', render: (row) => <Badge variant={row.confirmationStatus === 'Confirmed' ? 'success' : row.confirmationStatus === 'Disputed' ? 'danger' : 'warning'}>{row.confirmationStatus}</Badge>},
-//         { key: 'confirmationRemarks', title: 'Confirmation Remarks',  render: (row) => { const remarks = row.confirmationRemarks; const charLimit = 30; if (!remarks) return <span className="text-gray-400">--</span>; if (remarks.length <= charLimit) return <span title={remarks}>{remarks}</span>; return (<div className="flex items-center"><span className="truncate" title={remarks}>{remarks.substring(0, charLimit)}...</span><button onClick={() => setRemarksModal({ isOpen: true, content: remarks })} className="ml-1 text-blue-600 hover:underline text-xs font-semibold flex-shrink-0">more</button></div>); } },
-//         { key: 'invoiceMail', title: 'Invoice Mail', render: (row) => ( <LocalButton onClick={() => handleSendInvoiceEmail(row)} isLoading={sendingInvoiceId === row._id} variant="primary" className="!text-xs !py-1 !px-3" disabled={row.invoiceEmailSentStatus === 'Sent'}> {row.invoiceEmailSentStatus === 'Sent' ? 'Sent' : 'Send'} </LocalButton>) },
-//         { key: 'invoiceMailStatus', title: 'Status', render: (row) => <Badge variant={row.invoiceEmailSentStatus === 'Sent' ? 'success' : 'gray'}>{row.invoiceEmailSentStatus}</Badge> },
-        
-//         // ** FOUR NEW COLUMNS **
-//         {
-//             key: 'paymentReceivedMail',
-//             title: 'Payment Received',
-//             render: (row) => (
-//                 <LocalButton
-//                     onClick={() => handleSendPaymentReceivedEmail(row)}
-//                     isLoading={sendingPaymentReceivedId === row._id}
-//                     variant="primary"
-//                     className="!text-xs !py-1 !px-3"
-//                     disabled={!!row.paymentReceivedEmailSentAt}
-//                 >
-//                     {row.paymentReceivedEmailSentAt ? 'Sent' : 'Send'}
-//                 </LocalButton>
-//             )
-//         },
-//         {
-//             key: 'paymentReceivedMailStatus',
-//             title: 'Status',
-//             render: (row) => <Badge variant={row.paymentReceivedEmailSentAt ? 'success' : 'gray'}>{row.paymentReceivedEmailSentAt ? 'Sent' : 'Not Sent'}</Badge>
-//         },
-//         {
-//             key: 'paymentReceivedStatus',
-//             title: 'Payment Received',
-//             render: (row) => <Badge variant={row.paymentReceivedStatus === 'Received' ? 'success' : row.paymentReceivedStatus === 'Not Received' ? 'danger' : 'warning'}>{row.paymentReceivedStatus}</Badge>
-//         },
-//         {
-//             key: 'paymentReceivedRemarks',
-//             title: 'Payment Remarks',
-//             render: (row) => {
-//                 const remarks = row.paymentReceivedRemarks;
-//                 const charLimit = 30;
-//                 if (!remarks) {
-//                     return <span className="text-gray-400">--</span>;
-//                 }
-//                 if (remarks.length <= charLimit) {
-//                     return <span title={remarks}>{remarks}</span>;
-//                 }
-//                 return (
-//                     <div className="flex items-center">
-//                         <span className="truncate" title={remarks}>
-//                             {remarks.substring(0, charLimit)}...
-//                         </span>
-//                         <button 
-//                             onClick={() => setRemarksModal({ isOpen: true, content: remarks })} 
-//                             className="ml-1 text-blue-600 hover:underline text-xs font-semibold flex-shrink-0">
-//                             more
-//                         </button>
-//                     </div>
-//                 );
-//             }
-//         },
-//     ], [startDate, endDate, sendingEmailId, sendingInvoiceId, sendingPaymentReceivedId, fetchRequests, setRemarksModal]);
-
-
-//     const filterOptions = ["This Month", "Last Month", "Last 6 Months", "This Year"];
-
-//     return (
-//         <div className="bg-white shadow-sm border border-gray-200">
-//             <div className="p-4 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-gray-200">
-//                 <h3 className="text-lg font-semibold text-gray-800">Payment Requests</h3>
-//                 <div className="flex items-center gap-2">
-//                      <div className="w-full sm:w-72">
-//                         <DatePicker
-//                             selectsRange={true}
-//                             startDate={startDate}
-//                             endDate={endDate}
-//                             onChange={handleDateChange}
-//                             isClearable={true}
-//                             className="w-full form-input py-2"
-//                             popperPlacement="bottom-end"
-//                             popperClassName="z-30"
-//                         />
-//                     </div>
-//                     <Menu as="div" className="relative inline-block text-left">
-//                          <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-//                              {activeFilter !== 'Custom' ? activeFilter : "Presets"}
-//                              <FiChevronDown className="-mr-1 ml-2 h-5 w-5" />
-//                          </Menu.Button>
-//                          <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="transform opacity-0 scale-95" enterTo="transform opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="transform opacity-100 scale-100" leaveTo="transform opacity-0 scale-95">
-//                              <Menu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-30 focus:outline-none">
-//                                  <div className="py-1">
-//                                      {filterOptions.map(opt => (
-//                                          <Menu.Item key={opt}>
-//                                              {({ active }) => (
-//                                                  <button onClick={() => handleFilterClick(opt)} className={`${active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} block w-full text-left px-4 py-2 text-sm`}>
-//                                                      {opt}
-//                                                  </button>
-//                                              )}
-//                                          </Menu.Item>
-//                                      ))}
-//                                  </div>
-//                              </Menu.Items>
-//                          </Transition>
-//                      </Menu>
-//                 </div>
-//             </div>
-//             <div className="overflow-x-auto">
-//                 <LocalPaymentTable columns={columns} data={requests} isLoading={loading} emptyMessage="No payment requests for this period." />
-//             </div>
-
-//             <RemarksModal
-//                 isOpen={remarksModal.isOpen}
-//                 onClose={() => setRemarksModal({ isOpen: false, content: '' })}
-//                 content={remarksModal.content}
-//             />
-//         </div>
-//     );
-// };
-
-
-// const EarningsReportPage = () => {
-//     const [activeView, setActiveView] = useState('payments');
-
-//     return (
-//         <div className="p-4 sm:p-6 lg:p-8 bg-slate-50 min-h-screen">
-//             <div className="w-full">
-//                 <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-//                     <div>
-//                         <Link to="/admin/dashboard" className="text-blue-600 hover:text-blue-800 flex items-center text-sm font-medium mb-2 group">
-//                             <FiArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
-//                             Back to Dashboard
-//                         </Link>
-//                     </div>
-//                      <div className="bg-gray-200 p-1 rounded-full flex self-end sm:self-center">
-//                         <button
-//                             onClick={() => setActiveView('payments')}
-//                             className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-all duration-300 ${activeView === 'payments' ? 'bg-white text-blue-600 shadow-md' : 'text-gray-600'}`}
-//                         >
-//                             Payment Requests
-//                         </button>
-//                         <button
-//                             onClick={() => setActiveView('payout')}
-//                             className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-all duration-300 ${activeView === 'payout' ? 'bg-white text-blue-600 shadow-md' : 'text-gray-600'}`}
-//                         >
-//                             PayOut Sheet
-//                         </button>
-//                     </div>
-//                 </div>
-
-//                 {activeView === 'payments' && <PaymentRequestsView />}
-//                 {activeView === 'payout' && <PayoutSheetView />}
-
-//             </div>
-//         </div>
-//     );
-// };
-
-// export default EarningsReportPage;
-
-
-import React, { useState, useEffect, useCallback, useMemo, Fragment, useRef } from 'react';
+// client/src/pages/admin/EarningsReportPage.jsx
+import React, { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, Transition } from '@headlessui/react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
-import { FiArrowLeft, FiDollarSign, FiSearch, FiBarChart2, FiDownload, FiMail, FiLoader, FiChevronDown, FiX, FiInbox, FiCalendar, FiFilter, FiChevronLeft, FiChevronRight, FiChevronsLeft, FiChevronsRight, FiUsers, FiClipboard, FiFileText } from 'react-icons/fi';
-import { getPaymentRequests, sendPaymentEmail, sendInvoiceEmail, sendPaymentReceivedEmail, getPayoutSheet, updateInterviewer, getYearlyEarningsSummary, getMonthlyEarningsDetails, saveBonusAmount } from '@/api/admin.api';
-import { useAlert } from '@/hooks/useAlert';
-import { format as formatDateFns } from 'date-fns';
-import { formatCurrency, formatDateTime } from '@/utils/formatters';
-import { debounce } from '@/utils/helpers';
-import Table from '@/components/common/Table';
-import SearchInput from '@/components/common/SearchInput';
-import { startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear } from 'date-fns';
-import Badge from '@/components/common/Badge';
+import { 
+    FiArrowLeft, FiDollarSign, FiSearch, FiBarChart2, FiDownload, 
+    FiLoader, FiChevronDown, FiX, FiInbox, FiCalendar, 
+    FiFilter, FiChevronLeft, FiChevronRight, FiChevronsLeft, 
+    FiChevronsRight, FiFileText, FiEdit2, FiAlertTriangle
+} from 'react-icons/fi';
+import { getPaymentRequests, sendPaymentEmail, sendInvoiceEmail, sendPaymentReceivedEmail, getPayoutSheet, updateInterviewer, getYearlyEarningsSummary, getMonthlyEarningsDetails, saveBonusAmount } from '../../api/admin.api';
+import { useAlert } from '../../hooks/useAlert';
+import { format as formatDateFns, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear } from 'date-fns';
+import { formatCurrency, formatDateTime } from '../../utils/formatters';
+import { debounce } from '../../utils/helpers';
+import Badge from '../../components/common/Badge';
 
-const LocalButton = ({ children, onClick, isLoading = false, variant = 'primary', icon, className = '', disabled = false, type = 'button' }) => {
-    const baseClasses = "inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm";
-    const variantClasses = {
-        primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
-        secondary: 'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500',
-        outline: 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 focus:ring-gray-400',
-        danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
-        ghost: 'bg-transparent text-gray-700 hover:bg-gray-100',
+// --- STYLED COMPONENTS ---
+
+const LocalButton = ({ children, onClick, isLoading = false, variant = 'primary', icon: Icon, className = '', disabled = false, title = '' }) => {
+    const base = "inline-flex items-center justify-center font-bold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-1 active:scale-[0.98]";
+    
+    const sizes = {
+        xs: 'text-xs px-2.5 py-1.5',
+        sm: 'text-xs px-3 py-2',
+        md: 'text-sm px-4 py-2.5'
     };
-    const iconOnlyClass = !children && icon ? '!p-1.5' : '';
+
+    const variants = {
+        primary: 'bg-gray-900 text-white hover:bg-black border border-transparent shadow-sm focus:ring-gray-900',
+        secondary: 'bg-[#FFD130] text-gray-900 hover:bg-[#FFC400] border border-[#FFD130] shadow-sm',
+        outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 hover:border-gray-400',
+        danger: 'bg-white text-red-600 border border-red-200 hover:bg-red-50',
+        ghost: 'bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+    };
+
+    const sizeClass = className.includes('text-xs') || className.includes('text-[10px]') ? sizes.xs : sizes.md;
+
     return (
-        <button type={type} onClick={onClick} disabled={isLoading || disabled} className={`${baseClasses} ${variantClasses[variant]} ${iconOnlyClass} ${className}`}>
+        <button onClick={onClick} disabled={isLoading || disabled} className={`${base} ${sizeClass} ${variants[variant]} ${className}`} title={title}>
             {isLoading ? (
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                <FiLoader className="animate-spin h-4 w-4 mr-2" />
             ) : (
-                icon && <span className={children ? 'mr-2' : ''}>{icon}</span>
+                Icon && <Icon className={`h-4 w-4 ${children ? 'mr-2' : ''}`} />
             )}
             {isLoading ? "Processing..." : children}
         </button>
@@ -684,280 +54,188 @@ const LocalButton = ({ children, onClick, isLoading = false, variant = 'primary'
 
 const RemarksModal = ({ isOpen, onClose, content }) => {
     if (!isOpen) return null;
-
     return (
-        <div 
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity" 
-            onClick={onClose}
-        >
-            <div 
-                className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl transform transition-all" 
-                onClick={e => e.stopPropagation()}
-            >
-                <div className="px-6 py-5 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl">
-                    <h3 className="text-xl font-bold text-gray-900">Remarks</h3>
-                    <button 
-                        onClick={onClose} 
-                        className="p-2 rounded-full text-gray-400 hover:bg-white hover:text-gray-600 transition-all duration-200"
-                    >
-                        <FiX className="h-5 w-5"/>
-                    </button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm" onClick={onClose}>
+            <div className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl flex flex-col" onClick={e => e.stopPropagation()}>
+                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-xl">
+                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Remarks</h3>
+                    <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500"><FiX className="h-4 w-4" /></button>
                 </div>
-                <div className="p-6 max-h-96 overflow-y-auto">
-                    <p className="text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">{content}</p>
+                <div className="p-6 overflow-y-auto max-h-[60vh]">
+                    <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{content}</p>
                 </div>
-                <div className="bg-gray-50 px-6 py-4 flex justify-end rounded-b-2xl border-t border-gray-200">
-                    <LocalButton variant="outline" onClick={onClose}>Close</LocalButton>
+                <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
+                    <LocalButton variant="outline" onClick={onClose} size="sm">Close</LocalButton>
                 </div>
             </div>
         </div>
     );
 };
 
-const LocalPaymentTable = ({ columns, data, isLoading, emptyMessage }) => {
-    const EmptyState = () => (
-        <div className="text-center py-20 px-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-                <FiInbox className="h-8 w-8 text-gray-400" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">No Data Found</h3>
-            <p className="text-sm text-gray-500">{emptyMessage}</p>
-        </div>
-    );
-
+// --- TABLE COMPONENT (Fixed Layout & Scroll) ---
+const CompactTable = ({ columns, data, isLoading, emptyMessage, onRowClick, error }) => {
     const Loader = () => (
-        <div className="flex flex-col justify-center items-center py-24 text-center">
-            <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-            <span className="text-sm font-medium text-gray-600">Loading data...</span>
+        <div className="flex flex-col justify-center items-center py-20 h-full">
+            <FiLoader className="w-8 h-8 text-gray-400 animate-spin mb-3" />
+            <span className="text-sm font-medium text-gray-500">Loading records...</span>
         </div>
     );
 
-    return (
-        <div className="">
-            <table className="min-w-full bg-white divide-y divide-gray-200">
-                <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
-                    <tr>
-                        {columns.map(col => (
-                            <th 
-                                key={col.key} 
-                                scope="col" 
-                                className={`px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap ${col.isSticky ? 'sticky left-0 z-20 bg-gradient-to-r from-gray-50 to-gray-100 border-r border-gray-200' : ''}`}
-                            >
-                                {col.title}
-                            </th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                    {isLoading ? (
-                        <tr><td colSpan={columns.length}><Loader /></td></tr>
-                    ) : data.length === 0 ? (
-                        <tr><td colSpan={columns.length}><EmptyState /></td></tr>
-                    ) : (
-                        data.map((row, rowIndex) => (
-                            <tr key={row._id || rowIndex} className="hover:bg-blue-50/50 transition-colors duration-150 group">
-                                {columns.map(col => (
-                                    <td key={col.key} className={`px-4 py-4 whitespace-nowrap text-sm text-gray-700 align-middle ${col.isSticky ? 'sticky left-0 z-10 bg-white group-hover:bg-blue-50/50 border-r border-gray-200' : ''}`}>
-                                        {col.render ? col.render(row) : row[col.key]}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
-        </div>
-    );
-};
-
-const EditableInterviewerIDCell = ({ row, onSave }) => {
-    const [value, setValue] = useState(row.interviewer?.interviewerId || '');
-    const [isLoading, setIsLoading] = useState(false);
-    const { showError } = useAlert();
-
-    useEffect(() => {
-        setValue(row.interviewer?.interviewerId || '');
-    }, [row.interviewer?.interviewerId]);
-
-    const handleSave = async () => {
-        const originalValue = row.interviewer?.interviewerId || '';
-        if (value.trim() === originalValue.trim()) {
-            return;
-        }
-
-        setIsLoading(true);
-        try {
-            await onSave(row.interviewer._id, value.trim());
-        } catch (error) {
-            setValue(originalValue);
-            showError('Failed to update Interviewer ID.');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    return (
-        <div className="relative">
-            <input
-                type="text"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                onBlur={handleSave}
-                disabled={isLoading}
-                className="w-full text-sm px-3 py-2 border border-gray-200 rounded-lg bg-white focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
-            />
-            {isLoading && (
-                <FiLoader className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-blue-500" />
-            )}
-        </div>
-    );
-};
-
-const CompactTable = ({ columns, data, isLoading, emptyMessage, onRowClick }) => {
-    const EmptyState = () => (
-        <div className="text-center py-20 px-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-                <FiInbox className="h-8 w-8 text-gray-400" />
+    const EmptyState = ({ msg }) => (
+        <div className="flex flex-col items-center justify-center py-20 text-center h-full">
+            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                <FiInbox className="h-8 w-8 text-gray-300" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">No Data Found</h3>
-            <p className="text-sm text-gray-500">{emptyMessage}</p>
+            <h3 className="text-lg font-bold text-gray-900">No Data Found</h3>
+            <p className="text-sm text-gray-500 mt-1 max-w-xs">{msg}</p>
         </div>
     );
 
-    const Loader = () => (
-        <div className="flex flex-col justify-center items-center py-24 text-center">
-            <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-            <span className="text-sm font-medium text-gray-600">Loading data...</span>
+    const ErrorState = ({ msg }) => (
+        <div className="flex flex-col items-center justify-center py-20 text-center h-full">
+            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
+                <FiAlertTriangle className="h-8 w-8 text-red-400" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">Unable to Load Data</h3>
+            <p className="text-sm text-gray-500 mt-1 max-w-xs">{msg || "An unexpected error occurred."}</p>
         </div>
     );
 
     return (
-        <div className="w-full overflow-x-auto">
-            <table className="min-w-full bg-white divide-y divide-gray-200">
-                <thead className="bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0 z-10">
-                    <tr>
-                        {columns.map(col => (
-                            <th 
-                                key={col.key} 
-                                scope="col" 
-                                className={`px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider ${col.isSticky ? 'sticky left-0 z-20 bg-gradient-to-r from-gray-50 to-gray-100 border-r border-gray-200' : ''}`}
-                            >
-                                {col.title}
-                            </th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                    {isLoading ? (
-                        <tr><td colSpan={columns.length}><Loader /></td></tr>
-                    ) : data.length === 0 ? (
-                        <tr><td colSpan={columns.length}><EmptyState /></td></tr>
-                    ) : (
-                        data.map((row, rowIndex) => (
-                            <tr 
-                                key={row._id || rowIndex} 
-                                className={`group hover:bg-blue-50/50 transition-colors duration-150 ${rowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'} ${onRowClick ? 'cursor-pointer' : ''}`}
-                                onClick={() => onRowClick && onRowClick(row)}
-                            >
-                                {columns.map(col => (
-                                    <td 
-                                        key={col.key} 
-                                        className={`px-4 py-3 text-sm align-middle text-gray-700 ${col.allowWrap ? 'whitespace-normal break-words' : 'whitespace-nowrap'} ${col.isSticky ? `sticky left-0 z-10 border-r border-gray-200 group-hover:bg-blue-50/50 ${rowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}`: ''}`}
-                                    >
-                                        {col.render ? col.render(row) : row[col.key]}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
+        <div className="flex-1 w-full overflow-hidden flex flex-col bg-white border-t border-gray-200">
+            <div className="flex-1 overflow-auto custom-scrollbar relative">
+                <table className="min-w-max border-separate border-spacing-0">
+                    <thead className="bg-gray-50 sticky top-0 z-20 shadow-sm">
+                        <tr>
+                            {columns.map((col, idx) => (
+                                <th 
+                                    key={col.key || idx}
+                                    className={`px-4 py-3 border-b border-r border-gray-200 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap bg-gray-50 ${col.isSticky ? 'sticky left-0 z-30' : ''}`}
+                                    style={col.isSticky ? { left: 0, boxShadow: '2px 0 5px -2px rgba(0,0,0,0.1)', minWidth: col.minWidth } : { minWidth: col.minWidth }}
+                                >
+                                    {col.title}
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white">
+                        {isLoading ? (
+                            <tr><td colSpan={columns.length} className="h-64"><Loader /></td></tr>
+                        ) : error ? (
+                            <tr><td colSpan={columns.length} className="h-64"><ErrorState msg={error} /></td></tr>
+                        ) : data.length === 0 ? (
+                            <tr><td colSpan={columns.length} className="h-64"><EmptyState msg={emptyMessage} /></td></tr>
+                        ) : (
+                            data.map((row, rowIndex) => (
+                                <tr 
+                                    key={row._id || rowIndex} 
+                                    className={`group hover:bg-blue-50/30 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}
+                                    onClick={() => onRowClick && onRowClick(row)}
+                                >
+                                    {columns.map((col, colIdx) => (
+                                        <td 
+                                            key={col.key || colIdx}
+                                            className={`px-4 py-3 border-b border-r border-gray-100 text-sm text-gray-700 align-middle ${col.allowWrap ? '' : 'whitespace-nowrap'} ${col.isSticky ? 'sticky left-0 z-10 bg-white group-hover:bg-blue-50/30' : ''}`}
+                                            style={col.isSticky ? { left: 0, boxShadow: '2px 0 5px -2px rgba(0,0,0,0.05)' } : {}}
+                                        >
+                                            {col.render ? col.render(row) : row[col.key]}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };
 
 const PaginationControls = ({ currentPage, totalPages, onPageChange, totalItems, itemsPerPage, onItemsPerPageChange }) => {
     if (totalItems === 0) return null;
-
-    const showingFrom = (currentPage - 1) * itemsPerPage + 1;
-    const showingTo = Math.min(currentPage * itemsPerPage, totalItems);
     
-    const pageButtons = [];
-    const maxVisiblePages = 5;
-
-    if (totalPages <= maxVisiblePages) {
-        for (let i = 1; i <= totalPages; i++) pageButtons.push(i);
-    } else {
-        pageButtons.push(1);
-        if (currentPage > 3) pageButtons.push('...');
-        
-        let startPage = Math.max(2, currentPage - 1);
-        let endPage = Math.min(totalPages - 1, currentPage + 1);
-
-        if (currentPage <= 2) {
-          startPage = 2;
-          endPage = 3;
+    const getPageNumbers = () => {
+        const pages = [];
+        if (totalPages <= 5) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+        } else {
+            if (currentPage <= 3) pages.push(1, 2, 3, 4, '...', totalPages);
+            else if (currentPage >= totalPages - 2) pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+            else pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
         }
-        if (currentPage >= totalPages - 1) {
-          startPage = totalPages-2;
-          endPage = totalPages-1;
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-            if(!pageButtons.includes(i)) pageButtons.push(i);
-        }
-
-        if (currentPage < totalPages - 2) pageButtons.push('...');
-        if (!pageButtons.includes(totalPages)) pageButtons.push(totalPages);
-    }
-    
-    let finalCleanedButtons = pageButtons.filter((item, index) => item !== '...' || pageButtons[index-1] !== '...');
+        return pages;
+    };
 
     return (
-        <div className="flex items-center justify-between p-4 border-t border-gray-200 bg-white flex-shrink-0">
-            <div className="flex items-center space-x-2 text-sm text-gray-700">
-                <span>Rows per page</span>
-                <select value={itemsPerPage} onChange={onItemsPerPageChange} className="bg-white border border-gray-300 rounded-lg px-2 py-1 text-gray-800">
-                    {[15, 20, 50, 100].map(size => (
-                        <option key={size} value={size}>{size}</option>
-                    ))}
+        <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-t border-gray-200 bg-white gap-4 flex-shrink-0">
+            <div className="flex items-center gap-3 text-sm text-gray-600">
+                <span>Show</span>
+                <select value={itemsPerPage} onChange={onItemsPerPageChange} className="bg-white border border-gray-300 rounded-md px-2 py-1 text-sm font-medium focus:ring-1 focus:ring-gray-900 focus:border-gray-900 cursor-pointer">
+                    {[15, 20, 50, 100].map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
+                <span>of <strong>{totalItems}</strong> entries</span>
             </div>
-            <div className="text-sm text-gray-700">
-                {`${showingFrom}-${showingTo} of ${totalItems} rows`}
-            </div>
-            <div className="flex items-center space-x-1">
-                <LocalButton variant="ghost" icon={<FiChevronsLeft size={16}/>} onClick={() => onPageChange(1)} disabled={currentPage === 1} className="!p-1.5"/>
-                <LocalButton variant="ghost" icon={<FiChevronLeft size={16}/>} onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1} className="!p-1.5"/>
-                <div className="flex -space-x-px">
-                    {finalCleanedButtons.map((pageNum, index) => {
-                        if (pageNum === '...') return <span key={`ellipsis-${index}`} className="px-3 py-1 text-gray-500">...</span>;
-                        return (<LocalButton key={pageNum} variant={currentPage === pageNum ? "primary" : "ghost"} onClick={() => onPageChange(pageNum)} className="!px-3 !py-1">{pageNum}</LocalButton>);
-                    })}
-                </div>
-                <LocalButton variant="ghost" icon={<FiChevronRight size={16}/>} onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages} className="!p-1.5"/>
-                <LocalButton variant="ghost" icon={<FiChevronsRight size={16}/>} onClick={() => onPageChange(totalPages)} disabled={currentPage === totalPages} className="!p-1.5"/>
+            
+            <div className="flex items-center gap-1">
+                <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1} className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:hover:bg-transparent"><FiChevronLeft /></button>
+                {getPageNumbers().map((page, idx) => (
+                    page === '...' ? <span key={idx} className="px-2 text-gray-400">...</span> :
+                    <button key={idx} onClick={() => onPageChange(page)} className={`w-8 h-8 rounded-lg text-xs font-bold transition-colors ${currentPage === page ? 'bg-gray-900 text-white' : 'hover:bg-gray-100 text-gray-700'}`}>{page}</button>
+                ))}
+                <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages} className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:hover:bg-transparent"><FiChevronRight /></button>
             </div>
         </div>
     );
 };
 
-const EditableBonusCell = ({ value, onChange, onSave, isLoading }) => {
+// --- SUB-VIEWS & CELLS ---
+
+const EditableInterviewerIDCell = ({ row, onSave }) => {
+    const [value, setValue] = useState(row.interviewer?.interviewerId || '');
+    const [loading, setLoading] = useState(false);
+    const { showError } = useAlert();
+
+    const handleBlur = async () => {
+        if (value.trim() === (row.interviewer?.interviewerId || '').trim()) return;
+        setLoading(true);
+        try { await onSave(row.interviewer._id, value.trim()); } 
+        catch { setValue(row.interviewer?.interviewerId || ''); showError('Update failed.'); } 
+        finally { setLoading(false); }
+    };
+
     return (
-        <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">₹</span>
-            <input
-                type="number"
-                value={value || ''}
-                onChange={onChange}
-                onBlur={onSave}
-                disabled={isLoading}
-                placeholder="0"
-                className="w-full text-sm pl-7 pr-2 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+        <div className="relative group w-full">
+            <input 
+                type="text" 
+                value={value} 
+                onChange={e => setValue(e.target.value)} 
+                onBlur={handleBlur} 
+                disabled={loading}
+                className="w-full bg-transparent border border-transparent hover:border-gray-200 focus:bg-white focus:border-blue-500 rounded px-2 py-1 text-sm font-mono transition-all truncate"
             />
+            <FiEdit2 className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 pointer-events-none" />
+            {loading && <FiLoader className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 animate-spin text-blue-600" />}
         </div>
     );
 };
+
+const EditableBonusCell = ({ value, onChange, onSave, isLoading }) => (
+    <div className="relative w-20">
+        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">₹</span>
+        <input
+            type="number"
+            value={value || ''}
+            onChange={onChange}
+            onBlur={onSave}
+            disabled={isLoading}
+            placeholder="0"
+            className="w-full pl-5 pr-2 py-1.5 text-xs border border-gray-200 rounded bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all text-right"
+        />
+        {isLoading && <div className="absolute right-1 top-1 text-blue-500"><span className="block w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping"></span></div>}
+    </div>
+);
+
+// --- VIEW COMPONENTS ---
 
 const PayoutSheetView = () => {
     const { showError, showSuccess } = useAlert();
@@ -966,210 +244,68 @@ const PayoutSheetView = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [date, setDate] = useState(new Date());
     const [pagination, setPagination] = useState({ currentPage: 1, itemsPerPage: 15, totalPages: 1, totalItems: 0 });
+    const [errorState, setErrorState] = useState(null);
 
-    const fetchPayoutSheet = useCallback(async (pageToFetch) => {
+    const fetchPayoutSheet = useCallback(async (page) => {
         setLoading(true);
+        setErrorState(null);
         try {
-            const startDate = startOfMonth(date);
-            const endDate = endOfMonth(date);
-            const params = {
-                search: searchTerm,
-                startDate: startDate.toISOString(),
-                endDate: endDate.toISOString(),
-                page: pageToFetch,
-                limit: pagination.itemsPerPage,
-            };
-            const response = await getPayoutSheet(params);
-            const resData = response.data.data;
-            setPayoutData(resData.payoutSheet || []);
-            setPagination(prev => ({ 
-                ...prev, 
-                currentPage: pageToFetch, 
-                totalPages: resData.totalPages,
-                totalItems: resData.totalDocs
-            }));
-        } catch (err) {
-            showError('Failed to fetch Payout Sheet.');
-            setPayoutData([]);
-        } finally {
-            setLoading(false);
-        }
-    }, [showError, searchTerm, date, pagination.itemsPerPage]);
+            const params = { search: searchTerm, startDate: startOfMonth(date).toISOString(), endDate: endOfMonth(date).toISOString(), page, limit: pagination.itemsPerPage };
+            const res = await getPayoutSheet(params);
+            setPayoutData(res.data.data.payoutSheet || []);
+            setPagination(p => ({ ...p, currentPage: page, totalPages: res.data.data.totalPages, totalItems: res.data.data.totalDocs }));
+        } catch (err) { 
+            console.error(err);
+            setErrorState("Failed to retrieve payout sheet.");
+            setPayoutData([]); 
+        } 
+        finally { setLoading(false); }
+    }, [date, searchTerm, pagination.itemsPerPage]);
 
-    const handlePageChange = (page) => {
-        fetchPayoutSheet(page);
-    };
-
-    const handleItemsPerPageChange = (e) => {
-        setPagination(prev => ({...prev, itemsPerPage: Number(e.target.value), currentPage: 1 }));
-    };
-    
-    useEffect(() => {
-        const handler = debounce(() => fetchPayoutSheet(1), 300);
-        handler();
-        return () => handler.cancel();
-    }, [date, searchTerm]);
-
-    useEffect(() => {
-        fetchPayoutSheet(pagination.currentPage);
-    }, [pagination.itemsPerPage, fetchPayoutSheet]);
+    useEffect(() => { const h = debounce(() => fetchPayoutSheet(1), 300); h(); return h.cancel; }, [date, searchTerm]);
+    useEffect(() => { fetchPayoutSheet(pagination.currentPage); }, [pagination.currentPage]);
 
     const handleExport = () => {
-        if (!payoutData || payoutData.length === 0) {
-            return showError("No data available to export.");
-        }
-        
-        const dataToExport = payoutData.map(row => ({
-            "user_id": row.interviewer.interviewerId,
-            "association_name_enum": row.associationName,
-            "activity_name_enum": row.activityName,
-            "activity_reference_id": row.activityReferenceId,
-            "activity_datetime": formatDateTime(row.activityDatetime),
-            "points": row.points,
-            "points_vesting_datetime": formatDateTime(row.pointsVestingDatetime)
-        }));
-        
-        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Payout Sheet');
-        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-        const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
-        saveAs(blob, `PayoutSheet_${formatDateFns(date, 'MMM-yyyy')}.xlsx`);
-        showSuccess("Export successful!");
+        if (!payoutData.length) return showError("No data to export.");
+        const data = payoutData.map(r => ({ "User ID": r.interviewer.interviewerId, "Activity": r.activityName, "Points": r.points, "Date": formatDateTime(r.activityDatetime) }));
+        const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Payout');
+        saveAs(new Blob([XLSX.write(wb, { bookType: 'xlsx', type: 'array' })], { type: 'application/octet-stream' }), `Payout_${formatDateFns(date, 'MMM-yyyy')}.xlsx`);
+        showSuccess("Exported!");
     };
 
-    const handleInterviewerIdSave = useCallback(async (interviewerMongoId, newInterviewerId) => {
-        await updateInterviewer(interviewerMongoId, { interviewerId: newInterviewerId });
-        setPayoutData(prevData =>
-            prevData.map(row => {
-                if (row.interviewer && row.interviewer._id === interviewerMongoId) {
-                    return {
-                        ...row,
-                        interviewer: {
-                            ...row.interviewer,
-                            interviewerId: newInterviewerId
-                        }
-                    };
-                }
-                return row;
-            })
-        );
-        showSuccess('Interviewer ID updated!');
+    const handleIdSave = useCallback(async (id, newId) => {
+        await updateInterviewer(id, { interviewerId: newId });
+        setPayoutData(d => d.map(r => r.interviewer._id === id ? { ...r, interviewer: { ...r.interviewer, interviewerId: newId } } : r));
+        showSuccess('ID Updated');
     }, [showSuccess]);
-    
-    const formatCustomDateTime = (isoDate) => {
-        if (!isoDate) return '';
-        return formatDateFns(new Date(isoDate), 'yyyy-MM-dd HH:mm:ss');
-    };
 
     const columns = useMemo(() => [
-        { 
-            key: 'interviewer_id', 
-            title: 'Interviewer ID',
-            isSticky: true, 
-            minWidth: '280px', 
-            render: (row) => <EditableInterviewerIDCell row={row} onSave={handleInterviewerIdSave} /> 
-        },
-        { 
-            key: 'association_name_enum', 
-            title: 'Association Name', 
-            allowWrap: true, 
-            render: (row) => <span className="font-medium text-gray-800">{row.associationName}</span>
-        },
-        { 
-            key: 'activity_name_enum', 
-            title: 'Activity Name', 
-            allowWrap: true, 
-            render: (row) => <span className="text-gray-700">{row.activityName}</span>
-        },
-        { 
-            key: 'activity_reference_id', 
-            title: 'Activity Reference ID', 
-            minWidth: '150px', 
-            render: (row) => <span className="font-mono text-xs text-gray-600">{row.activityReferenceId}</span>
-        },
-        { 
-            key: 'activity_datetime', 
-            title: 'Activity DateTime', 
-            minWidth: '150px', 
-            render: (row) => <span className="text-gray-600">{formatCustomDateTime(row.activityDatetime)}</span>
-        },
-        { 
-            key: 'points', 
-            title: 'Points', 
-            render: (row) => <span className="font-semibold text-green-700">{row.points}</span>
-        },
-        { 
-            key: 'points_vesting_datetime', 
-            title: 'Points Vesting DateTime', 
-            minWidth: '150px', 
-            render: (row) => <span className="text-gray-600">{formatCustomDateTime(row.pointsVestingDatetime)}</span>
-        }
-    ], [handleInterviewerIdSave]);
-
-    const filterOptions = ["This Month", "Last Month"];
-    
-    const handleFilterClick = (filter) => {
-        if (filter === 'This Month') setDate(new Date());
-        if (filter === 'Last Month') setDate(subMonths(new Date(), 1));
-    };
+        // Updated minWidth for full visibility
+        { key: 'interviewer_id', title: 'Interviewer ID', isSticky: true, minWidth: '280px', render: r => <EditableInterviewerIDCell row={r} onSave={handleIdSave} /> },
+        { key: 'association_name', title: 'Association', minWidth: '180px', render: r => <span className="font-medium text-gray-800">{r.associationName}</span> },
+        { key: 'activity_name', title: 'Activity', minWidth: '150px', render: r => <span className="px-2 py-1 rounded bg-blue-50 text-blue-700 text-xs font-bold">{r.activityName}</span> },
+        { key: 'ref_id', title: 'Ref ID', minWidth: '150px', render: r => <span className="font-mono text-xs text-gray-500">{r.activityReferenceId}</span> },
+        { key: 'date', title: 'Date', minWidth: '160px', render: r => <span className="text-gray-600 text-xs">{formatDateTime(r.activityDatetime)}</span> },
+        { key: 'points', title: 'Points', minWidth: '100px', render: r => <span className="font-bold text-green-600">+{r.points}</span> }
+    ], [handleIdSave]);
 
     return (
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden flex flex-col h-full">
-            <div className="p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-gray-50 border-b border-gray-200 flex-shrink-0">
-                <div className="w-full lg:w-80">
-                    <div className="relative">
-                        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <input
-                            type="text"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Search by Interviewer ID..."
-                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                        />
-                    </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full overflow-hidden">
+            <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between gap-4 bg-gray-50/50 flex-shrink-0">
+                <div className="relative w-full sm:w-72">
+                    <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Search Interviewer ID..." className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900" />
                 </div>
-                
-                <div className="flex flex-wrap items-center gap-3">
-                    {filterOptions.map(opt => (
-                        <button 
-                            key={opt} 
-                            onClick={() => handleFilterClick(opt)} 
-                            className="px-4 py-2 text-sm font-medium rounded-lg border-2 border-gray-300 bg-white hover:bg-gray-50 hover:border-blue-400 transition-all duration-200"
-                        >
-                            {opt}
-                        </button>
-                    ))}
-                    <div className="relative">
-                        <FiCalendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none z-10" />
-                        <DatePicker
-                            selected={date}
-                            onChange={(d) => setDate(d)}
-                            dateFormat="MMM yyyy"
-                            showMonthYearPicker
-                            className="w-40 pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-medium"
-                            popperClassName="z-50"
-                            popperPlacement="bottom-end"
-                        />
+                <div className="flex gap-2 items-center">
+                    <div className="relative z-50">
+                        <DatePicker selected={date} onChange={setDate} dateFormat="MMM yyyy" showMonthYearPicker className="w-32 pl-3 pr-8 py-2 border border-gray-300 rounded-lg text-sm font-medium focus:ring-1 focus:ring-gray-900 cursor-pointer" />
+                        <FiCalendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                     </div>
-                    <button onClick={handleExport} disabled={loading || payoutData.length === 0} className="p-2.5 border-2 border-gray-300 rounded-lg bg-white text-gray-700 hover:bg-green-50 hover:border-green-400 hover:text-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200" title="Export to Excel">
-                        <FiDownload className="h-5 w-5" />
-                    </button>
+                    <LocalButton variant="outline" onClick={handleExport} icon={FiDownload} disabled={loading || !payoutData.length} />
                 </div>
             </div>
-            
-            <div className="overflow-auto flex-grow">
-                <CompactTable columns={columns} data={payoutData} isLoading={loading} emptyMessage="No payout data for the selected month." />
-            </div>
-            
-             <PaginationControls 
-                currentPage={pagination.currentPage}
-                totalPages={pagination.totalPages}
-                onPageChange={handlePageChange}
-                totalItems={pagination.totalItems}
-                itemsPerPage={pagination.itemsPerPage}
-                onItemsPerPageChange={handleItemsPerPageChange}
-            />
+            <CompactTable columns={columns} data={payoutData} isLoading={loading} error={errorState} emptyMessage="No payout data available." />
+            <PaginationControls {...pagination} onPageChange={p => fetchPayoutSheet(p)} onItemsPerPageChange={e => setPagination(p => ({ ...p, itemsPerPage: +e.target.value, currentPage: 1 }))} />
         </div>
     );
 };
@@ -1178,230 +314,128 @@ const PaymentRequestsView = () => {
     const { showError, showSuccess } = useAlert();
     const [loading, setLoading] = useState(true);
     const [requests, setRequests] = useState([]);
-    const [sendingInvoiceId, setSendingInvoiceId] = useState(null);
-    const [sendingPaymentReceivedId, setSendingPaymentReceivedId] = useState(null);
-    const [sendingEmailId, setSendingEmailId] = useState(null);
     const [dateRange, setDateRange] = useState([startOfMonth(new Date()), endOfMonth(new Date())]);
     const [startDate, endDate] = dateRange;
-    const [activeFilter, setActiveFilter] = useState("This Month");
     const [remarksModal, setRemarksModal] = useState({ isOpen: false, content: '' });
     const [pagination, setPagination] = useState({ currentPage: 1, itemsPerPage: 15, totalPages: 1, totalItems: 0 });
     const [bonusAmounts, setBonusAmounts] = useState({});
-    const [savingBonusId, setSavingBonusId] = useState(null);
+    const [actionLoading, setActionLoading] = useState({});
+    const [errorState, setErrorState] = useState(null);
 
-
-    const fetchRequests = useCallback(async (pageToFetch = 1) => {
+    const fetchRequests = useCallback(async (page = 1) => {
         setLoading(true);
+        setErrorState(null);
         try {
-            const params = {
-                startDate: startDate ? startDate.toISOString() : null,
-                endDate: endDate ? endDate.toISOString() : null,
-                page: pageToFetch,
-                limit: pagination.itemsPerPage,
-            };
-            const response = await getPaymentRequests(params);
-            const resData = response.data.data;
-            setRequests(resData.requests || []);
-            
-            const initialBonuses = (resData.requests || []).reduce((acc, req) => {
-                acc[req._id] = req.bonusAmount || 0;
-                return acc;
-            }, {});
-            setBonusAmounts(initialBonuses);
-            
-            setPagination(prev => ({ ...prev, currentPage: pageToFetch, totalPages: resData.totalPages || 1, totalItems: resData.totalDocs || 0 }));
-        } catch (err) {
-            showError('Failed to fetch payment requests.');
-            setRequests([]);
-        } finally {
-            setLoading(false);
-        }
-    }, [showError, startDate, endDate, pagination.itemsPerPage]);
-    
-    const handlePageChange = (page) => {
-        setPagination(prev => ({ ...prev, currentPage: page }));
+            const params = { startDate: startDate?.toISOString(), endDate: endDate?.toISOString(), page, limit: pagination.itemsPerPage };
+            const res = await getPaymentRequests(params);
+            setRequests(res.data.data.requests || []);
+            setBonusAmounts((res.data.data.requests || []).reduce((acc, r) => ({ ...acc, [r._id]: r.bonusAmount || 0 }), {}));
+            setPagination(p => ({ ...p, currentPage: page, totalPages: res.data.data.totalPages, totalItems: res.data.data.totalDocs }));
+        } catch (err) { 
+            console.error(err);
+            setErrorState("Failed to retrieve payment requests. Please check data or try again.");
+            setRequests([]); 
+        } 
+        finally { setLoading(false); }
+    }, [startDate, endDate, pagination.itemsPerPage]);
+
+    useEffect(() => { fetchRequests(1); }, [startDate, endDate, fetchRequests]);
+    useEffect(() => { if (!loading) fetchRequests(pagination.currentPage); }, [pagination.currentPage]);
+
+    const handleAction = async (id, actionType, apiCall, payload, successMsg) => {
+        setActionLoading(p => ({ ...p, [`${id}-${actionType}`]: true }));
+        try { await apiCall(payload); showSuccess(successMsg); fetchRequests(pagination.currentPage); } 
+        catch (e) { showError(e.response?.data?.message || "Action failed."); } 
+        finally { setActionLoading(p => ({ ...p, [`${id}-${actionType}`]: false })); }
     };
 
-    const handleItemsPerPageChange = (e) => {
-        setPagination(prev => ({ ...prev, itemsPerPage: Number(e.target.value), currentPage: 1 }));
-    };
-    
-    useEffect(() => {
-        fetchRequests(1);
-    }, [startDate, endDate, pagination.itemsPerPage, fetchRequests]);
-
-    useEffect(() => {
-        if(pagination.currentPage > 0 && !loading) { // Avoid refetch on initial load if fetchRequests has other dependencies
-             fetchRequests(pagination.currentPage);
-        }
-    }, [pagination.currentPage]);
-    
-    const handleFilterClick = (filter) => {
-        setActiveFilter(filter);
-        const now = new Date();
-        let newStartDate, newEndDate;
-        switch (filter) {
-            case "This Month": [newStartDate, newEndDate] = [startOfMonth(now), endOfMonth(now)]; break;
-            case "Last Month": const last = subMonths(now, 1); [newStartDate, newEndDate] = [startOfMonth(last), endOfMonth(last)]; break;
-            case "Last 6 Months": [newStartDate, newEndDate] = [startOfMonth(subMonths(now, 5)), endOfMonth(now)]; break;
-            case "This Year": [newStartDate, newEndDate] = [startOfYear(now), endOfYear(now)]; break;
-            default: [newStartDate, newEndDate] = [startOfMonth(now), endOfMonth(now)];
-        }
-        setDateRange([newStartDate, newEndDate]);
-    };
-    
-    const handleDateChange = (update) => { setDateRange(update); setActiveFilter('Custom'); };
-    
-    const handleSendEmail = async (rowData) => {
-        setSendingEmailId(rowData._id);
-        const bonusAmount = Number(bonusAmounts[rowData._id] || 0);
-        try {
-            const payload = {
-                interviewerId: rowData._id,
-                email: rowData.email,
-                name: rowData.fullName,
-                monthYear: startDate.toLocaleString('default', { month: 'long', year: 'numeric' }),
-                payPerInterview: rowData.paymentAmount,
-                interviewCount: rowData.interviewsCompleted,
-                totalAmount: rowData.totalAmount,
-                interviewAmount: rowData.totalAmount,
-                bonusAmount,
-                startDate: startDate.toISOString(),
-                endDate: endDate.toISOString()
-            };
-            await sendPaymentEmail(payload);
-            showSuccess(`Payment confirmation email sent to ${rowData.fullName}.`);
-            fetchRequests(pagination.currentPage);
-        } catch(err) {
-            // THIS IS THE CORRECTED LINE
-            showError(err.response?.data?.message || "Failed to send payment email.");
-        } finally {
-            setSendingEmailId(null);
-        }
-    };
-    
-    const handleSendInvoiceEmail = async (rowData) => {
-        setSendingInvoiceId(rowData._id);
-        const bonusAmount = Number(bonusAmounts[rowData._id] || 0);
-        try {
-            const payload = {
-                interviewerId: rowData._id,
-                email: rowData.email,
-                name: rowData.fullName,
-                interviewCount: rowData.interviewsCompleted,
-                interviewAmount: rowData.totalAmount,
-                bonusAmount,
-                startDate: startDate.toISOString(),
-                endDate: endDate.toISOString(),
-            };
-            await sendInvoiceEmail(payload);
-            showSuccess(`Invoice mail sent successfully to ${rowData.fullName}.`);
-            fetchRequests(pagination.currentPage);
-        } catch(err) {
-            showError("Failed to send invoice email.");
-        } finally {
-            setSendingInvoiceId(null);
-        }
-    };
-    
-    const handleSendPaymentReceivedEmail = async (rowData) => {
-        setSendingPaymentReceivedId(rowData._id);
-        const bonusAmount = Number(bonusAmounts[rowData._id] || 0);
-        try {
-             const payload = {
-                interviewerId: rowData._id,
-                email: rowData.email,
-                name: rowData.fullName,
-                startDate: startDate.toISOString(),
-                endDate: endDate.toISOString(),
-                totalAmount: rowData.totalAmount + bonusAmount,
-                interviewCount: rowData.interviewsCompleted,
-            };
-            await sendPaymentReceivedEmail(payload);
-            showSuccess(`"Payment Received" confirmation sent to ${rowData.fullName}.`);
-            fetchRequests(pagination.currentPage);
-        } catch (err) {
-            showError('Failed to send "Payment Received" confirmation email.');
-        } finally {
-            setSendingPaymentReceivedId(null);
-        }
-    };
-
-    const handleBonusChange = (interviewerId, value) => {
-        const bonusValue = value === '' ? 0 : parseInt(value, 10);
-        setBonusAmounts(prev => ({ ...prev, [interviewerId]: isNaN(bonusValue) ? 0 : bonusValue }));
-    };
-    
-    const handleBonusSave = async (rowData) => {
-        const bonusAmount = Number(bonusAmounts[rowData._id] || 0);
-        setSavingBonusId(rowData._id);
-        try {
-            const payload = {
-                interviewerId: rowData._id,
-                startDate: startDate.toISOString(),
-                endDate: endDate.toISOString(),
-                monthYear: startDate.toLocaleString('default', { month: 'long', year: 'numeric' }),
-                totalAmount: rowData.totalAmount,
-                interviewCount: rowData.interviewsCompleted,
-                bonusAmount: bonusAmount
-            };
-            await saveBonusAmount(payload);
-            showSuccess('Bonus amount saved!');
-        } catch (err) {
-            showError('Failed to save bonus amount.');
-        } finally {
-            setSavingBonusId(null);
-        }
+    const handleBonusSave = async (row) => {
+        const bonus = Number(bonusAmounts[row._id] || 0);
+        handleAction(row._id, 'bonus', saveBonusAmount, {
+            interviewerId: row._id, startDate: startDate.toISOString(), endDate: endDate.toISOString(),
+            monthYear: startDate.toLocaleString('default', { month: 'long', year: 'numeric' }),
+            totalAmount: row.totalAmount, interviewCount: row.interviewsCompleted, bonusAmount: bonus
+        }, 'Bonus saved!');
     };
 
     const columns = useMemo(() => [
-        { key: 'month', title: 'Month', render: (row) => ( <span className="font-semibold text-gray-800">{startDate ? startDate.toLocaleString('default', { month: 'long', year: 'numeric' }) : ''}</span> ) },
-        { key: 'fullName', title: 'Interviewer Name', isSticky: true, render: (row) => <span className="font-medium text-gray-900">{row.fullName}</span> },
-        { key: 'interviewerId', title: 'Interviewer ID', render: (row) => <span className="font-mono text-xs text-gray-700">{row.interviewerId}</span> },
-        { key: 'mobileNumber', title: 'Mobile Number', render: (row) => <span className="text-gray-600">{row.mobileNumber}</span> },
-        { key: 'paymentAmount', title: 'Amount', render: (row) => <span className="text-gray-700">{row.paymentAmount}</span> },
-        { key: 'companyType', title: 'Type of Company', render: (row) => <span className="text-gray-700">{row.companyType}</span> },
-        { key: 'interviewsCompleted', title: 'Count', render: (row) => (<div className="flex items-center justify-center"><span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold text-sm">{row.interviewsCompleted}</span></div>)},
-        { key: 'bonusAmount', title: 'Bonus Amount', render: (row) => <EditableBonusCell value={bonusAmounts[row._id]} onChange={(e) => handleBonusChange(row._id, e.target.value)} onSave={() => handleBonusSave(row)} isLoading={savingBonusId === row._id} />},
-        { key: 'totalAmount', title: 'Total Amount', render: (row) => <span className="font-bold text-green-700 text-base">{formatCurrency(row.totalAmount + (bonusAmounts[row._id] || 0))}</span> },
-        { key: 'actions', title: 'Actions', render: (row) => ( <LocalButton onClick={() => handleSendEmail(row)} isLoading={sendingEmailId === row._id} variant="primary" className="!text-xs !py-1.5 !px-3" title="Send Payment Confirmation">{row.emailSentStatus === 'Sent' ? 'Sent' : 'Send'}</LocalButton> ) },
-        { key: 'emailSentStatus', title: 'Status', render: (row) => ( <Badge variant={row.emailSentStatus === 'Sent' ? 'success' : 'gray'}>{row.emailSentStatus}</Badge> ) },
-        { key: 'confirmationStatus', title: 'Confirmation', render: (row) => ( <Badge variant={row.confirmationStatus === 'Confirmed' ? 'success' : row.confirmationStatus === 'Disputed' ? 'danger' : 'warning'}>{row.confirmationStatus}</Badge> ) },
-        { key: 'confirmationRemarks', title: 'Confirmation Remarks',  render: (row) => { const remarks = row.confirmationRemarks; const charLimit = 30; if (!remarks) return <span className="text-gray-400 italic">No remarks</span>; if (remarks.length <= charLimit) return <span className="text-gray-700" title={remarks}>{remarks}</span>; return ( <div className="flex items-center"><span className="truncate text-gray-700" title={remarks}>{remarks.substring(0, charLimit)}...</span><button onClick={() => setRemarksModal({ isOpen: true, content: remarks })} className="ml-2 text-blue-600 hover:text-blue-800 hover:underline text-xs font-semibold flex-shrink-0">View</button></div> ); } },
-        { key: 'invoiceMail', title: 'Invoice Mail', render: (row) => ( <LocalButton onClick={() => handleSendInvoiceEmail(row)} isLoading={sendingInvoiceId === row._id} variant="secondary" className="!text-xs !py-1.5 !px-3">{row.invoiceEmailSentStatus === 'Sent' ? 'Sent' : 'Send'} </LocalButton> ) },
-        { key: 'invoiceMailStatus', title: 'Status', render: (row) => (<Badge variant={row.invoiceEmailSentStatus === 'Sent' ? 'success' : 'gray'}>{row.invoiceEmailSentStatus}</Badge> )},
-        { key: 'paymentReceivedMail', title: 'Payment Received', render: (row) => (<LocalButton onClick={() => handleSendPaymentReceivedEmail(row)} isLoading={sendingPaymentReceivedId === row._id} variant="primary" className="!text-xs !py-1.5 !px-3">{row.paymentReceivedEmailSentAt ? 'Sent' : 'Send'}</LocalButton>)},
-        { key: 'paymentReceivedMailStatus', title: 'Status', render: (row) => (<Badge variant={row.paymentReceivedEmailSentAt ? 'success' : 'gray'}>{row.paymentReceivedEmailSentAt ? 'Sent' : 'Not Sent'}</Badge>)},
-        { key: 'paymentReceivedStatus', title: 'Payment Received', render: (row) => ( <Badge variant={row.paymentReceivedStatus === 'Received' ? 'success' : row.paymentReceivedStatus === 'Not Received' ? 'danger' : 'warning'}>{row.paymentReceivedStatus}</Badge> ) },
-        { key: 'paymentReceivedRemarks', title: 'Payment Remarks', render: (row) => { const remarks = row.paymentReceivedRemarks; const charLimit = 30; if (!remarks) { return <span className="text-gray-400 italic">No remarks</span>; } if (remarks.length <= charLimit) { return <span className="text-gray-700" title={remarks}>{remarks}</span>; } return ( <div className="flex items-center"><span className="truncate text-gray-700" title={remarks}>{remarks.substring(0, charLimit)}...</span><button onClick={() => setRemarksModal({ isOpen: true, content: remarks })} className="ml-2 text-blue-600 hover:text-blue-800 hover:underline text-xs font-semibold flex-shrink-0">View</button></div> ); }},
-    ], [startDate, endDate, sendingEmailId, sendingInvoiceId, sendingPaymentReceivedId, setRemarksModal, bonusAmounts, handleBonusChange, handleBonusSave, savingBonusId]);
+        { key: 'month', title: 'Month', minWidth: '100px', render: () => <span className="font-semibold text-gray-800">{startDate ? startDate.toLocaleString('default', { month: 'short' }) : '-'}</span> },
+        
+        { key: 'fullName', title: 'Interviewer', isSticky: true, minWidth: '200px', render: r => (
+            <div>
+                <p className="font-bold text-gray-900 text-sm">{r.fullName}</p>
+                <p className="text-[10px] text-gray-500 font-mono mt-0.5">{r.interviewerId}</p>
+            </div>
+        )},
+        
+        { key: 'mobileNumber', title: 'Mobile', minWidth: '130px', render: r => <span className="text-gray-600 text-xs">{r.mobileNumber}</span> },
+        { key: 'companyType', title: 'Company Type', minWidth: '140px', render: r => <span className="text-gray-600 text-xs">{r.companyType}</span> },
+        { key: 'amount', title: 'Base Pay', minWidth: '100px', render: r => <span className="text-gray-600 text-sm">{formatCurrency(r.paymentAmount)}</span> },
+        { key: 'interviewsCompleted', title: 'Count', minWidth: '70px', render: r => <span className="inline-flex justify-center items-center h-6 min-w-[24px] px-2 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">{r.interviewsCompleted}</span> },
+        { key: 'bonusAmount', title: 'Bonus', minWidth: '120px', render: r => <EditableBonusCell value={bonusAmounts[r._id]} onChange={e => setBonusAmounts(prev => ({ ...prev, [r._id]: e.target.value }))} onSave={() => handleBonusSave(r)} isLoading={actionLoading[`${r._id}-bonus`]} /> },
+        { key: 'totalAmount', title: 'Total', minWidth: '120px', render: r => <span className="font-bold text-green-700 text-sm">{formatCurrency(r.totalAmount + Number(bonusAmounts[r._id] || 0))}</span> },
+        
+        { key: 'emailStatus', title: 'Pay Email Status', minWidth: '140px', render: r => <Badge variant={r.emailSentStatus === 'Sent' ? 'success' : 'gray'}>{r.emailSentStatus}</Badge> },
+        { key: 'emailAction', title: 'Pay Email Action', minWidth: '120px', render: r => (
+            <LocalButton 
+                onClick={() => handleAction(r._id, 'email', sendPaymentEmail, { interviewerId: r._id, email: r.email, name: r.fullName, monthYear: startDate.toLocaleString('default', { month: 'long', year: 'numeric' }), payPerInterview: r.paymentAmount, interviewCount: r.interviewsCompleted, totalAmount: r.totalAmount, bonusAmount: Number(bonusAmounts[r._id]||0), startDate: startDate.toISOString(), endDate: endDate.toISOString() }, 'Email sent!')}
+                isLoading={actionLoading[`${r._id}-email`]}
+                variant="primary" className="!text-[10px] !px-3 !py-1 !h-7"
+            >
+                {r.emailSentStatus === 'Sent' ? 'Resend' : 'Send'}
+            </LocalButton>
+        )},
 
-    const filterOptions = ["This Month", "Last Month", "Last 6 Months", "This Year"];
+        { key: 'confStatus', title: 'User Conf.', minWidth: '130px', render: r => <Badge variant={r.confirmationStatus === 'Confirmed' ? 'success' : r.confirmationStatus === 'Disputed' ? 'danger' : 'warning'}>{r.confirmationStatus}</Badge> },
+        { key: 'confRemarks', title: 'Conf. Remarks', minWidth: '120px', render: r => r.confirmationRemarks ? <button onClick={() => setRemarksModal({ isOpen: true, content: r.confirmationRemarks })} className="text-xs text-blue-600 hover:underline">View Remarks</button> : <span className="text-xs text-gray-300">-</span> },
+
+        { key: 'invoiceStatus', title: 'Invoice Req.', minWidth: '130px', render: r => <Badge variant={r.invoiceEmailSentStatus === 'Sent' ? 'success' : 'gray'}>{r.invoiceEmailSentStatus}</Badge> },
+        { key: 'invoiceAction', title: 'Invoice Action', minWidth: '120px', render: r => (
+            <LocalButton 
+                onClick={() => handleAction(r._id, 'invoice', sendInvoiceEmail, { interviewerId: r._id, email: r.email, name: r.fullName, interviewCount: r.interviewsCompleted, interviewAmount: r.totalAmount, bonusAmount: Number(bonusAmounts[r._id]||0), startDate: startDate.toISOString(), endDate: endDate.toISOString() }, 'Invoice Req Sent!')}
+                isLoading={actionLoading[`${r._id}-invoice`]}
+                variant="secondary" className="!text-[10px] !px-3 !py-1 !h-7"
+            >Send</LocalButton>
+        )},
+
+        { key: 'paidStatus', title: 'Paid Conf.', minWidth: '130px', render: r => <Badge variant={r.paymentReceivedEmailSentAt ? 'success' : 'gray'}>{r.paymentReceivedEmailSentAt ? 'Sent' : 'No'}</Badge> },
+        { key: 'paidAction', title: 'Paid Action', minWidth: '120px', render: r => (
+            <LocalButton 
+                onClick={() => handleAction(r._id, 'paid', sendPaymentReceivedEmail, { interviewerId: r._id, email: r.email, name: r.fullName, startDate: startDate.toISOString(), endDate: endDate.toISOString(), totalAmount: r.totalAmount + Number(bonusAmounts[r._id]||0), interviewCount: r.interviewsCompleted }, 'Paid Conf Sent!')}
+                isLoading={actionLoading[`${r._id}-paid`]}
+                variant="outline" className="!text-[10px] !px-3 !py-1 !h-7"
+            >Send</LocalButton>
+        )},
+
+        { key: 'recStatus', title: 'User Rec.', minWidth: '130px', render: r => <Badge variant={r.paymentReceivedStatus === 'Received' ? 'success' : 'warning'}>{r.paymentReceivedStatus}</Badge> },
+        { key: 'recRemarks', title: 'Rec. Remarks', minWidth: '120px', render: r => r.paymentReceivedRemarks ? <button onClick={() => setRemarksModal({ isOpen: true, content: r.paymentReceivedRemarks })} className="text-xs text-blue-600 hover:underline">View Remarks</button> : <span className="text-xs text-gray-300">-</span> },
+
+    ], [bonusAmounts, actionLoading, handleBonusSave]); 
 
     return (
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden flex flex-col h-full">
-            <div className="p-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 bg-gray-50 border-b border-gray-200 flex-shrink-0">
-                <div className="flex items-center gap-2 text-sm text-gray-700"> <FiCalendar className="h-5 w-5 text-gray-500" /> <span className="font-medium">Period:</span> <span className="font-semibold text-gray-900">{startDate && endDate ? `${formatDateFns(startDate, 'MMM dd, yyyy')} - ${formatDateFns(endDate, 'MMM dd, yyyy')}` : 'Select date range'}</span> </div>
-                <div className="flex flex-wrap items-center gap-3">
-                    <div className="relative"> <FiCalendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none z-10" /> <DatePicker selectsRange={true} startDate={startDate} endDate={endDate} onChange={handleDateChange} isClearable={true} className="w-72 pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" placeholderText="Select date range" popperPlacement="bottom-end" popperClassName="z-30"/> </div>
-                    <Menu as="div" className="relative inline-block text-left">
-                        <Menu.Button className="inline-flex justify-center items-center gap-2 rounded-lg border-2 border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-blue-400 transition-all duration-200"> <FiFilter className="h-4 w-4" />{activeFilter !== 'Custom' ? activeFilter : "Presets"}<FiChevronDown className="h-4 w-4" /></Menu.Button>
-                        <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="transform opacity-0 scale-95" enterTo="transform opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="transform opacity-100 scale-100" leaveTo="transform opacity-0 scale-95"><Menu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-xl shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-30 focus:outline-none overflow-hidden"><div className="py-1">{filterOptions.map(opt => ( <Menu.Item key={opt}>{({ active }) => ( <button onClick={() => handleFilterClick(opt)} className={`${active ? 'bg-blue-50 text-blue-700' : 'text-gray-700'} ${activeFilter === opt ? 'bg-blue-100 font-semibold' : ''} block w-full text-left px-4 py-2.5 text-sm transition-colors duration-150`}>{opt}</button> )}</Menu.Item> ))}</div></Menu.Items></Transition>
-                    </Menu>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full overflow-hidden">
+            <div className="p-4 border-b border-gray-200 flex flex-col xl:flex-row gap-4 justify-between bg-gray-50/50 flex-shrink-0">
+                <div className="flex items-center gap-2 bg-white px-3 py-2 border border-gray-300 rounded-lg shadow-sm w-full xl:w-auto relative z-30">
+                    <FiCalendar className="text-gray-400" />
+                    <DatePicker selectsRange startDate={startDate} endDate={endDate} onChange={setDateRange} className="text-sm font-medium focus:outline-none w-52" placeholderText="Select Range" />
+                </div>
+                <div className="flex gap-2">
+                    {["This Month", "Last Month"].map(l => (
+                        <button key={l} onClick={() => { 
+                            const n = new Date(); const d = l === "This Month" ? [startOfMonth(n), endOfMonth(n)] : [startOfMonth(subMonths(n,1)), endOfMonth(subMonths(n,1))];
+                            setDateRange(d); 
+                        }} className="px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">{l}</button>
+                    ))}
                 </div>
             </div>
             
-            <div className="overflow-auto flex-grow">
-                <LocalPaymentTable columns={columns} data={requests} isLoading={loading} emptyMessage="No payment requests for this period." />
-            </div>
-
-            <PaginationControls currentPage={pagination.currentPage} totalPages={pagination.totalPages} onPageChange={handlePageChange} totalItems={pagination.totalItems} itemsPerPage={pagination.itemsPerPage} onItemsPerPageChange={handleItemsPerPageChange} />
-
+            <CompactTable columns={columns} data={requests} isLoading={loading} error={errorState} emptyMessage="No requests found." />
+            
+            <PaginationControls {...pagination} onPageChange={p => setPagination(pr => ({...pr, currentPage: p}))} onItemsPerPageChange={e => setPagination(pr => ({...pr, itemsPerPage: +e.target.value, currentPage: 1}))} />
             <RemarksModal isOpen={remarksModal.isOpen} onClose={() => setRemarksModal({ isOpen: false, content: '' })} content={remarksModal.content} />
         </div>
     );
 };
-
 
 const ReportsView = () => {
     const { showError } = useAlert();
@@ -1409,139 +443,102 @@ const ReportsView = () => {
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [yearlyData, setYearlyData] = useState([]);
-    const [monthlyData, setMonthlyData] = useState([]);
+    const [data, setData] = useState([]);
+    const [errorState, setErrorState] = useState(null);
 
-    const yearOptions = useMemo(() => {
-        const current = new Date().getFullYear();
-        return Array.from({ length: 5 }, (_, i) => ({ value: current - i, label: `${current - i}` }));
-    }, []);
+    const fetchData = useCallback(async () => {
+        setLoading(true);
+        setErrorState(null);
+        try {
+            const res = view === 'yearly' 
+                ? await getYearlyEarningsSummary(currentYear) 
+                : await getMonthlyEarningsDetails(currentYear, selectedMonth.month);
+            setData(res.data.data);
+        } catch { 
+            setErrorState("Failed to load reports."); 
+            setData([]);
+        } 
+        finally { setLoading(false); }
+    }, [view, currentYear, selectedMonth, showError]);
 
-    const months = useMemo(() => [
-        "January", "February", "March", "April", "May", "June", 
-        "July", "August", "September", "October", "November", "December"
+    useEffect(() => { fetchData(); }, [fetchData]);
+
+    const yearlyCols = useMemo(() => [
+        { key: 'month', title: 'Month', minWidth: '150px', render: r => <span className="font-bold text-gray-900">{["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][r.month - 1]}</span> },
+        { key: 'totalAmount', title: 'Total Payout', minWidth: '150px', render: r => <span className="font-mono text-green-700 font-bold">{formatCurrency(r.totalAmount)}</span> },
+        { key: 'totalInterviewers', title: 'Interviewers Paid', minWidth: '150px', render: r => <span className="px-2 py-1 bg-gray-100 rounded text-xs font-bold">{r.totalInterviewers}</span> },
+        { key: 'status', title: 'Confirmations', minWidth: '200px', render: r => <span className="text-xs text-gray-600">{r.receivedCount} Received / {r.pendingCount} Pending</span> }
     ], []);
 
-    const fetchYearlyData = useCallback(async () => {
-        setLoading(true);
-        try {
-            const response = await getYearlyEarningsSummary(currentYear);
-            setYearlyData(response.data.data);
-        } catch (error) {
-            showError("Failed to load yearly summary.");
-        } finally {
-            setLoading(false);
-        }
-    }, [currentYear, showError]);
-
-    const fetchMonthlyData = useCallback(async () => {
-        if (!selectedMonth) return;
-        setLoading(true);
-        try {
-            const response = await getMonthlyEarningsDetails(currentYear, selectedMonth.month);
-            setMonthlyData(response.data.data);
-        } catch (error) {
-            showError("Failed to load details for " + selectedMonth.name);
-        } finally {
-            setLoading(false);
-        }
-    }, [currentYear, selectedMonth, showError]);
-
-    useEffect(() => {
-        if (view === 'yearly') {
-            fetchYearlyData();
-        } else if (view === 'monthly') {
-            fetchMonthlyData();
-        }
-    }, [view, currentYear, fetchYearlyData, fetchMonthlyData]);
-
-    const handleMonthClick = (monthData) => {
-        setSelectedMonth({ month: monthData.month, name: months[monthData.month - 1] });
-        setView('monthly');
-    };
-    
-    const yearlyColumns = useMemo(() => [
-        { key: 'month', title: 'Month', render: (row) => <span className="font-semibold text-gray-800">{months[row.month - 1]}</span> },
-        { key: 'totalAmount', title: 'Total Payment', render: (row) => <span className="font-semibold text-green-700">{formatCurrency(row.totalAmount)}</span> },
-        { key: 'totalInterviewers', title: 'Total Interviewers' },
-        { key: 'confirmations', title: 'Confirmation Summary', render: (row) => `${row.receivedCount} Received / ${row.pendingCount} Pending` },
-    ], [months]);
-    
-    const monthlyColumns = useMemo(() => [
-        { key: 'interviewerId', title: 'Interviewer ID' },
-        { key: 'interviewerName', title: 'Name', render: (row) => <span className="font-medium text-gray-900">{row.interviewerName}</span> },
-        { key: 'interviewerEmail', title: 'Email', allowWrap: true },
-        { key: 'monthPayment', title: 'Amount', render: (row) => <span className="font-semibold text-green-700">{formatCurrency(row.monthPayment)}</span> },
-        { key: 'confirmationStatus', title: 'Status', render: (row) => <Badge variant={row.confirmationStatus === 'Received' ? 'success' : (row.confirmationStatus === 'Pending' ? 'warning' : 'gray')}>{row.confirmationStatus}</Badge> }
+    const monthlyCols = useMemo(() => [
+        { key: 'interviewerName', title: 'Name', minWidth: '200px', render: r => <span className="font-medium text-gray-900">{r.interviewerName}</span> },
+        { key: 'interviewerId', title: 'ID', minWidth: '150px', render: r => <span className="text-xs font-mono text-gray-500">{r.interviewerId}</span> },
+        { key: 'monthPayment', title: 'Amount', minWidth: '150px', render: r => <span className="font-bold text-green-600">{formatCurrency(r.monthPayment)}</span> },
+        { key: 'confirmationStatus', title: 'Status', minWidth: '150px', render: r => <Badge variant={r.confirmationStatus === 'Received' ? 'success' : 'warning'}>{r.confirmationStatus}</Badge> }
     ], []);
 
     return (
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden flex flex-col h-full">
-            <div className="p-4 flex flex-col md:flex-row items-center justify-between gap-4 bg-gray-50 border-b">
-                {view === 'monthly' ? (
-                    <LocalButton variant="outline" icon={<FiChevronLeft/>} onClick={() => setView('yearly')}>
-                        Back to {currentYear} Summary
-                    </LocalButton>
-                ) : <div/>}
-                
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full overflow-hidden">
+            <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
                 <div className="flex items-center gap-3">
-                    <label className="text-sm font-medium">Year:</label>
-                    <select value={currentYear} onChange={e => setCurrentYear(Number(e.target.value))} className="bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-sm">
-                        {yearOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                    </select>
+                    {view === 'monthly' && <LocalButton variant="ghost" icon={FiArrowLeft} onClick={() => setView('yearly')} />}
+                    <h2 className="text-lg font-bold text-gray-800">{view === 'yearly' ? `Earnings: ${currentYear}` : `${selectedMonth?.name} ${currentYear} Details`}</h2>
                 </div>
+                <select value={currentYear} onChange={e => setCurrentYear(+e.target.value)} className="bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-sm font-medium focus:ring-gray-900 cursor-pointer">
+                    {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(y => <option key={y} value={y}>{y}</option>)}
+                </select>
             </div>
-
-            <div className="flex-grow overflow-auto">
-                 {view === 'yearly' && (
-                    <CompactTable
-                        columns={yearlyColumns}
-                        data={yearlyData}
-                        isLoading={loading}
-                        onRowClick={handleMonthClick}
-                        emptyMessage={`No earnings data found for ${currentYear}.`}
-                    />
-                )}
-                {view === 'monthly' && (
-                    <CompactTable
-                        columns={monthlyColumns}
-                        data={monthlyData}
-                        isLoading={loading}
-                        emptyMessage={`No earnings data found for ${selectedMonth?.name}, ${currentYear}.`}
-                        onRowClick={null}
-                    />
-                )}
+            <div className="flex-grow overflow-auto p-4 custom-scrollbar">
+                <CompactTable 
+                    columns={view === 'yearly' ? yearlyCols : monthlyCols} 
+                    data={data} 
+                    isLoading={loading} 
+                    error={errorState}
+                    emptyMessage="No reports available."
+                    onRowClick={view === 'yearly' ? (r) => { setSelectedMonth({ month: r.month, name: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][r.month-1] }); setView('monthly'); } : undefined}
+                />
             </div>
         </div>
     );
 };
 
-
 const EarningsReportPage = () => {
     const [activeView, setActiveView] = useState('payments');
 
+    const NavBtn = ({ id, label, icon: Icon }) => (
+        <button 
+            onClick={() => setActiveView(id)} 
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg transition-all ${activeView === id ? 'bg-gray-900 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}
+        >
+            <Icon className="h-4 w-4" /> {label}
+        </button>
+    );
+
     return (
-        <div className="h-screen bg-gray-50 flex flex-col">
-            <div className="flex-shrink-0 p-4 border-b bg-white">
-                <div className="max-w-[1800px] mx-auto flex justify-between items-center">
-                    <Link to="/admin/dashboard" className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-semibold group transition-colors duration-200">
-                        <FiArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1 duration-200" />
-                        Back to Dashboard
+        <div className="h-screen bg-[#F5F7F9] flex flex-col overflow-hidden">
+            {/* Header */}
+            <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0 flex justify-between items-center z-50 shadow-sm relative">
+                <div className="flex items-center gap-4">
+                    <Link to="/admin/dashboard" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-colors">
+                        <FiArrowLeft />
+                        Back
                     </Link>
-                    <div className="bg-gray-100 p-1 rounded-xl shadow-inner flex">
-                        <button onClick={() => setActiveView('reports')} className={`px-5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 flex items-center gap-2 ${ activeView === 'reports' ? 'bg-white text-blue-600 shadow-md' : 'text-gray-600' }`}><FiFileText className="h-4 w-4" />Reports</button>
-                        <button onClick={() => setActiveView('payments')} className={`px-5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 flex items-center gap-2 ${ activeView === 'payments' ? 'bg-white text-blue-600 shadow-md' : 'text-gray-600' }`}><FiDollarSign className="h-4 w-4" />Payment Requests</button>
-                        <button onClick={() => setActiveView('payout')} className={`px-5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 flex items-center gap-2 ${ activeView === 'payout' ? 'bg-white text-blue-600 shadow-md' : 'text-gray-600' }`}><FiBarChart2 className="h-4 w-4" />Payout Sheet</button>
-                    </div>
+                </div>
+                <div className="flex bg-gray-100 p-1 rounded-xl gap-1">
+                    <NavBtn id="payments" label="Payment Requests" icon={FiDollarSign} />
+                    <NavBtn id="payout" label="Payout Sheet" icon={FiBarChart2} />
+                    <NavBtn id="reports" label="Reports" icon={FiFileText} />
                 </div>
             </div>
-            <main className="flex-grow overflow-hidden p-4">
-                <div className="max-w-[1800px] mx-auto h-full">
+
+            {/* Content Body */}
+            <div className="flex-1 overflow-hidden p-4 sm:p-6">
+                <div className="h-full w-full max-w-[1920px] mx-auto flex flex-col">
                     {activeView === 'payments' && <PaymentRequestsView />}
                     {activeView === 'payout' && <PayoutSheetView />}
                     {activeView === 'reports' && <ReportsView />}
                 </div>
-            </main>
+            </div>
         </div>
     );
 };
