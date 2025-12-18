@@ -113,5 +113,7 @@ export const MAIN_SHEET_INTERVIEW_STATUSES = [
   { value: 'Completed', label: 'Completed' },
   { value: 'Scheduled', label: 'Scheduled' },
   { value: 'InProgress', label: 'In Progress' },
-  { value: 'Cancelled', label: 'Cancelled' }
+  { value: 'Cancelled', label: 'Cancelled' },
+  { value: 'Not Attended', label: 'Not Attended' }, // Added
+  { value: 'Rescheduled', label: 'Rescheduled' }    // Added
 ];
