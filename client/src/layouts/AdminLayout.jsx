@@ -218,7 +218,9 @@ const AdminLayout = () => {
       '/admin/custom-email',
       '/admin/evaluation-setup',
       '/admin/domain-evaluation',
-      '/admin/public-bookings/' // This will cover authorize and tracking pages
+      '/admin/earnings-report',
+      '/admin/public-bookings/',
+      '/admin/interview-bookings/',
   ];
   // --- MODIFICATION END ---
   
@@ -260,9 +262,9 @@ const AdminLayout = () => {
           </header>
         )}
 
-        <main className="flex-1 overflow-y-auto bg-gray-50">
+        <main className={`flex-1 ${useFullPageLayout ? 'overflow-hidden' : 'overflow-y-auto'} bg-gray-50`}>
           {useFullPageLayout ? (
-            <div className="h-full">
+            <div className="h-full flex flex-col">
                 <Outlet />
             </div>
           ) : (

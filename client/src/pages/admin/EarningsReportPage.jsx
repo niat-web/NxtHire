@@ -1,7 +1,6 @@
 // client/src/pages/admin/EarningsReportPage.jsx
-import React, { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, Transition } from '@headlessui/react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import * as XLSX from 'xlsx';
@@ -9,536 +8,338 @@ import { saveAs } from 'file-saver';
 import {
     FiArrowLeft, FiDollarSign, FiSearch, FiBarChart2, FiDownload,
     FiLoader, FiChevronDown, FiX, FiInbox, FiCalendar,
-    FiFilter, FiChevronLeft, FiChevronRight, FiChevronsLeft,
-    FiChevronsRight, FiFileText, FiEdit2, FiAlertTriangle
+    FiChevronLeft, FiChevronRight, FiFileText, FiEdit2, FiAlertTriangle
 } from 'react-icons/fi';
 import { sendPaymentEmail, sendInvoiceEmail, sendPaymentReceivedEmail, updateInterviewer, saveBonusAmount } from '../../api/admin.api';
 import { usePayoutSheet, usePaymentRequests, useYearlyEarnings, useMonthlyEarnings, useInvalidateAdmin } from '../../hooks/useAdminQueries';
 import { useAlert } from '../../hooks/useAlert';
-import { format as formatDateFns, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear } from 'date-fns';
+import { format as formatDateFns, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
 import Badge from '../../components/common/Badge';
 
-// --- STYLED COMPONENTS ---
+// ─── REUSABLE UI ────────────────────────────────────────────────────────────
 
-const LocalButton = ({ children, onClick, isLoading = false, variant = 'primary', icon: Icon, className = '', disabled = false, title = '' }) => {
-    const base = "inline-flex items-center justify-center font-bold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-1 active:scale-[0.98]";
-    
-    const sizes = {
-        xs: 'text-xs px-2.5 py-1.5',
-        sm: 'text-xs px-3 py-2',
-        md: 'text-sm px-4 py-2.5'
+const Btn = ({ children, onClick, loading = false, variant = 'primary', icon: Icon, className = '', disabled = false }) => {
+    const v = {
+        primary: 'bg-slate-900 text-white hover:bg-black',
+        outline: 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50',
+        ghost: 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
+        yellow: 'bg-amber-400 text-gray-900 hover:bg-amber-500',
+        danger: 'text-red-600 border border-red-200 hover:bg-red-50',
     };
-
-    const variants = {
-        primary: 'bg-gray-900 text-white hover:bg-black border border-transparent shadow-sm focus:ring-gray-900',
-        secondary: 'bg-[#FFD130] text-gray-900 hover:bg-[#FFC400] border border-[#FFD130] shadow-sm',
-        outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 hover:border-gray-400',
-        danger: 'bg-white text-red-600 border border-red-200 hover:bg-red-50',
-        ghost: 'bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900',
-    };
-
-    const sizeClass = className.includes('text-xs') || className.includes('text-[10px]') ? sizes.xs : sizes.md;
-
     return (
-        <button onClick={onClick} disabled={isLoading || disabled} className={`${base} ${sizeClass} ${variants[variant]} ${className}`} title={title}>
-            {isLoading ? (
-                <FiLoader className="animate-spin h-4 w-4 mr-2" />
-            ) : (
-                Icon && <Icon className={`h-4 w-4 ${children ? 'mr-2' : ''}`} />
-            )}
-            {isLoading ? "Processing..." : children}
+        <button onClick={onClick} disabled={loading || disabled}
+            className={`inline-flex items-center justify-center text-xs font-semibold rounded-lg px-3 py-1.5 transition-colors disabled:opacity-40 ${v[variant]} ${className}`}>
+            {loading ? <FiLoader className="animate-spin h-3.5 w-3.5 mr-1.5" /> : Icon && <Icon className={`h-3.5 w-3.5 ${children ? 'mr-1.5' : ''}`} />}
+            {loading ? 'Wait...' : children}
         </button>
     );
 };
 
-const RemarksModal = ({ isOpen, onClose, content }) => {
-    if (!isOpen) return null;
-    return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm" onClick={onClose}>
-            <div className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl flex flex-col" onClick={e => e.stopPropagation()}>
-                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-xl">
-                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Remarks</h3>
-                    <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500"><FiX className="h-4 w-4" /></button>
-                </div>
-                <div className="p-6 overflow-y-auto max-h-[60vh]">
-                    <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{content}</p>
-                </div>
-                <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
-                    <LocalButton variant="outline" onClick={onClose} size="sm">Close</LocalButton>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-// --- TABLE COMPONENT (Fixed Layout & Scroll) ---
-const CompactTable = ({ columns, data, isLoading, emptyMessage, onRowClick, error }) => {
-    const Loader = () => (
-        <div className="flex flex-col justify-center items-center py-20 h-full">
-            <FiLoader className="w-8 h-8 text-gray-400 animate-spin mb-3" />
-            <span className="text-sm font-medium text-gray-500">Loading records...</span>
-        </div>
-    );
-
-    const EmptyState = ({ msg }) => (
-        <div className="flex flex-col items-center justify-center py-20 text-center h-full">
-            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                <FiInbox className="h-8 w-8 text-gray-300" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-900">No Data Found</h3>
-            <p className="text-sm text-gray-500 mt-1 max-w-xs">{msg}</p>
-        </div>
-    );
-
-    const ErrorState = ({ msg }) => (
-        <div className="flex flex-col items-center justify-center py-20 text-center h-full">
-            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
-                <FiAlertTriangle className="h-8 w-8 text-red-400" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-900">Unable to Load Data</h3>
-            <p className="text-sm text-gray-500 mt-1 max-w-xs">{msg || "An unexpected error occurred."}</p>
-        </div>
-    );
-
-    if (isLoading) return <div className="flex-1 flex items-center justify-center bg-white"><Loader /></div>;
-    if (error) return <div className="flex-1 flex items-center justify-center bg-white"><ErrorState msg={error} /></div>;
-    if (data.length === 0) return <div className="flex-1 flex items-center justify-center bg-white"><EmptyState msg={emptyMessage} /></div>;
-
-    return (
-        <div className="flex-1 w-full overflow-auto bg-white min-h-0">
-            <table className="min-w-max w-full border-separate border-spacing-0">
-                <thead className="bg-gray-50 sticky top-0 z-20">
-                    <tr>
-                        {columns.map((col, idx) => (
-                            <th
-                                key={col.key || idx}
-                                className={`px-4 py-3 border-b border-r border-gray-200 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap bg-gray-50 ${col.isSticky ? 'sticky left-0 z-30' : ''}`}
-                                style={col.isSticky ? { left: 0, boxShadow: '2px 0 5px -2px rgba(0,0,0,0.1)', minWidth: col.minWidth } : { minWidth: col.minWidth }}
-                            >
-                                {col.title}
-                            </th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody className="bg-white">
-                    {data.map((row, rowIndex) => (
-                        <tr
-                            key={row._id || rowIndex}
-                            className={`group hover:bg-gray-50 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}
-                            onClick={() => onRowClick && onRowClick(row)}
-                        >
-                            {columns.map((col, colIdx) => (
-                                <td
-                                    key={col.key || colIdx}
-                                    className={`px-4 py-3 border-b border-r border-gray-100 text-sm text-gray-700 align-middle ${col.allowWrap ? '' : 'whitespace-nowrap'} ${col.isSticky ? 'sticky left-0 z-10 bg-white group-hover:bg-gray-50' : ''}`}
-                                    style={col.isSticky ? { left: 0, boxShadow: '2px 0 5px -2px rgba(0,0,0,0.05)' } : {}}
-                                >
-                                    {col.render ? col.render(row) : row[col.key]}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    );
-};
-
-const PaginationControls = ({ currentPage, totalPages, onPageChange, totalItems, itemsPerPage, onItemsPerPageChange }) => {
-    if (totalItems === 0) return null;
-    
-    const getPageNumbers = () => {
-        const pages = [];
-        if (totalPages <= 5) {
-            for (let i = 1; i <= totalPages; i++) pages.push(i);
-        } else {
-            if (currentPage <= 3) pages.push(1, 2, 3, 4, '...', totalPages);
-            else if (currentPage >= totalPages - 2) pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
-            else pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
-        }
-        return pages;
-    };
-
-    return (
-        <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-t border-gray-200 bg-white gap-4 flex-shrink-0">
-            <div className="flex items-center gap-3 text-sm text-gray-600">
-                <span>Show</span>
-                <select value={itemsPerPage} onChange={onItemsPerPageChange} className="bg-white border border-gray-300 rounded-md px-2 py-1 text-sm font-medium focus:ring-1 focus:ring-gray-900 focus:border-gray-900 cursor-pointer">
-                    {[15, 20, 50, 100].map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
-                <span>of <strong>{totalItems}</strong> entries</span>
-            </div>
-            
-            <div className="flex items-center gap-1">
-                <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1} className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:hover:bg-transparent"><FiChevronLeft /></button>
-                {getPageNumbers().map((page, idx) => (
-                    page === '...' ? <span key={idx} className="px-2 text-gray-400">...</span> :
-                    <button key={idx} onClick={() => onPageChange(page)} className={`w-8 h-8 rounded-lg text-xs font-bold transition-colors ${currentPage === page ? 'bg-gray-900 text-white' : 'hover:bg-gray-100 text-gray-700'}`}>{page}</button>
-                ))}
-                <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages} className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:hover:bg-transparent"><FiChevronRight /></button>
-            </div>
-        </div>
-    );
-};
-
-// --- SUB-VIEWS & CELLS ---
-
-const EditableInterviewerIDCell = ({ row, onSave }) => {
-    const [value, setValue] = useState(row.interviewer?.interviewerId || '');
-    const [loading, setLoading] = useState(false);
+const EditableIDCell = ({ row, onSave }) => {
+    const [val, setVal] = useState(row.interviewer?.interviewerId || '');
+    const [saving, setSaving] = useState(false);
     const { showError } = useAlert();
-
-    const handleBlur = async () => {
-        if (value.trim() === (row.interviewer?.interviewerId || '').trim()) return;
-        setLoading(true);
-        try { await onSave(row.interviewer._id, value.trim()); } 
-        catch { setValue(row.interviewer?.interviewerId || ''); showError('Update failed.'); } 
-        finally { setLoading(false); }
+    const save = async () => {
+        if (val.trim() === (row.interviewer?.interviewerId || '').trim()) return;
+        setSaving(true);
+        try { await onSave(row.interviewer._id, val.trim()); } catch { setVal(row.interviewer?.interviewerId || ''); showError('Failed'); } finally { setSaving(false); }
     };
-
     return (
-        <div className="relative group w-full">
-            <input 
-                type="text" 
-                value={value} 
-                onChange={e => setValue(e.target.value)} 
-                onBlur={handleBlur} 
-                disabled={loading}
-                className="w-full bg-transparent border border-transparent hover:border-gray-200 focus:bg-white focus:border-emerald-500 rounded px-2 py-1 text-sm font-mono transition-all truncate"
-            />
-            <FiEdit2 className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 pointer-events-none" />
-            {loading && <FiLoader className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 animate-spin text-emerald-600" />}
-        </div>
+        <input type="text" value={val} onChange={e => setVal(e.target.value)} onBlur={save} disabled={saving}
+            className="w-full bg-transparent border border-transparent hover:border-gray-200 focus:bg-white focus:border-slate-400 rounded px-2 py-1 text-xs font-mono transition-all" />
     );
 };
 
-const EditableBonusCell = ({ value, onChange, onSave, isLoading }) => (
+const BonusCell = ({ value, onChange, onSave, loading }) => (
     <div className="relative w-20">
-        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">₹</span>
-        <input
-            type="number"
-            value={value || ''}
-            onChange={onChange}
-            onBlur={onSave}
-            disabled={isLoading}
-            placeholder="0"
-            className="w-full pl-5 pr-2 py-1.5 text-xs border border-gray-200 rounded bg-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-right"
-        />
-        {isLoading && <div className="absolute right-1 top-1 text-emerald-500"><span className="block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span></div>}
+        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]">₹</span>
+        <input type="number" value={value || ''} onChange={onChange} onBlur={onSave} disabled={loading} placeholder="0"
+            className="w-full pl-5 pr-1 py-1 text-xs border border-gray-200 rounded bg-white focus:ring-1 focus:ring-slate-400 focus:border-slate-400 text-right" />
     </div>
 );
 
-// --- VIEW COMPONENTS ---
-
-const PayoutSheetView = () => {
-    const { showError, showSuccess } = useAlert();
-    const [searchTerm, setSearchTerm] = useState('');
-    const [debouncedSearch, setDebouncedSearch] = useState('');
-    const [date, setDate] = useState(new Date());
-    const [pagination, setPagination] = useState({ currentPage: 1, itemsPerPage: 15 });
-
-    // Debounce search input
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedSearch(searchTerm);
-            setPagination(p => ({ ...p, currentPage: 1 }));
-        }, 300);
-        return () => clearTimeout(timer);
-    }, [searchTerm]);
-
-    // Reset page when date changes
-    useEffect(() => {
-        setPagination(p => ({ ...p, currentPage: 1 }));
-    }, [date]);
-
-    const queryParams = useMemo(() => ({
-        search: debouncedSearch,
-        startDate: startOfMonth(date).toISOString(),
-        endDate: endOfMonth(date).toISOString(),
-        page: pagination.currentPage,
-        limit: pagination.itemsPerPage,
-    }), [debouncedSearch, date, pagination.currentPage, pagination.itemsPerPage]);
-
-    const { data: payoutResult, isLoading: loading, error: queryError } = usePayoutSheet(queryParams);
-    const payoutData = payoutResult?.payoutSheet || [];
-    const totalPages = payoutResult?.totalPages || 1;
-    const totalItems = payoutResult?.totalDocs || 0;
-    const errorState = queryError ? "Failed to retrieve payout sheet." : null;
-
-    const handleExport = () => {
-        if (!payoutData.length) return showError("No data to export.");
-        const data = payoutData.map(r => ({ "User ID": r.interviewer.interviewerId, "Activity": r.activityName, "Points": r.points, "Date": formatDateTime(r.activityDatetime) }));
-        const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Payout');
-        saveAs(new Blob([XLSX.write(wb, { bookType: 'xlsx', type: 'array' })], { type: 'application/octet-stream' }), `Payout_${formatDateFns(date, 'MMM-yyyy')}.xlsx`);
-        showSuccess("Exported!");
-    };
-
-    const { invalidatePayments } = useInvalidateAdmin();
-
-    const handleIdSave = useCallback(async (id, newId) => {
-        await updateInterviewer(id, { interviewerId: newId });
-        invalidatePayments();
-        showSuccess('ID Updated');
-    }, [showSuccess, invalidatePayments]);
-
-    const columns = useMemo(() => [
-        // Updated minWidth for full visibility
-        { key: 'interviewer_id', title: 'Interviewer ID', isSticky: true, minWidth: '280px', render: r => <EditableInterviewerIDCell row={r} onSave={handleIdSave} /> },
-        { key: 'association_name', title: 'Association', minWidth: '180px', render: r => <span className="font-medium text-gray-800">{r.associationName}</span> },
-        { key: 'activity_name', title: 'Activity', minWidth: '150px', render: r => <span className="px-2 py-1 rounded bg-emerald-50 text-emerald-700 text-xs font-bold">{r.activityName}</span> },
-        { key: 'ref_id', title: 'Ref ID', minWidth: '150px', render: r => <span className="font-mono text-xs text-gray-500">{r.activityReferenceId}</span> },
-        { key: 'date', title: 'Date', minWidth: '160px', render: r => <span className="text-gray-600 text-xs">{formatDateTime(r.activityDatetime)}</span> },
-        { key: 'points', title: 'Points', minWidth: '100px', render: r => <span className="font-bold text-green-600">+{r.points}</span> }
-    ], [handleIdSave]);
-
-    return (
-        <div className="flex flex-col h-full overflow-hidden min-h-0">
-            <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between gap-4 bg-white flex-shrink-0">
-                <div className="relative w-full sm:w-72">
-                    <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Search Interviewer ID..." className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900" />
-                </div>
-                <div className="flex gap-2 items-center">
-                    <div className="relative z-50">
-                        <DatePicker selected={date} onChange={setDate} dateFormat="MMM yyyy" showMonthYearPicker className="w-32 pl-3 pr-8 py-2 border border-gray-300 rounded-lg text-sm font-medium focus:ring-1 focus:ring-gray-900 cursor-pointer" />
-                        <FiCalendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                    </div>
-                    <LocalButton variant="outline" onClick={handleExport} icon={FiDownload} disabled={loading || !payoutData.length} />
-                </div>
-            </div>
-            <CompactTable columns={columns} data={payoutData} isLoading={loading} error={errorState} emptyMessage="No payout data available." />
-            <PaginationControls currentPage={pagination.currentPage} totalPages={totalPages} totalItems={totalItems} itemsPerPage={pagination.itemsPerPage} onPageChange={p => setPagination(pr => ({ ...pr, currentPage: p }))} onItemsPerPageChange={e => setPagination(p => ({ ...p, itemsPerPage: +e.target.value, currentPage: 1 }))} />
-        </div>
-    );
-};
+// ─── PAYMENT REQUESTS VIEW ──────────────────────────────────────────────────
 
 const PaymentRequestsView = () => {
     const { showError, showSuccess } = useAlert();
     const [dateRange, setDateRange] = useState([startOfMonth(new Date()), endOfMonth(new Date())]);
     const [startDate, endDate] = dateRange;
     const [remarksModal, setRemarksModal] = useState({ isOpen: false, content: '' });
-    const [pagination, setPagination] = useState({ currentPage: 1, itemsPerPage: 15 });
+    const [page, setPage] = useState(1);
     const [bonusAmounts, setBonusAmounts] = useState({});
     const [actionLoading, setActionLoading] = useState({});
     const { invalidatePayments } = useInvalidateAdmin();
+    const limit = 20;
 
-    const queryParams = useMemo(() => ({
-        startDate: startDate?.toISOString(),
-        endDate: endDate?.toISOString(),
-        page: pagination.currentPage,
-        limit: pagination.itemsPerPage,
-    }), [startDate, endDate, pagination.currentPage, pagination.itemsPerPage]);
+    const params = useMemo(() => ({ startDate: startDate?.toISOString(), endDate: endDate?.toISOString(), page, limit }), [startDate, endDate, page]);
+    const { data: result, isLoading: loading, error } = usePaymentRequests(params);
+    const rows = result?.requests || [];
+    const totalPages = result?.totalPages || 1;
+    const totalItems = result?.totalDocs || 0;
 
-    const { data: requestsResult, isLoading: loading, error: queryError } = usePaymentRequests(queryParams);
-    const requests = requestsResult?.requests || [];
-    const totalPages = requestsResult?.totalPages || 1;
-    const totalItems = requestsResult?.totalDocs || 0;
-    const errorState = queryError ? "Failed to retrieve payment requests. Please check data or try again." : null;
+    useEffect(() => { if (rows.length) setBonusAmounts(rows.reduce((a, r) => ({ ...a, [r._id]: r.bonusAmount || 0 }), {})); }, [rows]);
+    useEffect(() => { setPage(1); }, [startDate, endDate]);
 
-    // Sync bonus amounts when data changes
-    useEffect(() => {
-        if (requests.length > 0) {
-            setBonusAmounts(requests.reduce((acc, r) => ({ ...acc, [r._id]: r.bonusAmount || 0 }), {}));
-        }
-    }, [requests]);
-
-    // Reset page when date range changes
-    useEffect(() => {
-        setPagination(p => ({ ...p, currentPage: 1 }));
-    }, [startDate, endDate]);
-
-    const handleAction = async (id, actionType, apiCall, payload, successMsg) => {
-        setActionLoading(p => ({ ...p, [`${id}-${actionType}`]: true }));
-        try { await apiCall(payload); showSuccess(successMsg); invalidatePayments(); }
-        catch (e) { showError(e.response?.data?.message || "Action failed."); }
-        finally { setActionLoading(p => ({ ...p, [`${id}-${actionType}`]: false })); }
+    const action = async (id, type, fn, payload, msg) => {
+        setActionLoading(p => ({ ...p, [`${id}-${type}`]: true }));
+        try { await fn(payload); showSuccess(msg); invalidatePayments(); } catch (e) { showError(e.response?.data?.message || 'Failed'); }
+        finally { setActionLoading(p => ({ ...p, [`${id}-${type}`]: false })); }
     };
 
-    const handleBonusSave = async (row) => {
-        const bonus = Number(bonusAmounts[row._id] || 0);
-        handleAction(row._id, 'bonus', saveBonusAmount, {
-            interviewerId: row._id, startDate: startDate.toISOString(), endDate: endDate.toISOString(),
-            monthYear: startDate.toLocaleString('default', { month: 'long', year: 'numeric' }),
-            totalAmount: row.totalAmount, interviewCount: row.interviewsCompleted, bonusAmount: bonus
-        }, 'Bonus saved!');
+    const saveBonus = (r) => {
+        const bonus = Number(bonusAmounts[r._id] || 0);
+        action(r._id, 'bonus', saveBonusAmount, { interviewerId: r._id, startDate: startDate.toISOString(), endDate: endDate.toISOString(), monthYear: startDate.toLocaleString('default', { month: 'long', year: 'numeric' }), totalAmount: r.totalAmount, interviewCount: r.interviewsCompleted, bonusAmount: bonus }, 'Bonus saved!');
     };
 
-    const columns = useMemo(() => [
-        { key: 'month', title: 'Month', minWidth: '100px', render: () => <span className="font-semibold text-gray-800">{startDate ? startDate.toLocaleString('default', { month: 'short' }) : '-'}</span> },
-        
-        { key: 'fullName', title: 'Interviewer', isSticky: true, minWidth: '200px', render: r => (
-            <div>
-                <p className="font-bold text-gray-900 text-sm">{r.fullName}</p>
-                <p className="text-[10px] text-gray-500 font-mono mt-0.5">{r.interviewerId}</p>
-            </div>
-        )},
-        
-        { key: 'mobileNumber', title: 'Mobile', minWidth: '130px', render: r => <span className="text-gray-600 text-xs">{r.mobileNumber}</span> },
-        { key: 'companyType', title: 'Company Type', minWidth: '140px', render: r => <span className="text-gray-600 text-xs">{r.companyType}</span> },
-        { key: 'amount', title: 'Base Pay', minWidth: '100px', render: r => <span className="text-gray-600 text-sm">{formatCurrency(r.paymentAmount)}</span> },
-        { key: 'interviewsCompleted', title: 'Count', minWidth: '70px', render: r => <span className="inline-flex justify-center items-center h-6 min-w-[24px] px-2 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">{r.interviewsCompleted}</span> },
-        { key: 'bonusAmount', title: 'Bonus', minWidth: '120px', render: r => <EditableBonusCell value={bonusAmounts[r._id]} onChange={e => setBonusAmounts(prev => ({ ...prev, [r._id]: e.target.value }))} onSave={() => handleBonusSave(r)} isLoading={actionLoading[`${r._id}-bonus`]} /> },
-        { key: 'totalAmount', title: 'Total', minWidth: '120px', render: r => <span className="font-bold text-green-700 text-sm">{formatCurrency(r.totalAmount + Number(bonusAmounts[r._id] || 0))}</span> },
-        
-        { key: 'emailStatus', title: 'Pay Email Status', minWidth: '140px', render: r => <Badge variant={r.emailSentStatus === 'Sent' ? 'success' : 'gray'}>{r.emailSentStatus}</Badge> },
-        { key: 'emailAction', title: 'Pay Email Action', minWidth: '120px', render: r => (
-            <LocalButton 
-                onClick={() => handleAction(r._id, 'email', sendPaymentEmail, { interviewerId: r._id, email: r.email, name: r.fullName, monthYear: startDate.toLocaleString('default', { month: 'long', year: 'numeric' }), payPerInterview: r.paymentAmount, interviewCount: r.interviewsCompleted, totalAmount: r.totalAmount, bonusAmount: Number(bonusAmounts[r._id]||0), startDate: startDate.toISOString(), endDate: endDate.toISOString() }, 'Email sent!')}
-                isLoading={actionLoading[`${r._id}-email`]}
-                variant="primary" className="!text-[10px] !px-3 !py-1 !h-7"
-            >
-                {r.emailSentStatus === 'Sent' ? 'Resend' : 'Send'}
-            </LocalButton>
-        )},
-
-        { key: 'confStatus', title: 'User Conf.', minWidth: '130px', render: r => <Badge variant={r.confirmationStatus === 'Confirmed' ? 'success' : r.confirmationStatus === 'Disputed' ? 'danger' : 'warning'}>{r.confirmationStatus}</Badge> },
-        { key: 'confRemarks', title: 'Conf. Remarks', minWidth: '120px', render: r => r.confirmationRemarks ? <button onClick={() => setRemarksModal({ isOpen: true, content: r.confirmationRemarks })} className="text-xs text-emerald-600 hover:underline">View Remarks</button> : <span className="text-xs text-gray-300">-</span> },
-
-        { key: 'invoiceStatus', title: 'Invoice Req.', minWidth: '130px', render: r => <Badge variant={r.invoiceEmailSentStatus === 'Sent' ? 'success' : 'gray'}>{r.invoiceEmailSentStatus}</Badge> },
-        { key: 'invoiceAction', title: 'Invoice Action', minWidth: '120px', render: r => (
-            <LocalButton 
-                onClick={() => handleAction(r._id, 'invoice', sendInvoiceEmail, { interviewerId: r._id, email: r.email, name: r.fullName, interviewCount: r.interviewsCompleted, interviewAmount: r.totalAmount, bonusAmount: Number(bonusAmounts[r._id]||0), startDate: startDate.toISOString(), endDate: endDate.toISOString() }, 'Invoice Req Sent!')}
-                isLoading={actionLoading[`${r._id}-invoice`]}
-                variant="secondary" className="!text-[10px] !px-3 !py-1 !h-7"
-            >Send</LocalButton>
-        )},
-
-        { key: 'paidStatus', title: 'Paid Conf.', minWidth: '130px', render: r => <Badge variant={r.paymentReceivedEmailSentAt ? 'success' : 'gray'}>{r.paymentReceivedEmailSentAt ? 'Sent' : 'No'}</Badge> },
-        { key: 'paidAction', title: 'Paid Action', minWidth: '120px', render: r => (
-            <LocalButton 
-                onClick={() => handleAction(r._id, 'paid', sendPaymentReceivedEmail, { interviewerId: r._id, email: r.email, name: r.fullName, startDate: startDate.toISOString(), endDate: endDate.toISOString(), totalAmount: r.totalAmount + Number(bonusAmounts[r._id]||0), interviewCount: r.interviewsCompleted }, 'Paid Conf Sent!')}
-                isLoading={actionLoading[`${r._id}-paid`]}
-                variant="outline" className="!text-[10px] !px-3 !py-1 !h-7"
-            >Send</LocalButton>
-        )},
-
-        { key: 'recStatus', title: 'User Rec.', minWidth: '130px', render: r => <Badge variant={r.paymentReceivedStatus === 'Received' ? 'success' : 'warning'}>{r.paymentReceivedStatus}</Badge> },
-        { key: 'recRemarks', title: 'Rec. Remarks', minWidth: '120px', render: r => r.paymentReceivedRemarks ? <button onClick={() => setRemarksModal({ isOpen: true, content: r.paymentReceivedRemarks })} className="text-xs text-emerald-600 hover:underline">View Remarks</button> : <span className="text-xs text-gray-300">-</span> },
-
-    ], [bonusAmounts, actionLoading, handleBonusSave]); 
+    const cols = useMemo(() => [
+        { k: 'month', t: 'Month', w: 80, r: () => <span className="font-semibold text-gray-800 text-xs">{startDate ? formatDateFns(startDate, 'MMM') : '-'}</span> },
+        { k: 'name', t: 'Interviewer', w: 180, sticky: true, r: (r) => <div><p className="font-bold text-gray-900 text-xs">{r.fullName}</p><p className="text-[10px] text-gray-400 font-mono">{r.interviewerId}</p></div> },
+        { k: 'mobile', t: 'Mobile', w: 110, r: (r) => <span className="text-gray-600 text-xs">{r.mobileNumber}</span> },
+        { k: 'company', t: 'Company', w: 120, r: (r) => <span className="text-gray-500 text-xs">{r.companyType}</span> },
+        { k: 'base', t: 'Base Pay', w: 90, r: (r) => <span className="text-xs">{formatCurrency(r.paymentAmount)}</span> },
+        { k: 'count', t: 'Count', w: 60, r: (r) => <span className="bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded text-xs font-bold">{r.interviewsCompleted}</span> },
+        { k: 'bonus', t: 'Bonus', w: 100, r: (r) => <BonusCell value={bonusAmounts[r._id]} onChange={e => setBonusAmounts(p => ({ ...p, [r._id]: e.target.value }))} onSave={() => saveBonus(r)} loading={actionLoading[`${r._id}-bonus`]} /> },
+        { k: 'total', t: 'Total', w: 100, r: (r) => <span className="font-bold text-green-700 text-xs">{formatCurrency(r.totalAmount + Number(bonusAmounts[r._id] || 0))}</span> },
+        { k: 'payStatus', t: 'Pay Status', w: 110, r: (r) => <Badge variant={r.emailSentStatus === 'Sent' ? 'success' : 'gray'}>{r.emailSentStatus}</Badge> },
+        { k: 'payAction', t: 'Pay Action', w: 90, r: (r) => <Btn onClick={() => action(r._id, 'email', sendPaymentEmail, { interviewerId: r._id, email: r.email, name: r.fullName, monthYear: startDate.toLocaleString('default', { month: 'long', year: 'numeric' }), payPerInterview: r.paymentAmount, interviewCount: r.interviewsCompleted, totalAmount: r.totalAmount, bonusAmount: Number(bonusAmounts[r._id]||0), startDate: startDate.toISOString(), endDate: endDate.toISOString() }, 'Sent!')} loading={actionLoading[`${r._id}-email`]}>{r.emailSentStatus === 'Sent' ? 'Resend' : 'Send'}</Btn> },
+        { k: 'userConf', t: 'User Conf.', w: 110, r: (r) => <Badge variant={r.confirmationStatus === 'Confirmed' ? 'success' : r.confirmationStatus === 'Disputed' ? 'danger' : 'warning'}>{r.confirmationStatus}</Badge> },
+        { k: 'confRem', t: 'Remarks', w: 90, r: (r) => r.confirmationRemarks ? <button onClick={() => setRemarksModal({ isOpen: true, content: r.confirmationRemarks })} className="text-xs text-blue-600 hover:underline">View</button> : <span className="text-gray-300 text-xs">-</span> },
+        { k: 'invReq', t: 'Invoice', w: 100, r: (r) => <Badge variant={r.invoiceEmailSentStatus === 'Sent' ? 'success' : 'gray'}>{r.invoiceEmailSentStatus}</Badge> },
+        { k: 'invAction', t: 'Inv. Action', w: 80, r: (r) => <Btn variant="yellow" onClick={() => action(r._id, 'invoice', sendInvoiceEmail, { interviewerId: r._id, email: r.email, name: r.fullName, interviewCount: r.interviewsCompleted, interviewAmount: r.totalAmount, bonusAmount: Number(bonusAmounts[r._id]||0), startDate: startDate.toISOString(), endDate: endDate.toISOString() }, 'Sent!')} loading={actionLoading[`${r._id}-invoice`]}>Send</Btn> },
+        { k: 'paidConf', t: 'Paid', w: 90, r: (r) => <Badge variant={r.paymentReceivedEmailSentAt ? 'success' : 'gray'}>{r.paymentReceivedEmailSentAt ? 'Sent' : 'No'}</Badge> },
+        { k: 'paidAction', t: 'Paid Action', w: 80, r: (r) => <Btn variant="outline" onClick={() => action(r._id, 'paid', sendPaymentReceivedEmail, { interviewerId: r._id, email: r.email, name: r.fullName, startDate: startDate.toISOString(), endDate: endDate.toISOString(), totalAmount: r.totalAmount + Number(bonusAmounts[r._id]||0), interviewCount: r.interviewsCompleted }, 'Sent!')} loading={actionLoading[`${r._id}-paid`]}>Send</Btn> },
+        { k: 'recStatus', t: 'Received', w: 100, r: (r) => <Badge variant={r.paymentReceivedStatus === 'Received' ? 'success' : 'warning'}>{r.paymentReceivedStatus}</Badge> },
+        { k: 'recRem', t: 'Rec. Remarks', w: 90, r: (r) => r.paymentReceivedRemarks ? <button onClick={() => setRemarksModal({ isOpen: true, content: r.paymentReceivedRemarks })} className="text-xs text-blue-600 hover:underline">View</button> : <span className="text-gray-300 text-xs">-</span> },
+    ], [bonusAmounts, actionLoading, startDate, endDate]);
 
     return (
-        <div className="flex flex-col h-full overflow-hidden min-h-0">
-            <div className="p-4 border-b border-gray-200 flex flex-col xl:flex-row gap-4 justify-between bg-white flex-shrink-0">
-                <div className="flex items-center gap-2 bg-white px-3 py-2 border border-gray-300 rounded-lg shadow-sm w-full xl:w-auto relative z-30">
-                    <FiCalendar className="text-gray-400" />
-                    <DatePicker selectsRange startDate={startDate} endDate={endDate} onChange={setDateRange} className="text-sm font-medium focus:outline-none w-52" placeholderText="Select Range" />
+        <>
+            {/* Toolbar */}
+            <div className="px-4 py-3 border-b border-gray-200 flex flex-wrap items-center justify-between gap-3 bg-white shrink-0">
+                <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-1.5 bg-white relative z-30">
+                    <FiCalendar className="text-gray-400" size={14} />
+                    <DatePicker selectsRange startDate={startDate} endDate={endDate} onChange={setDateRange} className="text-sm font-medium focus:outline-none w-48" placeholderText="Select Range" />
                 </div>
-                <div className="flex gap-2">
-                    {["This Month", "Last Month"].map(l => (
-                        <button key={l} onClick={() => { 
-                            const n = new Date(); const d = l === "This Month" ? [startOfMonth(n), endOfMonth(n)] : [startOfMonth(subMonths(n,1)), endOfMonth(subMonths(n,1))];
-                            setDateRange(d); 
-                        }} className="px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">{l}</button>
+                <div className="flex gap-1.5">
+                    {['This Month', 'Last Month'].map(l => (
+                        <button key={l} onClick={() => { const n = new Date(); setDateRange(l === 'This Month' ? [startOfMonth(n), endOfMonth(n)] : [startOfMonth(subMonths(n,1)), endOfMonth(subMonths(n,1))]); }}
+                            className="px-3 py-1.5 text-xs font-medium bg-white border border-gray-200 rounded-lg hover:bg-gray-50">{l}</button>
                     ))}
                 </div>
             </div>
-            
-            <CompactTable columns={columns} data={requests} isLoading={loading} error={errorState} emptyMessage="No requests found." />
-
-            <PaginationControls currentPage={pagination.currentPage} totalPages={totalPages} totalItems={totalItems} itemsPerPage={pagination.itemsPerPage} onPageChange={p => setPagination(pr => ({...pr, currentPage: p}))} onItemsPerPageChange={e => setPagination(pr => ({...pr, itemsPerPage: +e.target.value, currentPage: 1}))} />
-            <RemarksModal isOpen={remarksModal.isOpen} onClose={() => setRemarksModal({ isOpen: false, content: '' })} content={remarksModal.content} />
-        </div>
+            {/* Table */}
+            <DataTable cols={cols} rows={rows} loading={loading} error={error ? 'Failed to load.' : null} empty="No requests found." page={page} totalPages={totalPages} totalItems={totalItems} onPage={setPage} />
+            {remarksModal.isOpen && <Modal title="Remarks" onClose={() => setRemarksModal({ isOpen: false, content: '' })}><p className="text-sm text-gray-700 whitespace-pre-wrap">{remarksModal.content}</p></Modal>}
+        </>
     );
 };
+
+// ─── PAYOUT SHEET VIEW ──────────────────────────────────────────────────────
+
+const PayoutSheetView = () => {
+    const { showError, showSuccess } = useAlert();
+    const [search, setSearch] = useState('');
+    const [debSearch, setDebSearch] = useState('');
+    const [date, setDate] = useState(new Date());
+    const [page, setPage] = useState(1);
+    const limit = 20;
+    const { invalidatePayments } = useInvalidateAdmin();
+
+    useEffect(() => { const t = setTimeout(() => { setDebSearch(search); setPage(1); }, 300); return () => clearTimeout(t); }, [search]);
+    useEffect(() => { setPage(1); }, [date]);
+
+    const params = useMemo(() => ({ search: debSearch, startDate: startOfMonth(date).toISOString(), endDate: endOfMonth(date).toISOString(), page, limit }), [debSearch, date, page]);
+    const { data: result, isLoading: loading, error } = usePayoutSheet(params);
+    const rows = result?.payoutSheet || [];
+    const totalPages = result?.totalPages || 1;
+    const totalItems = result?.totalDocs || 0;
+
+    const handleIdSave = useCallback(async (id, newId) => { await updateInterviewer(id, { interviewerId: newId }); invalidatePayments(); showSuccess('Updated'); }, [invalidatePayments, showSuccess]);
+
+    const handleExport = () => {
+        if (!rows.length) return showError('No data');
+        const ws = XLSX.utils.json_to_sheet(rows.map(r => ({ 'User ID': r.interviewer?.interviewerId, Activity: r.activityName, Points: r.points, Date: formatDateTime(r.activityDatetime) })));
+        const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Payout');
+        saveAs(new Blob([XLSX.write(wb, { bookType: 'xlsx', type: 'array' })]), `Payout_${formatDateFns(date, 'MMM-yyyy')}.xlsx`);
+    };
+
+    const cols = useMemo(() => [
+        { k: 'id', t: 'Interviewer ID', w: 260, sticky: true, r: (r) => <EditableIDCell row={r} onSave={handleIdSave} /> },
+        { k: 'assoc', t: 'Association', w: 160, r: (r) => <span className="font-medium text-gray-800 text-xs">{r.associationName}</span> },
+        { k: 'act', t: 'Activity', w: 130, r: (r) => <span className="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 text-xs font-bold">{r.activityName}</span> },
+        { k: 'ref', t: 'Ref ID', w: 140, r: (r) => <span className="font-mono text-[10px] text-gray-500">{r.activityReferenceId}</span> },
+        { k: 'date', t: 'Date', w: 150, r: (r) => <span className="text-gray-600 text-xs">{formatDateTime(r.activityDatetime)}</span> },
+        { k: 'pts', t: 'Points', w: 80, r: (r) => <span className="font-bold text-green-600 text-xs">+{r.points}</span> },
+    ], [handleIdSave]);
+
+    return (
+        <>
+            <div className="px-4 py-3 border-b border-gray-200 flex flex-wrap items-center justify-between gap-3 bg-white shrink-0">
+                <div className="relative w-64">
+                    <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                    <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search ID..."
+                        className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400" />
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="relative z-50">
+                        <DatePicker selected={date} onChange={setDate} dateFormat="MMM yyyy" showMonthYearPicker className="w-28 pl-3 pr-7 py-2 border border-gray-200 rounded-lg text-sm font-medium cursor-pointer focus:outline-none" />
+                        <FiCalendar className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={14} />
+                    </div>
+                    <Btn variant="outline" icon={FiDownload} onClick={handleExport} disabled={!rows.length} />
+                </div>
+            </div>
+            <DataTable cols={cols} rows={rows} loading={loading} error={error ? 'Failed to load.' : null} empty="No payout data." page={page} totalPages={totalPages} totalItems={totalItems} onPage={setPage} />
+        </>
+    );
+};
+
+// ─── REPORTS VIEW ───────────────────────────────────────────────────────────
 
 const ReportsView = () => {
     const [view, setView] = useState('yearly');
-    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-    const [selectedMonth, setSelectedMonth] = useState(null);
+    const [year, setYear] = useState(new Date().getFullYear());
+    const [month, setMonth] = useState(null);
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-    const { data: yearlyData = [], isLoading: yearlyLoading, error: yearlyError } = useYearlyEarnings(currentYear, {
-        enabled: view === 'yearly',
-    });
+    const { data: yData = [], isLoading: yLoad, error: yErr } = useYearlyEarnings(year, { enabled: view === 'yearly' });
+    const { data: mData = [], isLoading: mLoad, error: mErr } = useMonthlyEarnings(year, month?.num, { enabled: view === 'monthly' && !!month });
 
-    const { data: monthlyData = [], isLoading: monthlyLoading, error: monthlyError } = useMonthlyEarnings(
-        currentYear,
-        selectedMonth?.month,
-        { enabled: view === 'monthly' && !!selectedMonth }
-    );
+    const data = view === 'yearly' ? yData : mData;
+    const loading = view === 'yearly' ? yLoad : mLoad;
+    const err = (view === 'yearly' ? yErr : mErr) ? 'Failed to load.' : null;
 
-    const data = view === 'yearly' ? yearlyData : monthlyData;
-    const loading = view === 'yearly' ? yearlyLoading : monthlyLoading;
-    const errorState = (view === 'yearly' ? yearlyError : monthlyError) ? "Failed to load reports." : null;
-
-    const yearlyCols = useMemo(() => [
-        { key: 'month', title: 'Month', minWidth: '150px', render: r => <span className="font-bold text-gray-900">{["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][r.month - 1]}</span> },
-        { key: 'totalAmount', title: 'Total Payout', minWidth: '150px', render: r => <span className="font-mono text-green-700 font-bold">{formatCurrency(r.totalAmount)}</span> },
-        { key: 'totalInterviewers', title: 'Interviewers Paid', minWidth: '150px', render: r => <span className="px-2 py-1 bg-gray-100 rounded text-xs font-bold">{r.totalInterviewers}</span> },
-        { key: 'status', title: 'Confirmations', minWidth: '200px', render: r => <span className="text-xs text-gray-600">{r.receivedCount} Received / {r.pendingCount} Pending</span> }
+    const yCols = useMemo(() => [
+        { k: 'month', t: 'Month', w: 120, r: (r) => <span className="font-bold text-gray-900 text-sm">{months[r.month - 1]}</span> },
+        { k: 'total', t: 'Total Payout', w: 140, r: (r) => <span className="font-mono text-green-700 font-bold text-sm">{formatCurrency(r.totalAmount)}</span> },
+        { k: 'interviewers', t: 'Interviewers', w: 120, r: (r) => <span className="px-2 py-0.5 bg-gray-100 rounded text-xs font-bold">{r.totalInterviewers}</span> },
+        { k: 'conf', t: 'Confirmations', w: 200, r: (r) => <span className="text-xs text-gray-600">{r.receivedCount} Received / {r.pendingCount} Pending</span> },
     ], []);
 
-    const monthlyCols = useMemo(() => [
-        { key: 'interviewerName', title: 'Name', minWidth: '200px', render: r => <span className="font-medium text-gray-900">{r.interviewerName}</span> },
-        { key: 'interviewerId', title: 'ID', minWidth: '150px', render: r => <span className="text-xs font-mono text-gray-500">{r.interviewerId}</span> },
-        { key: 'monthPayment', title: 'Amount', minWidth: '150px', render: r => <span className="font-bold text-green-600">{formatCurrency(r.monthPayment)}</span> },
-        { key: 'confirmationStatus', title: 'Status', minWidth: '150px', render: r => <Badge variant={r.confirmationStatus === 'Received' ? 'success' : 'warning'}>{r.confirmationStatus}</Badge> }
+    const mCols = useMemo(() => [
+        { k: 'name', t: 'Name', w: 200, r: (r) => <span className="font-medium text-gray-900 text-sm">{r.interviewerName}</span> },
+        { k: 'id', t: 'ID', w: 150, r: (r) => <span className="text-xs font-mono text-gray-500">{r.interviewerId}</span> },
+        { k: 'amt', t: 'Amount', w: 140, r: (r) => <span className="font-bold text-green-600 text-sm">{formatCurrency(r.monthPayment)}</span> },
+        { k: 'status', t: 'Status', w: 140, r: (r) => <Badge variant={r.confirmationStatus === 'Received' ? 'success' : 'warning'}>{r.confirmationStatus}</Badge> },
     ], []);
 
     return (
-        <div className="flex flex-col h-full overflow-hidden min-h-0">
-            <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-white flex-shrink-0">
+        <>
+            <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between bg-white shrink-0">
                 <div className="flex items-center gap-3">
-                    {view === 'monthly' && <LocalButton variant="ghost" icon={FiArrowLeft} onClick={() => setView('yearly')} />}
-                    <h2 className="text-lg font-bold text-gray-800">{view === 'yearly' ? `Earnings: ${currentYear}` : `${selectedMonth?.name} ${currentYear} Details`}</h2>
+                    {view === 'monthly' && <Btn variant="ghost" icon={FiArrowLeft} onClick={() => setView('yearly')} />}
+                    <h2 className="text-base font-bold text-gray-900">{view === 'yearly' ? `Earnings ${year}` : `${month?.name} ${year}`}</h2>
                 </div>
-                <select value={currentYear} onChange={e => setCurrentYear(+e.target.value)} className="bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-sm font-medium focus:ring-gray-900 cursor-pointer">
+                <select value={year} onChange={e => setYear(+e.target.value)} className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm font-medium cursor-pointer focus:outline-none">
                     {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(y => <option key={y} value={y}>{y}</option>)}
                 </select>
             </div>
-            <div className="flex-1 flex flex-col min-h-0">
-                <CompactTable 
-                    columns={view === 'yearly' ? yearlyCols : monthlyCols} 
-                    data={data} 
-                    isLoading={loading} 
-                    error={errorState}
-                    emptyMessage="No reports available."
-                    onRowClick={view === 'yearly' ? (r) => { setSelectedMonth({ month: r.month, name: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][r.month-1] }); setView('monthly'); } : undefined}
-                />
-            </div>
-        </div>
+            <DataTable cols={view === 'yearly' ? yCols : mCols} rows={data} loading={loading} error={err} empty="No reports."
+                onRowClick={view === 'yearly' ? (r) => { setMonth({ num: r.month, name: months[r.month-1] }); setView('monthly'); } : undefined} />
+        </>
     );
 };
 
-const EarningsReportPage = () => {
-    const [activeView, setActiveView] = useState('payments');
+// ─── SHARED TABLE (self-contained, no external deps) ────────────────────────
 
-    const navItems = [
+const DataTable = ({ cols, rows, loading, error, empty, page, totalPages, totalItems, onPage, onRowClick }) => {
+    if (loading) return <div className="flex-1 flex items-center justify-center"><FiLoader className="w-6 h-6 text-gray-300 animate-spin" /></div>;
+    if (error) return <div className="flex-1 flex flex-col items-center justify-center text-center"><FiAlertTriangle className="w-8 h-8 text-red-300 mb-2" /><p className="text-sm text-gray-500">{error}</p></div>;
+    if (!rows.length) return <div className="flex-1 flex flex-col items-center justify-center text-center"><FiInbox className="w-8 h-8 text-gray-300 mb-2" /><p className="text-sm font-semibold text-gray-700">No Data Found</p><p className="text-xs text-gray-400 mt-1">{empty}</p></div>;
+
+    return (
+        <>
+            <div className="flex-1 overflow-auto min-h-0">
+                <table className="w-full min-w-max border-collapse">
+                    <thead className="sticky top-0 z-10">
+                        <tr>
+                            {cols.map(c => (
+                                <th key={c.k} style={{ minWidth: c.w, ...(c.sticky ? { position: 'sticky', left: 0, zIndex: 20, boxShadow: '2px 0 4px -2px rgba(0,0,0,0.08)' } : {}) }}
+                                    className={`px-3 py-2.5 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200 bg-gray-50 whitespace-nowrap`}>
+                                    {c.t}
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {rows.map((row, i) => (
+                            <tr key={row._id || i} onClick={() => onRowClick?.(row)}
+                                className={`border-b border-gray-100 hover:bg-gray-50/80 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}>
+                                {cols.map(c => (
+                                    <td key={c.k} style={c.sticky ? { position: 'sticky', left: 0, zIndex: 5, boxShadow: '2px 0 4px -2px rgba(0,0,0,0.04)' } : {}}
+                                        className={`px-3 py-2.5 text-sm whitespace-nowrap align-middle ${c.sticky ? 'bg-white' : ''}`}>
+                                        {c.r(row)}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+            {onPage && totalItems > 0 && (
+                <div className="px-4 py-2.5 border-t border-gray-200 bg-white flex items-center justify-between shrink-0">
+                    <span className="text-xs text-gray-500">{totalItems} records</span>
+                    <div className="flex items-center gap-1">
+                        <button onClick={() => onPage(page - 1)} disabled={page <= 1} className="p-1.5 rounded hover:bg-gray-100 disabled:opacity-30"><FiChevronLeft size={14} /></button>
+                        <span className="text-xs font-medium text-gray-600 px-2">{page} / {totalPages}</span>
+                        <button onClick={() => onPage(page + 1)} disabled={page >= totalPages} className="p-1.5 rounded hover:bg-gray-100 disabled:opacity-30"><FiChevronRight size={14} /></button>
+                    </div>
+                </div>
+            )}
+        </>
+    );
+};
+
+const Modal = ({ title, onClose, children }) => (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40" onClick={onClose}>
+        <div className="w-full max-w-lg bg-white rounded-xl shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="px-5 py-3 border-b border-gray-100 flex justify-between items-center">
+                <h3 className="text-sm font-bold text-gray-900">{title}</h3>
+                <button onClick={onClose} className="p-1 rounded hover:bg-gray-100 text-gray-400"><FiX size={16} /></button>
+            </div>
+            <div className="p-5 max-h-[60vh] overflow-y-auto">{children}</div>
+        </div>
+    </div>
+);
+
+// ─── MAIN PAGE ──────────────────────────────────────────────────────────────
+
+const EarningsReportPage = () => {
+    const [tab, setTab] = useState('payments');
+    const tabs = [
         { id: 'payments', label: 'Payment Requests', icon: FiDollarSign },
         { id: 'payout', label: 'Payout Sheet', icon: FiBarChart2 },
         { id: 'reports', label: 'Reports', icon: FiFileText },
     ];
 
     return (
-        <div className="h-full w-full flex overflow-hidden">
-            {/* Left Sidebar */}
-            <div className="w-56 bg-white border-r border-gray-200 flex flex-col shrink-0">
-                <div className="px-4 py-3 border-b border-gray-100">
-                    <Link to="/admin/dashboard" className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 font-medium mb-3 transition-colors">
-                        <FiArrowLeft size={12} /> Back to Dashboard
+        <div style={{ position: 'absolute', inset: 0, display: 'flex' }}>
+            {/* Sidebar */}
+            <div style={{ width: 210, flexShrink: 0, display: 'flex', flexDirection: 'column', borderRight: '1px solid #e5e7eb', background: '#fff' }}>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid #f3f4f6' }}>
+                    <Link to="/admin/dashboard" className="inline-flex items-center gap-1.5 text-[11px] text-gray-400 hover:text-gray-700 font-medium mb-2">
+                        <FiArrowLeft size={11} /> Back
                     </Link>
                     <h2 className="text-base font-bold text-gray-900">Earnings</h2>
-                    <p className="text-xs text-gray-400 mt-0.5">Payments & Reports</p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">Payments & Reports</p>
                 </div>
-                <nav className="flex-1 p-3 space-y-0.5">
-                    {navItems.map(item => (
-                        <button key={item.id} onClick={() => setActiveView(item.id)}
-                            className={`flex items-center gap-2.5 w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
-                                activeView === item.id ? 'bg-slate-900 text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                            }`}>
-                            <item.icon className={`w-4 h-4 ${activeView === item.id ? 'text-white' : 'text-gray-400'}`} />
-                            {item.label}
+                <nav style={{ flex: 1, padding: 8 }}>
+                    {tabs.map(t => (
+                        <button key={t.id} onClick={() => setTab(t.id)}
+                            style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '8px 12px', borderRadius: 8, marginBottom: 2, fontSize: 13, fontWeight: 500, transition: 'all 0.15s',
+                                background: tab === t.id ? '#0f172a' : 'transparent', color: tab === t.id ? '#fff' : '#6b7280' }}
+                            onMouseEnter={e => { if (tab !== t.id) e.currentTarget.style.background = '#f3f4f6'; }}
+                            onMouseLeave={e => { if (tab !== t.id) e.currentTarget.style.background = 'transparent'; }}>
+                            <t.icon size={15} /> {t.label}
                         </button>
                     ))}
                 </nav>
             </div>
-
-            {/* Main Content */}
-            <div className="flex-1 overflow-hidden flex flex-col bg-white min-h-0">
-                {activeView === 'payments' && <PaymentRequestsView />}
-                {activeView === 'payout' && <PayoutSheetView />}
-                {activeView === 'reports' && <ReportsView />}
+            {/* Content */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0, background: '#fff' }}>
+                {tab === 'payments' && <PaymentRequestsView />}
+                {tab === 'payout' && <PayoutSheetView />}
+                {tab === 'reports' && <ReportsView />}
             </div>
         </div>
     );
