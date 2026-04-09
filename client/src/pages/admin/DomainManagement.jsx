@@ -1,36 +1,14 @@
 // client/src/pages/admin/DomainManagement.jsx
-import React, { useState, useEffect, useCallback } from 'react';
-import Loader from '@/components/common/Loader';
+import React, { useState } from 'react';
 import DomainsTab from '@/components/admin/DomainsTab';
 import DomainFieldsTab from '@/components/admin/DomainFieldsTab';
-import { getDomains } from '@/api/admin.api';
-import { useAlert } from '@/hooks/useAlert';
+import { useDomains } from '@/hooks/useAdminQueries';
 import { FiGrid, FiSettings } from 'react-icons/fi';
 
 const DomainManagement = () => {
-    const { showError } = useAlert();
-    const [domains, setDomains] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { data: domains = [], isLoading: loading, refetch: fetchDomains } = useDomains();
     const [activeTab, setActiveTab] = useState('domains'); // 'domains' or 'fields'
     const [selectedDomainForFields, setSelectedDomainForFields] = useState(null);
-
-    const fetchDomains = useCallback(async () => {
-        try {
-            const res = await getDomains();
-            setDomains(res.data.data);
-        } catch (error) {
-            showError('Failed to fetch domains list.');
-        }
-    }, [showError]);
-
-    useEffect(() => {
-        const initialFetch = async () => {
-            setLoading(true);
-            await fetchDomains();
-            setLoading(false);
-        };
-        initialFetch();
-    }, [fetchDomains]);
 
     const handleDomainClick = (domain) => {
         const domainOption = domains.find(d => d._id === domain._id);
@@ -70,7 +48,7 @@ const DomainManagement = () => {
                 </div>
              </div>
              
-             <div className="flex-grow p-6 overflow-y-auto custom-scrollbar">
+             <div className="flex-grow overflow-y-auto custom-scrollbar">
                 <div className="h-full max-w-7xl mx-auto">
                     {activeTab === 'domains' && (
                         <DomainsTab domains={domains} onUpdate={fetchDomains} onDomainClick={handleDomainClick} /> 

@@ -6,14 +6,14 @@ import logoSrc from '/logo.svg';
 
 const GuidelinesSubmissionSuccess = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-green-50 to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50 py-12 px-4 sm:px-6 lg:px-8">
       {/* Background grid pattern for a subtle texture */}
       <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10"></div>
       
       {/* Main content card with enhanced styling */}
       <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-8 sm:p-10 border border-slate-200/50 relative overflow-hidden">
         {/* Decorative gradient overlay inside the card */}
-        <div className="absolute inset-0 bg-gradient-to-br from-green-600/5 via-blue-600/5 to-indigo-600/5 -z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-green-600/5 via-emerald-600/5 to-emerald-600/5 -z-10"></div>
         
         {/* Content */}
         <div className="text-center">
@@ -43,7 +43,7 @@ const GuidelinesSubmissionSuccess = () => {
           
           <Link
             to="/"
-            className="group relative w-full sm:w-auto inline-flex justify-center py-3 px-8 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
+            className="group relative w-full sm:w-auto inline-flex justify-center py-3 px-8 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-emerald-600 to-emerald-600 hover:from-emerald-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
           >
               <FiHome className="mr-2 h-5 w-5"/>
               Back to Home

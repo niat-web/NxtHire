@@ -1803,11 +1803,43 @@ const getUsers = asyncHandler(async (req, res) => {
 });
 
 const createUser = asyncHandler(async (req, res) => {
-    const { firstName, lastName, email, password, role, isActive, phoneNumber } = req.body;
+    const { firstName, lastName, email, role, isActive, phoneNumber } = req.body;
     const userExists = await User.findOne({ email });
     if (userExists) { res.status(400); throw new Error('User with this email already exists.'); }
-    const user = await User.create({ firstName, lastName, email, password, role, isActive, phoneNumber });
-    res.status(201).json({ success: true, data: user });
+
+    // Create user without password — they will set it via email link
+    const user = await User.create({ firstName, lastName, email, role, isActive: isActive !== undefined ? isActive : true, phoneNumber });
+
+    // Generate a 24-hour setup token
+    const resetToken = user.getResetPasswordToken();
+    user.passwordResetExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours instead of 10 minutes
+    await user.save({ validateBeforeSave: false });
+
+    // Send account setup email
+    const setupLink = `${process.env.CLIENT_URL}/create-password?token=${resetToken}`;
+    try {
+        await sendEmail({
+            recipient: user._id,
+            recipientModel: 'User',
+            recipientEmail: user.email,
+            templateName: 'accountCreation',
+            subject: 'Complete Your NxtWave Account Setup',
+            templateData: {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                setupLink,
+                expiryHours: 24
+            },
+            relatedTo: 'Account Creation',
+            sentBy: req.user._id,
+            isAutomated: false,
+            metadata: { userId: user._id }
+        });
+    } catch (emailErr) {
+        console.error('Failed to send account setup email:', emailErr.message);
+    }
+
+    res.status(201).json({ success: true, data: user, message: 'User created. Setup email sent.' });
 });
 
 const getUserDetails = asyncHandler(async (req, res) => {

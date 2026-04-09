@@ -46,12 +46,20 @@ export function usePushNotifications() {
             setError("Permission not granted.");
             return;
         }
+
+        const publicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+        if (!publicKey) {
+            const message = 'Push notifications are not configured for this environment.';
+            showError(message);
+            setError(message);
+            return;
+        }
         
         try {
             const reg = await navigator.serviceWorker.ready;
             const sub = await reg.pushManager.subscribe({
                 userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(import.meta.env.VITE_VAPID_PUBLIC_KEY),
+                applicationServerKey: urlBase64ToUint8Array(publicKey),
             });
 
             await subscribePush(sub); // Send subscription to backend
@@ -63,7 +71,7 @@ export function usePushNotifications() {
         } catch (err) {
             console.error('Failed to subscribe to push notifications:', err);
             showError('Failed to enable push notifications.');
-            setError(err);
+            setError(err instanceof Error ? err.message : String(err));
         }
     };
     

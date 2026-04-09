@@ -63,10 +63,10 @@
 //     return (
 //         <form id="availability-form" onSubmit={handleSubmit(handleFormSubmit)}>
 //             <div className="space-y-6">
-//                 <div className="p-4 bg-blue-50 border-l-4 border-blue-400 rounded-md">
+//                 <div className="p-4 bg-emerald-50 border-l-4 border-emerald-400 rounded-md">
 //                     <div className="flex">
-//                         <div className="flex-shrink-0"><FiInfo className="h-5 w-5 text-blue-500" /></div>
-//                         <div className="ml-3"><p className="text-sm text-blue-800">You are providing your availability for <strong>{formatDate(bookingDate)}</strong>. All times are in your local timezone.</p></div>
+//                         <div className="flex-shrink-0"><FiInfo className="h-5 w-5 text-emerald-500" /></div>
+//                         <div className="ml-3"><p className="text-sm text-emerald-800">You are providing your availability for <strong>{formatDate(bookingDate)}</strong>. All times are in your local timezone.</p></div>
 //                     </div>
 //                 </div>
 

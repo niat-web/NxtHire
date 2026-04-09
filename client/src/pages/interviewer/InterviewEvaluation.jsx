@@ -1,67 +1,72 @@
 // client/src/pages/interviewer/InterviewEvaluation.jsx
-import React, { useState, useEffect, useMemo, useCallback, Fragment, useRef } from 'react';
-import { getAssignedInterviews, updateInterviewStatus } from '../../api/interviewer.api';
+import React, { useState, useEffect, useMemo, useCallback, Fragment } from 'react';
+import { updateInterviewStatus } from '../../api/interviewer.api';
 import { useAlert } from '../../hooks/useAlert';
-import { 
-  format as formatDateFns, startOfWeek, endOfWeek, addDays, subDays, 
-  eachDayOfInterval, isToday, isSameDay, getDay 
+import { useAssignedInterviews, useInvalidateInterviewer } from '../../hooks/useInterviewerQueries';
+import {
+  format as formatDateFns, startOfWeek, endOfWeek, addDays, subDays,
+  eachDayOfInterval, isToday, isSameDay, getDay, isPast, isFuture
 } from 'date-fns';
-import { 
-  FiChevronLeft, FiChevronRight, FiVideo, FiUser, FiFileText, FiClock, 
-  FiX, FiCheckCircle, FiChevronDown, FiCalendar, FiRefreshCw, FiFilter, FiInfo
+import {
+  FiChevronLeft, FiChevronRight, FiVideo, FiUser, FiFileText, FiClock,
+  FiX, FiCheckCircle, FiChevronDown, FiCalendar, FiRefreshCw,
+  FiExternalLink, FiMapPin
 } from 'react-icons/fi';
 import { Dialog, Transition, Listbox } from '@headlessui/react';
 import { MAIN_SHEET_INTERVIEW_STATUSES } from '../../utils/constants';
 
-// --- CONSTANTS & CONFIG ---
-
+// ─── STATUS CONFIG ───────────────────────────────────────────────────────────
 const STATUS_CONFIG = {
-  'Scheduled': { bg: 'bg-blue-50', border: 'border-blue-500', text: 'text-blue-700', hover: 'hover:bg-blue-100', dot: 'bg-blue-500' },
-  'InProgress': { bg: 'bg-purple-50', border: 'border-purple-500', text: 'text-purple-700', hover: 'hover:bg-purple-100', dot: 'bg-purple-500' },
-  'Completed': { bg: 'bg-green-50', border: 'border-green-500', text: 'text-green-700', hover: 'hover:bg-green-100', dot: 'bg-green-500' },
-  'Cancelled': { bg: 'bg-red-50', border: 'border-red-500', text: 'text-red-700', hover: 'hover:bg-red-100', dot: 'bg-red-500' },
-  'default': { bg: 'bg-gray-50', border: 'border-gray-400', text: 'text-gray-700', hover: 'hover:bg-gray-100', dot: 'bg-gray-400' }
+  Scheduled:  { bg: 'bg-emerald-50',  border: 'border-emerald-500', text: 'text-emerald-700', dot: 'bg-emerald-500', label: 'Scheduled' },
+  InProgress: { bg: 'bg-amber-50',    border: 'border-amber-500',   text: 'text-amber-700',   dot: 'bg-amber-500',   label: 'In Progress' },
+  Completed:  { bg: 'bg-green-50',    border: 'border-green-500',   text: 'text-green-700',   dot: 'bg-green-500',   label: 'Completed' },
+  Cancelled:  { bg: 'bg-red-50',      border: 'border-red-500',     text: 'text-red-700',     dot: 'bg-red-500',     label: 'Cancelled' },
+  default:    { bg: 'bg-gray-50',     border: 'border-gray-400',    text: 'text-gray-700',    dot: 'bg-gray-400',    label: 'Unknown' }
 };
 
-// --- UI COMPONENTS ---
+const getConfig = (status) => STATUS_CONFIG[status] || STATUS_CONFIG.default;
 
-const LocalLoader = () => (
-  <div className="flex flex-col h-full w-full items-center justify-center text-center">
-    <div className="w-10 h-10 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin mb-4"></div>
-    <span className="text-sm font-semibold text-gray-500">Loading Schedule...</span>
-  </div>
-);
-
-const LocalButton = ({ children, onClick, variant = 'primary', icon: Icon, className = '' }) => {
-    const variants = {
-        primary: 'bg-gray-900 text-white hover:bg-black border-transparent shadow-sm',
-        outline: 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50',
-        ghost: 'bg-transparent text-gray-600 hover:bg-gray-100'
-    };
-    return (
-        <button onClick={onClick} className={`inline-flex items-center justify-center px-3 py-2 text-sm font-bold rounded-lg transition-all active:scale-95 border ${variants[variant]} ${className}`}>
-            {Icon && <Icon className="mr-2 h-4 w-4" />}
-            {children}
-        </button>
-    );
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+const parseTime = (timeStr) => {
+  if (!timeStr) return { hour: 0, minute: 0 };
+  const cleaned = timeStr.trim().toUpperCase();
+  let hour, minute;
+  if (cleaned.includes('AM') || cleaned.includes('PM')) {
+    const period = cleaned.includes('PM') ? 'PM' : 'AM';
+    const [timePart] = cleaned.split(period);
+    const [h, m] = timePart.trim().split(':');
+    hour = parseInt(h, 10); minute = m ? parseInt(m, 10) : 0;
+    if (period === 'PM' && hour !== 12) hour += 12;
+    if (period === 'AM' && hour === 12) hour = 0;
+  } else {
+    const [h, m] = cleaned.split(':');
+    hour = parseInt(h, 10); minute = m ? parseInt(m, 10) : 0;
+  }
+  return { hour, minute };
 };
 
+const formatDisplayTime = (timeStr) => {
+  if (!timeStr || !timeStr.includes(':')) return '';
+  const { hour, minute } = parseTime(timeStr);
+  return new Date(1970, 0, 1, hour, minute).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+};
+
+const getInitials = (name) => {
+  if (!name) return '?';
+  return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+};
+
+// ─── INTERVIEW DETAILS MODAL ────────────────────────────────────────────────
 const InterviewDetailsModal = ({ isOpen, onClose, interview, onStatusChange }) => {
   const [status, setStatus] = useState('');
-  
+
   useEffect(() => {
     if (interview) setStatus(interview.interviewStatus || '');
   }, [interview]);
 
-  const handleSubmit = () => {
-    if (interview && status !== interview.interviewStatus) {
-      onStatusChange(interview._id, status);
-    }
-  };
-  
   if (!interview) return null;
-
-  const config = STATUS_CONFIG[interview.interviewStatus] || STATUS_CONFIG.default;
+  const config = getConfig(interview.interviewStatus);
+  const [startStr, endStr] = (interview.interviewTime || '').split('-').map(t => t.trim());
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -72,78 +77,108 @@ const InterviewDetailsModal = ({ isOpen, onClose, interview, onStatusChange }) =
         <div className="fixed inset-0 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4">
             <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-2xl transition-all border border-gray-100">
-                
-                {/* Modal Header */}
-                <div className={`px-6 py-4 border-b border-gray-100 flex justify-between items-start bg-gray-50/50`}>
+              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all">
+
+                {/* Header */}
+                <div className="relative bg-gradient-to-r from-slate-800 to-slate-900 px-6 py-5 text-white">
+                  <button onClick={onClose} className="absolute top-4 right-4 p-1 rounded-full hover:bg-white/10 transition-colors">
+                    <FiX size={18} />
+                  </button>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-white/15 flex items-center justify-center text-lg font-bold">
+                      {getInitials(interview.candidateName)}
+                    </div>
                     <div>
-                        <Dialog.Title as="h3" className="text-lg font-bold text-gray-900">Interview Details</Dialog.Title>
-                        <p className="text-xs text-gray-500 mt-1 font-mono">{interview.interviewId}</p>
+                      <h3 className="text-lg font-bold">{interview.candidateName}</h3>
+                      <p className="text-sm text-white/70 font-mono">{interview.interviewId}</p>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${config.bg} ${config.text} border-transparent`}>
-                        {interview.interviewStatus}
+                  </div>
+                  <div className="mt-3 flex gap-2">
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${config.bg} ${config.text}`}>
+                      {config.label}
                     </span>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/15 text-white">
+                      {interview.techStack}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="p-6 space-y-5">
-                  <div className="space-y-4">
-                      <div className="flex items-start">
-                          <div className="p-2 bg-blue-50 text-blue-600 rounded-lg mr-4"><FiUser className="h-5 w-5"/></div>
-                          <div>
-                              <p className="text-xs text-gray-500 uppercase font-bold tracking-wide">Candidate</p>
-                              <p className="text-sm font-semibold text-gray-900">{interview.candidateName}</p>
-                              <p className="text-xs text-gray-500">{interview.mailId}</p>
-                          </div>
+                {/* Body */}
+                <div className="p-6 space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <div className="flex items-center gap-2 text-gray-400 mb-2">
+                        <FiCalendar size={14} />
+                        <span className="text-xs font-bold uppercase tracking-wide">Date</span>
                       </div>
-                      
-                      <div className="flex items-start">
-                          <div className="p-2 bg-purple-50 text-purple-600 rounded-lg mr-4"><FiFileText className="h-5 w-5"/></div>
-                          <div>
-                              <p className="text-xs text-gray-500 uppercase font-bold tracking-wide">Domain</p>
-                              <p className="text-sm font-semibold text-gray-900">{interview.techStack}</p>
-                          </div>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {formatDateFns(new Date(interview.interviewDate), 'MMM do, yyyy')}
+                      </p>
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <div className="flex items-center gap-2 text-gray-400 mb-2">
+                        <FiClock size={14} />
+                        <span className="text-xs font-bold uppercase tracking-wide">Time</span>
                       </div>
-
-                      <div className="flex items-start">
-                          <div className="p-2 bg-orange-50 text-orange-600 rounded-lg mr-4"><FiClock className="h-5 w-5"/></div>
-                          <div>
-                              <p className="text-xs text-gray-500 uppercase font-bold tracking-wide">Timing</p>
-                              <p className="text-sm font-semibold text-gray-900">
-                                  {formatDateFns(new Date(interview.interviewDate), 'MMMM do, yyyy')}
-                              </p>
-                              <p className="text-sm text-gray-700">{interview.interviewTime} ({interview.interviewDuration})</p>
-                          </div>
-                      </div>
-
-                      {interview.meetingLink && (
-                        <div className="flex items-start">
-                            <div className="p-2 bg-green-50 text-green-600 rounded-lg mr-4"><FiVideo className="h-5 w-5"/></div>
-                            <div className="overflow-hidden">
-                                <p className="text-xs text-gray-500 uppercase font-bold tracking-wide">Meeting Link</p>
-                                <a href={interview.meetingLink} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline truncate block">
-                                    {interview.meetingLink}
-                                </a>
-                            </div>
-                        </div>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {formatDisplayTime(startStr)} - {formatDisplayTime(endStr)}
+                      </p>
+                      {interview.interviewDuration && (
+                        <p className="text-xs text-gray-500 mt-0.5">{interview.interviewDuration}</p>
                       )}
+                    </div>
                   </div>
 
-                  <div className="pt-4 border-t border-gray-100">
-                    <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">Update Status</label>
-                    <div className="relative">
-                        <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full pl-3 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none appearance-none cursor-pointer">
-                        {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
-                        </select>
-                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-500">
-                            <FiChevronDown />
+                  {interview.mailId && (
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <div className="flex items-center gap-2 text-gray-400 mb-2">
+                        <FiUser size={14} />
+                        <span className="text-xs font-bold uppercase tracking-wide">Contact</span>
+                      </div>
+                      <p className="text-sm text-gray-700">{interview.mailId}</p>
+                    </div>
+                  )}
+
+                  {interview.meetingLink && (
+                    <a href={interview.meetingLink} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center justify-between p-4 bg-emerald-50 rounded-xl border border-emerald-100 hover:bg-emerald-100 transition-colors group">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                          <FiVideo size={18} className="text-emerald-600" />
                         </div>
+                        <div>
+                          <p className="text-sm font-semibold text-emerald-800">Join Meeting</p>
+                          <p className="text-xs text-emerald-600 truncate max-w-[250px]">{interview.meetingLink}</p>
+                        </div>
+                      </div>
+                      <FiExternalLink size={16} className="text-emerald-400 group-hover:text-emerald-600 transition-colors" />
+                    </a>
+                  )}
+
+                  {/* Status Update */}
+                  <div className="pt-3 border-t border-gray-100">
+                    <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Update Status</label>
+                    <div className="relative">
+                      <select value={status} onChange={(e) => setStatus(e.target.value)}
+                        className="w-full pl-3 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none appearance-none cursor-pointer">
+                        {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                      <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-100 rounded-b-2xl">
-                  <LocalButton variant="outline" onClick={onClose}>Close</LocalButton>
-                  <LocalButton variant="primary" onClick={handleSubmit}>Save Changes</LocalButton>
+                {/* Footer */}
+                <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-100">
+                  <button onClick={onClose} className="px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+                    Cancel
+                  </button>
+                  <button onClick={() => { if (status !== interview.interviewStatus) onStatusChange(interview._id, status); }}
+                    className="px-5 py-2 text-sm font-semibold text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 transition-colors shadow-sm">
+                    Save Changes
+                  </button>
                 </div>
               </Dialog.Panel>
             </Transition.Child>
@@ -154,278 +189,359 @@ const InterviewDetailsModal = ({ isOpen, onClose, interview, onStatusChange }) =
   );
 };
 
-// --- SUB COMPONENTS ---
+// ─── AGENDA CARD (Sidebar) ──────────────────────────────────────────────────
+const AgendaCard = ({ interview, onClick }) => {
+  const config = getConfig(interview.interviewStatus);
+  const [startStr] = (interview.interviewTime || '').split('-').map(t => t.trim());
 
-const FilterListbox = ({ value, onChange, options, label, icon: Icon }) => (
-    <Listbox value={value} onChange={onChange} multiple>
-      <div className="relative">
-        <Listbox.Button className="relative w-full sm:w-48 cursor-pointer rounded-lg bg-white py-2 pl-10 pr-10 text-left border border-gray-200 shadow-sm hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-900/10 transition-all">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><Icon className="h-4 w-4" /></span>
-          <span className="block truncate text-sm font-medium text-gray-700">
-            {value.length > 0 ? `${value.length} selected` : label}
-          </span>
-          <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"><FiChevronDown className="h-4 w-4 text-gray-400" /></span>
-        </Listbox.Button>
-        <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-          <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-lg bg-white py-1 text-sm shadow-xl ring-1 ring-black/5 z-50 focus:outline-none">
-            {options.map((opt) => (
-                <Listbox.Option key={opt.value} value={opt.value} className={({ active }) => `relative cursor-pointer select-none py-2.5 pl-10 pr-4 ${active ? 'bg-gray-50 text-gray-900' : 'text-gray-600'}`}>
-                    {({ selected }) => (
-                        <>
-                            <span className={`block truncate ${selected ? 'font-bold text-gray-900' : 'font-normal'}`}>{opt.label}</span>
-                            {selected ? <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-900"><FiCheckCircle className="h-4 w-4" /></span> : null}
-                        </>
-                    )}
-                </Listbox.Option>
-            ))}
-          </Listbox.Options>
-        </Transition>
-      </div>
-    </Listbox>
-);
-
-const InterviewCard = React.memo(({ interview, position, onEventClick }) => {
-  const config = STATUS_CONFIG[interview.interviewStatus] || STATUS_CONFIG.default;
-
-  const formatTimeForDisplay = (timeStr) => {
-      if (!timeStr || !timeStr.includes(':')) return '';
-      const [hour, minute] = timeStr.split(':').map(Number);
-      return new Date(1970, 0, 1, hour, minute).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-  };
-  
-  const [startTimeStr, endTimeStr] = (interview.interviewTime || '').split('-').map(t => t.trim());
-  const displayTime = `${formatTimeForDisplay(startTimeStr)} - ${formatTimeForDisplay(endTimeStr)}`;
-  
   return (
-    <button 
-        onClick={() => onEventClick(interview)} 
-        className={`absolute inset-x-1 rounded-md border-l-4 ${config.border} ${config.bg} ${config.hover} shadow-sm hover:shadow-md transition-all duration-200 group overflow-hidden text-left flex flex-col justify-center px-2 py-1 z-10`}
-        style={{ top: `${position.top}px`, height: `${position.height}px` }}
-        title={`${interview.candidateName} (${interview.interviewStatus})`}
-    >
-      <div className="flex items-center gap-1.5 mb-0.5">
-          <p className={`text-xs font-bold truncate ${config.text}`}>{interview.candidateName}</p>
+    <button onClick={() => onClick(interview)}
+      className="w-full text-left p-3.5 rounded-xl border border-gray-100 hover:border-emerald-200 hover:shadow-md bg-white transition-all group">
+      <div className="flex items-start gap-3">
+        <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${config.bg} ${config.text}`}>
+          {getInitials(interview.candidateName)}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-emerald-700 transition-colors">
+            {interview.candidateName}
+          </p>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-xs text-gray-500">{formatDisplayTime(startStr)}</span>
+            <span className="w-1 h-1 bg-gray-300 rounded-full" />
+            <span className="text-xs text-gray-500 truncate">{interview.techStack}</span>
+          </div>
+        </div>
+        <span className={`shrink-0 w-2 h-2 rounded-full mt-2 ${config.dot}`} title={config.label} />
       </div>
-      <p className={`text-[10px] truncate opacity-80 ${config.text}`}>{interview.techStack}</p>
-      <p className={`text-[9px] font-mono mt-0.5 opacity-70 ${config.text}`}>{displayTime}</p>
+      {interview.meetingLink && (
+        <div className="mt-2.5 flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+          <FiVideo size={12} />
+          <span>Meeting link available</span>
+        </div>
+      )}
     </button>
   );
-});
-
-const CalendarGrid = ({ weekDays, scheduledInterviews, onEventClick }) => {
-    const hours = Array.from({ length: 15 }, (_, i) => i + 8); // 8 AM to 10 PM
-    const rowHeight = 70; // Adjusted for better density
-  
-    return (
-      <div className="flex-1 overflow-auto relative bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="grid" style={{ gridTemplateColumns: '60px repeat(7, 1fr)', gridTemplateRows: `50px repeat(${hours.length}, ${rowHeight}px)`, minWidth: '1000px' }}>
-          
-          {/* Header Corner */}
-          <div className="sticky top-0 left-0 bg-white z-30 border-b border-r border-gray-200 flex items-center justify-center">
-              <FiClock className="text-gray-300" />
-          </div>
-
-          {/* Day Headers */}
-          {weekDays.map(day => {
-            const isCurrentDay = isToday(day);
-            return (
-                <div key={day.toString()} className={`sticky top-0 p-3 text-center border-b border-r border-gray-100 bg-white/95 backdrop-blur-sm z-20 flex flex-col justify-center ${isCurrentDay ? 'bg-blue-50/50' : ''}`}>
-                    <span className={`text-xs font-bold uppercase tracking-wider ${isCurrentDay ? 'text-blue-600' : 'text-gray-400'}`}>{formatDateFns(day, 'EEE')}</span>
-                    <div className={`mx-auto w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold mt-1 ${isCurrentDay ? 'bg-gray-900 text-white shadow-lg' : 'text-gray-900'}`}>
-                        {formatDateFns(day, 'd')}
-                    </div>
-                </div>
-            )
-          })}
-          
-          {/* Grid Body */}
-          {hours.map((hour, hourIndex) => (
-              <React.Fragment key={hour}>
-                  {/* Time Label */}
-                  <div className="row-start-[--row] text-right pr-3 pt-2 text-xs font-bold text-gray-400 border-r border-gray-100 bg-white sticky left-0 z-10" style={{'--row': hourIndex + 2}}>
-                     {formatDateFns(new Date(0, 0, 0, hour), 'h a')}
-                  </div>
-                  
-                  {/* Grid Cells */}
-                  {weekDays.map((_, dayIndex) => (
-                      <div key={dayIndex} className="border-b border-r border-gray-100 relative hover:bg-gray-50/30 transition-colors" style={{ gridRow: hourIndex + 2, gridColumn: dayIndex + 2 }}>
-                          {/* Half-hour guide line */}
-                          <div className="absolute top-1/2 w-full border-t border-gray-50 border-dashed"></div>
-                      </div>
-                  ))}
-              </React.Fragment>
-          ))}
-          
-           {/* Event Cards Placement */}
-          {scheduledInterviews.map(({ interview, position }) => (
-            <div key={interview._id} className="relative" style={{ gridColumn: position.column + 2, gridRow: 2 }}>
-                <InterviewCard interview={interview} position={position} onEventClick={onEventClick} />
-            </div>
-          ))}
-        </div>
-      </div>
-    );
 };
 
-const EmptyState = ({ onRefresh }) => (
-  <div className="flex flex-col items-center justify-center h-full bg-white rounded-xl border border-dashed border-gray-300 p-8 text-center">
-    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
-        <FiCalendar size={36} className="text-gray-300" />
-    </div>
-    <h3 className="text-xl font-bold text-gray-900 mb-2">No Interviews Scheduled</h3>
-    <p className="text-gray-500 max-w-xs mb-6">There are no interviews scheduled for this week matching your current filters.</p>
-    <LocalButton variant="primary" onClick={onRefresh} icon={FiRefreshCw}>Refresh Schedule</LocalButton>
+// ─── STAT PILL ──────────────────────────────────────────────────────────────
+const StatPill = ({ label, count, dotColor }) => (
+  <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border border-gray-100 text-xs">
+    <span className={`w-2 h-2 rounded-full ${dotColor}`} />
+    <span className="text-gray-500 font-medium">{label}</span>
+    <span className="font-bold text-gray-900">{count}</span>
   </div>
 );
 
-// --- MAIN PAGE COMPONENT ---
+// ─── FILTER DROPDOWN ────────────────────────────────────────────────────────
+const FilterListbox = ({ value, onChange, options, label, icon: Icon }) => (
+  <Listbox value={value} onChange={onChange} multiple>
+    <div className="relative">
+      <Listbox.Button className="relative cursor-pointer rounded-xl bg-white py-2 pl-9 pr-8 text-left border border-gray-200 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all text-sm font-medium text-gray-700 min-w-[140px]">
+        <span className="absolute inset-y-0 left-0 flex items-center pl-2.5 text-gray-400"><Icon size={15} /></span>
+        <span className="block truncate">
+          {value.length > 0 ? `${value.length} selected` : label}
+        </span>
+        <span className="absolute inset-y-0 right-0 flex items-center pr-2"><FiChevronDown size={14} className="text-gray-400" /></span>
+      </Listbox.Button>
+      <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
+        <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-sm shadow-xl ring-1 ring-black/5 z-50 focus:outline-none">
+          {options.map((opt) => (
+            <Listbox.Option key={opt.value} value={opt.value}
+              className={({ active }) => `relative cursor-pointer select-none py-2.5 pl-9 pr-4 ${active ? 'bg-emerald-50 text-emerald-900' : 'text-gray-600'}`}>
+              {({ selected }) => (
+                <>
+                  <span className={`block truncate ${selected ? 'font-bold text-gray-900' : ''}`}>{opt.label}</span>
+                  {selected && <FiCheckCircle className="absolute left-2.5 top-1/2 -translate-y-1/2 text-emerald-600" size={14} />}
+                </>
+              )}
+            </Listbox.Option>
+          ))}
+        </Listbox.Options>
+      </Transition>
+    </div>
+  </Listbox>
+);
 
+// ─── CALENDAR GRID ──────────────────────────────────────────────────────────
+const CalendarGrid = ({ weekDays, scheduledInterviews, onEventClick }) => {
+  const hours = Array.from({ length: 15 }, (_, i) => i + 8);
+  const rowHeight = 70;
+
+  return (
+    <div className="flex-1 overflow-auto relative bg-white rounded-2xl border border-gray-200">
+      <div className="grid" style={{ gridTemplateColumns: '56px repeat(7, 1fr)', gridTemplateRows: `48px repeat(${hours.length}, ${rowHeight}px)`, minWidth: '900px' }}>
+
+        {/* Header Corner */}
+        <div className="sticky top-0 left-0 bg-gray-50 z-30 border-b border-r border-gray-200 flex items-center justify-center rounded-tl-2xl">
+          <FiClock size={14} className="text-gray-300" />
+        </div>
+
+        {/* Day Headers */}
+        {weekDays.map((day, i) => {
+          const isCurrent = isToday(day);
+          return (
+            <div key={day.toString()} className={`sticky top-0 text-center border-b border-r border-gray-100 z-20 flex flex-col justify-center py-2 ${isCurrent ? 'bg-emerald-50/60' : 'bg-gray-50/80'} backdrop-blur-sm ${i === 6 ? 'rounded-tr-2xl' : ''}`}>
+              <span className={`text-[10px] font-bold uppercase tracking-widest ${isCurrent ? 'text-emerald-600' : 'text-gray-400'}`}>
+                {formatDateFns(day, 'EEE')}
+              </span>
+              <div className={`mx-auto w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold mt-0.5 transition-colors ${isCurrent ? 'bg-emerald-600 text-white' : 'text-gray-800'}`}>
+                {formatDateFns(day, 'd')}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Grid Body */}
+        {hours.map((hour, hourIndex) => (
+          <React.Fragment key={hour}>
+            <div className="text-right pr-2 pt-1.5 text-[10px] font-semibold text-gray-400 border-r border-gray-100 bg-white sticky left-0 z-10"
+              style={{ gridRow: hourIndex + 2 }}>
+              {formatDateFns(new Date(0, 0, 0, hour), 'h a')}
+            </div>
+            {weekDays.map((day, dayIndex) => (
+              <div key={dayIndex}
+                className={`border-b border-r border-gray-50 relative transition-colors ${isToday(day) ? 'bg-emerald-50/20' : 'hover:bg-gray-50/50'}`}
+                style={{ gridRow: hourIndex + 2, gridColumn: dayIndex + 2 }}>
+                <div className="absolute top-1/2 w-full border-t border-dashed border-gray-100/60" />
+              </div>
+            ))}
+          </React.Fragment>
+        ))}
+
+        {/* Event Cards */}
+        {scheduledInterviews.map(({ interview, position }) => {
+          const config = getConfig(interview.interviewStatus);
+          const [startStr, endStr] = (interview.interviewTime || '').split('-').map(t => t.trim());
+          return (
+            <div key={interview._id} className="relative" style={{ gridColumn: position.column + 2, gridRow: 2 }}>
+              <button onClick={() => onEventClick(interview)}
+                className={`absolute inset-x-0.5 rounded-lg border-l-[3px] ${config.border} ${config.bg} hover:shadow-lg transition-all overflow-hidden text-left px-2 py-1.5 z-10 group`}
+                style={{ top: `${position.top}px`, height: `${Math.max(position.height, 28)}px` }}>
+                <p className={`text-[11px] font-bold truncate ${config.text}`}>{interview.candidateName}</p>
+                {position.height > 35 && (
+                  <p className={`text-[9px] truncate mt-0.5 opacity-75 ${config.text}`}>
+                    {formatDisplayTime(startStr)} · {interview.techStack}
+                  </p>
+                )}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// ─── EMPTY STATE ────────────────────────────────────────────────────────────
+const EmptyState = ({ onRefresh }) => (
+  <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl border border-dashed border-gray-200 p-10 text-center">
+    <div className="w-20 h-20 bg-emerald-50 rounded-2xl flex items-center justify-center mb-5">
+      <FiCalendar size={32} className="text-emerald-300" />
+    </div>
+    <h3 className="text-lg font-bold text-gray-900 mb-1.5">No Interviews This Week</h3>
+    <p className="text-sm text-gray-500 max-w-xs mb-6">There are no interviews scheduled for this week matching your current filters.</p>
+    <button onClick={onRefresh}
+      className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm">
+      <FiRefreshCw size={14} /> Refresh
+    </button>
+  </div>
+);
+
+// ─── MAIN COMPONENT ─────────────────────────────────────────────────────────
 const InterviewEvaluation = () => {
-  const [allInterviews, setAllInterviews] = useState([]);
-  const [loading, setLoading] = useState(true);
   const { showSuccess, showError } = useAlert();
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [filters, setFilters] = useState({ domain: [], status: [] });
   const [selectedInterview, setSelectedInterview] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
 
-  const parseTime = (timeStr) => {
-    if (!timeStr) return { hour: 0, minute: 0 };
-    const cleaned = timeStr.trim().toUpperCase(); let hour, minute;
-    if (cleaned.includes('AM') || cleaned.includes('PM')) { 
-        const period = cleaned.includes('PM') ? 'PM' : 'AM'; 
-        const [timePart] = cleaned.split(period); 
-        const [h, m] = timePart.trim().split(':'); 
-        hour = parseInt(h, 10); minute = m ? parseInt(m, 10) : 0; 
-        if (period === 'PM' && hour !== 12) hour += 12; 
-        if (period === 'AM' && hour === 12) hour = 0; 
-    } else { 
-        const [h, m] = cleaned.split(':'); hour = parseInt(h, 10); minute = m ? parseInt(m, 10) : 0; 
-    }
-    return { hour, minute };
-  };
-  
-  const fetchInterviews = useCallback(async () => { 
-    setLoading(true); 
-    try { 
-      const response = await getAssignedInterviews(); 
-      setAllInterviews(response.data.data); 
-    } catch (error) { 
-      showError('Failed to load interviews.'); 
-    } finally { 
-      setLoading(false); 
-    }
-  }, [showError]);
-  
-  useEffect(() => { fetchInterviews(); }, [fetchInterviews, retryCount]);
-  
+  const { data: allInterviews = [], isLoading: loading, refetch } = useAssignedInterviews();
+  const { invalidateInterviews } = useInvalidateInterviewer();
+
   const domains = useMemo(() => [...new Set(allInterviews.map(i => i.techStack).filter(Boolean))], [allInterviews]);
+
+  const weekDays = useMemo(() =>
+    eachDayOfInterval({ start: startOfWeek(currentWeekStart, { weekStartsOn: 1 }), end: endOfWeek(currentWeekStart, { weekStartsOn: 1 }) }),
+    [currentWeekStart]
+  );
+
+  const scheduledInterviews = useMemo(() => {
+    const weekStart = currentWeekStart;
+    const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
+    const hourHeight = 70;
+
+    return allInterviews
+      .filter(item => {
+        if (!item.interviewDate) return false;
+        const d = new Date(item.interviewDate);
+        if (d < weekStart || d > weekEnd) return false;
+        if (filters.domain.length > 0 && !filters.domain.includes(item.techStack)) return false;
+        if (filters.status.length > 0 && !filters.status.includes(item.interviewStatus)) return false;
+        return true;
+      })
+      .map(interview => {
+        const d = new Date(interview.interviewDate);
+        const dayOfWeek = (getDay(d) + 6) % 7;
+        const startTimeStr = (interview.interviewTime || '00:00').split('-')[0].trim();
+        const { hour: startHour, minute: startMinute } = parseTime(startTimeStr);
+        let durationMinutes = 60;
+        if (interview.interviewDuration?.includes('mins')) durationMinutes = parseInt(interview.interviewDuration.replace(' mins', ''));
+        return {
+          interview,
+          position: {
+            top: (startHour - 8 + startMinute / 60) * hourHeight,
+            height: (durationMinutes / 60) * hourHeight,
+            column: dayOfWeek
+          }
+        };
+      });
+  }, [allInterviews, currentWeekStart, filters]);
+
+  // Stats for the week
+  const weekStats = useMemo(() => {
+    const counts = { Scheduled: 0, InProgress: 0, Completed: 0, Cancelled: 0 };
+    scheduledInterviews.forEach(({ interview }) => {
+      if (counts[interview.interviewStatus] !== undefined) counts[interview.interviewStatus]++;
+    });
+    return counts;
+  }, [scheduledInterviews]);
+
+  // Today's agenda
+  const todayAgenda = useMemo(() => {
+    return allInterviews
+      .filter(i => i.interviewDate && isSameDay(new Date(i.interviewDate), new Date()))
+      .sort((a, b) => {
+        const aTime = parseTime((a.interviewTime || '').split('-')[0]);
+        const bTime = parseTime((b.interviewTime || '').split('-')[0]);
+        return (aTime.hour * 60 + aTime.minute) - (bTime.hour * 60 + bTime.minute);
+      });
+  }, [allInterviews]);
 
   const handleStatusChange = useCallback(async (entryId, newStatus) => {
     try {
       await updateInterviewStatus(entryId, newStatus);
-      fetchInterviews(); 
-      setSelectedInterview(prev => prev ? {...prev, interviewStatus: newStatus} : null);
-      showSuccess('Status updated successfully!');
+      invalidateInterviews();
+      setSelectedInterview(prev => prev ? { ...prev, interviewStatus: newStatus } : null);
+      showSuccess('Status updated!');
       setIsModalOpen(false);
-    } catch (error) { 
-      showError('Failed to update status.'); 
+    } catch {
+      showError('Failed to update status.');
     }
-  }, [showSuccess, showError, fetchInterviews]);
-  
-  const scheduledInterviews = useMemo(() => {
-    const weekStart = currentWeekStart; 
-    const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 }); 
-    const hourHeight = 70; // Must match rowHeight in Grid
-    
-    return allInterviews
-        .filter(item => {
-            if (!item.interviewDate) return false; 
-            const interviewDate = new Date(item.interviewDate);
-            if (interviewDate < weekStart || interviewDate > weekEnd) return false;
-            if (filters.domain.length > 0 && !filters.domain.includes(item.techStack)) return false;
-            if (filters.status.length > 0 && !filters.status.includes(item.interviewStatus)) return false;
-            return true;
-        })
-        .map(interview => {
-            const interviewDate = new Date(interview.interviewDate); 
-            const dayOfWeek = (getDay(interviewDate) + 6) % 7; // Shift to Monday start
-            const startTimeStr = (interview.interviewTime || '00:00').split('-')[0].trim();
-            const { hour: startHour, minute: startMinute } = parseTime(startTimeStr);
-            
-            let durationMinutes = 60;
-            if (interview.interviewDuration?.includes('mins')) durationMinutes = parseInt(interview.interviewDuration.replace(' mins', ''));
-            
-            // Calculate top position based on start time (8 AM start offset)
-            const topOffset = (startHour - 8 + startMinute / 60) * hourHeight;
-            const eventHeight = (durationMinutes / 60) * hourHeight;
-            
-            return { interview, position: { top: topOffset, height: eventHeight, column: dayOfWeek } };
-        });
-  }, [allInterviews, currentWeekStart, filters]);
+  }, [showSuccess, showError, invalidateInterviews]);
 
-  const weekDays = useMemo(() => eachDayOfInterval({ start: startOfWeek(currentWeekStart, { weekStartsOn: 1 }), end: endOfWeek(currentWeekStart, { weekStartsOn: 1 }) }), [currentWeekStart]);
-  
-  const handleEventClick = useCallback((interview) => { setSelectedInterview(interview); setIsModalOpen(true); }, []);
-  const handleRefresh = useCallback(() => setRetryCount(prev => prev + 1), []);
+  const handleEventClick = useCallback((interview) => {
+    setSelectedInterview(interview);
+    setIsModalOpen(true);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col h-full items-center justify-center bg-[#F5F7F9]">
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-emerald-500 rounded-full animate-spin mb-4" />
+        <span className="text-sm font-semibold text-gray-500">Loading Schedule...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full bg-[#F5F7F9] overflow-hidden">
-        
-        {/* --- TOP HEADER & CONTROLS --- */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0 flex flex-col lg:flex-row lg:items-center justify-between gap-4 z-40 shadow-sm">
-            
-            {/* Title & Week Navigation */}
-            <div className="flex items-center justify-between lg:justify-start w-full lg:w-auto">
-                <div>
-                    <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                        <FiCalendar className="text-gray-400"/> Schedule
-                    </h1>
-                    <div className="flex items-center mt-1 space-x-2">
-                        <span className="text-sm font-medium text-gray-600">
-                            {formatDateFns(weekDays[0], 'MMM d')} - {formatDateFns(weekDays[6], 'MMM d, yyyy')}
-                        </span>
-                        <div className="flex bg-gray-100 rounded-lg p-0.5 ml-2">
-                            <button onClick={() => setCurrentWeekStart(s => subDays(s, 7))} className="p-1 rounded-md hover:bg-white hover:shadow-sm text-gray-500 hover:text-gray-900"><FiChevronLeft /></button>
-                            <button onClick={() => setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))} className="px-2 py-0.5 text-xs font-bold text-gray-600 hover:text-gray-900">Today</button>
-                            <button onClick={() => setCurrentWeekStart(s => addDays(s, 7))} className="p-1 rounded-md hover:bg-white hover:shadow-sm text-gray-500 hover:text-gray-900"><FiChevronRight /></button>
-                        </div>
-                    </div>
-                </div>
+
+      {/* ─── TOP BAR ────────────────────────────────────────────────────── */}
+      <div className="bg-white border-b border-gray-100 px-5 py-3.5 flex-shrink-0 z-40">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+
+          {/* Left: Title + Week Nav */}
+          <div className="flex items-center gap-4">
+            <div>
+              <h1 className="text-lg font-bold text-gray-900">Schedule</h1>
+              <p className="text-xs text-gray-500 mt-0.5">
+                {formatDateFns(weekDays[0], 'MMM d')} – {formatDateFns(weekDays[6], 'MMM d, yyyy')}
+              </p>
             </div>
-
-            {/* Filters */}
-            <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-                <FilterListbox label="All Domains" icon={FiFileText} value={filters.domain} options={domains.map(d => ({ value: d, label: d }))} onChange={(v) => setFilters(p => ({ ...p, domain: v }))} />
-                <FilterListbox label="All Statuses" icon={FiFilter} value={filters.status} options={MAIN_SHEET_INTERVIEW_STATUSES} onChange={(v) => setFilters(p => ({ ...p, status: v }))} />
-                <LocalButton variant="outline" onClick={handleRefresh} icon={FiRefreshCw} className="hidden sm:inline-flex">Refresh</LocalButton>
+            <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
+              <button onClick={() => setCurrentWeekStart(s => subDays(s, 7))} className="p-1.5 rounded-md hover:bg-white hover:shadow-sm text-gray-500 hover:text-gray-900 transition-all">
+                <FiChevronLeft size={14} />
+              </button>
+              <button onClick={() => setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}
+                className="px-2.5 py-1 text-xs font-bold text-gray-600 hover:text-gray-900 transition-colors">
+                Today
+              </button>
+              <button onClick={() => setCurrentWeekStart(s => addDays(s, 7))} className="p-1.5 rounded-md hover:bg-white hover:shadow-sm text-gray-500 hover:text-gray-900 transition-all">
+                <FiChevronRight size={14} />
+              </button>
             </div>
+          </div>
+
+          {/* Right: Stats + Filters */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="hidden md:flex items-center gap-1.5 mr-2">
+              <StatPill label="Scheduled" count={weekStats.Scheduled} dotColor="bg-emerald-500" />
+              <StatPill label="Completed" count={weekStats.Completed} dotColor="bg-green-500" />
+              <StatPill label="Cancelled" count={weekStats.Cancelled} dotColor="bg-red-500" />
+            </div>
+            <FilterListbox label="All Domains" icon={FiMapPin} value={filters.domain} options={domains.map(d => ({ value: d, label: d }))} onChange={(v) => setFilters(p => ({ ...p, domain: v }))} />
+            <FilterListbox label="All Statuses" icon={FiCheckCircle} value={filters.status} options={MAIN_SHEET_INTERVIEW_STATUSES} onChange={(v) => setFilters(p => ({ ...p, status: v }))} />
+            <button onClick={() => refetch()} className="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50 transition-all" title="Refresh">
+              <FiRefreshCw size={15} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── MAIN CONTENT: Calendar + Sidebar ───────────────────────────── */}
+      <div className="flex-1 overflow-hidden flex gap-4 p-4">
+
+        {/* Calendar Grid */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {scheduledInterviews.length > 0 ? (
+            <CalendarGrid weekDays={weekDays} scheduledInterviews={scheduledInterviews} onEventClick={handleEventClick} />
+          ) : (
+            <EmptyState onRefresh={() => refetch()} />
+          )}
         </div>
 
-        {/* --- MAIN CALENDAR AREA --- */}
-        <div className="flex-1 overflow-hidden p-4 sm:p-6 flex flex-col">
-            {loading ? (
-                <LocalLoader />
-            ) : scheduledInterviews.length > 0 ? (
-                <CalendarGrid weekDays={weekDays} scheduledInterviews={scheduledInterviews} onEventClick={handleEventClick} />
-            ) : (
-                <EmptyState onRefresh={handleRefresh} />
-            )}
-        </div>
-
-        {/* --- LEGEND FOOTER --- */}
-        <div className="bg-white border-t border-gray-200 px-6 py-2 flex-shrink-0 flex items-center gap-6 text-xs text-gray-500 overflow-x-auto">
-            <span className="font-bold uppercase tracking-wide mr-2">Legend:</span>
-            {Object.entries(STATUS_CONFIG).filter(([k]) => k !== 'default').map(([key, config]) => (
-                <div key={key} className="flex items-center whitespace-nowrap">
-                    <span className={`w-2.5 h-2.5 rounded-full ${config.dot} mr-2`}></span>
-                    {key.replace(/([A-Z])/g, ' $1').trim()}
+        {/* Right Sidebar: Today's Agenda */}
+        <div className="hidden xl:flex flex-col w-72 shrink-0">
+          <div className="bg-white rounded-2xl border border-gray-200 flex flex-col h-full overflow-hidden">
+            <div className="px-4 py-3.5 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-gray-900">Today's Agenda</h3>
+                <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                  {todayAgenda.length}
+                </span>
+              </div>
+              <p className="text-xs text-gray-400 mt-0.5">{formatDateFns(new Date(), 'EEEE, MMM d')}</p>
+            </div>
+            <div className="flex-1 overflow-y-auto p-3 space-y-2">
+              {todayAgenda.length > 0 ? (
+                todayAgenda.map(interview => (
+                  <AgendaCard key={interview._id} interview={interview} onClick={handleEventClick} />
+                ))
+              ) : (
+                <div className="flex flex-col items-center justify-center py-10 text-center">
+                  <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center mb-3">
+                    <FiCalendar size={20} className="text-gray-300" />
+                  </div>
+                  <p className="text-xs font-semibold text-gray-500">No interviews today</p>
+                  <p className="text-[11px] text-gray-400 mt-1">Enjoy your free day!</p>
                 </div>
-            ))}
+              )}
+            </div>
+          </div>
         </div>
+      </div>
 
-        <InterviewDetailsModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} interview={selectedInterview} onStatusChange={handleStatusChange} />
+      {/* ─── LEGEND ─────────────────────────────────────────────────────── */}
+      <div className="bg-white border-t border-gray-100 px-5 py-2 flex-shrink-0 flex items-center gap-5 text-[11px] text-gray-400">
+        {Object.entries(STATUS_CONFIG).filter(([k]) => k !== 'default').map(([key, c]) => (
+          <div key={key} className="flex items-center gap-1.5">
+            <span className={`w-2 h-2 rounded-full ${c.dot}`} />
+            <span>{c.label}</span>
+          </div>
+        ))}
+      </div>
+
+      <InterviewDetailsModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} interview={selectedInterview} onStatusChange={handleStatusChange} />
     </div>
   );
 };

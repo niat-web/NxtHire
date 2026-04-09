@@ -1,5 +1,5 @@
 // client/src/pages/admin/Guidelines.jsx
-import React, { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
+import React, { useState, useEffect, useMemo, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { FiEye, FiSearch, FiRefreshCw, FiCheck, FiX, FiCheckCircle, FiXCircle, FiMoreVertical } from 'react-icons/fi';
 import Card from '../../components/common/Card';
@@ -9,30 +9,57 @@ import Table from '../../components/common/Table';
 import SearchInput from '../../components/common/SearchInput';
 import FilterDropdown from '../../components/common/FilterDropdown';
 import Badge from '../../components/common/Badge';
-import { getGuidelinesSubmissions, reviewGuidelinesSubmission } from '../../api/admin.api';
-import { formatDate } from '../../utils/formatters';
+import { reviewGuidelinesSubmission } from '../../api/admin.api';
+import { formatDateTime } from '../../utils/formatters';
 import { DOMAINS, APPLICATION_STATUS } from '../../utils/constants';
 import { debounce } from '../../utils/helpers';
 import { useAlert } from '../../hooks/useAlert';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Modal from '../../components/common/Modal'; // Import the Modal component
+import { useGuidelinesSubmissions, useInvalidateAdmin } from '../../hooks/useAdminQueries';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
 }
 
 const Guidelines = () => {
-    const [loading, setLoading] = useState(true);
-    const [guidelinesData, setGuidelinesData] = useState([]);
-    const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalItems: 0 });
     const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState(''); // 'passed' or 'failed'
     const [domainFilter, setDomainFilter] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
     const { showSuccess, showError } = useAlert();
     const [confirmState, setConfirmState] = useState({ isOpen: false, id: null, action: null });
     const [processingIds, setProcessingIds] = useState(new Set());
     const [detailsModal, setDetailsModal] = useState({ isOpen: false, data: null }); // State for the details modal
+    const { invalidateGuidelines, invalidateDashboard } = useInvalidateAdmin();
 
+    // Debounce search input
+    const debouncedUpdate = useMemo(() => debounce((value) => {
+        setDebouncedSearch(value);
+        setCurrentPage(1);
+    }, 300), []);
+
+    useEffect(() => { debouncedUpdate(searchTerm); return () => debouncedUpdate.cancel(); }, [searchTerm, debouncedUpdate]);
+
+    // Reset to page 1 when filters change
+    useEffect(() => { setCurrentPage(1); }, [statusFilter, domainFilter]);
+
+    const queryParams = useMemo(() => ({
+        page: currentPage, limit: 10, search: debouncedSearch, status: statusFilter,
+        domain: domainFilter, sortBy: 'createdAt', sortOrder: 'desc',
+    }), [currentPage, debouncedSearch, statusFilter, domainFilter]);
+
+    const { data, isLoading: loading } = useGuidelinesSubmissions(queryParams, {
+        keepPreviousData: true,
+    });
+
+    const guidelinesData = data?.guidelines || [];
+    const pagination = {
+        currentPage: data?.currentPage || 1,
+        totalPages: data?.totalPages || 1,
+        totalItems: data?.totalItems || 0,
+    };
 
     const statusOptions = useMemo(() => [
         { value: '', label: 'All Test Results' },
@@ -45,48 +72,26 @@ const Guidelines = () => {
         ...DOMAINS.map(d => ({ value: d.value, label: d.label })),
     ], []);
 
-    const fetchGuidelines = useCallback(async (page = 1) => {
-        setLoading(true);
-        try {
-            const response = await getGuidelinesSubmissions({
-                page, limit: 10, search: searchTerm, status: statusFilter,
-                domain: domainFilter, sortBy: 'createdAt', sortOrder: 'desc',
-            });
-            const { guidelines, ...paginationData } = response.data.data;
-            setGuidelinesData(guidelines || []);
-            setPagination(paginationData);
-        } catch (error) {
-            showError('Failed to load guidelines submissions.');
-        } finally {
-            setLoading(false);
-        }
-    }, [searchTerm, statusFilter, domainFilter, showError]);
-
-    useEffect(() => {
-        const handler = debounce(() => fetchGuidelines(1), 300);
-        handler();
-        return () => handler.cancel();
-    }, [fetchGuidelines]);
-
-    const handlePageChange = (page) => { fetchGuidelines(page); };
+    const handlePageChange = (page) => { setCurrentPage(page); };
 
     const handleReviewDecision = async (e) => {
         // Prevent the click event from bubbling up to elements behind the modal
         if (e && typeof e.stopPropagation === 'function') {
             e.stopPropagation();
         }
- 
+
         // Capture the state at the beginning of the function to avoid stale state issues
         const { id, action } = confirmState;
         if (!id || !action) return;
- 
+
         setProcessingIds(prev => new Set(prev).add(id));
         setConfirmState({ isOpen: false, id: null, action: null });
- 
+
         try {
             await reviewGuidelinesSubmission(id, { decision: action });
             showSuccess(`Submission successfully ${action === 'approve' ? 'approved and applicant onboarded' : 'rejected'}.`);
-            fetchGuidelines(pagination.currentPage);
+            invalidateGuidelines();
+            invalidateDashboard();
         } catch (error) {
             showError(error.response?.data?.message || 'Failed to process decision.');
         } finally {
@@ -139,7 +144,7 @@ const Guidelines = () => {
                 {row.applicantStatus === APPLICATION_STATUS.GUIDELINES_REVIEWED ? 'Pending Decision' : row.applicantStatus}
             </Badge>
         )},
-        { key: 'submittedAt', title: 'Submitted On', render: (row) => formatDate(row.createdAt)},
+        { key: 'submittedAt', title: 'Submitted On', minWidth: '180px', render: (row) => formatDateTime(row.createdAt)},
         {
             key: 'actions', title: 'Actions', render: (row) => {
                 const isProcessing = processingIds.has(row._id);

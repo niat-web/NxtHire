@@ -24,7 +24,7 @@ const ProgressBar = ({
     success: 'bg-green-600',
     warning: 'bg-yellow-500',
     danger: 'bg-red-600',
-    info: 'bg-blue-500',
+    info: 'bg-emerald-500',
     gray: 'bg-gray-500'
   };
   

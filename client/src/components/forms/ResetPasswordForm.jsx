@@ -36,7 +36,7 @@ const ResetPasswordForm = ({ token }) => {
   const strengthConfig = [
     { label: 'Too Weak', color: 'bg-gray-200', text: 'text-gray-400' }, // 0
     { label: 'Weak', color: 'bg-red-500', text: 'text-red-500' },       // 1
-    { label: 'Fair', color: 'bg-orange-500', text: 'text-orange-500' }, // 2
+    { label: 'Fair', color: 'bg-emerald-600', text: 'text-emerald-600' }, // 2
     { label: 'Good', color: 'bg-yellow-500', text: 'text-yellow-600' }, // 3
     { label: 'Strong', color: 'bg-green-500', text: 'text-green-600' }, // 4
     { label: 'Excellent', color: 'bg-emerald-500', text: 'text-emerald-600' } // 5

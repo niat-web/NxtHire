@@ -63,7 +63,7 @@
 //                     type="submit"
 //                     form="availability-form"
 //                     disabled={isSubmitting}
-//                     className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-60 bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500"
+//                     className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-60 bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500"
 //                 >
 //                    {isSubmitting ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"/> : <FiSave className="h-4 w-4 mr-2"/>}
 //                    {isSubmitting ? 'Submitting...' : 'Submit Slots'}
@@ -88,43 +88,42 @@
 
 
 // client/src/pages/interviewer/ProvideAvailabilityPage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Save, Calendar, Clock, User, Building2, CheckCircle, AlertCircle, Info } from 'lucide-react';
 import { useAlert } from '../../hooks/useAlert';
-import { getBookingRequests, submitTimeSlots } from '../../api/interviewer.api';
+import { submitTimeSlots } from '../../api/interviewer.api';
 import AvailabilityForm from '../../components/interviewer/AvailabilityForm';
+import { useBookingRequests, useInvalidateInterviewer } from '../../hooks/useInterviewerQueries';
 
 const ProvideAvailabilityPage = () => {
   const { bookingId } = useParams();
   const navigate = useNavigate();
   const { showSuccess, showError } = useAlert();
 
-  const [bookingRequest, setBookingRequest] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const { data: allRequests, isLoading: loading, error: queryError } = useBookingRequests();
+  const { invalidateBookings } = useInvalidateInterviewer();
+
+  const bookingRequest = useMemo(() => {
+    if (!allRequests) return null;
+    return allRequests.find(r => r.bookingId === bookingId) || null;
+  }, [allRequests, bookingId]);
+
+  // Navigate away if data loaded but request not found
   useEffect(() => {
-    getBookingRequests()
-      .then(res => {
-        const request = res.data.data.find(r => r.bookingId === bookingId);
-        if (request) {
-          setBookingRequest(request);
-        } else {
-          throw new Error("Booking request not found.");
-        }
-      })
-      .catch(() => {
-        showError("Could not load booking request details.");
-        navigate('/interviewer/availability');
-      })
-      .finally(() => setLoading(false));
-  }, [bookingId, navigate, showError]);
+    if (!loading && allRequests && !bookingRequest) {
+      showError("Could not load booking request details.");
+      navigate('/interviewer/availability');
+    }
+  }, [loading, allRequests, bookingRequest, showError, navigate]);
 
   const handleSubmit = async (data) => {
     setIsSubmitting(true);
     try {
       await submitTimeSlots(bookingId, data);
+      invalidateBookings();
       showSuccess('Availability submitted successfully!');
       navigate('/interviewer/availability');
     } catch (error) {
@@ -145,13 +144,13 @@ const ProvideAvailabilityPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 flex items-center justify-center">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full mx-4">
           <div className="text-center">
             <div className="relative">
               <div className="w-16 h-16 mx-auto mb-6 relative">
-                <div className="absolute inset-0 rounded-full border-4 border-indigo-100"></div>
-                <div className="absolute inset-0 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin"></div>
+                <div className="absolute inset-0 rounded-full border-4 border-emerald-100"></div>
+                <div className="absolute inset-0 rounded-full border-4 border-emerald-600 border-t-transparent animate-spin"></div>
               </div>
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">Loading Interview Details</h3>
@@ -163,16 +162,16 @@ const ProvideAvailabilityPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50">
       {/* Enhanced Header with Glassmorphism Effect */}
-        <div className="sticky top-0 z-30 bg-gradient-to-br from-indigo-50/80 via-white/80 to-purple-50/80 backdrop-blur-sm border-b border-gray-200">
+        <div className="sticky top-0 z-30 bg-gradient-to-br from-emerald-50/80 via-white/80 to-emerald-50/80 backdrop-blur-sm border-b border-gray-200">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
                 {/* Navigation */}
                 <nav className="flex items-center space-x-4">
                 <Link
                     to="/interviewer/availability"
-                    className="group flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    className="group flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                     aria-label="Go back to availability requests"
                 >
                     <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
@@ -185,7 +184,7 @@ const ProvideAvailabilityPage = () => {
                 type="submit"
                 form="availability-form"
                 disabled={isSubmitting}
-                className="group relative inline-flex items-center px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none transition-all duration-200"
+                className="group relative inline-flex items-center px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-emerald-600 hover:from-emerald-700 hover:to-emerald-700 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none transition-all duration-200"
                 aria-label={isSubmitting ? 'Submitting availability' : 'Submit availability'}
                 >
                 {isSubmitting ? (
@@ -213,14 +212,14 @@ const ProvideAvailabilityPage = () => {
               {/* Main Details Card */}
               <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                 {/* Card Header */}
-                <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-5">
+                <div className="bg-gradient-to-r from-emerald-600 to-emerald-600 px-6 py-5">
                   <div className="flex items-center">
                     <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mr-4">
                       <Calendar className="w-5 h-5 text-white" />
                     </div>
                     <div>
                       <h2 className="text-xl font-bold text-white">Interview Details</h2>
-                      <p className="text-indigo-100 text-sm">Booking ID: {bookingId}</p>
+                      <p className="text-emerald-100 text-sm">Booking ID: {bookingId}</p>
                     </div>
                   </div>
                 </div>
@@ -229,12 +228,12 @@ const ProvideAvailabilityPage = () => {
                 {bookingRequest && (
                   <div className="p-6 space-y-6">
                     {/* Interview Date */}
-                    <div className="flex items-start space-x-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
-                      <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Calendar className="w-6 h-6 text-blue-600" />
+                    <div className="flex items-start space-x-4 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                      <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Calendar className="w-6 h-6 text-emerald-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">Interview Date</p>
+                        <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-1">Interview Date</p>
                         <p className="text-lg font-bold text-gray-900 leading-tight">
                           {formatDate(bookingRequest.bookingDate)}
                         </p>
@@ -343,8 +342,8 @@ const ProvideAvailabilityPage = () => {
             <div className="text-center">
               <div className="relative mb-6">
                 <div className="w-16 h-16 mx-auto relative">
-                  <div className="absolute inset-0 rounded-full border-4 border-indigo-100"></div>
-                  <div className="absolute inset-0 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-emerald-100"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-emerald-600 border-t-transparent animate-spin"></div>
                 </div>
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Submitting Your Availability</h3>
@@ -352,7 +351,7 @@ const ProvideAvailabilityPage = () => {
                 Please wait while we process your time slots and notify the candidate...
               </p>
               <div className="mt-6 bg-gray-100 rounded-full h-2 overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full animate-pulse"></div>
+                <div className="h-full bg-gradient-to-r from-emerald-600 to-emerald-600 rounded-full animate-pulse"></div>
               </div>
             </div>
           </div>

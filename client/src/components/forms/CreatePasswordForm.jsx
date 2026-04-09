@@ -42,7 +42,7 @@ const CreatePasswordForm = () => {
 
   const passwordStrength = checkPasswordStrength(passwordValue);
   const strengthLabels = ['Very Weak', 'Weak', 'Okay', 'Good', 'Strong'];
-  const strengthColors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-lime-500', 'bg-green-500'];
+  const strengthColors = ['bg-red-500', 'bg-emerald-600', 'bg-yellow-500', 'bg-lime-500', 'bg-green-500'];
 
   const onSubmit = async (data) => {
     if (!token) {
@@ -102,7 +102,7 @@ const CreatePasswordForm = () => {
             <div className="mt-2">
                 <div className="flex justify-between mb-1">
                     <span className="text-xs font-medium text-slate-600">Password Strength</span>
-                    <span className={`text-xs font-bold ${['text-red-600', 'text-orange-600', 'text-yellow-600', 'text-lime-600', 'text-green-600'][passwordStrength]}`}>
+                    <span className={`text-xs font-bold ${['text-red-600', 'text-emerald-600', 'text-yellow-600', 'text-lime-600', 'text-green-600'][passwordStrength]}`}>
                         {strengthLabels[passwordStrength]}
                     </span>
                 </div>
@@ -147,7 +147,7 @@ const CreatePasswordForm = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-75 disabled:cursor-not-allowed"
+          className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-emerald-600 to-emerald-600 hover:from-emerald-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-75 disabled:cursor-not-allowed"
         >
             <span className="absolute left-0 inset-y-0 flex items-center pl-4">
                 {isSubmitting ? (

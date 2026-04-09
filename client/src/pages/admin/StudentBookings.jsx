@@ -1,5 +1,5 @@
 // client/src/pages/admin/StudentBookings.jsx
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     FiEye,
@@ -17,7 +17,8 @@ import {
     FiFilter,
     FiUser
 } from 'react-icons/fi';
-import { getPublicBookings, deletePublicBookingLink } from '@/api/admin.api';
+import { deletePublicBookingLink } from '@/api/admin.api';
+import { usePublicBookings, useInvalidateAdmin } from '@/hooks/useAdminQueries';
 import { useAlert } from '@/hooks/useAlert';
 import { formatDateTime } from '@/utils/formatters';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
@@ -48,7 +49,7 @@ const LocalButton = ({
 
     const variants = {
         primary:
-            'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 hover:from-blue-700 hover:to-blue-800 border border-transparent',
+            'bg-gradient-to-r from-slate-800 to-slate-900 text-white shadow-lg shadow-slate-900/20 hover:shadow-slate-900/30 hover:from-slate-900 hover:to-black border border-transparent',
         outline:
             'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 shadow-sm',
         subtle:
@@ -96,28 +97,14 @@ const StatusBadge = ({ count, icon: Icon, colorClass, label }) => (
 const StudentBookings = () => {
     const { showSuccess, showError } = useAlert();
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(true);
-    const [publicBookings, setPublicBookings] = useState([]);
+    const { data: publicBookings = [], isLoading: loading } = usePublicBookings({
+        onError: () => showError("Failed to fetch public booking links."),
+    });
+    const { invalidatePublicBookings } = useInvalidateAdmin();
     const [searchTerm, setSearchTerm] = useState('');
     const [sortOption, setSortOption] = useState('newest');
     const [creatorFilter, setCreatorFilter] = useState('');
     const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, id: null });
-
-    const fetchPublicBookings = useCallback(async () => {
-        setLoading(true);
-        try {
-            const response = await getPublicBookings();
-            setPublicBookings(response.data.data);
-        } catch (err) {
-            showError("Failed to fetch public booking links.");
-        } finally {
-            setLoading(false);
-        }
-    }, [showError]);
-
-    useEffect(() => {
-        fetchPublicBookings();
-    }, [fetchPublicBookings]);
 
     const creatorOptions = useMemo(() => {
         const creators = new Map();
@@ -168,7 +155,7 @@ const StudentBookings = () => {
         try {
             await deletePublicBookingLink(deleteDialog.id);
             showSuccess('Public booking link deleted successfully!');
-            fetchPublicBookings();
+            invalidatePublicBookings();
         } catch (err) {
             showError("Failed to delete the link.");
         } finally {
@@ -180,7 +167,7 @@ const StudentBookings = () => {
         return (
             <div className="min-h-screen bg-slate-50 p-8 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="h-12 w-12 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
+                    <div className="h-12 w-12 rounded-full border-4 border-slate-200 border-t-slate-700 animate-spin" />
                     <p className="text-slate-500 font-medium animate-pulse">Loading links...</p>
                 </div>
             </div>
@@ -199,7 +186,7 @@ const StudentBookings = () => {
                         onClick={() => navigate('/admin/bookings/booking-slots')}
                         icon={FiPlus}
                         variant="primary"
-                        className="w-full sm:w-auto shadow-blue-600/20"
+                        className="w-full sm:w-auto shadow-slate-900/20"
                     >
                         New Link
                     </LocalButton>
@@ -220,7 +207,7 @@ const StudentBookings = () => {
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     placeholder="Search by Public ID..."
-                                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
+                                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-slate-400 focus:ring-2 focus:ring-slate-900/10 transition-all"
                                 />
                             </div>
 
@@ -230,7 +217,7 @@ const StudentBookings = () => {
                                     <select
                                         value={creatorFilter}
                                         onChange={(e) => setCreatorFilter(e.target.value)}
-                                        className="w-full pl-9 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm appearance-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer"
+                                        className="w-full pl-9 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm appearance-none focus:bg-white focus:border-slate-400 focus:ring-2 focus:ring-slate-900/10 transition-all cursor-pointer"
                                     >
                                         <option value="">All Creators</option>
                                         {creatorOptions.map(creator => (
@@ -245,7 +232,7 @@ const StudentBookings = () => {
                                     <select
                                         value={sortOption}
                                         onChange={(e) => setSortOption(e.target.value)}
-                                        className="w-full pl-9 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm appearance-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer"
+                                        className="w-full pl-9 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm appearance-none focus:bg-white focus:border-slate-400 focus:ring-2 focus:ring-slate-900/10 transition-all cursor-pointer"
                                     >
                                         <option value="newest">Newest First</option>
                                         <option value="oldest">Oldest First</option>
@@ -321,7 +308,7 @@ const StudentBookings = () => {
                                                                 href={url}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className="font-mono text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded hover:bg-blue-100 transition-colors"
+                                                                className="font-mono text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded hover:bg-indigo-100 transition-colors"
                                                             >
                                                                 {booking.publicId}
                                                             </a>
@@ -330,7 +317,7 @@ const StudentBookings = () => {
                                                                     navigator.clipboard.writeText(url);
                                                                     showSuccess("Public link copied!");
                                                                 }}
-                                                                className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                                                                className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors"
                                                                 title="Copy Link"
                                                             >
                                                                 <FiClipboard className="h-4 w-4" />

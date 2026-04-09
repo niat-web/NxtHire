@@ -4,7 +4,7 @@ import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const Header = ({ toggleSidebar }) => {
+const Header = () => {
   const { currentUser: user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,18 +34,6 @@ const Header = ({ toggleSidebar }) => {
   return (
     <header className="bg-white shadow-sm border-b border-gray-100 h-16 flex items-center justify-between px-4 sm:px-6">
       <div className="flex items-center">
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={toggleSidebar}
-          className="text-gray-700 focus:outline-none lg:hidden mr-3"
-          aria-label="Toggle sidebar"
-        >
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </motion.button>
-        
         <h1 className="text-lg sm:text-xl font-semibold text-gray-800">
           <span className="hidden sm:inline">{getPageTitle()}</span>
           <span className="sm:hidden">
@@ -64,7 +52,7 @@ const Header = ({ toggleSidebar }) => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center text-sm font-semibold shadow-md">
+            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-white flex items-center justify-center text-sm font-semibold shadow-md">
               {user?.firstName ? user.firstName.charAt(0).toUpperCase() : 'U'}
             </div>
             <svg className="ml-1 h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">

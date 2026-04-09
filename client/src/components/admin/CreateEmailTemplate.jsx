@@ -164,7 +164,7 @@ const CreateEmailTemplate = ({ refreshTemplates }) => {
                             <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Available Variables (Click to Copy)</label>
                             <div className="flex flex-wrap gap-2">
                                 {commonPlaceholders.map(p => (
-                                    <button key={p} type="button" onClick={() => handlePlaceholderClick(p)} className="flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-100 text-xs font-mono font-medium px-2.5 py-1.5 rounded-md hover:bg-blue-100 transition-colors">
+                                    <button key={p} type="button" onClick={() => handlePlaceholderClick(p)} className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs font-mono font-medium px-2.5 py-1.5 rounded-md hover:bg-indigo-100 transition-colors">
                                         <FiClipboard size={12}/>{`{{${p}}}`}
                                     </button>
                                 ))}

@@ -21,8 +21,8 @@
 //         lg: 'text-sm px-5 py-2.5',
 //     };
 //     const variants = {
-//         primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
-//         outline: 'bg-white text-gray-800 border border-gray-300 hover:bg-gray-50 focus:ring-blue-500',
+//         primary: 'bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500',
+//         outline: 'bg-white text-gray-800 border border-gray-300 hover:bg-gray-50 focus:ring-emerald-500',
 //         subtle: 'bg-gray-100 text-gray-800 hover:bg-gray-200 focus:ring-gray-400',
 //         danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
 //         ghost: 'bg-transparent text-gray-700 hover:bg-gray-100',
@@ -53,12 +53,12 @@
 // const LocalSearchInput = ({ value, onChange, placeholder }) => (
 //     <div className="relative">
 //         <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-//         <input type="text" value={value} onChange={onChange} placeholder={placeholder} className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm" />
+//         <input type="text" value={value} onChange={onChange} placeholder={placeholder} className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm" />
 //     </div>
 // );
 // const LocalLoader = () => (
 //     <div className="flex justify-center items-center py-20 text-center text-gray-500">
-//         <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
+//         <div className="w-8 h-8 border-4 border-gray-200 border-t-emerald-500 rounded-full animate-spin"></div>
 //         <span className="ml-4">Loading data...</span>
 //     </div>
 // );
@@ -262,7 +262,7 @@
 //             onBlur={handleSave}
 //             disabled={isLoading}
 //             placeholder="Event Title (auto-generated)"
-//             className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+//             className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm disabled:bg-gray-100"
 //         />
 //     );
 // };
@@ -487,14 +487,14 @@
 //         { key: 'bookingDate', title: 'Interview Date', render: row => formatDate(row.bookingDate) },
 //         { key: 'slot', title: 'Time Slot', render: row => row.bookedSlot ? `${formatTime(row.bookedSlot.startTime)} - ${formatTime(row.bookedSlot.endTime)}` : '' },
 //         { key: 'domain', title: 'Domain', minWidth: '150px', render: (row) => <EditableDomainCell booking={row} domainOptions={domainOptions} onSave={handleCellSave} /> },
-//         { key: 'meet', title: 'Meet Link', render: (row) => row.meetLink ? <a href={row.meetLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Join</a> : <MeetLinkCell booking={row} onLinkGenerated={handleCellSave} /> },
+//         { key: 'meet', title: 'Meet Link', render: (row) => row.meetLink ? <a href={row.meetLink} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline">Join</a> : <MeetLinkCell booking={row} onLinkGenerated={handleCellSave} /> },
 //         { key: 'hostEmail', title: 'Host Email', render: (row) => <EditableHostEmail booking={row} hostEmails={hostEmails} onSave={handleCellSave} /> },
 //         { key: 'eventTitle', title: 'Event Title', minWidth: "250px", render: row => <EditableInputCell booking={row} fieldKey="eventTitle" value={row.eventTitle} onSave={handleCellSave} /> },
 //         { key: 'hiringName', title: 'Hiring Name' },
 //         { key: 'interviewId', title: 'Int ID', minWidth: '120px' },
 //         { key: 'userId', title: 'User ID' },
-//         { key: 'resumeLink', title: 'Resume', render: (row) => row.resumeLink ? <a href={row.resumeLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Link</a> : 'N/A' },
-//         { key: 'publicLink', title: 'Public Link', render: (row) => row.publicBookingId ? (<a href={`/book/${row.publicBookingId}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{row.publicBookingId}</a>) : ('N/A') },
+//         { key: 'resumeLink', title: 'Resume', render: (row) => row.resumeLink ? <a href={row.resumeLink} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline">Link</a> : 'N/A' },
+//         { key: 'publicLink', title: 'Public Link', render: (row) => row.publicBookingId ? (<a href={`/book/${row.publicBookingId}`} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline font-mono text-xs">{row.publicBookingId}</a>) : ('N/A') },
 //         { key: 'createdAt', title: 'Submitted Time', render: (row) => formatDateTime(row.createdAt) },
 //     ], [hostEmails, domainOptions, handleCellSave]);
 
@@ -507,8 +507,8 @@
 //         { key: 'hiringName', title: 'Hiring Name', minWidth: '150px' },
 //         { key: 'domain', title: 'Domain' },
 //         { key: 'userId', title: 'User ID' },
-//         { key: 'resumeLink', title: 'Resume', render: (row) => row.resumeLink ? <a href={row.resumeLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Link</a> : 'N/A' },
-//         { key: 'publicLink', title: 'Public Link', render: (row) => row.publicBookingId ? (<a href={`/book/${row.publicBookingId}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{row.publicBookingId}</a>) : ('N/A') },
+//         { key: 'resumeLink', title: 'Resume', render: (row) => row.resumeLink ? <a href={row.resumeLink} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline">Link</a> : 'N/A' },
+//         { key: 'publicLink', title: 'Public Link', render: (row) => row.publicBookingId ? (<a href={`/book/${row.publicBookingId}`} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline font-mono text-xs">{row.publicBookingId}</a>) : ('N/A') },
 //     ], []);
     
 //     return (
@@ -517,7 +517,7 @@
 //                 <div className="w-full max-w-sm"><LocalSearchInput value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search slots..."/></div>
 //                 <div className="relative" ref={filterMenuRef}>
 //                     <LocalButton variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}>
-//                         <FiFilter className="h-4 w-4 mr-2 text-blue-600"/><span className="text-blue-600">Filter</span>
+//                         <FiFilter className="h-4 w-4 mr-2 text-emerald-600"/><span className="text-emerald-600">Filter</span>
 //                         {isFilterActive && <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-2 p-1 rounded-full hover:bg-gray-200"><FiX className="h-3 w-3 text-gray-500" /></span>}
 //                     </LocalButton>
 //                     {isFilterMenuOpen && (
@@ -535,7 +535,7 @@
 //                                 </div>
 //                                 <div>
 //                                     <label className="block text-sm font-medium text-gray-700 mb-1">Domain</label>
-//                                     <select value={tempFilters.domain} onChange={(e) => setTempFilters(prev => ({...prev, domain: e.target.value}))} className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm bg-white">{domainOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}</select>
+//                                     <select value={tempFilters.domain} onChange={(e) => setTempFilters(prev => ({...prev, domain: e.target.value}))} className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm bg-white">{domainOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}</select>
 //                                 </div>
 //                                 <div>
 //                                     <label className="block text-sm font-medium text-gray-700 mb-1">Public ID</label>
@@ -559,8 +559,8 @@
             
 //             <div className="px-4 border-b border-gray-200 flex-shrink-0">
 //                 <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-//                     <button onClick={() => setActiveTab('confirmed')} className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'confirmed' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
-//                         Confirmed Bookings <span className="ml-2 bg-blue-100 text-blue-600 py-0.5 px-2.5 rounded-full text-xs font-medium">{confirmedBookings.length}</span>
+//                     <button onClick={() => setActiveTab('confirmed')} className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'confirmed' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+//                         Confirmed Bookings <span className="ml-2 bg-emerald-100 text-emerald-600 py-0.5 px-2.5 rounded-full text-xs font-medium">{confirmedBookings.length}</span>
 //                     </button>
 //                     <button onClick={() => setActiveTab('pending')} className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'pending' ? 'border-yellow-500 text-yellow-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
 //                         Pending Invitations <span className="ml-2 bg-yellow-100 text-yellow-600 py-0.5 px-2.5 rounded-full text-xs font-medium">{pendingInvitations.length}</span>
@@ -625,8 +625,8 @@ const LocalButton = ({ children, onClick, type = 'button', isLoading = false, va
     const baseClasses = "inline-flex items-center justify-center rounded-xl font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed";
     const sizes = { sm: 'text-xs px-3 py-1.5', md: 'text-sm px-4 py-2', lg: 'text-sm px-5 py-2.5' };
     const variants = {
-        primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
-        outline: 'bg-white text-gray-800 border border-gray-300 hover:bg-gray-50 focus:ring-blue-500',
+        primary: 'bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500',
+        outline: 'bg-white text-gray-800 border border-gray-300 hover:bg-gray-50 focus:ring-emerald-500',
         subtle: 'bg-gray-100 text-gray-800 hover:bg-gray-200 focus:ring-gray-400',
         danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
         ghost: 'bg-transparent text-gray-700 hover:bg-gray-100',
@@ -656,14 +656,14 @@ const LocalSearchInput = ({ value, onChange, placeholder }) => (
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
+            className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm"
         />
     </div>
 );
 
 const LocalLoader = () => (
     <div className="flex justify-center items-center py-20 text-center text-gray-500">
-        <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-gray-200 border-t-emerald-500 rounded-full animate-spin"></div>
         <span className="ml-4">Loading data...</span>
     </div>
 );
@@ -776,7 +776,7 @@ const EditableInputCell = ({ booking, fieldKey, value, onSave, placeholder = "Ed
             setCurrentValue(originalValue);
         } finally { setIsLoading(false); }
     };
-    return (<input type="text" value={currentValue} onChange={(e) => setCurrentValue(e.target.value)} onBlur={handleSave} disabled={isLoading} placeholder={placeholder} className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm disabled:bg-gray-100" />);
+    return (<input type="text" value={currentValue} onChange={(e) => setCurrentValue(e.target.value)} onBlur={handleSave} disabled={isLoading} placeholder={placeholder} className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm disabled:bg-gray-100" />);
 };
 
 const MeetLinkCell = ({ booking, onLinkGenerated }) => {
@@ -1005,7 +1005,7 @@ const ConfirmedSlotsView = () => {
         { key: 'bookingDate', title: 'Interview Date', render: row => formatDate(row.bookingDate) },
         { key: 'slot', title: 'Time Slot', render: row => row.bookedSlot ? `${formatTime(row.bookedSlot.startTime)} - ${formatTime(row.bookedSlot.endTime)}` : '' },
         { key: 'domain', title: 'Domain', minWidth: '150px', render: (row) => <EditableDomainCell booking={row} domainOptions={domainOptions} onSave={handleCellSave} /> },
-        { key: 'meet', title: 'Meet Link', render: (row) => row.meetLink ? <a href={row.meetLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Join</a> : <MeetLinkCell booking={row} onLinkGenerated={handleCellSave} /> },
+        { key: 'meet', title: 'Meet Link', render: (row) => row.meetLink ? <a href={row.meetLink} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline">Join</a> : <MeetLinkCell booking={row} onLinkGenerated={handleCellSave} /> },
         { key: 'hostEmail', title: 'Host Email', minWidth: '250px', render: (row) => <EditableHostEmail booking={row} hostEmails={hostEmails} onSave={handleCellSave} /> },
         { key: 'eventTitle', title: 'Event Title', minWidth: "250px", render: row => <EditableInputCell booking={row} fieldKey="eventTitle" value={row.eventTitle} onSave={handleCellSave} placeholder={`${row.domain} || ${row.studentName}`} /> },
         { key: 'createdAt', title: 'Submitted Time', render: (row) => formatDateTime(row.createdAt) },
@@ -1020,24 +1020,24 @@ const ConfirmedSlotsView = () => {
         { key: 'hostEmail', title: 'Host Email', minWidth: '250px', render: row => <EditableHostEmail booking={row} hostEmails={hostEmails} onSave={handleCellSave} /> },
         { key: 'eventTitle', title: 'Event Title', minWidth: '250px', render: row => <EditableInputCell booking={row} fieldKey="eventTitle" value={row.eventTitle} onSave={handleCellSave} placeholder={row.eventTitle} /> },
         { key: 'interviewerEmail', title: 'Interviewer Email', minWidth: '200px', render: row => row.interviewerEmail || '' },
-        { key: 'meet', title: 'Meet Link', minWidth: '120px', render: row => (row.meetLink ? <a href={row.meetLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Link</a> : null) },
+        { key: 'meet', title: 'Meet Link', minWidth: '120px', render: row => (row.meetLink ? <a href={row.meetLink} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline">Link</a> : null) },
         { key: 'hiringName', title: 'Hiring Name', minWidth: '150px', render: row => row.hiringName },
         { key: 'mobileNumber', title: 'Mobile', render: row => row.mobileNumber || '' },
         { key: 'interviewId', title: 'Int ID', minWidth: '120px', render: row => row.interviewId },
         { key: 'userId', title: 'User ID' },
-        { key: 'resumeLink', title: 'Resume', render: (row) => row.resumeLink ? <a href={row.resumeLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Link</a> : 'N/A' },
-        { key: 'publicLink', title: 'Public Link', render: (row) => row.publicBookingId ? (<a href={`/book/${row.publicBookingId}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{row.publicBookingId}</a>) : ('N/A') },
+        { key: 'resumeLink', title: 'Resume', render: (row) => row.resumeLink ? <a href={row.resumeLink} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline">Link</a> : 'N/A' },
+        { key: 'publicLink', title: 'Public Link', render: (row) => row.publicBookingId ? (<a href={`/book/${row.publicBookingId}`} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline font-mono text-xs">{row.publicBookingId}</a>) : ('N/A') },
     ], [publicBookingDetailsCache, handleCellSave, handleManualBooking, hostEmails]);
 
     return (
        <div className="h-full flex flex-col">
             <div className="flex justify-between items-center gap-4 p-4 flex-shrink-0">
                 <div className="w-full max-w-sm"><LocalSearchInput value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search..."/></div>
-                <div className="relative" ref={filterMenuRef}><LocalButton variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}><FiFilter className="h-4 w-4 mr-2 text-blue-600"/><span className="text-blue-600">Filter</span>{isFilterActive && <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-2 p-1 rounded-full hover:bg-gray-200"><FiX className="h-3 w-3 text-gray-500" /></span>}</LocalButton>{isFilterMenuOpen && ( <div className="absolute top-full right-0 mt-2 w-[500px] bg-white rounded-md shadow-lg border z-10 p-4"><div className="space-y-4"><div className="grid grid-cols-2 gap-4"><div><label className="block text-sm font-medium text-gray-700 mb-1">Interview Date</label><DatePicker selected={tempFilters.date} onChange={(date) => setTempFilters(prev => ({ ...prev, date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-300 rounded-md text-sm"/></div><div><label className="block text-sm font-medium text-gray-700 mb-1">Invited On Date</label><DatePicker selected={tempFilters.invitedOnDate} onChange={(date) => setTempFilters(prev => ({ ...prev, invitedOnDate: date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-300 rounded-md text-sm"/></div></div><div><label className="block text-sm font-medium text-gray-700 mb-1">Domain</label><select value={tempFilters.domain} onChange={(e) => setTempFilters(prev => ({...prev, domain: e.target.value}))} className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm bg-white">{domainOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}</select></div><div><label className="block text-sm font-medium text-gray-700 mb-1">Public ID</label><Select options={publicBookingOptions} value={publicBookingOptions.find(opt => opt.value === tempFilters.publicId) || null} onChange={(selectedOption) => setTempFilters(prev => ({ ...prev, publicId: selectedOption ? selectedOption.value : '' }))} isClearable isSearchable placeholder="Search or select a Public ID..." styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }), control: base => ({...base, fontSize: '0.875rem'}), menu: base => ({...base, fontSize: '0.875rem'})}} menuPortalTarget={document.body} menuPosition={'fixed'} /></div></div><div className="mt-4 pt-4 border-t flex justify-end gap-2"><LocalButton variant="outline" onClick={handleClearFilters} className="!text-xs">Clear</LocalButton><LocalButton variant="primary" onClick={handleApplyFilters} className="!text-xs">Apply</LocalButton></div></div>)}</div>
+                <div className="relative" ref={filterMenuRef}><LocalButton variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}><FiFilter className="h-4 w-4 mr-2 text-emerald-600"/><span className="text-emerald-600">Filter</span>{isFilterActive && <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-2 p-1 rounded-full hover:bg-gray-200"><FiX className="h-3 w-3 text-gray-500" /></span>}</LocalButton>{isFilterMenuOpen && ( <div className="absolute top-full right-0 mt-2 w-[500px] bg-white rounded-md shadow-lg border z-10 p-4"><div className="space-y-4"><div className="grid grid-cols-2 gap-4"><div><label className="block text-sm font-medium text-gray-700 mb-1">Interview Date</label><DatePicker selected={tempFilters.date} onChange={(date) => setTempFilters(prev => ({ ...prev, date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-300 rounded-md text-sm"/></div><div><label className="block text-sm font-medium text-gray-700 mb-1">Invited On Date</label><DatePicker selected={tempFilters.invitedOnDate} onChange={(date) => setTempFilters(prev => ({ ...prev, invitedOnDate: date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-300 rounded-md text-sm"/></div></div><div><label className="block text-sm font-medium text-gray-700 mb-1">Domain</label><select value={tempFilters.domain} onChange={(e) => setTempFilters(prev => ({...prev, domain: e.target.value}))} className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm bg-white">{domainOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}</select></div><div><label className="block text-sm font-medium text-gray-700 mb-1">Public ID</label><Select options={publicBookingOptions} value={publicBookingOptions.find(opt => opt.value === tempFilters.publicId) || null} onChange={(selectedOption) => setTempFilters(prev => ({ ...prev, publicId: selectedOption ? selectedOption.value : '' }))} isClearable isSearchable placeholder="Search or select a Public ID..." styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }), control: base => ({...base, fontSize: '0.875rem'}), menu: base => ({...base, fontSize: '0.875rem'})}} menuPortalTarget={document.body} menuPosition={'fixed'} /></div></div><div className="mt-4 pt-4 border-t flex justify-end gap-2"><LocalButton variant="outline" onClick={handleClearFilters} className="!text-xs">Clear</LocalButton><LocalButton variant="primary" onClick={handleApplyFilters} className="!text-xs">Apply</LocalButton></div></div>)}</div>
             </div>
             
             <div className="px-4 border-b border-gray-200 flex-shrink-0">
-                <nav className="-mb-px flex space-x-8" aria-label="Tabs"><button onClick={() => setActiveTab('confirmed')} className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'confirmed' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Confirmed Bookings <span className="ml-2 bg-blue-100 text-blue-600 py-0.5 px-2.5 rounded-full text-xs font-medium">{confirmedBookings.length}</span></button><button onClick={() => setActiveTab('pending')} className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'pending' ? 'border-yellow-500 text-yellow-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Pending Invitations <span className="ml-2 bg-yellow-100 text-yellow-600 py-0.5 px-2.5 rounded-full text-xs font-medium">{pendingInvitations.length}</span></button></nav>
+                <nav className="-mb-px flex space-x-8" aria-label="Tabs"><button onClick={() => setActiveTab('confirmed')} className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'confirmed' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Confirmed Bookings <span className="ml-2 bg-emerald-100 text-emerald-600 py-0.5 px-2.5 rounded-full text-xs font-medium">{confirmedBookings.length}</span></button><button onClick={() => setActiveTab('pending')} className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'pending' ? 'border-yellow-500 text-yellow-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Pending Invitations <span className="ml-2 bg-yellow-100 text-yellow-600 py-0.5 px-2.5 rounded-full text-xs font-medium">{pendingInvitations.length}</span></button></nav>
             </div>
 
             <div className="flex-grow overflow-hidden flex flex-col">

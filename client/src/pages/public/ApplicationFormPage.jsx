@@ -1,93 +1,138 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import InitialApplicationForm from '../../components/forms/InitialApplicationForm';
-import nxtWaveLogo from '/logo.svg'; 
-import { CheckCircle2, Sparkles } from 'lucide-react';
+import {
+  CheckCircle, ArrowLeft,
+  IndianRupee, Wifi, Users, Star, Shield, Zap
+} from 'lucide-react';
+
+const benefits = [
+  { icon: IndianRupee, title: 'Earn up to ₹1,000', desc: 'Per interview conducted on the platform' },
+  { icon: Wifi, title: 'Fully Remote', desc: 'Work from anywhere with flexible scheduling' },
+  { icon: Users, title: '100+ Professionals', desc: 'Join a growing community of experts' },
+  { icon: Star, title: 'Shape Careers', desc: 'Help the next generation of tech talent' },
+];
 
 const ApplicationFormPage = () => {
-  const introVariants = {
-    hidden: { opacity: 0, x: -50 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: "easeOut" } },
-  };
-
-  const formVariants = {
-    hidden: { opacity: 0, x: 50 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: "easeOut", delay: 0.2 } },
-  };
-
-  const benefits = [
-    "Competitive Compensation",
-    "Flexible Work Schedule",
-    "Join an Elite Professional Network",
-    "Shape the Future of Tech Talent"
-  ];
-
   return (
-    <div className="min-h-screen w-full bg-slate-950 font-sans antialiased relative overflow-hidden">
-      {/* Background Gradients */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-orange-500/10 blur-[100px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-teal-500/10 blur-[100px]" />
-      </div>
+    <div className="h-screen bg-gray-50 flex flex-col lg:flex-row overflow-hidden">
 
-      <div className="flex items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8 relative z-10">
-        <div className="w-full max-w-7xl mx-auto md:grid md:grid-cols-5 md:gap-16 items-start">
-          {/* Left Column: Introduction */}
+          {/* ─── LEFT: Branding Panel ──────────────────────────────────────── */}
           <motion.div
-            variants={introVariants}
-            initial="hidden"
-            animate="visible"
-            className="md:col-span-2 pt-10"
+            className="lg:w-[420px] xl:w-[460px] shrink-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-8 lg:p-10 flex flex-col justify-between lg:h-screen overflow-y-auto"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            <div className="mb-8">
-              <img src={nxtWaveLogo} alt="NxtWave Hire" className="h-12 mb-8" />
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-medium mb-6">
-                <Sparkles size={14} />
-                Join the Revolution
-              </div>
-              <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white leading-tight mb-6">
-                Become an <br/>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">
-                  Expert Interviewer
-                </span>
-              </h1>
-              <p className="text-lg text-slate-400 leading-relaxed mb-8">
-                Leverage your industry experience to identify and mentor the next generation of top tech professionals. 
-                Join us in our mission to build a world-class talent ecosystem.
+            <div>
+              {/* Back link */}
+              <Link to="/" className="inline-flex items-center gap-2 text-xs text-slate-400 hover:text-emerald-400 transition-colors font-medium mb-8">
+                <ArrowLeft size={14} /> Back to Home
+              </Link>
+
+
+
+              {/* Heading */}
+              <h2 className="text-2xl lg:text-3xl font-bold leading-tight mb-3">
+                Become a <span className="text-emerald-400">Tech Interviewer</span>
+              </h2>
+              <p className="text-slate-400 text-sm leading-relaxed mb-8">
+                Join our community of industry professionals conducting mock interviews and shaping the careers of aspiring developers.
               </p>
-            </div>
 
-            <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-800">
-              <h3 className="text-white font-semibold mb-4">Why Join Us?</h3>
-              <ul className="space-y-4">
-                {benefits.map((benefit, index) => (
-                  <li key={index} className="flex items-start group">
-                    <div className="mt-0.5 mr-3 p-1 rounded-full bg-teal-500/10 text-teal-400 group-hover:bg-teal-500 group-hover:text-white transition-colors">
-                      <CheckCircle2 size={16} />
+              {/* Benefits */}
+              <div className="space-y-4">
+                {benefits.map((item, i) => (
+                  <motion.div
+                    key={i}
+                    className="flex items-start gap-3.5 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 + i * 0.08 }}
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
+                      <item.icon size={17} className="text-emerald-400" />
                     </div>
-                    <span className="text-slate-300 group-hover:text-white transition-colors">{benefit}</span>
-                  </li>
+                    <div>
+                      <p className="text-sm font-semibold text-white">{item.title}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{item.desc}</p>
+                    </div>
+                  </motion.div>
                 ))}
-              </ul>
+              </div>
             </div>
-          </motion.div>
 
-          {/* Right Column: Form Card */}
-          <motion.div
-            variants={formVariants}
-            initial="hidden"
-            animate="visible"
-            className="md:col-span-3 mt-10 md:mt-0"
-          >
-            <div className="bg-slate-900/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-800 p-1">
-              <div className="bg-slate-950/50 rounded-[22px] p-6 sm:p-10">
-                <InitialApplicationForm />
+            {/* Bottom stats */}
+            <div className="mt-10 pt-6 border-t border-slate-700/50">
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { num: '500+', label: 'Interviews' },
+                  { num: '100+', label: 'Interviewers' },
+                  { num: '₹1000', label: 'Per Interview' },
+                ].map((stat, i) => (
+                  <div key={i} className="text-center">
+                    <p className="text-lg font-bold text-emerald-400">{stat.num}</p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wide font-medium">{stat.label}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </motion.div>
-        </div>
-      </div>
+
+          {/* ─── RIGHT: Form Panel ─────────────────────────────────────────── */}
+          <div className="flex-1 overflow-y-auto lg:h-screen">
+            <div className="max-w-2xl mx-auto px-5 sm:px-8 py-6 lg:py-8">
+
+              {/* Form Title */}
+              <motion.div
+                className="mb-7"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.15 }}
+              >
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+                  Interviewer Application
+                </h1>
+                <p className="mt-1.5 text-sm text-gray-500">
+                  Tell us about yourself. It takes less than 2 minutes.
+                </p>
+              </motion.div>
+
+              {/* Form Card */}
+              <motion.div
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-8"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.2 }}
+              >
+                <InitialApplicationForm />
+              </motion.div>
+
+              {/* Trust Indicators */}
+              <motion.div
+                className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs text-gray-400"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                <div className="flex items-center gap-1.5">
+                  <Shield size={13} />
+                  <span>Your data is secure</span>
+                </div>
+                <span className="w-1 h-1 bg-gray-300 rounded-full" />
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle size={13} />
+                  <span>No spam, ever</span>
+                </div>
+                <span className="w-1 h-1 bg-gray-300 rounded-full" />
+                <div className="flex items-center gap-1.5">
+                  <Zap size={13} />
+                  <span>Quick review process</span>
+                </div>
+              </motion.div>
+            </div>
+          </div>
     </div>
   );
 };

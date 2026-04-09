@@ -53,7 +53,7 @@ const FileInput = ({ onFileParsed, requiredColumns }) => {
             <div className="flex items-center gap-4">
                 <label
                     htmlFor="file-upload"
-                    className="relative cursor-pointer bg-white rounded-lg font-medium text-blue-600 hover:text-blue-500 border border-gray-300 px-4 py-2 transition-colors hover:bg-gray-50 shadow-sm"
+                    className="relative cursor-pointer bg-white rounded-lg font-medium text-slate-700 hover:text-slate-900 border border-gray-300 px-4 py-2 transition-colors hover:bg-gray-50 shadow-sm"
                 >
                     <span>Choose File</span>
                     <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleFileChange} accept=".csv, .xlsx" />
@@ -157,7 +157,7 @@ const SendCustomEmail = ({ templates }) => {
                                 </div>
                                 <div className="p-6">
                                     <div className="flex items-center gap-4 mb-6">
-                                        <div className="h-10 w-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                        <div className="h-10 w-10 bg-slate-700 rounded-full flex items-center justify-center text-white font-bold text-lg">
                                             N
                                         </div>
                                         <div>

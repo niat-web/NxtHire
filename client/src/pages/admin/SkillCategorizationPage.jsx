@@ -1,25 +1,26 @@
 // client/src/pages/admin/SkillCategorizationPage.jsx
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { 
-    FiBriefcase, FiCheckCircle, FiChevronLeft, FiChevronRight, 
-    FiChevronsLeft, FiChevronsRight, FiUser, FiClock, FiStar, 
+import React, { useEffect, useState, useMemo } from 'react';
+import {
+    FiBriefcase, FiCheckCircle, FiChevronLeft, FiChevronRight,
+    FiChevronsLeft, FiChevronsRight, FiUser, FiClock, FiStar,
     FiMail, FiPhone, FiLinkedin, FiSend
 } from 'react-icons/fi';
 import Loader from '../../components/common/Loader';
-import { getSkillAssessments, processSkillCategorization } from '../../api/admin.api';
+import { processSkillCategorization } from '../../api/admin.api';
 import { useAlert } from '../../hooks/useAlert';
 import EmptyState from '../../components/common/EmptyState';
 import { debounce } from '../../utils/helpers';
 import SearchInput from '../../components/common/SearchInput';
-import { formatDate } from '../../utils/formatters';
+import { formatDate, formatDateTime } from '../../utils/formatters';
 import Select from 'react-select';
 import { DOMAINS } from '../../utils/constants';
+import { useSkillAssessments, useInvalidateAdmin } from '../../hooks/useAdminQueries';
 
 // --- Simple UI Components ---
 
 const SimpleButton = ({ children, variant = 'primary', icon: Icon, ...props }) => {
     const variants = {
-        primary: 'bg-blue-600 text-white hover:bg-blue-700',
+        primary: 'bg-emerald-600 text-white hover:bg-emerald-700',
         secondary: 'bg-gray-200 text-gray-700 hover:bg-gray-300',
         outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50',
     };
@@ -27,7 +28,7 @@ const SimpleButton = ({ children, variant = 'primary', icon: Icon, ...props }) =
     return (
         <button 
             {...props} 
-            className={`px-4 py-2 rounded text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 ${variants[variant]}`}
+            className={`px-4 py-2 rounded text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50 ${variants[variant]}`}
         >
             {Icon && <Icon className="inline w-4 h-4 mr-2" />}
             {children}
@@ -44,7 +45,7 @@ const SimpleCard = ({ children, className = '' }) => (
 const SimpleBadge = ({ children, color = 'gray' }) => {
     const colors = {
         gray: 'bg-gray-100 text-gray-800',
-        blue: 'bg-blue-100 text-blue-800',
+        blue: 'bg-emerald-100 text-emerald-800',
         green: 'bg-green-100 text-green-800',
         yellow: 'bg-yellow-100 text-yellow-800',
     };
@@ -74,7 +75,7 @@ const ApplicantInfo = ({ applicant, skillAssessment }) => (
                     </div>
                     <div className="flex items-center">
                         <FiLinkedin className="w-4 h-4 mr-2" />
-                        <a href={applicant.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                        <a href={applicant.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline">
                             LinkedIn Profile
                         </a>
                     </div>
@@ -89,7 +90,7 @@ const BasicMetrics = ({ skillAssessment }) => (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <SimpleCard className="p-4">
             <div className="flex items-center mb-2">
-                <FiUser className="w-5 h-5 text-blue-600 mr-2" />
+                <FiUser className="w-5 h-5 text-emerald-600 mr-2" />
                 <span className="text-sm font-medium text-gray-600">Current Role</span>
             </div>
             <p className="font-semibold text-gray-900">{skillAssessment.jobTitle}</p>
@@ -98,7 +99,7 @@ const BasicMetrics = ({ skillAssessment }) => (
 
         <SimpleCard className="p-4">
             <div className="flex items-center mb-2">
-                <FiClock className="w-5 h-5 text-blue-600 mr-2" />
+                <FiClock className="w-5 h-5 text-emerald-600 mr-2" />
                 <span className="text-sm font-medium text-gray-600">Experience</span>
             </div>
             <p className="text-xl font-bold text-gray-900">{skillAssessment.yearsOfExperience} years</p>
@@ -106,10 +107,10 @@ const BasicMetrics = ({ skillAssessment }) => (
 
         <SimpleCard className="p-4">
             <div className="flex items-center mb-2">
-                <FiStar className="w-5 h-5 text-blue-600 mr-2" />
+                <FiStar className="w-5 h-5 text-emerald-600 mr-2" />
                 <span className="text-sm font-medium text-gray-600">Suggested Domain</span>
             </div>
-            <p className="font-semibold text-blue-700">{skillAssessment.autoCategorizedDomain || 'N/A'}</p>
+            <p className="font-semibold text-emerald-700">{skillAssessment.autoCategorizedDomain || 'N/A'}</p>
         </SimpleCard>
     </div>
 );
@@ -184,7 +185,7 @@ const ReviewForm = ({ applicant, skillAssessment, onCategorizeComplete }) => {
     return (
         <SimpleCard className="p-6">
             <div className="flex items-center mb-6">
-                <FiCheckCircle className="w-5 h-5 text-blue-600 mr-2" />
+                <FiCheckCircle className="w-5 h-5 text-emerald-600 mr-2" />
                 <h3 className="text-lg font-semibold text-gray-900">Admin Review</h3>
             </div>
             
@@ -223,7 +224,7 @@ const ReviewForm = ({ applicant, skillAssessment, onCategorizeComplete }) => {
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Add notes about this assessment..."
                         rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     />
                 </div>
                 
@@ -285,11 +286,11 @@ const SimpleSidebar = ({
                 <button 
                     key={assessment._id} 
                     onClick={() => onSelectAssessment(assessment)} 
-                    className={`w-full text-left p-4 border-b border-gray-100 hover:bg-gray-50 focus:outline-none ${selectedAssessment?._id === assessment._id ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''}`}
+                    className={`w-full text-left p-4 border-b border-gray-100 hover:bg-gray-50 focus:outline-none ${selectedAssessment?._id === assessment._id ? 'bg-emerald-50 border-l-4 border-l-emerald-600' : ''}`}
                 >
                     <div className="flex justify-between items-start mb-2">
                         <p className="font-medium text-gray-900">{assessment.applicant.fullName}</p>
-                        <span className="text-xs text-gray-500">{formatDate(assessment.createdAt)}</span>
+                        <span className="text-xs text-gray-500">{formatDateTime(assessment.createdAt)}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
                         <SimpleBadge color="blue">{assessment.autoCategorizedDomain || 'N/A'}</SimpleBadge>
@@ -329,79 +330,65 @@ const SimpleSidebar = ({
 
 // --- Main Page Component ---
 const SkillCategorizationPage = () => {
-    const [loading, setLoading] = useState(true);
-    const [assessments, setAssessments] = useState([]);
-    const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalItems: 0 });
-    const { showError } = useAlert();
+    const { invalidateSkillAssessments, invalidateDashboard } = useInvalidateAdmin();
     const [selectedAssessment, setSelectedAssessment] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     const [statusFilter] = useState('Pending');
+    const [currentPage, setCurrentPage] = useState(1);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-    const fetchAssessments = useCallback(async (page = 1, shouldPreserveSelection = false) => {
-        setLoading(true);
-        if (!shouldPreserveSelection) setSelectedAssessment(null);
-        
-        try {
-            const response = await getSkillAssessments({ 
-                page, 
-                limit: 15, 
-                status: statusFilter, 
-                search: searchTerm, 
-                sortBy: 'createdAt', 
-                sortOrder: 'asc' 
-            });
-            const data = response.data.data;
-            setAssessments(data.assessments || []);
-            setPagination({ 
-                currentPage: data.page, 
-                totalPages: data.totalPages, 
-                totalItems: data.totalDocs 
-            });
-            
-            if (!shouldPreserveSelection && (data.assessments || []).length > 0) {
-                setSelectedAssessment(data.assessments[0]);
-            }
-        } catch (error) { 
-            showError('Failed to fetch assessments for review.'); 
-        } finally { 
-            setLoading(false); 
+    // Debounce search input
+    const debouncedUpdate = useMemo(() => debounce((value) => {
+        setDebouncedSearch(value);
+        setCurrentPage(1);
+    }, 300), []);
+
+    useEffect(() => { debouncedUpdate(searchTerm); return () => debouncedUpdate.cancel(); }, [searchTerm, debouncedUpdate]);
+
+    const queryParams = useMemo(() => ({
+        page: currentPage,
+        limit: 15,
+        status: statusFilter,
+        search: debouncedSearch,
+        sortBy: 'createdAt',
+        sortOrder: 'asc',
+    }), [currentPage, statusFilter, debouncedSearch]);
+
+    const { data, isLoading: loading } = useSkillAssessments(queryParams, {
+        keepPreviousData: true,
+    });
+
+    const assessments = data?.assessments || [];
+    const pagination = {
+        currentPage: data?.page || 1,
+        totalPages: data?.totalPages || 1,
+        totalItems: data?.totalDocs || 0,
+    };
+
+    // Auto-select first assessment when data loads and nothing is selected
+    useEffect(() => {
+        if (!loading && assessments.length > 0 && !selectedAssessment) {
+            setSelectedAssessment(assessments[0]);
         }
-    }, [showError, statusFilter, searchTerm]);
+    }, [loading, assessments, selectedAssessment]);
 
-    useEffect(() => { 
-        const handler = debounce(() => fetchAssessments(1), 300); 
-        handler(); 
-        return () => handler.cancel(); 
-    }, [fetchAssessments]);
-
-    const handlePageChange = (newPage) => { 
+    const handlePageChange = (newPage) => {
         if (newPage >= 1 && newPage <= pagination.totalPages) {
-            fetchAssessments(newPage); 
+            setCurrentPage(newPage);
+            setSelectedAssessment(null);
         }
     };
 
-    const handleSelectAssessment = (assessment) => { 
-        setSelectedAssessment(assessment); 
-        if (window.innerWidth < 1024) setSidebarCollapsed(true); 
+    const handleSelectAssessment = (assessment) => {
+        setSelectedAssessment(assessment);
+        if (window.innerWidth < 1024) setSidebarCollapsed(true);
     };
 
     const handleCategorizeComplete = () => {
-        const currentIndex = assessments.findIndex(a => a._id === selectedAssessment._id);
-        const remaining = assessments.filter(a => a._id !== selectedAssessment._id);
-        setAssessments(remaining);
-        
-        if (remaining.length > 0) { 
-            setSelectedAssessment(remaining[Math.min(currentIndex, remaining.length - 1)]); 
-        } else {
-            if (pagination.currentPage < pagination.totalPages) {
-                fetchAssessments(pagination.currentPage);
-            } else if (pagination.currentPage > 1) {
-                fetchAssessments(pagination.currentPage - 1);
-            } else {
-                setSelectedAssessment(null);
-            }
-        }
+        setSelectedAssessment(null);
+        invalidateSkillAssessments();
+        invalidateDashboard();
     };
 
     const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);

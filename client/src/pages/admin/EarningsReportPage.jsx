@@ -6,17 +6,17 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
-import { 
-    FiArrowLeft, FiDollarSign, FiSearch, FiBarChart2, FiDownload, 
-    FiLoader, FiChevronDown, FiX, FiInbox, FiCalendar, 
-    FiFilter, FiChevronLeft, FiChevronRight, FiChevronsLeft, 
+import {
+    FiArrowLeft, FiDollarSign, FiSearch, FiBarChart2, FiDownload,
+    FiLoader, FiChevronDown, FiX, FiInbox, FiCalendar,
+    FiFilter, FiChevronLeft, FiChevronRight, FiChevronsLeft,
     FiChevronsRight, FiFileText, FiEdit2, FiAlertTriangle
 } from 'react-icons/fi';
-import { getPaymentRequests, sendPaymentEmail, sendInvoiceEmail, sendPaymentReceivedEmail, getPayoutSheet, updateInterviewer, getYearlyEarningsSummary, getMonthlyEarningsDetails, saveBonusAmount } from '../../api/admin.api';
+import { sendPaymentEmail, sendInvoiceEmail, sendPaymentReceivedEmail, updateInterviewer, saveBonusAmount } from '../../api/admin.api';
+import { usePayoutSheet, usePaymentRequests, useYearlyEarnings, useMonthlyEarnings, useInvalidateAdmin } from '../../hooks/useAdminQueries';
 import { useAlert } from '../../hooks/useAlert';
 import { format as formatDateFns, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear } from 'date-fns';
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
-import { debounce } from '../../utils/helpers';
 import Badge from '../../components/common/Badge';
 
 // --- STYLED COMPONENTS ---
@@ -101,52 +101,46 @@ const CompactTable = ({ columns, data, isLoading, emptyMessage, onRowClick, erro
         </div>
     );
 
+    if (isLoading) return <div className="flex-1 flex items-center justify-center bg-white"><Loader /></div>;
+    if (error) return <div className="flex-1 flex items-center justify-center bg-white"><ErrorState msg={error} /></div>;
+    if (data.length === 0) return <div className="flex-1 flex items-center justify-center bg-white"><EmptyState msg={emptyMessage} /></div>;
+
     return (
-        <div className="flex-1 w-full overflow-hidden flex flex-col bg-white border-t border-gray-200">
-            <div className="flex-1 overflow-auto custom-scrollbar relative">
-                <table className="min-w-max border-separate border-spacing-0">
-                    <thead className="bg-gray-50 sticky top-0 z-20 shadow-sm">
-                        <tr>
-                            {columns.map((col, idx) => (
-                                <th 
-                                    key={col.key || idx}
-                                    className={`px-4 py-3 border-b border-r border-gray-200 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap bg-gray-50 ${col.isSticky ? 'sticky left-0 z-30' : ''}`}
-                                    style={col.isSticky ? { left: 0, boxShadow: '2px 0 5px -2px rgba(0,0,0,0.1)', minWidth: col.minWidth } : { minWidth: col.minWidth }}
+        <div className="flex-1 w-full overflow-auto bg-white min-h-0">
+            <table className="min-w-max w-full border-separate border-spacing-0">
+                <thead className="bg-gray-50 sticky top-0 z-20">
+                    <tr>
+                        {columns.map((col, idx) => (
+                            <th
+                                key={col.key || idx}
+                                className={`px-4 py-3 border-b border-r border-gray-200 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap bg-gray-50 ${col.isSticky ? 'sticky left-0 z-30' : ''}`}
+                                style={col.isSticky ? { left: 0, boxShadow: '2px 0 5px -2px rgba(0,0,0,0.1)', minWidth: col.minWidth } : { minWidth: col.minWidth }}
+                            >
+                                {col.title}
+                            </th>
+                        ))}
+                    </tr>
+                </thead>
+                <tbody className="bg-white">
+                    {data.map((row, rowIndex) => (
+                        <tr
+                            key={row._id || rowIndex}
+                            className={`group hover:bg-gray-50 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}
+                            onClick={() => onRowClick && onRowClick(row)}
+                        >
+                            {columns.map((col, colIdx) => (
+                                <td
+                                    key={col.key || colIdx}
+                                    className={`px-4 py-3 border-b border-r border-gray-100 text-sm text-gray-700 align-middle ${col.allowWrap ? '' : 'whitespace-nowrap'} ${col.isSticky ? 'sticky left-0 z-10 bg-white group-hover:bg-gray-50' : ''}`}
+                                    style={col.isSticky ? { left: 0, boxShadow: '2px 0 5px -2px rgba(0,0,0,0.05)' } : {}}
                                 >
-                                    {col.title}
-                                </th>
+                                    {col.render ? col.render(row) : row[col.key]}
+                                </td>
                             ))}
                         </tr>
-                    </thead>
-                    <tbody className="bg-white">
-                        {isLoading ? (
-                            <tr><td colSpan={columns.length} className="h-64"><Loader /></td></tr>
-                        ) : error ? (
-                            <tr><td colSpan={columns.length} className="h-64"><ErrorState msg={error} /></td></tr>
-                        ) : data.length === 0 ? (
-                            <tr><td colSpan={columns.length} className="h-64"><EmptyState msg={emptyMessage} /></td></tr>
-                        ) : (
-                            data.map((row, rowIndex) => (
-                                <tr 
-                                    key={row._id || rowIndex} 
-                                    className={`group hover:bg-blue-50/30 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}
-                                    onClick={() => onRowClick && onRowClick(row)}
-                                >
-                                    {columns.map((col, colIdx) => (
-                                        <td 
-                                            key={col.key || colIdx}
-                                            className={`px-4 py-3 border-b border-r border-gray-100 text-sm text-gray-700 align-middle ${col.allowWrap ? '' : 'whitespace-nowrap'} ${col.isSticky ? 'sticky left-0 z-10 bg-white group-hover:bg-blue-50/30' : ''}`}
-                                            style={col.isSticky ? { left: 0, boxShadow: '2px 0 5px -2px rgba(0,0,0,0.05)' } : {}}
-                                        >
-                                            {col.render ? col.render(row) : row[col.key]}
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 };
@@ -211,10 +205,10 @@ const EditableInterviewerIDCell = ({ row, onSave }) => {
                 onChange={e => setValue(e.target.value)} 
                 onBlur={handleBlur} 
                 disabled={loading}
-                className="w-full bg-transparent border border-transparent hover:border-gray-200 focus:bg-white focus:border-blue-500 rounded px-2 py-1 text-sm font-mono transition-all truncate"
+                className="w-full bg-transparent border border-transparent hover:border-gray-200 focus:bg-white focus:border-emerald-500 rounded px-2 py-1 text-sm font-mono transition-all truncate"
             />
             <FiEdit2 className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 pointer-events-none" />
-            {loading && <FiLoader className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 animate-spin text-blue-600" />}
+            {loading && <FiLoader className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 animate-spin text-emerald-600" />}
         </div>
     );
 };
@@ -229,9 +223,9 @@ const EditableBonusCell = ({ value, onChange, onSave, isLoading }) => (
             onBlur={onSave}
             disabled={isLoading}
             placeholder="0"
-            className="w-full pl-5 pr-2 py-1.5 text-xs border border-gray-200 rounded bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all text-right"
+            className="w-full pl-5 pr-2 py-1.5 text-xs border border-gray-200 rounded bg-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-right"
         />
-        {isLoading && <div className="absolute right-1 top-1 text-blue-500"><span className="block w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping"></span></div>}
+        {isLoading && <div className="absolute right-1 top-1 text-emerald-500"><span className="block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span></div>}
     </div>
 );
 
@@ -239,31 +233,38 @@ const EditableBonusCell = ({ value, onChange, onSave, isLoading }) => (
 
 const PayoutSheetView = () => {
     const { showError, showSuccess } = useAlert();
-    const [loading, setLoading] = useState(true);
-    const [payoutData, setPayoutData] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     const [date, setDate] = useState(new Date());
-    const [pagination, setPagination] = useState({ currentPage: 1, itemsPerPage: 15, totalPages: 1, totalItems: 0 });
-    const [errorState, setErrorState] = useState(null);
+    const [pagination, setPagination] = useState({ currentPage: 1, itemsPerPage: 15 });
 
-    const fetchPayoutSheet = useCallback(async (page) => {
-        setLoading(true);
-        setErrorState(null);
-        try {
-            const params = { search: searchTerm, startDate: startOfMonth(date).toISOString(), endDate: endOfMonth(date).toISOString(), page, limit: pagination.itemsPerPage };
-            const res = await getPayoutSheet(params);
-            setPayoutData(res.data.data.payoutSheet || []);
-            setPagination(p => ({ ...p, currentPage: page, totalPages: res.data.data.totalPages, totalItems: res.data.data.totalDocs }));
-        } catch (err) { 
-            console.error(err);
-            setErrorState("Failed to retrieve payout sheet.");
-            setPayoutData([]); 
-        } 
-        finally { setLoading(false); }
-    }, [date, searchTerm, pagination.itemsPerPage]);
+    // Debounce search input
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchTerm);
+            setPagination(p => ({ ...p, currentPage: 1 }));
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
 
-    useEffect(() => { const h = debounce(() => fetchPayoutSheet(1), 300); h(); return h.cancel; }, [date, searchTerm]);
-    useEffect(() => { fetchPayoutSheet(pagination.currentPage); }, [pagination.currentPage]);
+    // Reset page when date changes
+    useEffect(() => {
+        setPagination(p => ({ ...p, currentPage: 1 }));
+    }, [date]);
+
+    const queryParams = useMemo(() => ({
+        search: debouncedSearch,
+        startDate: startOfMonth(date).toISOString(),
+        endDate: endOfMonth(date).toISOString(),
+        page: pagination.currentPage,
+        limit: pagination.itemsPerPage,
+    }), [debouncedSearch, date, pagination.currentPage, pagination.itemsPerPage]);
+
+    const { data: payoutResult, isLoading: loading, error: queryError } = usePayoutSheet(queryParams);
+    const payoutData = payoutResult?.payoutSheet || [];
+    const totalPages = payoutResult?.totalPages || 1;
+    const totalItems = payoutResult?.totalDocs || 0;
+    const errorState = queryError ? "Failed to retrieve payout sheet." : null;
 
     const handleExport = () => {
         if (!payoutData.length) return showError("No data to export.");
@@ -273,25 +274,27 @@ const PayoutSheetView = () => {
         showSuccess("Exported!");
     };
 
+    const { invalidatePayments } = useInvalidateAdmin();
+
     const handleIdSave = useCallback(async (id, newId) => {
         await updateInterviewer(id, { interviewerId: newId });
-        setPayoutData(d => d.map(r => r.interviewer._id === id ? { ...r, interviewer: { ...r.interviewer, interviewerId: newId } } : r));
+        invalidatePayments();
         showSuccess('ID Updated');
-    }, [showSuccess]);
+    }, [showSuccess, invalidatePayments]);
 
     const columns = useMemo(() => [
         // Updated minWidth for full visibility
         { key: 'interviewer_id', title: 'Interviewer ID', isSticky: true, minWidth: '280px', render: r => <EditableInterviewerIDCell row={r} onSave={handleIdSave} /> },
         { key: 'association_name', title: 'Association', minWidth: '180px', render: r => <span className="font-medium text-gray-800">{r.associationName}</span> },
-        { key: 'activity_name', title: 'Activity', minWidth: '150px', render: r => <span className="px-2 py-1 rounded bg-blue-50 text-blue-700 text-xs font-bold">{r.activityName}</span> },
+        { key: 'activity_name', title: 'Activity', minWidth: '150px', render: r => <span className="px-2 py-1 rounded bg-emerald-50 text-emerald-700 text-xs font-bold">{r.activityName}</span> },
         { key: 'ref_id', title: 'Ref ID', minWidth: '150px', render: r => <span className="font-mono text-xs text-gray-500">{r.activityReferenceId}</span> },
         { key: 'date', title: 'Date', minWidth: '160px', render: r => <span className="text-gray-600 text-xs">{formatDateTime(r.activityDatetime)}</span> },
         { key: 'points', title: 'Points', minWidth: '100px', render: r => <span className="font-bold text-green-600">+{r.points}</span> }
     ], [handleIdSave]);
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full overflow-hidden">
-            <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between gap-4 bg-gray-50/50 flex-shrink-0">
+        <div className="flex flex-col h-full overflow-hidden min-h-0">
+            <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between gap-4 bg-white flex-shrink-0">
                 <div className="relative w-full sm:w-72">
                     <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Search Interviewer ID..." className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900" />
@@ -305,47 +308,50 @@ const PayoutSheetView = () => {
                 </div>
             </div>
             <CompactTable columns={columns} data={payoutData} isLoading={loading} error={errorState} emptyMessage="No payout data available." />
-            <PaginationControls {...pagination} onPageChange={p => fetchPayoutSheet(p)} onItemsPerPageChange={e => setPagination(p => ({ ...p, itemsPerPage: +e.target.value, currentPage: 1 }))} />
+            <PaginationControls currentPage={pagination.currentPage} totalPages={totalPages} totalItems={totalItems} itemsPerPage={pagination.itemsPerPage} onPageChange={p => setPagination(pr => ({ ...pr, currentPage: p }))} onItemsPerPageChange={e => setPagination(p => ({ ...p, itemsPerPage: +e.target.value, currentPage: 1 }))} />
         </div>
     );
 };
 
 const PaymentRequestsView = () => {
     const { showError, showSuccess } = useAlert();
-    const [loading, setLoading] = useState(true);
-    const [requests, setRequests] = useState([]);
     const [dateRange, setDateRange] = useState([startOfMonth(new Date()), endOfMonth(new Date())]);
     const [startDate, endDate] = dateRange;
     const [remarksModal, setRemarksModal] = useState({ isOpen: false, content: '' });
-    const [pagination, setPagination] = useState({ currentPage: 1, itemsPerPage: 15, totalPages: 1, totalItems: 0 });
+    const [pagination, setPagination] = useState({ currentPage: 1, itemsPerPage: 15 });
     const [bonusAmounts, setBonusAmounts] = useState({});
     const [actionLoading, setActionLoading] = useState({});
-    const [errorState, setErrorState] = useState(null);
+    const { invalidatePayments } = useInvalidateAdmin();
 
-    const fetchRequests = useCallback(async (page = 1) => {
-        setLoading(true);
-        setErrorState(null);
-        try {
-            const params = { startDate: startDate?.toISOString(), endDate: endDate?.toISOString(), page, limit: pagination.itemsPerPage };
-            const res = await getPaymentRequests(params);
-            setRequests(res.data.data.requests || []);
-            setBonusAmounts((res.data.data.requests || []).reduce((acc, r) => ({ ...acc, [r._id]: r.bonusAmount || 0 }), {}));
-            setPagination(p => ({ ...p, currentPage: page, totalPages: res.data.data.totalPages, totalItems: res.data.data.totalDocs }));
-        } catch (err) { 
-            console.error(err);
-            setErrorState("Failed to retrieve payment requests. Please check data or try again.");
-            setRequests([]); 
-        } 
-        finally { setLoading(false); }
-    }, [startDate, endDate, pagination.itemsPerPage]);
+    const queryParams = useMemo(() => ({
+        startDate: startDate?.toISOString(),
+        endDate: endDate?.toISOString(),
+        page: pagination.currentPage,
+        limit: pagination.itemsPerPage,
+    }), [startDate, endDate, pagination.currentPage, pagination.itemsPerPage]);
 
-    useEffect(() => { fetchRequests(1); }, [startDate, endDate, fetchRequests]);
-    useEffect(() => { if (!loading) fetchRequests(pagination.currentPage); }, [pagination.currentPage]);
+    const { data: requestsResult, isLoading: loading, error: queryError } = usePaymentRequests(queryParams);
+    const requests = requestsResult?.requests || [];
+    const totalPages = requestsResult?.totalPages || 1;
+    const totalItems = requestsResult?.totalDocs || 0;
+    const errorState = queryError ? "Failed to retrieve payment requests. Please check data or try again." : null;
+
+    // Sync bonus amounts when data changes
+    useEffect(() => {
+        if (requests.length > 0) {
+            setBonusAmounts(requests.reduce((acc, r) => ({ ...acc, [r._id]: r.bonusAmount || 0 }), {}));
+        }
+    }, [requests]);
+
+    // Reset page when date range changes
+    useEffect(() => {
+        setPagination(p => ({ ...p, currentPage: 1 }));
+    }, [startDate, endDate]);
 
     const handleAction = async (id, actionType, apiCall, payload, successMsg) => {
         setActionLoading(p => ({ ...p, [`${id}-${actionType}`]: true }));
-        try { await apiCall(payload); showSuccess(successMsg); fetchRequests(pagination.currentPage); } 
-        catch (e) { showError(e.response?.data?.message || "Action failed."); } 
+        try { await apiCall(payload); showSuccess(successMsg); invalidatePayments(); }
+        catch (e) { showError(e.response?.data?.message || "Action failed."); }
         finally { setActionLoading(p => ({ ...p, [`${id}-${actionType}`]: false })); }
     };
 
@@ -371,7 +377,7 @@ const PaymentRequestsView = () => {
         { key: 'mobileNumber', title: 'Mobile', minWidth: '130px', render: r => <span className="text-gray-600 text-xs">{r.mobileNumber}</span> },
         { key: 'companyType', title: 'Company Type', minWidth: '140px', render: r => <span className="text-gray-600 text-xs">{r.companyType}</span> },
         { key: 'amount', title: 'Base Pay', minWidth: '100px', render: r => <span className="text-gray-600 text-sm">{formatCurrency(r.paymentAmount)}</span> },
-        { key: 'interviewsCompleted', title: 'Count', minWidth: '70px', render: r => <span className="inline-flex justify-center items-center h-6 min-w-[24px] px-2 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">{r.interviewsCompleted}</span> },
+        { key: 'interviewsCompleted', title: 'Count', minWidth: '70px', render: r => <span className="inline-flex justify-center items-center h-6 min-w-[24px] px-2 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">{r.interviewsCompleted}</span> },
         { key: 'bonusAmount', title: 'Bonus', minWidth: '120px', render: r => <EditableBonusCell value={bonusAmounts[r._id]} onChange={e => setBonusAmounts(prev => ({ ...prev, [r._id]: e.target.value }))} onSave={() => handleBonusSave(r)} isLoading={actionLoading[`${r._id}-bonus`]} /> },
         { key: 'totalAmount', title: 'Total', minWidth: '120px', render: r => <span className="font-bold text-green-700 text-sm">{formatCurrency(r.totalAmount + Number(bonusAmounts[r._id] || 0))}</span> },
         
@@ -387,7 +393,7 @@ const PaymentRequestsView = () => {
         )},
 
         { key: 'confStatus', title: 'User Conf.', minWidth: '130px', render: r => <Badge variant={r.confirmationStatus === 'Confirmed' ? 'success' : r.confirmationStatus === 'Disputed' ? 'danger' : 'warning'}>{r.confirmationStatus}</Badge> },
-        { key: 'confRemarks', title: 'Conf. Remarks', minWidth: '120px', render: r => r.confirmationRemarks ? <button onClick={() => setRemarksModal({ isOpen: true, content: r.confirmationRemarks })} className="text-xs text-blue-600 hover:underline">View Remarks</button> : <span className="text-xs text-gray-300">-</span> },
+        { key: 'confRemarks', title: 'Conf. Remarks', minWidth: '120px', render: r => r.confirmationRemarks ? <button onClick={() => setRemarksModal({ isOpen: true, content: r.confirmationRemarks })} className="text-xs text-emerald-600 hover:underline">View Remarks</button> : <span className="text-xs text-gray-300">-</span> },
 
         { key: 'invoiceStatus', title: 'Invoice Req.', minWidth: '130px', render: r => <Badge variant={r.invoiceEmailSentStatus === 'Sent' ? 'success' : 'gray'}>{r.invoiceEmailSentStatus}</Badge> },
         { key: 'invoiceAction', title: 'Invoice Action', minWidth: '120px', render: r => (
@@ -408,13 +414,13 @@ const PaymentRequestsView = () => {
         )},
 
         { key: 'recStatus', title: 'User Rec.', minWidth: '130px', render: r => <Badge variant={r.paymentReceivedStatus === 'Received' ? 'success' : 'warning'}>{r.paymentReceivedStatus}</Badge> },
-        { key: 'recRemarks', title: 'Rec. Remarks', minWidth: '120px', render: r => r.paymentReceivedRemarks ? <button onClick={() => setRemarksModal({ isOpen: true, content: r.paymentReceivedRemarks })} className="text-xs text-blue-600 hover:underline">View Remarks</button> : <span className="text-xs text-gray-300">-</span> },
+        { key: 'recRemarks', title: 'Rec. Remarks', minWidth: '120px', render: r => r.paymentReceivedRemarks ? <button onClick={() => setRemarksModal({ isOpen: true, content: r.paymentReceivedRemarks })} className="text-xs text-emerald-600 hover:underline">View Remarks</button> : <span className="text-xs text-gray-300">-</span> },
 
     ], [bonusAmounts, actionLoading, handleBonusSave]); 
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full overflow-hidden">
-            <div className="p-4 border-b border-gray-200 flex flex-col xl:flex-row gap-4 justify-between bg-gray-50/50 flex-shrink-0">
+        <div className="flex flex-col h-full overflow-hidden min-h-0">
+            <div className="p-4 border-b border-gray-200 flex flex-col xl:flex-row gap-4 justify-between bg-white flex-shrink-0">
                 <div className="flex items-center gap-2 bg-white px-3 py-2 border border-gray-300 rounded-lg shadow-sm w-full xl:w-auto relative z-30">
                     <FiCalendar className="text-gray-400" />
                     <DatePicker selectsRange startDate={startDate} endDate={endDate} onChange={setDateRange} className="text-sm font-medium focus:outline-none w-52" placeholderText="Select Range" />
@@ -430,38 +436,31 @@ const PaymentRequestsView = () => {
             </div>
             
             <CompactTable columns={columns} data={requests} isLoading={loading} error={errorState} emptyMessage="No requests found." />
-            
-            <PaginationControls {...pagination} onPageChange={p => setPagination(pr => ({...pr, currentPage: p}))} onItemsPerPageChange={e => setPagination(pr => ({...pr, itemsPerPage: +e.target.value, currentPage: 1}))} />
+
+            <PaginationControls currentPage={pagination.currentPage} totalPages={totalPages} totalItems={totalItems} itemsPerPage={pagination.itemsPerPage} onPageChange={p => setPagination(pr => ({...pr, currentPage: p}))} onItemsPerPageChange={e => setPagination(pr => ({...pr, itemsPerPage: +e.target.value, currentPage: 1}))} />
             <RemarksModal isOpen={remarksModal.isOpen} onClose={() => setRemarksModal({ isOpen: false, content: '' })} content={remarksModal.content} />
         </div>
     );
 };
 
 const ReportsView = () => {
-    const { showError } = useAlert();
     const [view, setView] = useState('yearly');
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [data, setData] = useState([]);
-    const [errorState, setErrorState] = useState(null);
 
-    const fetchData = useCallback(async () => {
-        setLoading(true);
-        setErrorState(null);
-        try {
-            const res = view === 'yearly' 
-                ? await getYearlyEarningsSummary(currentYear) 
-                : await getMonthlyEarningsDetails(currentYear, selectedMonth.month);
-            setData(res.data.data);
-        } catch { 
-            setErrorState("Failed to load reports."); 
-            setData([]);
-        } 
-        finally { setLoading(false); }
-    }, [view, currentYear, selectedMonth, showError]);
+    const { data: yearlyData = [], isLoading: yearlyLoading, error: yearlyError } = useYearlyEarnings(currentYear, {
+        enabled: view === 'yearly',
+    });
 
-    useEffect(() => { fetchData(); }, [fetchData]);
+    const { data: monthlyData = [], isLoading: monthlyLoading, error: monthlyError } = useMonthlyEarnings(
+        currentYear,
+        selectedMonth?.month,
+        { enabled: view === 'monthly' && !!selectedMonth }
+    );
+
+    const data = view === 'yearly' ? yearlyData : monthlyData;
+    const loading = view === 'yearly' ? yearlyLoading : monthlyLoading;
+    const errorState = (view === 'yearly' ? yearlyError : monthlyError) ? "Failed to load reports." : null;
 
     const yearlyCols = useMemo(() => [
         { key: 'month', title: 'Month', minWidth: '150px', render: r => <span className="font-bold text-gray-900">{["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][r.month - 1]}</span> },
@@ -478,8 +477,8 @@ const ReportsView = () => {
     ], []);
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full overflow-hidden">
-            <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
+        <div className="flex flex-col h-full overflow-hidden min-h-0">
+            <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-white flex-shrink-0">
                 <div className="flex items-center gap-3">
                     {view === 'monthly' && <LocalButton variant="ghost" icon={FiArrowLeft} onClick={() => setView('yearly')} />}
                     <h2 className="text-lg font-bold text-gray-800">{view === 'yearly' ? `Earnings: ${currentYear}` : `${selectedMonth?.name} ${currentYear} Details`}</h2>
@@ -488,7 +487,7 @@ const ReportsView = () => {
                     {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(y => <option key={y} value={y}>{y}</option>)}
                 </select>
             </div>
-            <div className="flex-grow overflow-auto p-4 custom-scrollbar">
+            <div className="flex-1 flex flex-col min-h-0">
                 <CompactTable 
                     columns={view === 'yearly' ? yearlyCols : monthlyCols} 
                     data={data} 
@@ -505,39 +504,41 @@ const ReportsView = () => {
 const EarningsReportPage = () => {
     const [activeView, setActiveView] = useState('payments');
 
-    const NavBtn = ({ id, label, icon: Icon }) => (
-        <button 
-            onClick={() => setActiveView(id)} 
-            className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg transition-all ${activeView === id ? 'bg-gray-900 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}
-        >
-            <Icon className="h-4 w-4" /> {label}
-        </button>
-    );
+    const navItems = [
+        { id: 'payments', label: 'Payment Requests', icon: FiDollarSign },
+        { id: 'payout', label: 'Payout Sheet', icon: FiBarChart2 },
+        { id: 'reports', label: 'Reports', icon: FiFileText },
+    ];
 
     return (
-        <div className="h-screen bg-[#F5F7F9] flex flex-col overflow-hidden">
-            {/* Header */}
-            <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0 flex justify-between items-center z-50 shadow-sm relative">
-                <div className="flex items-center gap-4">
-                    <Link to="/admin/dashboard" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-colors">
-                        <FiArrowLeft />
-                        Back
+        <div className="h-full w-full flex overflow-hidden">
+            {/* Left Sidebar */}
+            <div className="w-56 bg-white border-r border-gray-200 flex flex-col shrink-0">
+                <div className="px-4 py-3 border-b border-gray-100">
+                    <Link to="/admin/dashboard" className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 font-medium mb-3 transition-colors">
+                        <FiArrowLeft size={12} /> Back to Dashboard
                     </Link>
+                    <h2 className="text-base font-bold text-gray-900">Earnings</h2>
+                    <p className="text-xs text-gray-400 mt-0.5">Payments & Reports</p>
                 </div>
-                <div className="flex bg-gray-100 p-1 rounded-xl gap-1">
-                    <NavBtn id="payments" label="Payment Requests" icon={FiDollarSign} />
-                    <NavBtn id="payout" label="Payout Sheet" icon={FiBarChart2} />
-                    <NavBtn id="reports" label="Reports" icon={FiFileText} />
-                </div>
+                <nav className="flex-1 p-3 space-y-0.5">
+                    {navItems.map(item => (
+                        <button key={item.id} onClick={() => setActiveView(item.id)}
+                            className={`flex items-center gap-2.5 w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                                activeView === item.id ? 'bg-slate-900 text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                            }`}>
+                            <item.icon className={`w-4 h-4 ${activeView === item.id ? 'text-white' : 'text-gray-400'}`} />
+                            {item.label}
+                        </button>
+                    ))}
+                </nav>
             </div>
 
-            {/* Content Body */}
-            <div className="flex-1 overflow-hidden p-4 sm:p-6">
-                <div className="h-full w-full max-w-[1920px] mx-auto flex flex-col">
-                    {activeView === 'payments' && <PaymentRequestsView />}
-                    {activeView === 'payout' && <PayoutSheetView />}
-                    {activeView === 'reports' && <ReportsView />}
-                </div>
+            {/* Main Content */}
+            <div className="flex-1 overflow-hidden flex flex-col bg-white min-h-0">
+                {activeView === 'payments' && <PaymentRequestsView />}
+                {activeView === 'payout' && <PayoutSheetView />}
+                {activeView === 'reports' && <ReportsView />}
             </div>
         </div>
     );

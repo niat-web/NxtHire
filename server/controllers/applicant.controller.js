@@ -53,7 +53,7 @@ const submitApplication = asyncHandler(async (req, res) => {
     ]
   });
 
-  // Send confirmation email
+  // Send confirmation email to applicant
   await sendEmail({
     recipient: applicant._id,
     recipientModel: 'Applicant',
@@ -67,6 +67,33 @@ const submitApplication = asyncHandler(async (req, res) => {
     relatedTo: 'Application Confirmation',
     isAutomated: true
   });
+
+  // Send notification email to admin team
+  try {
+    const adminEmail = process.env.FROM_EMAIL || 'interviewercommunity@nxtwave.in';
+    await sendEmail({
+      recipient: applicant._id,
+      recipientModel: 'Applicant',
+      recipientEmail: adminEmail,
+      templateName: 'newApplicantNotification',
+      subject: `New Interviewer Application - ${fullName}`,
+      templateData: {
+        fullName,
+        email,
+        phoneNumber,
+        linkedinProfileUrl,
+        sourcingChannel: sourcingChannel || 'Not specified',
+        additionalComments: additionalComments || '',
+        applicationId: applicant._id.toString(),
+        reviewLink: `${process.env.CLIENT_URL}/admin/hiring/applicants`,
+        submittedAt: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+      },
+      relatedTo: 'Admin Notification',
+      isAutomated: true
+    });
+  } catch (notifErr) {
+    console.error('Failed to send admin notification email:', notifErr.message);
+  }
 
   logEvent('application_submitted', {
     applicantId: applicant._id,

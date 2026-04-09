@@ -104,7 +104,7 @@
       
 //       <div className="flex-1 flex flex-col overflow-hidden">
 //         {!useFullPageLayout && (
-//           <Header toggleSidebar={toggleSidebar} />
+//           <Header />
 //         )}
         
 //         <main className="flex-1 overflow-y-auto">
@@ -127,27 +127,20 @@
 
 
 // client/src/layouts/InterviewerLayout.jsx
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/common/Sidebar';
-import Header from '../components/common/Header'; // Imported to conditionally render
-import { FiHome, FiUser, FiCalendar, FiMenu, FiClipboard, FiGrid, FiDollarSign } from 'react-icons/fi';
+import Header from '../components/common/Header';
+import { FiHome, FiUser, FiCalendar, FiClipboard, FiGrid } from 'react-icons/fi';
 import { useAuth } from '../hooks/useAuth';
-import { usePushNotifications } from '../hooks/usePushNotifications'; // NEW
-import { useAlert } from '../hooks/useAlert'; // NEW
+import { usePushNotifications } from '../hooks/usePushNotifications';
+import { useAlert } from '../hooks/useAlert';
 
 const InterviewerLayout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { currentUser } = useAuth();
   const location = useLocation();
-  const { showInfo } = useAlert(); // NEW: For in-app toasts
-  const { askPermissionAndSubscribe } = usePushNotifications(); // NEW
-  
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-
-  useEffect(() => {
-    setSidebarOpen(false);
-  }, [location.pathname]);
+  const { showInfo } = useAlert();
+  const { askPermissionAndSubscribe } = usePushNotifications();
 
   // --- NEW: Handle Push Notifications ---
   useEffect(() => {
@@ -225,16 +218,14 @@ const InterviewerLayout = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar 
-        navItems={interviewerNavItems} 
-        isOpen={sidebarOpen} 
-        toggleSidebar={toggleSidebar} 
-        role="interviewer"
+      <Sidebar
+        navItems={interviewerNavItems}
+        variant="interviewer"
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         {!useFullPageLayout && (
-          <Header toggleSidebar={toggleSidebar} />
+          <Header />
         )}
         
         <main className="flex-1 overflow-y-auto">

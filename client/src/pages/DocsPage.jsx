@@ -7,12 +7,12 @@ import {
 
 // --- Local UI Helper Components ---
 const InfoBox = ({ children, title, icon }) => (
-    <div className="my-6 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-r-lg">
+    <div className="my-6 p-4 bg-emerald-50 border-l-4 border-emerald-400 rounded-r-lg">
       <div className="flex items-start">
-        <div className="flex-shrink-0 text-blue-500">{icon}</div>
+        <div className="flex-shrink-0 text-emerald-500">{icon}</div>
         <div className="ml-3">
-          <h4 className="text-md font-bold text-blue-800">{title}</h4>
-          <div className="mt-1 text-sm text-blue-700 space-y-2">{children}</div>
+          <h4 className="text-md font-bold text-emerald-800">{title}</h4>
+          <div className="mt-1 text-sm text-emerald-700 space-y-2">{children}</div>
         </div>
       </div>
     </div>
@@ -32,8 +32,8 @@ const WarningBox = ({ children, title, icon }) => (
 
 const Section = ({ id, title, icon, children }) => (
     <section id={id} className="mb-16 scroll-mt-24">
-      <div className="flex items-center mb-6 pb-2 border-b-2 border-blue-200">
-        {icon && <span className="text-blue-600 mr-3">{icon}</span>}
+      <div className="flex items-center mb-6 pb-2 border-b-2 border-emerald-200">
+        {icon && <span className="text-emerald-600 mr-3">{icon}</span>}
         <h2 className="text-3xl font-bold text-gray-800">{title}</h2>
       </div>
       <div className="prose prose-blue max-w-none text-gray-700 leading-relaxed space-y-4">
@@ -1458,7 +1458,7 @@ const DocsPage = () => {
                         <p><strong>The Google Meet link is missing from my interview.</strong><br/>Contact your Admin to have them generate or provide the Google Meet link for the scheduled interview.</p>
                         <p><strong>I need to change my bank details.</strong><br/>Navigate to "My Profile" and then the "Bank Information" tab to update your details. Ensure they are correct for timely payments.</p>
                     </InfoBox>
-                    <p>For any technical issues or questions not covered here, please contact our support team at <a href="mailto:interviewercommunity@nxtwave.in" className="font-semibold text-blue-600">interviewercommunity@nxtwave.in</a>.</p>
+                    <p>For any technical issues or questions not covered here, please contact our support team at <a href="mailto:interviewercommunity@nxtwave.in" className="font-semibold text-emerald-600">interviewercommunity@nxtwave.in</a>.</p>
                 </>
             )}
         ],
@@ -1524,8 +1524,8 @@ const DocsPage = () => {
                                             e.preventDefault();
                                             document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth' });
                                         }}
-                                        className={`flex items-center text-gray-600 hover:text-blue-600 transition-colors text-sm py-1 rounded-md ${
-                                            activeSection === section.id ? 'font-bold text-blue-600 bg-blue-50' : ''
+                                        className={`flex items-center text-gray-600 hover:text-emerald-600 transition-colors text-sm py-1 rounded-md ${
+                                            activeSection === section.id ? 'font-bold text-emerald-600 bg-emerald-50' : ''
                                         }`}
                                     >
                                         {section.icon && <span className="mr-2 opacity-80">{section.icon}</span>}

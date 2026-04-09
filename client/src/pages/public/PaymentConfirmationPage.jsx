@@ -8,7 +8,7 @@ import { FiCheckCircle, FiAlertTriangle, FiLoader } from 'react-icons/fi';
 // Self-contained components to avoid dependency issues
 const Loader = ({ text }) => (
     <div className="flex flex-col items-center justify-center text-center">
-        <FiLoader className="h-10 w-10 text-blue-600 animate-spin" />
+        <FiLoader className="h-10 w-10 text-emerald-600 animate-spin" />
         <p className="mt-4 text-gray-600">{text}</p>
     </div>
 );
@@ -119,7 +119,7 @@ const PaymentConfirmationPage = () => {
                             className="w-full p-2 border border-gray-300 rounded-md"
                          ></textarea>
                     </div>
-                    <button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 text-white py-2.5 rounded-md hover:bg-blue-700 disabled:bg-blue-400">
+                    <button type="submit" disabled={isSubmitting} className="w-full bg-emerald-600 text-white py-2.5 rounded-md hover:bg-emerald-700 disabled:bg-emerald-400">
                         {isSubmitting ? 'Submitting...' : 'Submit Confirmation'}
                     </button>
                 </form>

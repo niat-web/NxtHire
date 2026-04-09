@@ -1,21 +1,20 @@
 // client/src/pages/admin/AdminDomainEvaluationPage.jsx
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from 'date-fns';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
-import { 
-    FiSearch, FiDownload, FiX, FiFilter, FiCheck, FiList, 
+import {
+    FiSearch, FiDownload, FiX, FiFilter, FiCheck, FiList,
     FiCalendar, FiArrowLeft, FiLoader, FiExternalLink
 } from 'react-icons/fi';
 
 // API & Utils
-import { getDomains, getEvaluationDataForAdmin, getDomainEvaluationSummary } from '../../api/admin.api';
+import { useDomains, useEvaluationDataAdmin, useDomainEvaluationSummary } from '../../hooks/useAdminQueries';
 import { useAlert } from '../../hooks/useAlert';
 import { formatDate, formatTime } from '../../utils/formatters';
-import { debounce } from '../../utils/helpers';
 import { MAIN_SHEET_INTERVIEW_STATUSES } from '../../utils/constants';
 
 // --- Styled Components ---
@@ -47,7 +46,7 @@ const LocalButton = ({ children, onClick, variant = 'primary', icon: Icon, class
 const StatusBadge = ({ status }) => {
     const styles = {
         'Completed': 'bg-green-50 text-green-700 border-green-200',
-        'Scheduled': 'bg-blue-50 text-blue-700 border-blue-200',
+        'Scheduled': 'bg-emerald-50 text-emerald-700 border-emerald-200',
         'InProgress': 'bg-purple-50 text-purple-700 border-purple-200',
         'Cancelled': 'bg-red-50 text-red-700 border-red-200',
         'Pending': 'bg-amber-50 text-amber-700 border-amber-200'
@@ -85,32 +84,27 @@ const RemarksModal = ({ isOpen, onClose, content }) => {
 
 const AdminDomainEvaluationPage = () => {
     const { showError, showSuccess } = useAlert();
-    const [loading, setLoading] = useState(true);
-    const [domains, setDomains] = useState([]);
     const [selectedDomain, setSelectedDomain] = useState(null);
     const [search, setSearch] = useState('');
-    const [summaryData, setSummaryData] = useState([]);
-    const [evaluationData, setEvaluationData] = useState({ evaluationSheet: null, interviews: [] });
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     const [remarksModal, setRemarksModal] = useState({ isOpen: false, content: '' });
     const [showLabels, setShowLabels] = useState(false);
-    
+
     // Filter States
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
     const [tempFilters, setTempFilters] = useState({ interviewDate: null, interviewStatus: '' });
     const [activeFilters, setActiveFilters] = useState({ interviewDate: null, interviewStatus: '' });
     const filterMenuRef = useRef(null);
+    const searchTimerRef = useRef(null);
 
-    // Initial Load
+    // Debounce search input
     useEffect(() => {
-        getDomains()
-            .then(res => setDomains(res.data.data.map(d => ({ value: d.name, label: d.name }))))
-            .catch(() => showError('Failed to load domains.'));
+        searchTimerRef.current = setTimeout(() => setDebouncedSearch(search), 300);
+        return () => clearTimeout(searchTimerRef.current);
+    }, [search]);
 
-        getDomainEvaluationSummary()
-            .then(res => setSummaryData(res.data.data))
-            .catch(() => showError('Failed to load summary.'))
-            .finally(() => setLoading(false));
-
+    // Click outside handler for filter menu
+    useEffect(() => {
         const handleClickOutside = (event) => {
             if (filterMenuRef.current && !filterMenuRef.current.contains(event.target)) {
                 setIsFilterMenuOpen(false);
@@ -118,35 +112,30 @@ const AdminDomainEvaluationPage = () => {
         };
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [showError]);
+    }, []);
 
-    // Fetch Detail Data
-    const fetchData = useCallback(async () => {
-        if (!selectedDomain) {
-            setEvaluationData({ evaluationSheet: null, interviews: [] });
-            return;
-        }
-        setLoading(true);
-        try {
-            const params = { domain: selectedDomain.value, search, ...activeFilters };
-            if (activeFilters.interviewDate) {
-                params.interviewDate = format(activeFilters.interviewDate, 'yyyy-MM-dd');
-            }
-            const res = await getEvaluationDataForAdmin(params);
-            setEvaluationData(res.data.data);
-        } catch (err) {
-            showError("Failed to fetch evaluation data.");
-            setEvaluationData({ evaluationSheet: null, interviews: [] });
-        } finally {
-            setLoading(false);
-        }
-    }, [selectedDomain, search, activeFilters, showError]);
+    // TanStack Query: Domains list
+    const { data: rawDomains = [] } = useDomains();
+    const domains = useMemo(() => rawDomains.map(d => ({ value: d.name, label: d.name })), [rawDomains]);
 
-    useEffect(() => {
-        const handler = debounce(fetchData, 300);
-        if (selectedDomain) handler();
-        return () => handler.cancel();
-    }, [fetchData]);
+    // TanStack Query: Summary data
+    const { data: summaryData = [], isLoading: summaryLoading } = useDomainEvaluationSummary();
+
+    // TanStack Query: Evaluation detail data
+    const evalParams = useMemo(() => {
+        if (!selectedDomain) return null;
+        const params = { domain: selectedDomain.value, search: debouncedSearch, ...activeFilters };
+        if (activeFilters.interviewDate) {
+            params.interviewDate = format(activeFilters.interviewDate, 'yyyy-MM-dd');
+        }
+        return params;
+    }, [selectedDomain, debouncedSearch, activeFilters]);
+
+    const { data: evaluationData = { evaluationSheet: null, interviews: [] }, isLoading: evalLoading } = useEvaluationDataAdmin(evalParams, {
+        enabled: !!selectedDomain,
+    });
+
+    const loading = selectedDomain ? evalLoading : summaryLoading;
 
     // Handlers
     const handleApplyFilters = () => { setActiveFilters(tempFilters); setIsFilterMenuOpen(false); };
@@ -191,7 +180,7 @@ const AdminDomainEvaluationPage = () => {
             key: 'meetingLink', 
             title: 'Meeting Link', 
             minWidth: '200px', 
-            render: (row) => row.meetingLink ? <a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate block max-w-[200px] text-xs" title={row.meetingLink}>{row.meetingLink}</a> : '-' 
+            render: (row) => row.meetingLink ? <a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline truncate block max-w-[200px] text-xs" title={row.meetingLink}>{row.meetingLink}</a> : '-' 
         },
         { key: 'interviewDate', title: 'Date', minWidth: '110px', render: (row) => formatDate(row.interviewDate) },
         { 
@@ -207,7 +196,7 @@ const AdminDomainEvaluationPage = () => {
             title: 'Remarks', 
             minWidth: '200px', 
             render: (row) => row.interviewerRemarks ? 
-                <button onClick={() => setRemarksModal({isOpen: true, content: row.interviewerRemarks})} className="text-gray-700 text-xs hover:text-blue-600 hover:underline text-left truncate max-w-[180px] block">
+                <button onClick={() => setRemarksModal({isOpen: true, content: row.interviewerRemarks})} className="text-gray-700 text-xs hover:text-indigo-600 hover:underline text-left truncate max-w-[180px] block">
                     {row.interviewerRemarks}
                 </button> : 
                 <span className="text-gray-300">-</span> 
@@ -303,7 +292,7 @@ const AdminDomainEvaluationPage = () => {
 
                         {/* Filter Dropdown */}
                         <div className="relative z-50" ref={filterMenuRef}>
-                            <LocalButton variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} icon={FiFilter} className={`${(activeFilters.interviewDate || activeFilters.interviewStatus) ? '!border-blue-500 !text-blue-600 !bg-blue-50' : ''}`}>
+                            <LocalButton variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} icon={FiFilter} className={`${(activeFilters.interviewDate || activeFilters.interviewStatus) ? '!border-indigo-500 !text-indigo-600 !bg-indigo-50' : ''}`}>
                                 Filter
                             </LocalButton>
                             {isFilterMenuOpen && (
@@ -367,15 +356,15 @@ const AdminDomainEvaluationPage = () => {
                                 </thead>
                                 <tbody className="divide-y divide-gray-50 bg-white">
                                     {summaryData.map(item => (
-                                        <tr key={item.domainName} className="hover:bg-blue-50/50 transition-colors group">
+                                        <tr key={item.domainName} className="hover:bg-indigo-50/50 transition-colors group">
                                             <td className="px-6 py-4">
-                                                <button onClick={() => setSelectedDomain({ value: item.domainName, label: item.domainName })} className="font-bold text-gray-900 group-hover:text-blue-600 flex items-center gap-2">
+                                                <button onClick={() => setSelectedDomain({ value: item.domainName, label: item.domainName })} className="font-bold text-gray-900 group-hover:text-indigo-600 flex items-center gap-2">
                                                     {item.domainName}
                                                     <FiArrowLeft className="rotate-180 opacity-0 group-hover:opacity-100 transition-opacity" />
                                                 </button>
                                             </td>
                                             <td className="px-6 py-4 text-center text-gray-600 font-medium">{item.candidateCount}</td>
-                                            <td className="px-6 py-4 text-center"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">{item.scheduledCount}</span></td>
+                                            <td className="px-6 py-4 text-center"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-700">{item.scheduledCount}</span></td>
                                             <td className="px-6 py-4 text-center"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700">{item.completedCount}</span></td>
                                             <td className="px-6 py-4 text-center"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-50 text-red-700">{item.cancelledCount}</span></td>
                                             <td className="px-6 py-4 text-center"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700">{item.inProgressCount}</span></td>
@@ -414,14 +403,26 @@ const AdminDomainEvaluationPage = () => {
                                                 {col.title}
                                             </th>
                                         ))}
-                                        {evaluationData.evaluationSheet?.columnGroups.map(group => {
+                                        {evaluationData.evaluationSheet?.columnGroups.map((group, groupIdx) => {
                                             const hasSubHeaders = group.columns.some(col => col.header && col.header.trim() !== '');
+                                            const groupColors = [
+                                                { bg: 'bg-sky-100', text: 'text-sky-800', border: 'border-sky-200' },
+                                                { bg: 'bg-violet-100', text: 'text-violet-800', border: 'border-violet-200' },
+                                                { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-200' },
+                                                { bg: 'bg-indigo-100', text: 'text-indigo-800', border: 'border-indigo-200' },
+                                                { bg: 'bg-rose-100', text: 'text-rose-800', border: 'border-rose-200' },
+                                                { bg: 'bg-teal-100', text: 'text-teal-800', border: 'border-teal-200' },
+                                                { bg: 'bg-fuchsia-100', text: 'text-fuchsia-800', border: 'border-fuchsia-200' },
+                                                { bg: 'bg-emerald-100', text: 'text-emerald-800', border: 'border-emerald-200' },
+                                            ];
+                                            const color = groupColors[groupIdx % groupColors.length];
                                             return (
-                                                <th 
-                                                    key={group.title} 
-                                                    colSpan={group.columns.length || 1} 
-                                                    rowSpan={hasSubHeaders ? 1 : 2} 
-                                                    className="px-4 py-2 border-b border-r border-gray-200 text-center text-xs font-bold text-gray-800 bg-gray-100 uppercase tracking-wide sticky top-0 z-20"
+                                                <th
+                                                    key={group.title}
+                                                    colSpan={group.columns.length || 1}
+                                                    rowSpan={hasSubHeaders ? 1 : 2}
+                                                    className={`px-4 py-2.5 border-b border-r ${color.border} text-center text-[11px] font-bold ${color.text} ${color.bg} uppercase tracking-wider sticky top-0 z-20`}
+                                                    data-group-idx={groupIdx}
                                                 >
                                                     {group.title}
                                                 </th>
@@ -429,13 +430,24 @@ const AdminDomainEvaluationPage = () => {
                                         })}
                                     </tr>
                                     <tr>
-                                        {evaluationData.evaluationSheet?.columnGroups.flatMap(group => {
+                                        {evaluationData.evaluationSheet?.columnGroups.flatMap((group, groupIdx) => {
                                             const hasSubHeaders = group.columns.some(col => col.header && col.header.trim() !== '');
                                             if (!hasSubHeaders) return null;
+                                            const subColors = [
+                                                { bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-100' },
+                                                { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-100' },
+                                                { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100' },
+                                                { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-100' },
+                                                { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-100' },
+                                                { bg: 'bg-teal-50', text: 'text-teal-700', border: 'border-teal-100' },
+                                                { bg: 'bg-fuchsia-50', text: 'text-fuchsia-700', border: 'border-fuchsia-100' },
+                                                { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100' },
+                                            ];
+                                            const color = subColors[groupIdx % subColors.length];
                                             return group.columns.map(col => (
-                                                <th 
-                                                    key={`${group.title}-${col.header}`} 
-                                                    className="px-3 py-2 border-b border-r border-gray-200 text-left text-[11px] font-semibold text-gray-500 bg-gray-50 whitespace-nowrap top-[41px] sticky z-20" 
+                                                <th
+                                                    key={`${group.title}-${col.header}`}
+                                                    className={`px-3 py-2 border-b border-r ${color.border} text-left text-[11px] font-medium ${color.text} ${color.bg} whitespace-nowrap top-[41px] sticky z-20`}
                                                     style={{ minWidth: '160px' }}
                                                 >
                                                     {col.header}

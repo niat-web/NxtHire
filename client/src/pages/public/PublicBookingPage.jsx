@@ -313,7 +313,7 @@ const Loader = ({ text }) => (
 const EmailVerificationStep = ({ onSubmit, register, errors, isSubmitting }) => (
   // ADDED: max-w-md and m-4 to restrict width and add safety margin on mobile
   <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 relative overflow-hidden transform transition-all duration-300 mx-auto m-4">
-    <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-blue-50 -z-10 opacity-70"></div>
+    <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-emerald-50 -z-10 opacity-70"></div>
     
     <div className="p-8 sm:p-10 text-center">
       <div className="inline-flex items-center justify-center w-20 h-20 bg-indigo-100 rounded-full mb-6 shadow-inner">
@@ -558,7 +558,7 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
 const ConfirmationStep = ({ step, bookingDetails }) => (
   // ADDED: max-w-md and m-4 to restrict width and add safety margin
   <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 relative overflow-hidden transform transition-all duration-300 mx-auto m-4">
-    <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-white to-blue-50 -z-10 opacity-70"></div>
+    <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-white to-emerald-50 -z-10 opacity-70"></div>
 
     <div className="p-8 sm:p-10 text-center">
       <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-6 shadow-inner">
@@ -661,7 +661,7 @@ const PublicBookingPage = () => {
     };
 
     return (
-        <div className="h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 font-sans relative overflow-hidden flex flex-col p-0">
+        <div className="h-screen bg-gradient-to-br from-emerald-50 via-emerald-50 to-emerald-50 font-sans relative overflow-hidden flex flex-col p-0">
             {/* Subtle Animated Background Elements */}
             <div className="absolute top-0 left-0 w-[40rem] h-[40rem] bg-[radial-gradient(ellipse_at_center,_rgba(120,119,198,0.3)_0%,_rgba(255,255,255,0)_70%)] opacity-50 pointer-events-none"></div>
             <div className="absolute bottom-0 right-0 w-[30rem] h-[30rem] bg-[radial-gradient(ellipse_at_center,_rgba(79,70,229,0.3)_0%,_rgba(255,255,255,0)_70%)] opacity-40 pointer-events-none"></div>

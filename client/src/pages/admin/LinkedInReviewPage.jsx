@@ -8,22 +8,60 @@ import { Menu, Transition } from '@headlessui/react';
 import StatusBadge from '../../components/common/StatusBadge';
 import SearchInput from '../../components/common/SearchInput';
 import FilterDropdown from '../../components/common/FilterDropdown';
-import { getApplicants, processLinkedInReview } from '../../api/admin.api';
+import { processLinkedInReview } from '../../api/admin.api';
 import { APPLICATION_STATUS } from '../../utils/constants';
 import { useAlert } from '../../hooks/useAlert';
 import { formatDate } from '../../utils/formatters';
 import { debounce } from '../../utils/helpers';
 import Table from '../../components/common/Table';
 import { Link } from 'react-router-dom';
+import { useApplicants, useInvalidateAdmin } from '../../hooks/useAdminQueries';
 
 const LinkedInReviewPage = () => {
-  const [loading, setLoading] = useState(true);
-  const [applicants, setApplicants] = useState([]);
-  const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalItems: 0 });
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [processingIds, setProcessingIds] = useState(new Set());
   const { showSuccess, showError } = useAlert();
+  const { invalidateApplicants, invalidateDashboard } = useInvalidateAdmin();
+
+  // Debounce search input
+  const debouncedUpdate = useMemo(() => debounce((value) => {
+      setDebouncedSearch(value);
+      setCurrentPage(1);
+  }, 300), []);
+
+  useEffect(() => { debouncedUpdate(searchTerm); return () => debouncedUpdate.cancel(); }, [searchTerm, debouncedUpdate]);
+
+  // Reset to page 1 when filter changes
+  useEffect(() => { setCurrentPage(1); }, [statusFilter]);
+
+  const defaultStatuses = useMemo(() => [
+      APPLICATION_STATUS.SUBMITTED,
+      APPLICATION_STATUS.PROFILE_APPROVED,
+      APPLICATION_STATUS.PROFILE_REJECTED
+  ].join(','), []);
+
+  const queryParams = useMemo(() => ({
+      status: statusFilter || defaultStatuses,
+      sortBy: 'updatedAt',
+      sortOrder: 'desc',
+      page: currentPage,
+      limit: 10,
+      search: debouncedSearch,
+  }), [statusFilter, currentPage, debouncedSearch, defaultStatuses]);
+
+  const { data, isLoading: loading } = useApplicants(queryParams, {
+      keepPreviousData: true,
+  });
+
+  const applicants = data?.applicants || [];
+  const pagination = {
+      currentPage: data?.page || 1,
+      totalPages: data?.totalPages || 1,
+      totalItems: data?.totalDocs || 0,
+  };
 
   const statusOptions = useMemo(() => [
     { value: '', label: 'All Review Stages' },
@@ -32,48 +70,8 @@ const LinkedInReviewPage = () => {
     { value: APPLICATION_STATUS.PROFILE_REJECTED, label: 'Rejected' },
   ], []);
 
-  const fetchApplicants = useCallback(async (page = 1) => {
-    setLoading(true);
-    try {
-        const statusesToFetch = statusFilter || [
-            APPLICATION_STATUS.SUBMITTED, 
-            APPLICATION_STATUS.PROFILE_APPROVED, 
-            APPLICATION_STATUS.PROFILE_REJECTED
-        ].join(',');
-        
-        const response = await getApplicants({
-            status: statusesToFetch,
-            sortBy: 'updatedAt',
-            sortOrder: 'desc',
-            page,
-            limit: 10,
-            search: searchTerm,
-        });
-
-      const resData = response.data.data;
-      setApplicants(resData.applicants || []);
-      setPagination({
-        currentPage: resData.page || 1,
-        totalPages: resData.totalPages || 1,
-        totalItems: resData.totalDocs || 0,
-      });
-
-    } catch (error) {
-      showError('Failed to fetch applicants for review.');
-      console.error('Error fetching applicants:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [showError, statusFilter, searchTerm]);
-
-  useEffect(() => {
-    const handler = debounce(() => fetchApplicants(1), 300);
-    handler();
-    return () => handler.cancel();
-  }, [fetchApplicants]);
-
   const handlePageChange = (newPage) => {
-    fetchApplicants(newPage);
+    setCurrentPage(newPage);
   };
 
   const handleReviewDecision = useCallback(async (applicantId, decision) => {
@@ -84,7 +82,8 @@ const LinkedInReviewPage = () => {
         rejectionReason: decision === 'reject' ? 'Profile did not meet requirements upon review.' : undefined
       });
       showSuccess(`Application ${decision === 'approve' ? 'approved' : 'rejected'} successfully.`);
-      fetchApplicants(pagination.currentPage);
+      invalidateApplicants();
+      invalidateDashboard();
     } catch (error) {
       showError(error.response?.data?.message || `Failed to ${decision} application.`);
     } finally {
@@ -94,7 +93,7 @@ const LinkedInReviewPage = () => {
         return newSet;
       });
     }
-  }, [fetchApplicants, showError, showSuccess, pagination.currentPage]);
+  }, [showError, showSuccess, invalidateApplicants, invalidateDashboard]);
 
   const applicantColumns = useMemo(() => [
     { key: 'fullName', title: 'Applicant', render: (row) => row.fullName },

@@ -1,12 +1,12 @@
 // client/src/pages/admin/MainSheetForm.jsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { FiPlus, FiTrash2, FiSave, FiArrowLeft } from 'react-icons/fi';
 import { useAlert } from '@/hooks/useAlert';
-// --- MODIFICATION: Import getDomains ---
-import { bulkUpdateMainSheetEntries, getInterviewers, getMainSheetEntry, getDomains } from '@/api/admin.api';
+import { bulkUpdateMainSheetEntries } from '@/api/admin.api';
+import { useMainSheetEntry, useInterviewers, useDomains, useInvalidateAdmin } from '@/hooks/useAdminQueries';
 import { MAIN_SHEET_INTERVIEW_STATUSES } from '@/utils/constants';
 
 // --- SELF-CONTAINED UI COMPONENTS ---
@@ -14,7 +14,7 @@ import { MAIN_SHEET_INTERVIEW_STATUSES } from '@/utils/constants';
 const LocalButton = ({ children, onClick, type = 'button', isLoading = false, variant = 'primary', icon: Icon, className = '' }) => {
     const baseClasses = "inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md focus:outline-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm";
     const variantClasses = {
-        primary: 'bg-blue-600 text-white hover:bg-blue-700',
+        primary: 'bg-emerald-600 text-white hover:bg-emerald-700',
         outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
         danger: 'bg-red-600 text-white hover:bg-red-700',
     };
@@ -26,21 +26,21 @@ const LocalButton = ({ children, onClick, type = 'button', isLoading = false, va
     );
 };
 const LocalInput = React.forwardRef(({ className, ...props }, ref) => (
-    <input ref={ref} {...props} className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm disabled:bg-gray-100 ${className}`} />
+    <input ref={ref} {...props} className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm disabled:bg-gray-100 ${className}`} />
 ));
 const LocalSelect = React.forwardRef(({ options, placeholder, className, ...props }, ref) => (
-    <select ref={ref} {...props} className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm ${className}`}>
+    <select ref={ref} {...props} className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm ${className}`}>
         {placeholder && <option value="">{placeholder}</option>}
         {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
     </select>
 ));
 const LocalTextarea = React.forwardRef(({ className, ...props }, ref) => (
-    <textarea ref={ref} {...props} className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm ${className}`} />
+    <textarea ref={ref} {...props} className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm ${className}`} />
 ));
 const LocalLoader = ({ text }) => (
      <div className="flex h-full w-full items-center justify-center">
         <div className="text-center">
-             <svg className="animate-spin h-8 w-8 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+             <svg className="animate-spin h-8 w-8 text-emerald-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
              </svg>
@@ -56,66 +56,55 @@ const MainSheetForm = () => {
     const navigate = useNavigate();
     const isEditMode = !!id;
     const { showSuccess, showError } = useAlert();
-    const [loading, setLoading] = useState(isEditMode);
-    const [interviewerOptions, setInterviewerOptions] = useState([]);
-    // --- MODIFICATION START: Add state for dynamic domain options ---
-    const [domainOptions, setDomainOptions] = useState([]);
-    // --- MODIFICATION END ---
-
+    const { invalidateMainSheet } = useInvalidateAdmin();
 
     const defaultEntry = { hiringName: '', techStack: '', interviewId: '', uid: '', candidateName: '', mobileNumber: '', mailId: '', candidateResume: '', meetingLink: '', interviewDate: '', interviewTime: '', interviewDuration: '', interviewStatus: '', remarks: '', interviewer: null, };
 
     const { register, control, handleSubmit, reset, formState: { isSubmitting } } = useForm({ defaultValues: { entries: [defaultEntry] } });
     const { fields, append, remove } = useFieldArray({ control, name: 'entries' });
 
+    // --- TanStack Query: fetch interviewers ---
+    const { data: interviewersData } = useInterviewers({ status: 'Active,On Probation', limit: 500 });
+    const interviewerOptions = useMemo(() =>
+        (interviewersData?.interviewers || []).map(i => ({ value: i._id, label: `${i.user.firstName} ${i.user.lastName}` })),
+        [interviewersData]
+    );
+
+    // --- TanStack Query: fetch domains ---
+    const { data: domainsData } = useDomains();
+    const domainOptions = useMemo(() =>
+        (domainsData || []).map(d => ({ value: d.name, label: d.name })),
+        [domainsData]
+    );
+
+    // --- TanStack Query: fetch single entry for edit mode ---
+    const { data: entryData, isLoading: entryLoading } = useMainSheetEntry(id, {
+        enabled: isEditMode,
+    });
+
     useEffect(() => {
-        getInterviewers({ status: 'Active,On Probation', limit: 500 })
-            .then(res => {
-                const options = (res.data.data.interviewers || []).map(i => ({ value: i._id, label: `${i.user.firstName} ${i.user.lastName}`}));
-                setInterviewerOptions(options);
-            })
-            .catch(() => showError("Failed to load interviewers list."));
-            
-        // --- MODIFICATION START: Fetch domains for the tech stack dropdown ---
-        getDomains()
-            .then(res => {
-                const options = (res.data.data || []).map(d => ({ value: d.name, label: d.name }));
-                setDomainOptions(options);
-            })
-            .catch(() => showError("Failed to load domains from Evaluation Setup."));
-        // --- MODIFICATION END ---
-
-    }, [showError]);
-
-    useEffect(() => {
-        if (isEditMode) {
-            getMainSheetEntry(id).then(res => {
-                const entry = res.data.data;
-                if (entry.interviewDate) entry.interviewDate = new Date(entry.interviewDate).toISOString().split('T')[0];
-
-                // --- MODIFICATION START: Prepare form data, ensuring interviewer ID is set correctly ---
-                const formData = { ...entry };
-                if (entry.interviewer && entry.interviewer._id) {
-                    formData.interviewer = entry.interviewer._id; // Use just the ID for the select field
-                } else {
-                    formData.interviewer = null;
-                }
-                reset({ entries: [formData] });
-                // --- MODIFICATION END ---
-                setLoading(false);
-            }).catch(() => { showError('Failed to load entry data.'); navigate('/admin/main-sheet'); });
+        if (isEditMode && entryData) {
+            const entry = { ...entryData };
+            if (entry.interviewDate) entry.interviewDate = new Date(entry.interviewDate).toISOString().split('T')[0];
+            if (entry.interviewer && entry.interviewer._id) {
+                entry.interviewer = entry.interviewer._id;
+            } else {
+                entry.interviewer = null;
+            }
+            reset({ entries: [entry] });
         }
-    }, [id, isEditMode, reset, navigate, showError]);
-    
+    }, [isEditMode, entryData, reset]);
+
     const onSubmit = async (data) => {
         try {
             await bulkUpdateMainSheetEntries(data.entries);
+            invalidateMainSheet();
             showSuccess(`Successfully ${isEditMode ? 'updated' : 'created'} entries!`);
             navigate('/admin/main-sheet');
         } catch (error) { showError(error.response?.data?.message || 'Failed to save entries.'); }
     };
-    
-    if (loading) return <LocalLoader text="Loading Entry Data..."/>
+
+    if (isEditMode && entryLoading) return <LocalLoader text="Loading Entry Data..."/>
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="h-full w-full flex flex-col bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">

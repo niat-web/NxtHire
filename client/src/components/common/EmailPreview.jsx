@@ -14,7 +14,7 @@ const EmailPreview = ({ from, subject, body }) => {
                 <h3 className="text-xl font-bold text-gray-800 mb-4">{subject}</h3>
                 <div className="flex items-center text-sm">
                     <div className="flex-shrink-0 mr-3">
-                        <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-500">
+                        <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-emerald-500">
                             <FiUser className="h-5 w-5 text-white" />
                         </span>
                     </div>

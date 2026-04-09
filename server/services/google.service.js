@@ -151,8 +151,10 @@ async function getAuthClient() {
             throw new Error('Google API credentials are not configured on the server.');
         }
 
-        const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
-        const token = JSON.parse(process.env.GOOGLE_TOKEN_JSON);
+        // Strip wrapping quotes (single or double) that dotenv may include on Windows
+        const cleanJson = (str) => str.replace(/^['"]|['"]$/g, '');
+        const credentials = JSON.parse(cleanJson(process.env.GOOGLE_CREDENTIALS_JSON));
+        const token = JSON.parse(cleanJson(process.env.GOOGLE_TOKEN_JSON));
         // --- MODIFICATION END ---
 
         const { client_secret, client_id, redirect_uris } = credentials.installed;

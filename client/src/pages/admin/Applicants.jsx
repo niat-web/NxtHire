@@ -112,12 +112,12 @@
 //         { key: 'fullName', title: 'Full Name', minWidth: '180px', sortable: true },
 //         { key: 'email', title: 'Email', minWidth: '220px', sortable: true },
 //         { key: 'phoneNumber', title: 'Phone', minWidth: '130px' },
-//         { key: 'linkedinProfileUrl', title: 'LinkedIn', minWidth: '120px', render: (row) => ( <a href={row.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View Profile</a> )},
+//         { key: 'linkedinProfileUrl', title: 'LinkedIn', minWidth: '120px', render: (row) => ( <a href={row.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline">View Profile</a> )},
 //         { key: 'interestedInJoining', title: 'Interested', minWidth: '100px', render: (row) => row.interestedInJoining ? <FiCheckCircle className="text-green-500 mx-auto" size={18} /> : '' },
 //         { key: 'sourcingChannel', title: 'Source', minWidth: '120px', sortable: true },
 //         { key: 'status', title: 'Status', minWidth: '180px', sortable: true, render: (row) => <StatusBadge status={row.status} /> },
-//         { key: 'history', title: 'History', minWidth: '100px', render: (row) => (<button onClick={() => setHistoryModal({ isOpen: true, data: row.statusHistory, name: row.fullName })} className="text-blue-600 hover:underline text-sm font-medium">View</button>) },
-//         { key: 'createdAt', title: 'Applied On', minWidth: '150px', sortable: true, render: (row) => formatDate(row.createdAt) },
+//         { key: 'history', title: 'History', minWidth: '100px', render: (row) => (<button onClick={() => setHistoryModal({ isOpen: true, data: row.statusHistory, name: row.fullName })} className="text-blue-600 hover:text-blue-800 hover:underline text-sm font-medium">View</button>) },
+//         { key: 'createdAt', title: 'Applied On', minWidth: '180px', sortable: true, render: (row) => formatDateTime(row.createdAt) },
 //         { key: 'actions', title: 'Actions', minWidth: '80px', render: (row) => (
 //             <DropdownMenu options={[
 //                 { label: 'Edit', icon: FiEdit, onClick: () => setModalState({ type: 'edit', data: row }) },
@@ -207,29 +207,28 @@
 // export default Applicants;
 
 // client/src/pages/admin/Applicants.jsx
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { FiCheckCircle, FiDownload, FiRefreshCw, FiEdit, FiTrash2, FiPlus, FiMoreVertical } from 'react-icons/fi';
 import Button from '../../components/common/Button';
 import SearchInput from '../../components/common/SearchInput';
 import FilterDropdown from '../../components/common/FilterDropdown';
 import StatusBadge from '../../components/common/StatusBadge';
-import { getApplicants, deleteApplicant, exportApplicants } from '../../api/admin.api';
+import { deleteApplicant, exportApplicants } from '../../api/admin.api';
 import { formatDate, formatDateTime } from '../../utils/formatters';
 import { APPLICATION_STATUS } from '../../utils/constants';
 import { debounce } from '../../utils/helpers';
 import { useAlert } from '../../hooks/useAlert';
+import { useApplicants, useInvalidateAdmin } from '../../hooks/useAdminQueries';
 import DropdownMenu from '../../components/common/DropdownMenu';
 import Table from '../../components/common/Table';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
-import ApplicantFormModal from './ApplicantFormModal'; 
+import ApplicantFormModal from './ApplicantFormModal';
 import { saveAs } from 'file-saver';
 import Modal from '../../components/common/Modal'; // Import Modal for history
 
 const Applicants = () => {
-    const [loading, setLoading] = useState(true);
-    const [applicants, setApplicants] = useState([]);
-    const [error, setError] = useState('');
     const { showSuccess, showError } = useAlert();
+    const { invalidateApplicants } = useInvalidateAdmin();
 
     // *** FIX START: State for modals ***
     const [modalState, setModalState] = useState({ type: null, data: null });
@@ -237,45 +236,32 @@ const Applicants = () => {
     const [historyModal, setHistoryModal] = useState({ isOpen: false, data: [], name: '' });
     // *** FIX END ***
 
-    const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalItems: 0 });
+    const [pagination, setPagination] = useState({ currentPage: 1 });
     const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
     const [filters, setFilters] = useState({ search: '', status: '' });
-  
-    const fetchApplicantsData = useCallback(async (page = pagination.currentPage) => {
-        setLoading(true);
-        setError('');
-        try {
-            const params = {
-                page, limit: 15,
-                search: filters.search,
-                status: filters.status,
-                sortBy: sortConfig.key,
-                sortOrder: sortConfig.direction,
-            };
-            const response = await getApplicants(params);
-            
-            const resData = response.data.data;
-            setApplicants(resData.applicants || []);
-            setPagination({ currentPage: resData.page || 1, totalPages: resData.totalPages || 1, totalItems: resData.totalDocs || 0 });
-        } catch (err) {
-            setError('Failed to fetch applicants.');
-            showError('Failed to fetch applicants. Please refresh the page.');
-        } finally {
-            setLoading(false);
-        }
-    }, [filters, sortConfig, showError]);
 
-    useEffect(() => {
-        fetchApplicantsData(1);
-    }, [filters, sortConfig]);
+    const queryParams = useMemo(() => ({
+        page: pagination.currentPage,
+        limit: 15,
+        search: filters.search,
+        status: filters.status,
+        sortBy: sortConfig.key,
+        sortOrder: sortConfig.direction,
+    }), [pagination.currentPage, filters.search, filters.status, sortConfig.key, sortConfig.direction]);
+
+    const { data, isLoading, error } = useApplicants(queryParams);
+
+    const applicants = data?.applicants || [];
+    const totalPages = data?.totalPages || 1;
+    const totalItems = data?.totalDocs || 0;
 
     const handlePageChange = (page) => {
         setPagination(prev => ({ ...prev, currentPage: page }));
-        fetchApplicantsData(page);
     };
 
     const debouncedFilterChange = debounce((key, value) => {
       setFilters(prev => ({ ...prev, [key]: value }));
+      setPagination(prev => ({ ...prev, currentPage: 1 }));
     }, 300);
 
     const handleFilterChange = (key, value) => debouncedFilterChange(key, value);
@@ -285,6 +271,7 @@ const Applicants = () => {
             key,
             direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
         }));
+        setPagination(prev => ({ ...prev, currentPage: 1 }));
     };
 
     const handleDelete = async () => {
@@ -293,12 +280,12 @@ const Applicants = () => {
             await deleteApplicant(deleteDialog.id);
             showSuccess('Applicant deleted successfully.');
             setDeleteDialog({ isOpen: false, id: null });
-            fetchApplicantsData();
+            invalidateApplicants();
         } catch (err) {
             showError('Failed to delete applicant.');
         }
     };
-    
+
     const handleExport = async () => {
         try {
             const response = await exportApplicants({ status: filters.status, search: filters.search });
@@ -309,10 +296,10 @@ const Applicants = () => {
             showError("Failed to export data.");
         }
     };
-    
+
     const handleModalSuccess = () => {
         setModalState({ type: null, data: null });
-        fetchApplicantsData();
+        invalidateApplicants();
     };
 
     // *** FIX START: New detailed column definitions based on the prompt ***
@@ -320,12 +307,12 @@ const Applicants = () => {
         { key: 'fullName', title: 'Full Name', minWidth: '180px', sortable: true },
         { key: 'email', title: 'Email', minWidth: '220px', sortable: true },
         { key: 'phoneNumber', title: 'Phone', minWidth: '130px' },
-        { key: 'linkedinProfileUrl', title: 'LinkedIn', minWidth: '120px', render: (row) => ( <a href={row.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View Profile</a> )},
+        { key: 'linkedinProfileUrl', title: 'LinkedIn', minWidth: '120px', render: (row) => ( <a href={row.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline">View Profile</a> )},
         { key: 'interestedInJoining', title: 'Interested', minWidth: '100px', render: (row) => row.interestedInJoining ? <FiCheckCircle className="text-green-500 mx-auto" size={18} /> : '' },
         { key: 'sourcingChannel', title: 'Source', minWidth: '120px', sortable: true },
         { key: 'status', title: 'Status', minWidth: '180px', sortable: true, render: (row) => <StatusBadge status={row.status} /> },
-        { key: 'history', title: 'History', minWidth: '100px', render: (row) => (<button onClick={() => setHistoryModal({ isOpen: true, data: row.statusHistory, name: row.fullName })} className="text-blue-600 hover:underline text-sm font-medium">View</button>) },
-        { key: 'createdAt', title: 'Applied On', minWidth: '150px', sortable: true, render: (row) => formatDate(row.createdAt) },
+        { key: 'history', title: 'History', minWidth: '100px', render: (row) => (<button onClick={() => setHistoryModal({ isOpen: true, data: row.statusHistory, name: row.fullName })} className="text-blue-600 hover:text-blue-800 hover:underline text-sm font-medium">View</button>) },
+        { key: 'createdAt', title: 'Applied On', minWidth: '180px', sortable: true, render: (row) => formatDateTime(row.createdAt) },
         { key: 'actions', title: 'Actions', minWidth: '80px', render: (row) => (
             <DropdownMenu options={[
                 { label: 'Edit', icon: FiEdit, onClick: () => setModalState({ type: 'edit', data: row }) },
@@ -358,20 +345,20 @@ const Applicants = () => {
                 <Table
                     columns={columns}
                     data={applicants}
-                    isLoading={loading}
+                    isLoading={isLoading}
                     onSort={handleSort}
                     sortConfig={sortConfig}
                     emptyMessage="No applicants found."
                 />
             </div>
-            
+
             {/* Pagination outside the scrolling container */}
-            {pagination && pagination.totalItems > 15 && (
+            {totalItems > 15 && (
                  <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 flex-shrink-0">
-                    <p className="text-sm text-gray-700"> Page <span className="font-medium">{pagination.currentPage}</span> of <span className="font-medium">{pagination.totalPages}</span></p>
+                    <p className="text-sm text-gray-700"> Page <span className="font-medium">{pagination.currentPage}</span> of <span className="font-medium">{totalPages}</span></p>
                     <div className="space-x-2">
                        <Button variant="outline" onClick={() => handlePageChange(pagination.currentPage - 1)} disabled={pagination.currentPage <= 1}>Previous</Button>
-                       <Button variant="outline" onClick={() => handlePageChange(pagination.currentPage + 1)} disabled={pagination.currentPage >= pagination.totalPages}>Next</Button>
+                       <Button variant="outline" onClick={() => handlePageChange(pagination.currentPage + 1)} disabled={pagination.currentPage >= totalPages}>Next</Button>
                     </div>
                  </div>
             )}

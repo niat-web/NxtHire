@@ -1,14 +1,13 @@
 // client/src/pages/admin/BookingSlots.jsx
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from 'date-fns';
-// --- MODIFICATION: Add getInterviewers ---
-import { getBookingSlots, createPublicBookingLink, resetBookingSubmission, getInterviewers } from '@/api/admin.api';
+import { createPublicBookingLink, resetBookingSubmission } from '@/api/admin.api';
+import { useBookingSlots, useInterviewers, useInvalidateAdmin } from '@/hooks/useAdminQueries';
 import { useAlert } from '@/hooks/useAlert';
 import { formatDate, formatTime, formatDateTime } from '@/utils/formatters';
-import { debounce } from '@/utils/helpers';
 // --- MODIFICATION: Add Plus icon ---
 import { Search, Calendar, Link, Loader2, Trash2, Check, Plus } from 'lucide-react';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
@@ -18,61 +17,47 @@ import ManualSlotFormModal from './ManualSlotFormModal';
 const BookingSlots = () => {
     const { showSuccess, showError } = useAlert();
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(true);
-    const [slots, setSlots] = useState([]);
     const [searchFilter, setSearchFilter] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const [dateFilter, setDateFilter] = useState(null);
     const [selectedSlots, setSelectedSlots] = useState({});
     const [isCreatingLink, setIsCreatingLink] = useState(false);
     const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, bookingId: null, submissionId: null });
-    
+
     // --- ADDITIONS START ---
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [interviewerOptions, setInterviewerOptions] = useState([]);
     // --- ADDITIONS END ---
 
-    // --- ADDITION START: Fetch interviewers for the modal ---
+    // Debounce search input to avoid excessive API calls
     useEffect(() => {
-        const fetchInterviewers = async () => {
-            try {
-                // Fetch a large number to get all, or implement pagination if needed
-                const res = await getInterviewers({ limit: 1000 }); 
-                const options = (res.data.data.interviewers || []).map(i => ({
-                    value: i._id,
-                    label: `${i.user.firstName} ${i.user.lastName} (${i.user.email})`
-                }));
-                setInterviewerOptions(options);
-            } catch (err) {
-                showError("Failed to load list of interviewers for manual entry.");
-            }
-        };
-        fetchInterviewers();
-    }, [showError]);
-    // --- ADDITION END ---
+        const timer = setTimeout(() => setDebouncedSearch(searchFilter), 300);
+        return () => clearTimeout(timer);
+    }, [searchFilter]);
 
-
-    const fetchSlots = useCallback(async () => {
-        setLoading(true);
-        try {
-            const params = { search: searchFilter };
-            if (dateFilter) {
-                params.date = format(dateFilter, 'yyyy-MM-dd');
-            }
-            const res = await getBookingSlots(params);
-            setSlots(res.data.data);
-        } catch (err) {
-            showError("Failed to fetch booking slots.");
-        } finally {
-            setLoading(false);
+    const slotsParams = useMemo(() => {
+        const params = { search: debouncedSearch };
+        if (dateFilter) {
+            params.date = format(dateFilter, 'yyyy-MM-dd');
         }
-    }, [showError, searchFilter, dateFilter]);
+        return params;
+    }, [debouncedSearch, dateFilter]);
 
-    const debouncedFetch = useMemo(() => debounce(fetchSlots, 300), [fetchSlots]);
+    const { data: slots = [], isLoading: loading } = useBookingSlots(slotsParams, {
+        onError: () => showError("Failed to fetch booking slots."),
+    });
 
-    useEffect(() => {
-        debouncedFetch();
-        return () => debouncedFetch.cancel();
-    }, [searchFilter, dateFilter, debouncedFetch]);
+    const { data: interviewersData } = useInterviewers({ limit: 1000 }, {
+        onError: () => showError("Failed to load list of interviewers for manual entry."),
+    });
+
+    const interviewerOptions = useMemo(() => {
+        return (interviewersData?.interviewers || []).map(i => ({
+            value: i._id,
+            label: `${i.user.firstName} ${i.user.lastName} (${i.user.email})`
+        }));
+    }, [interviewersData]);
+
+    const { invalidateBookingSlots } = useInvalidateAdmin();
     
     // ... (keep handleDeleteRequest, handleDeleteConfirm, handleSlotSelection, handleSelectAllForRow, handleCreatePublicLink functions as they are)
     const handleDeleteRequest = (bookingId, submissionId) => {
@@ -84,7 +69,7 @@ const BookingSlots = () => {
         try {
             await resetBookingSubmission(deleteDialog.bookingId, deleteDialog.submissionId);
             showSuccess("Submission deleted.");
-            fetchSlots();
+            invalidateBookingSlots();
         } catch (error) {
             showError("Failed to delete submission.");
         } finally {
@@ -174,7 +159,7 @@ const BookingSlots = () => {
                                 value={searchFilter}
                                 onChange={(e) => setSearchFilter(e.target.value)}
                                 placeholder="Search by name or email..."
-                                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
                             />
                         </div>
 
@@ -185,7 +170,7 @@ const BookingSlots = () => {
                                 onChange={(date) => setDateFilter(date)}
                                 isClearable
                                 placeholderText="Filter by date"
-                                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
                             />
                         </div>
                     </div>
@@ -203,7 +188,7 @@ const BookingSlots = () => {
                         <button
                             onClick={handleCreatePublicLink}
                             disabled={selectedSlotsCount === 0 || isCreatingLink}
-                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white text-sm font-semibold rounded-lg transition-all whitespace-nowrap"
+                            className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-black disabled:bg-slate-300 text-white text-sm font-semibold rounded-lg transition-all whitespace-nowrap"
                         >
                             {isCreatingLink ? (
                                 <><Loader2 className="animate-spin" size={16} /> Creating...</>
@@ -219,7 +204,7 @@ const BookingSlots = () => {
             <div className="flex-1 overflow-auto px-6 py-4">
                 {loading ? (
                     <div className="flex items-center justify-center h-64">
-                        <div className="w-10 h-10 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
+                        <div className="w-10 h-10 border-4 border-slate-200 border-t-slate-700 rounded-full animate-spin"></div>
                     </div>
                 ) : slots.length === 0 ? (
                     <div className="text-center py-16 text-slate-500">
@@ -245,7 +230,7 @@ const BookingSlots = () => {
                                     return (
                                         <tr key={row.submissionId} className="hover:bg-slate-50 transition-colors">
                                             <td className="px-4 py-3">
-                                                <input type="checkbox" checked={isAllSelected || false} onChange={() => handleSelectAllForRow(row)} className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500/20" />
+                                                <input type="checkbox" checked={isAllSelected || false} onChange={() => handleSelectAllForRow(row)} className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-2 focus:ring-slate-900/10" />
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="font-medium text-slate-800">{row.fullName}</div>
@@ -258,7 +243,7 @@ const BookingSlots = () => {
                                                     {row.timeSlots.map((slot, idx) => {
                                                         const isSelected = entry?.slots.some( s => s.startTime === slot.startTime && s.endTime === slot.endTime );
                                                         return (
-                                                            <button key={idx} onClick={() => handleSlotSelection(row, slot)} className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${ isSelected ? "bg-blue-100 text-blue-700 border border-blue-300" : "bg-slate-100 text-slate-600 hover:bg-slate-200" }`} >
+                                                            <button key={idx} onClick={() => handleSlotSelection(row, slot)} className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${ isSelected ? "bg-indigo-100 text-indigo-700 border border-indigo-300" : "bg-slate-100 text-slate-600 hover:bg-slate-200" }`} >
                                                                 {isSelected && <Check size={12} className="inline mr-1" />}
                                                                 {formatTime(slot.startTime)}-{formatTime(slot.endTime)}
                                                             </button>
@@ -295,7 +280,7 @@ const BookingSlots = () => {
                 onClose={() => setIsModalOpen(false)}
                 onSuccess={() => {
                     setIsModalOpen(false);
-                    fetchSlots(); // Refresh the list after successful submission
+                    invalidateBookingSlots(); // Refresh the list after successful submission
                     showSuccess("Manual slot added successfully and is now available for booking.");
                 }}
                 interviewers={interviewerOptions}

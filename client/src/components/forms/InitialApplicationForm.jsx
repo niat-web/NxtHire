@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import Select from 'react-select';
-import { Send, User, Mail, Phone, Linkedin, Users, MessageSquare } from 'lucide-react';
+import { ArrowRight, User, Mail, Phone, Linkedin, Users, MessageSquare } from 'lucide-react';
 import { submitApplication } from '../../api/applicant.api';
 import { useAlert } from '../../hooks/useAlert';
 import { SOURCING_CHANNELS } from '../../utils/constants';
@@ -36,86 +36,78 @@ const InitialApplicationForm = ({ onSuccess }) => {
     }
   };
 
-  // Custom styles for React Select to match dark theme
+  // Light-themed React Select styles
   const customSelectStyles = {
     control: (provided, state) => ({
       ...provided,
-      backgroundColor: '#1e293b', // slate-800
-      borderColor: state.isFocused ? '#f97316' : (errors.sourcingChannel ? '#ef4444' : '#334155'), // orange-500 : slate-700
-      borderRadius: '0.75rem', // rounded-xl
-      boxShadow: state.isFocused ? '0 0 0 1px #f97316' : 'none',
+      backgroundColor: '#fff',
+      borderColor: state.isFocused ? '#10b981' : (errors.sourcingChannel ? '#ef4444' : '#e5e7eb'),
+      borderRadius: '0.75rem',
+      boxShadow: state.isFocused ? '0 0 0 2px rgba(249,115,22,0.15)' : 'none',
       paddingLeft: '2.5rem',
-      minHeight: '50px',
-      color: 'white',
-      '&:hover': { borderColor: state.isFocused ? '#f97316' : '#475569' },
+      minHeight: '46px',
+      color: '#111827',
+      '&:hover': { borderColor: state.isFocused ? '#10b981' : '#d1d5db' },
     }),
-    placeholder: (provided) => ({ ...provided, color: '#94a3b8' }), // slate-400
-    singleValue: (provided) => ({ ...provided, color: '#f8fafc' }), // slate-50
+    placeholder: (provided) => ({ ...provided, color: '#9ca3af' }),
+    singleValue: (provided) => ({ ...provided, color: '#111827' }),
     menu: (provided) => ({
       ...provided,
-      backgroundColor: '#1e293b', // slate-800
-      border: '1px solid #334155', // slate-700
+      backgroundColor: '#fff',
+      border: '1px solid #e5e7eb',
       borderRadius: '0.75rem',
-      zIndex: 50
+      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+      zIndex: 50,
     }),
     option: (provided, state) => ({
       ...provided,
-      backgroundColor: state.isSelected ? '#f97316' : state.isFocused ? '#334155' : 'transparent',
-      color: state.isSelected ? '#ffffff' : '#f8fafc',
+      backgroundColor: state.isSelected ? '#10b981' : state.isFocused ? '#ecfdf5' : 'transparent',
+      color: state.isSelected ? '#fff' : '#374151',
       cursor: 'pointer',
-      ':active': {
-        backgroundColor: '#ea580c', // orange-600
-      }
+      ':active': { backgroundColor: '#059669' },
     }),
-    input: (provided) => ({ ...provided, color: 'white' }),
+    input: (provided) => ({ ...provided, color: '#111827' }),
     indicatorSeparator: () => ({ display: 'none' }),
-    dropdownIndicator: (provided) => ({ ...provided, color: '#94a3b8' }),
+    dropdownIndicator: (provided) => ({ ...provided, color: '#9ca3af' }),
   };
 
-  const inputBaseClasses = "w-full py-3 pl-11 pr-4 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all duration-200";
-  const inputErrorClasses = "!border-red-500 !focus:ring-red-500/50 !focus:border-red-500";
-  const labelClasses = "block text-sm font-medium text-slate-300 mb-2";
-  const iconClasses = "absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-orange-400 transition-colors";
+  const inputBase =
+    'w-full py-2.5 pl-10 pr-4 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm';
+  const inputError = '!border-red-400 !focus:ring-red-500/20 !focus:border-red-400';
+  const labelCls = 'block text-sm font-medium text-gray-700 mb-1.5';
+  const iconCls =
+    'absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-gray-400 group-focus-within:text-emerald-600 transition-colors';
 
   return (
     <>
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-white mb-2">Application Details</h2>
-        <p className="text-slate-400 text-sm">Please fill in your information to get started.</p>
-      </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
-          {/* Full Name Field */}
-          <div className="group relative">
-            <label htmlFor="fullName" className={labelClasses}>
-              Full Name
-            </label>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
+          {/* Full Name */}
+          <div className="group">
+            <label htmlFor="fullName" className={labelCls}>Full Name</label>
             <div className="relative">
-              <User className={iconClasses} />
+              <User className={iconCls} size={17} />
               <input
                 id="fullName"
                 type="text"
                 placeholder="John Doe"
-                className={`${inputBaseClasses} ${errors.fullName && inputErrorClasses}`}
+                className={`${inputBase} ${errors.fullName ? inputError : ''}`}
                 {...register('fullName', { required: 'Full name is required' })}
               />
             </div>
             {errors.fullName && <p className="mt-1 text-xs text-red-500">{errors.fullName.message}</p>}
           </div>
 
-          {/* Email Field */}
-          <div className="group relative">
-            <label htmlFor="email" className={labelClasses}>
-              Email Address
-            </label>
+          {/* Email */}
+          <div className="group">
+            <label htmlFor="email" className={labelCls}>Email Address</label>
             <div className="relative">
-              <Mail className={iconClasses} />
+              <Mail className={iconCls} size={17} />
               <input
                 id="email"
                 type="email"
                 placeholder="you@example.com"
-                className={`${inputBaseClasses} ${errors.email && inputErrorClasses}`}
+                className={`${inputBase} ${errors.email ? inputError : ''}`}
                 {...register('email', {
                   required: 'Email is required',
                   pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Please enter a valid email address' }
@@ -125,18 +117,16 @@ const InitialApplicationForm = ({ onSuccess }) => {
             {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
           </div>
 
-          {/* Phone Number Field */}
-          <div className="group relative">
-            <label htmlFor="phoneNumber" className={labelClasses}>
-              Phone Number
-            </label>
+          {/* Phone Number */}
+          <div className="group">
+            <label htmlFor="phoneNumber" className={labelCls}>Phone Number</label>
             <div className="relative">
-              <Phone className={iconClasses} />
+              <Phone className={iconCls} size={17} />
               <input
                 id="phoneNumber"
                 type="tel"
                 placeholder="9876543210"
-                className={`${inputBaseClasses} ${errors.phoneNumber && inputErrorClasses}`}
+                className={`${inputBase} ${errors.phoneNumber ? inputError : ''}`}
                 {...register('phoneNumber', {
                   required: 'Phone number is required',
                   pattern: { value: /^\d{10,15}$/, message: 'Please enter a valid phone number' }
@@ -146,36 +136,34 @@ const InitialApplicationForm = ({ onSuccess }) => {
             {errors.phoneNumber && <p className="mt-1 text-xs text-red-500">{errors.phoneNumber.message}</p>}
           </div>
 
-          {/* WhatsApp Number Field */}
-          <div className="group relative">
-            <label htmlFor="whatsappNumber" className={labelClasses}>
-              WhatsApp Number <span className="text-slate-500 text-xs ml-1">(Optional)</span>
+          {/* WhatsApp Number */}
+          <div className="group">
+            <label htmlFor="whatsappNumber" className={labelCls}>
+              WhatsApp Number <span className="text-gray-400 text-xs">(Optional)</span>
             </label>
             <div className="relative">
-              <Phone className={iconClasses} />
+              <Phone className={iconCls} size={17} />
               <input
                 id="whatsappNumber"
                 type="tel"
                 placeholder="Same as phone"
-                className={`${inputBaseClasses} ${errors.whatsappNumber && inputErrorClasses}`}
+                className={inputBase}
                 {...register('whatsappNumber')}
               />
             </div>
           </div>
         </div>
 
-        {/* LinkedIn URL Field */}
-        <div className="group relative">
-          <label htmlFor="linkedinProfileUrl" className={labelClasses}>
-            LinkedIn Profile URL
-          </label>
+        {/* LinkedIn URL */}
+        <div className="group">
+          <label htmlFor="linkedinProfileUrl" className={labelCls}>LinkedIn Profile URL</label>
           <div className="relative">
-            <Linkedin className={iconClasses} />
+            <Linkedin className={iconCls} size={17} />
             <input
               id="linkedinProfileUrl"
               type="url"
               placeholder="https://www.linkedin.com/in/your-profile"
-              className={`${inputBaseClasses} ${errors.linkedinProfileUrl && inputErrorClasses}`}
+              className={`${inputBase} ${errors.linkedinProfileUrl ? inputError : ''}`}
               {...register('linkedinProfileUrl', {
                 required: 'LinkedIn profile URL is required',
                 validate: value => value.includes('linkedin.com/') || 'Please enter a valid LinkedIn profile URL'
@@ -185,13 +173,11 @@ const InitialApplicationForm = ({ onSuccess }) => {
           {errors.linkedinProfileUrl && <p className="mt-1 text-xs text-red-500">{errors.linkedinProfileUrl.message}</p>}
         </div>
 
-        {/* Sourcing Channel Field */}
-        <div className="group relative">
-          <label htmlFor="sourcingChannel" className={labelClasses}>
-            How did you hear about us?
-          </label>
+        {/* Sourcing Channel */}
+        <div className="group">
+          <label htmlFor="sourcingChannel" className={labelCls}>How did you hear about us?</label>
           <div className="relative">
-            <Users className={`${iconClasses} z-10`} />
+            <Users className={`${iconCls} z-10`} size={17} />
             <Controller
               name="sourcingChannel"
               control={control}
@@ -212,62 +198,55 @@ const InitialApplicationForm = ({ onSuccess }) => {
           {errors.sourcingChannel && <p className="mt-1 text-xs text-red-500">{errors.sourcingChannel.message}</p>}
         </div>
 
-        {/* Additional Comments Field */}
-        <div className="group relative">
-          <label htmlFor="additionalComments" className={labelClasses}>
-            Additional Comments <span className="text-slate-500 text-xs ml-1">(Optional)</span>
+        {/* Additional Comments */}
+        <div className="group">
+          <label htmlFor="additionalComments" className={labelCls}>
+            Additional Comments <span className="text-gray-400 text-xs">(Optional)</span>
           </label>
           <div className="relative">
-            <MessageSquare className={`${iconClasses} top-4 -translate-y-0`} />
+            <MessageSquare className={`${iconCls} top-3.5 -translate-y-0`} size={17} />
             <textarea
               id="additionalComments"
               rows={3}
               placeholder="Anything else you'd like to share..."
-              className={`${inputBaseClasses} pl-11 resize-none`}
+              className={`${inputBase} pl-10 resize-none`}
               {...register('additionalComments')}
             />
           </div>
         </div>
 
-        {/* Interested Checkbox */}
-        <div>
-          <label className="flex items-start cursor-pointer group">
-            <div className="flex items-center h-5">
-              <input
-                id="interestedInJoining"
-                type="checkbox"
-                className="w-5 h-5 rounded border-slate-600 bg-slate-800 text-orange-500 focus:ring-orange-500/50 focus:ring-offset-0 focus:ring-offset-transparent transition-all cursor-pointer"
-                {...register('interestedInJoining')}
-              />
-            </div>
-            <div className="ml-3 text-sm">
-              <span className="font-medium text-slate-300 group-hover:text-white transition-colors">
-                I am interested in joining the Interviewer Community.
-              </span>
-            </div>
-          </label>
-        </div>
+        {/* Checkbox */}
+        <label className="flex items-start gap-3 cursor-pointer group">
+          <input
+            id="interestedInJoining"
+            type="checkbox"
+            className="mt-0.5 w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500/30 transition-all cursor-pointer"
+            {...register('interestedInJoining')}
+          />
+          <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">
+            I am interested in joining the Interviewer Community.
+          </span>
+        </label>
 
-        {/* Submit Button */}
-        <div className="pt-4">
+        {/* Submit */}
+        <div className="pt-2">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 py-4 px-6 rounded-xl text-white font-bold text-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none shadow-lg shadow-orange-500/25"
+            className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 py-3 px-6 rounded-xl text-white font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-md shadow-emerald-500/15"
           >
             {isSubmitting ? (
-              <div className="flex items-center gap-2">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                <span>Submitting...</span>
-              </div>
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                Submitting...
+              </>
             ) : (
               <>
-                <Send className="h-5 w-5 mr-2" />
-                Submit Application
+                Submit Application <ArrowRight size={17} />
               </>
             )}
           </button>
-          <p className="text-center text-slate-500 text-xs mt-4">
+          <p className="text-center text-gray-400 text-xs mt-3">
             By submitting, you agree to our Terms of Service and Privacy Policy.
           </p>
         </div>

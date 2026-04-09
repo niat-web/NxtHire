@@ -1,10 +1,10 @@
 // client/src/pages/admin/InterviewerBookingTrackingPage.jsx
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { FiArrowLeft, FiLoader } from 'react-icons/fi';
 import Card from '@/components/common/Card';
 import Table from '@/components/common/Table';
-import { getInterviewBookingDetails } from '@/api/admin.api';
+import { useInterviewBookingDetails } from '@/hooks/useAdminQueries';
 import { useAlert } from '@/hooks/useAlert';
 import { formatDate } from '@/utils/formatters';
 import Badge from '@/components/common/Badge';
@@ -28,24 +28,9 @@ const StatusBadge = ({ status }) => {
 const InterviewerBookingTrackingPage = () => {
     const { id } = useParams();
     const { showError } = useAlert();
-    const [loading, setLoading] = useState(true);
-    const [bookingDetails, setBookingDetails] = useState(null);
-
-    const fetchDetails = useCallback(async () => {
-        setLoading(true);
-        try {
-            const res = await getInterviewBookingDetails(id);
-            setBookingDetails(res.data.data);
-        } catch (error) {
-            showError('Failed to fetch booking tracking details.');
-        } finally {
-            setLoading(false);
-        }
-    }, [id, showError]);
-
-    useEffect(() => {
-        fetchDetails();
-    }, [fetchDetails]);
+    const { data: bookingDetails, isLoading: loading } = useInterviewBookingDetails(id, {
+        onError: () => showError('Failed to fetch booking tracking details.'),
+    });
 
     const columns = useMemo(() => [
         { key: 'interviewerId', title: 'Interviewer ID', render: (row) => row.interviewer?.interviewerId || 'N/A' },

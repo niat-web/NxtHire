@@ -17,7 +17,7 @@ const FilterSelect = ({ options, value, onChange, placeholder, icon: Icon }) => 
         <select
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full pl-8 pr-2 py-1.5 border border-gray-300 rounded-md shadow-sm text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 appearance-none"
+            className="w-full pl-8 pr-2 py-1.5 border border-gray-300 rounded-md shadow-sm text-xs bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none"
         >
             <option value="">{placeholder}</option>
             {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
@@ -41,10 +41,10 @@ const AvailableInterviewerListItem = React.memo(({ interviewer, isSelected, onSe
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: 10 }}
         transition={{ duration: 0.2 }}
-        className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all duration-200 border-2 ${isSelected ? 'bg-blue-50 border-blue-400 shadow-sm' : 'border-transparent hover:bg-gray-100'}`}
+        className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all duration-200 border-2 ${isSelected ? 'bg-emerald-50 border-emerald-400 shadow-sm' : 'border-transparent hover:bg-gray-100'}`}
         onClick={onSelect}
     >
-        <div className={`w-5 h-5 rounded-md border-2 flex-shrink-0 flex items-center justify-center transition-all duration-200 ${isSelected ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-300'}`}>
+        <div className={`w-5 h-5 rounded-md border-2 flex-shrink-0 flex items-center justify-center transition-all duration-200 ${isSelected ? 'bg-emerald-600 border-emerald-600' : 'bg-white border-gray-300'}`}>
             {isSelected && <FiCheck className="w-3 h-3 text-white" />}
         </div>
         <div className="grid grid-cols-12 gap-x-3 flex-grow items-center">
@@ -127,7 +127,7 @@ const AvailableInterviewerList = ({ interviewers, loading, selected, onSelection
                 {/* --- MODIFICATION START: Group Select All and Clear Selection together --- */}
                 <div className="flex items-center gap-4">
                     <div className="flex items-center">
-                        <input type="checkbox" id="select-all" className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer" checked={selected.length === filteredInterviewers.length && filteredInterviewers.length > 0} onChange={handleSelectAll} disabled={loading || filteredInterviewers.length === 0} />
+                        <input type="checkbox" id="select-all" className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer" checked={selected.length === filteredInterviewers.length && filteredInterviewers.length > 0} onChange={handleSelectAll} disabled={loading || filteredInterviewers.length === 0} />
                         <label htmlFor="select-all" className="ml-3 text-sm font-medium text-gray-700 cursor-pointer">Select All</label>
                     </div>
                     {selected.length > 0 && (

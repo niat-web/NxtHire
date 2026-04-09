@@ -77,7 +77,7 @@ const HiringLayout = () => {
               className={({ isActive }) =>
                 `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 relative ${
                   isActive
-                    ? 'bg-blue-600 text-white shadow'
+                    ? 'bg-emerald-600 text-white shadow'
                     : 'text-gray-600 hover:bg-gray-200 hover:text-gray-900'
                 }`
               }

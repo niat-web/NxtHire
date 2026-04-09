@@ -7,7 +7,7 @@
 // import 'react-datepicker/dist/react-datepicker.css';
 
 // // Local components to avoid external dependencies on this page
-// const LocalLoader = () => (<div className="flex justify-center items-center py-20 text-center text-gray-500"><div className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div><span className="ml-4">Loading Payments...</span></div>);
+// const LocalLoader = () => (<div className="flex justify-center items-center py-20 text-center text-gray-500"><div className="w-8 h-8 border-4 border-gray-200 border-t-emerald-500 rounded-full animate-spin"></div><span className="ml-4">Loading Payments...</span></div>);
 // const LocalStatCard = ({ title, value, isLoading }) => (
 //     <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
 //         <p className="text-sm font-medium text-gray-500">{title}</p>
@@ -114,7 +114,7 @@
 //                             key={filter}
 //                             onClick={() => handleFilterClick(filter)}
 //                             className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-//                                 activeFilter === filter ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+//                                 activeFilter === filter ? 'bg-emerald-600 text-white' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
 //                             }`}
 //                         >
 //                             {filter}
@@ -126,7 +126,7 @@
 //                         endDate={dateRange.endDate}
 //                         onChange={handleDateChange}
 //                         dateFormat="MMM d, yyyy"
-//                         className="w-full md:w-60 px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 focus:ring-1 focus:ring-blue-500"
+//                         className="w-full md:w-60 px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 focus:ring-1 focus:ring-emerald-500"
 //                         placeholderText="Select custom date range"
 //                     />
 //                 </div>
@@ -193,28 +193,26 @@
 // export default PaymentDetails;
 
 // client/src/pages/interviewer/PaymentDetails.jsx
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { getPaymentHistory } from '@/api/interviewer.api';
+import React, { useState, useMemo } from 'react';
 import { useAlert } from '@/hooks/useAlert';
 import { startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear } from 'date-fns';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FiClock } from 'react-icons/fi';
 import { Calendar } from 'lucide-react';
+import { usePaymentHistory } from '@/hooks/useInterviewerQueries';
 
 
 const PaymentDetails = () => {
     const { showError } = useAlert();
-    const [loading, setLoading] = useState(true);
-    const [paymentData, setPaymentData] = useState({ breakdown: [], totalAmount: 0, totalInterviews: 0 });
-    
+
     // Date range state
     const [activeFilter, setActiveFilter] = useState('This Month');
     const [dateRange, setDateRange] = useState({
         startDate: startOfMonth(new Date()),
         endDate: endOfMonth(new Date())
     });
-    
+
     const [showCustomPicker, setShowCustomPicker] = useState(false);
     const [customStart, setCustomStart] = useState('');
     const [customEnd, setCustomEnd] = useState('');
@@ -255,7 +253,7 @@ const PaymentDetails = () => {
         }
         setDateRange({ startDate, endDate });
     };
-    
+
     const handleCustomDateApply = () => {
         if (customStart && customEnd) {
           setDateRange({
@@ -267,28 +265,16 @@ const PaymentDetails = () => {
         }
     };
 
+    // Build query params from date range
+    const paymentParams = useMemo(() => {
+        if (!dateRange.startDate || !dateRange.endDate) return null;
+        return { startDate: dateRange.startDate.toISOString(), endDate: dateRange.endDate.toISOString() };
+    }, [dateRange]);
 
-    const fetchHistory = useCallback(async (start, end) => {
-        setLoading(true);
-        try {
-            const response = await getPaymentHistory({ startDate: start, endDate: end });
-            // --- FIX START ---
-            // The API response is nested under a `data` property.
-            setPaymentData(response.data.data);
-            // --- FIX END ---
-        } catch (err) {
-            showError('Failed to fetch payment history.');
-            setPaymentData({ breakdown: [], totalAmount: 0, totalInterviews: 0 });
-        } finally {
-            setLoading(false);
-        }
-    }, [showError]);
-
-    useEffect(() => {
-        if (dateRange.startDate && dateRange.endDate) {
-            fetchHistory(dateRange.startDate.toISOString(), dateRange.endDate.toISOString());
-        }
-    }, [dateRange, fetchHistory]);
+    const { data: paymentData = { breakdown: [], totalAmount: 0, totalInterviews: 0 }, isLoading: loading } = usePaymentHistory(
+        paymentParams,
+        { enabled: !!(dateRange.startDate && dateRange.endDate) }
+    );
     
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-IN', {

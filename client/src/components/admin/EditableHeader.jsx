@@ -11,7 +11,7 @@ const EditableHeader = ({ name, register, control, remove }) => {
         return (
             <input
                 {...field}
-                className="w-full p-1 text-sm font-medium border border-blue-500 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full p-1 text-sm font-medium border border-emerald-500 rounded focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 onBlur={() => {
                     field.onBlur();
                     setIsEditing(false);

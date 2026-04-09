@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>New Applicant Received</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+
+  <div style="background-color: #0f172a; padding: 24px; border-radius: 12px 12px 0 0; text-align: center;">
+    <h1 style="color: #ffffff; margin: 0; font-size: 20px;">New Interviewer Application</h1>
+    <p style="color: #94a3b8; margin: 8px 0 0; font-size: 13px;">A new candidate has applied to join the community</p>
+  </div>
+
+  <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-top: none; padding: 24px; border-radius: 0 0 12px 12px;">
+
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+      <tr>
+        <td style="padding: 10px 12px; background-color: #f8fafc; border-bottom: 1px solid #f1f5f9; font-size: 12px; font-weight: bold; color: #64748b; text-transform: uppercase; width: 140px;">Full Name</td>
+        <td style="padding: 10px 12px; background-color: #f8fafc; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #1e293b; font-weight: 600;">{{fullName}}</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 12px; font-weight: bold; color: #64748b; text-transform: uppercase;">Email</td>
+        <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #1e293b;">
+          <a href="mailto:{{email}}" style="color: #3b82f6; text-decoration: none;">{{email}}</a>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 10px 12px; background-color: #f8fafc; border-bottom: 1px solid #f1f5f9; font-size: 12px; font-weight: bold; color: #64748b; text-transform: uppercase;">Phone</td>
+        <td style="padding: 10px 12px; background-color: #f8fafc; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #1e293b;">{{phoneNumber}}</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 12px; font-weight: bold; color: #64748b; text-transform: uppercase;">LinkedIn</td>
+        <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px;">
+          <a href="{{linkedinProfileUrl}}" target="_blank" style="color: #3b82f6; text-decoration: none;">View Profile</a>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 10px 12px; background-color: #f8fafc; border-bottom: 1px solid #f1f5f9; font-size: 12px; font-weight: bold; color: #64748b; text-transform: uppercase;">Source</td>
+        <td style="padding: 10px 12px; background-color: #f8fafc; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #1e293b;">{{sourcingChannel}}</td>
+      </tr>
+      {{#if additionalComments}}
+      <tr>
+        <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 12px; font-weight: bold; color: #64748b; text-transform: uppercase;">Comments</td>
+        <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #1e293b;">{{additionalComments}}</td>
+      </tr>
+      {{/if}}
+    </table>
+
+    <div style="text-align: center; margin-top: 24px;">
+      <a href="{{reviewLink}}" style="display: inline-block; background-color: #0f172a; color: #ffffff; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
+        Review Application
+      </a>
+    </div>
+
+    <p style="margin-top: 24px; font-size: 12px; color: #94a3b8; text-align: center;">
+      Application ID: {{applicationId}} &middot; Submitted on {{submittedAt}}
+    </p>
+  </div>
+
+  <p style="text-align: center; font-size: 11px; color: #94a3b8; margin-top: 16px;">
+    This is an automated notification from NxtHire.
+  </p>
+</body>
+</html>

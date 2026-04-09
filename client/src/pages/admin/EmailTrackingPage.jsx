@@ -9,7 +9,7 @@
 
 // const LocalLoader = ({ text }) => (
 //     <div className="flex flex-col items-center justify-center py-20">
-//         <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-600"></div>
+//         <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-emerald-600"></div>
 //         {text && <p className="mt-4 text-lg text-gray-600">{text}</p>}
 //     </div>
 // );
@@ -17,8 +17,8 @@
 // const LocalButton = ({ children, onClick, isLoading = false, icon, variant = 'primary', disabled = false, ...props }) => {
 //     const baseClasses = "inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
 //     const variantClasses = {
-//         primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
-//         outline: 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-blue-500',
+//         primary: 'bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500',
+//         outline: 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-emerald-500',
 //     };
 //     const className = `${baseClasses} ${variantClasses[variant]}`;
 
@@ -239,7 +239,7 @@
 //         { key: 'fullName', title: 'Full Name' },
 //         { key: 'email', title: 'Email ID' },
 //         { key: 'mobileNumber', title: 'Mobile Number', render: row => row.mobileNumber || '' },
-//         { key: 'resumeLink', title: 'Resume Link', render: (row) => row.resumeLink ? <a href={row.resumeLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Link</a> : 'N/A' },
+//         { key: 'resumeLink', title: 'Resume Link', render: (row) => row.resumeLink ? <a href={row.resumeLink} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline">Link</a> : 'N/A' },
 //         { key: 'status', title: 'Submitted', render: (row) => <StatusDisplay status={row.status} /> },
 //     ], []);
 
@@ -251,7 +251,7 @@
 //         return (
 //             <div className="text-center py-10 p-6">
 //                 <p>Booking details not found.</p>
-//                 <Link to="/admin/student-bookings" className="mt-4 inline-block text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md">
+//                 <Link to="/admin/student-bookings" className="mt-4 inline-block text-white bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-md">
 //                     Back to Bookings
 //                 </Link>
 //             </div>
@@ -263,7 +263,7 @@
 //     return (
 //         <div className="space-y-4">
 //              <div className="flex justify-between items-center">
-//                 <Link to="/admin/bookings/student-bookings" className="text-blue-600 hover:text-blue-700 flex items-center font-medium">
+//                 <Link to="/admin/bookings/student-bookings" className="text-emerald-600 hover:text-emerald-700 flex items-center font-medium">
 //                     <FiArrowLeft className="mr-2"/> Back to Student Bookings
 //                 </Link>
 //                 <LocalButton
@@ -300,17 +300,18 @@
 
 
 // client/src/pages/admin/EmailTrackingPage.jsx
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { FiArrowLeft, FiSend, FiMail, FiAlertTriangle, FiX, FiCheckCircle, FiUsers, FiClock, FiEye } from 'react-icons/fi';
-import { getPublicBookingDetails, sendBookingReminders } from '@/api/admin.api';
+import { sendBookingReminders } from '@/api/admin.api';
+import { usePublicBookingDetails } from '@/hooks/useAdminQueries';
 import { useAlert } from '@/hooks/useAlert';
 
 // --- SELF-CONTAINED UI COMPONENTS (To keep this file independent and modern) ---
 
 const Loader = ({ text }) => (
     <div className="flex flex-col items-center justify-center py-20 text-gray-500">
-        <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-gray-200 border-t-emerald-500 rounded-full animate-spin"></div>
         <p className="mt-4">{text}</p>
     </div>
 );
@@ -318,8 +319,8 @@ const Loader = ({ text }) => (
 const LocalButton = ({ children, onClick, isLoading = false, icon: Icon, variant = 'primary', disabled = false, ...props }) => {
     const baseClasses = "inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed";
     const variantClasses = {
-        primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
-        outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100 focus:ring-blue-500',
+        primary: 'bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500',
+        outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100 focus:ring-emerald-500',
     };
     const className = `${baseClasses} ${variantClasses[variant]}`;
 
@@ -446,12 +447,13 @@ const ReminderModal = ({ isOpen, onClose, onConfirm, isLoading, students = [] })
 const EmailTrackingPage = () => {
     const { id } = useParams();
     const { showSuccess, showError, showInfo } = useAlert();
-    const [loading, setLoading] = useState(true);
-    const [bookingDetails, setBookingDetails] = useState(null);
+    const { data: bookingDetails, isLoading: loading } = usePublicBookingDetails(id, {
+        onError: () => showError("Failed to fetch booking details."),
+    });
     const [isSending, setIsSending] = useState(false);
     const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
 
-    const studentsToRemind = useMemo(() => 
+    const studentsToRemind = useMemo(() =>
         (bookingDetails?.trackedEmails || []).filter(student => student.status === 'Not Submitted'),
         [bookingDetails]
     );
@@ -461,22 +463,6 @@ const EmailTrackingPage = () => {
         const booked = total - studentsToRemind.length;
         return { totalInvited: total, totalBooked: booked, totalPending: studentsToRemind.length };
     }, [bookingDetails, studentsToRemind]);
-
-    const fetchDetails = useCallback(async () => {
-        setLoading(true);
-        try {
-            const response = await getPublicBookingDetails(id);
-            setBookingDetails(response.data.data);
-        } catch (err) {
-            showError("Failed to fetch booking details.");
-        } finally {
-            setLoading(false);
-        }
-    }, [id, showError]);
-
-    useEffect(() => {
-        fetchDetails();
-    }, [fetchDetails]);
 
     const handleSendReminders = async () => {
         setIsSending(true);
@@ -511,7 +497,7 @@ const EmailTrackingPage = () => {
             {/* New Header */}
             <div className="flex-shrink-0 p-4 border-b border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <Link to="/admin/bookings/student-bookings" className="text-sm text-blue-600 hover:text-blue-800 flex items-center mb-1">
+                    <Link to="/admin/bookings/student-bookings" className="text-sm text-emerald-600 hover:text-emerald-800 flex items-center mb-1">
                         <FiArrowLeft className="mr-1.5 h-4 w-4"/> Back to Manage Links
                     </Link>
                 </div>
@@ -523,7 +509,7 @@ const EmailTrackingPage = () => {
             
             {/* New Stats Cards */}
             <div className="flex-shrink-0 grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-gray-50 border-b border-gray-200">
-                <StatCard title="Total Invited" value={totalInvited} icon={FiUsers} color="text-blue-500" />
+                <StatCard title="Total Invited" value={totalInvited} icon={FiUsers} color="text-emerald-500" />
                 <StatCard title="Slots Booked" value={totalBooked} icon={FiCheckCircle} color="text-green-500" />
                 <StatCard title="Pending" value={totalPending} icon={FiClock} color="text-yellow-500" />
             </div>

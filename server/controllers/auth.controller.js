@@ -32,6 +32,12 @@ const login = asyncHandler(async (req, res) => {
     throw new Error('Your account is inactive. Please contact support.');
   }
 
+  // Check if user has set a password yet
+  if (!user.password) {
+    res.status(401);
+    throw new Error('Please set your password first. Check your email for the account setup link.');
+  }
+
   // Check if password matches
   const isMatch = await user.matchPassword(password);
   if (!isMatch) {

@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import { useAlert } from '@/hooks/useAlert';
-import { updatePublicBookingLink, getPublicBookingDetails } from '@/api/admin.api';
+import { updatePublicBookingLink } from '@/api/admin.api';
+import { usePublicBookingDetails, useInvalidateAdmin } from '@/hooks/useAdminQueries';
 import {
   FiUpload,
   FiTrash2,
@@ -42,7 +43,7 @@ const LocalButton = ({
 
   const variants = {
     primary:
-      'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 hover:from-blue-700 hover:to-blue-800 border border-transparent',
+      'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 hover:from-emerald-700 hover:to-emerald-800 border border-transparent',
     outline:
       'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 shadow-sm',
     subtle:
@@ -182,21 +183,16 @@ const AuthorizeStudentsPage = () => {
   const fileInputRef = useRef(null);
   const dropRef = useRef(null);
 
-  const [loading, setLoading] = useState(true);
+  const { data: bookingDetails, isLoading: loading } = usePublicBookingDetails(id, {
+    onError: () => showError('Failed to load booking details.'),
+  });
+  const { invalidatePublicBookings } = useInvalidateAdmin();
   const [isSaving, setIsSaving] = useState(false);
   const [pastedText, setPastedText] = useState('');
   const [students, setStudents] = useState([]);
-  const [bookingDetails, setBookingDetails] = useState(null);
 
   const [showInvalidOnly, setShowInvalidOnly] = useState(false);
   const [q, setQ] = useState('');
-
-  useEffect(() => {
-    getPublicBookingDetails(id)
-      .then((res) => setBookingDetails(res.data.data))
-      .catch(() => showError('Failed to load booking details.'))
-      .finally(() => setLoading(false));
-  }, [id, showError]);
 
   const processText = useCallback((text) => {
     if (!text) {
@@ -268,9 +264,9 @@ const AuthorizeStudentsPage = () => {
     const el = dropRef.current;
     if (!el) return;
     const onPrevent = (e) => { e.preventDefault(); e.stopPropagation(); };
-    const onDrop = (e) => { onPrevent(e); const file = e.dataTransfer.files?.[0]; if (file) { handleFileChange({ target: { files: [file] } }); } el.classList.remove('ring-2', 'ring-blue-500'); };
-    const onDragEnter = (e) => { onPrevent(e); el.classList.add('ring-2', 'ring-blue-500'); };
-    const onDragLeave = (e) => { onPrevent(e); el.classList.remove('ring-2', 'ring-blue-500'); };
+    const onDrop = (e) => { onPrevent(e); const file = e.dataTransfer.files?.[0]; if (file) { handleFileChange({ target: { files: [file] } }); } el.classList.remove('ring-2', 'ring-emerald-500'); };
+    const onDragEnter = (e) => { onPrevent(e); el.classList.add('ring-2', 'ring-emerald-500'); };
+    const onDragLeave = (e) => { onPrevent(e); el.classList.remove('ring-2', 'ring-emerald-500'); };
     const onDragOver = onPrevent;
     el.addEventListener('dragenter', onDragEnter); el.addEventListener('dragleave', onDragLeave);
     el.addEventListener('dragover', onDragOver); el.addEventListener('drop', onDrop);
@@ -283,7 +279,7 @@ const AuthorizeStudentsPage = () => {
     const validStudents = students.filter((s) => s._isValid).map(({ _isValid, _error, ...rest }) => rest);
     if (validStudents.length === 0) { showError('No valid student data found to save.'); return; }
     setIsSaving(true);
-    try { await updatePublicBookingLink(id, { students: validStudents }); showSuccess(`${validStudents.length} students authorized and invited successfully!`); navigate('/admin/bookings/student-bookings'); }
+    try { await updatePublicBookingLink(id, { students: validStudents }); showSuccess(`${validStudents.length} students authorized and invited successfully!`); invalidatePublicBookings(); navigate('/admin/bookings/student-bookings'); }
     catch (err) { showError(err?.response?.data?.message || 'Failed to authorize students.'); }
     finally { setIsSaving(false); }
   };
@@ -314,7 +310,7 @@ const AuthorizeStudentsPage = () => {
     return (
       <div className="min-h-screen bg-slate-50 p-8 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
+          <div className="h-12 w-12 rounded-full border-4 border-emerald-200 border-t-emerald-600 animate-spin" />
           <p className="text-slate-500 font-medium animate-pulse">Loading booking details...</p>
         </div>
       </div>
@@ -329,7 +325,7 @@ const AuthorizeStudentsPage = () => {
           <div className="flex items-center gap-4">
             <Link
               to="/admin/bookings/student-bookings"
-              className="h-10 w-10 flex items-center justify-center rounded-full bg-slate-50 border border-slate-200 text-slate-600 hover:bg-white hover:text-blue-600 hover:border-blue-200 transition-all duration-200 shadow-sm"
+              className="h-10 w-10 flex items-center justify-center rounded-full bg-slate-50 border border-slate-200 text-slate-600 hover:bg-white hover:text-emerald-600 hover:border-emerald-200 transition-all duration-200 shadow-sm"
             >
               <FiArrowLeft className="h-5 w-5" />
             </Link>
@@ -338,10 +334,10 @@ const AuthorizeStudentsPage = () => {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-medium border border-blue-100">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-full text-xs font-medium border border-emerald-100">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
               {bookingDetails?.title || 'Booking Session'}
             </div>
@@ -360,7 +356,7 @@ const AuthorizeStudentsPage = () => {
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
                 <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
                   <div className="flex items-center gap-2 font-semibold text-slate-800">
-                    <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                    <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
                       <FiFileText className="h-4 w-4" />
                     </div>
                     Paste Data
@@ -376,14 +372,14 @@ const AuthorizeStudentsPage = () => {
                       value={pastedText}
                       onChange={(e) => processText(e.target.value)}
                       placeholder={`Paste student data here...\n\nSupported Columns:\n${columnsHelp.join(', ')}`}
-                      className="w-full h-full absolute inset-0 p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono text-slate-700 placeholder:text-slate-400 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all resize-none"
+                      className="w-full h-full absolute inset-0 p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono text-slate-700 placeholder:text-slate-400 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all resize-none"
                       spellCheck={false}
                     />
                   </div>
 
                   <div className="flex items-center justify-between pt-2">
                     <p className="text-xs text-slate-500 flex items-center gap-1.5">
-                      <FiInfo className="text-blue-500" />
+                      <FiInfo className="text-emerald-500" />
                       Tab or comma separated
                     </p>
                     <LocalButton variant="subtle" size="sm" icon={FiTrash2} onClick={handleClear} disabled={!pastedText && students.length === 0}>
@@ -406,12 +402,12 @@ const AuthorizeStudentsPage = () => {
                 <div className="p-5">
                   <div
                     ref={dropRef}
-                    className="group relative border-2 border-dashed border-slate-300 hover:border-blue-500 hover:bg-blue-50/30 rounded-xl p-8 text-center transition-all duration-200 cursor-pointer"
+                    className="group relative border-2 border-dashed border-slate-300 hover:border-emerald-500 hover:bg-emerald-50/30 rounded-xl p-8 text-center transition-all duration-200 cursor-pointer"
                     onClick={() => fileInputRef.current?.click()}
                   >
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv,.xlsx,.xls,.xlsm" className="hidden" />
 
-                    <div className="mb-4 inline-flex items-center justify-center h-12 w-12 rounded-full bg-blue-50 text-blue-600 group-hover:scale-110 transition-transform">
+                    <div className="mb-4 inline-flex items-center justify-center h-12 w-12 rounded-full bg-emerald-50 text-emerald-600 group-hover:scale-110 transition-transform">
                       <FiUpload className="h-6 w-6" />
                     </div>
                     <h3 className="text-sm font-medium text-slate-900 mb-1">Click to upload or drag and drop</h3>
@@ -433,7 +429,7 @@ const AuthorizeStudentsPage = () => {
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="Search students..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all"
                   />
                 </div>
 
@@ -441,7 +437,7 @@ const AuthorizeStudentsPage = () => {
                   <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors select-none">
                     <input
                       type="checkbox"
-                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                      className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 h-4 w-4"
                       checked={showInvalidOnly}
                       onChange={(e) => setShowInvalidOnly(e.target.checked)}
                     />
@@ -525,7 +521,7 @@ const AuthorizeStudentsPage = () => {
                                 href={/^https?:\/\//i.test(s.resumeLink) ? s.resumeLink : `https://${s.resumeLink}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-colors font-medium text-xs"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 transition-colors font-medium text-xs"
                               >
                                 View <FiFileText className="h-3 w-3" />
                               </a>
@@ -561,7 +557,7 @@ const AuthorizeStudentsPage = () => {
                     disabled={validCount === 0}
                     variant="primary"
                     size="lg"
-                    className="shadow-xl shadow-blue-600/20"
+                    className="shadow-xl shadow-emerald-600/20"
                   >
                     {`Authorize & Invite ${validCount} Students`}
                   </LocalButton>

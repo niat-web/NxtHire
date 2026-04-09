@@ -9,7 +9,8 @@ import { format } from 'date-fns';
 import { FiDownload, FiPlus, FiEdit, FiTrash2, FiMoreVertical, FiSearch, FiInbox, FiAlertTriangle, FiChevronLeft, FiChevronRight, FiRefreshCw, FiUpload, FiFilter, FiX, FiLoader } from 'react-icons/fi';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
-import { getMainSheetEntries, deleteMainSheetEntry, getInterviewers, bulkUpdateMainSheetEntries, getUniqueHiringNames, getDomains, refreshRecordingLinks, bulkUploadMainSheetEntries as bulkUpload, exportMainSheet } from '@/api/admin.api';
+import { deleteMainSheetEntry, bulkUpdateMainSheetEntries, refreshRecordingLinks, bulkUploadMainSheetEntries as bulkUpload, exportMainSheet } from '@/api/admin.api';
+import { useMainSheetEntries, useInterviewers, useHiringNames, useDomains, useInvalidateAdmin } from '@/hooks/useAdminQueries';
 import { useAlert } from '@/hooks/useAlert';
 import { debounce } from '@/utils/helpers';
 import { formatDate, formatTime } from '@/utils/formatters'; // <-- Ensure formatTime is imported
@@ -19,23 +20,23 @@ import { MAIN_SHEET_INTERVIEW_STATUSES } from '@/utils/constants';
 // (LocalButton, LocalSearchInput, LocalConfirmDialog, LocalDropdownMenu, LocalEmptyState, SkeletonRow, LocalTable, EditableHiringName, EditableDomainCell, UploadModal, RemarksModal, EditableCell)
 
 const LocalButton = ({ children, onClick, isLoading = false, variant = 'primary', icon: Icon, className = '', disabled = false, type = 'button' }) => {
-    const baseClasses = "inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md focus:outline-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm";
+    const baseClasses = "inline-flex items-center justify-center px-3.5 py-2 text-sm font-medium rounded-lg focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
     const variantClasses = {
-        primary: 'bg-blue-600 text-white hover:bg-blue-700',
-        outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
-        danger: 'bg-red-600 text-white hover:bg-red-700',
+        primary: 'bg-slate-900 text-white hover:bg-black shadow-sm',
+        outline: 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-900',
+        danger: 'bg-red-600 text-white hover:bg-red-700 shadow-sm',
     };
     const iconOnlyClass = !children && Icon ? '!px-2' : '';
     return (
         <button type={type} onClick={onClick} disabled={isLoading || disabled} className={`${baseClasses} ${variantClasses[variant]} ${iconOnlyClass} ${className}`}>
-            {isLoading ? <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> : (Icon && <Icon className={`h-4 w-4 ${children ? 'mr-2' : ''}`} />)}
+            {isLoading ? <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> : (Icon && <Icon className={`h-4 w-4 ${children ? 'mr-1.5' : ''}`} />)}
             {isLoading ? "Processing..." : children}
         </button>
     );
 };
 
 const LocalSearchInput = ({ value, onChange, placeholder }) => (
-    <div className="relative"><FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" /><input type="text" value={value} onChange={onChange} placeholder={placeholder} className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm" /></div>
+    <div className="relative"><FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" /><input type="text" value={value} onChange={onChange} placeholder={placeholder} className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 text-sm bg-gray-50" /></div>
 );
 
 // ... (other local components: LocalConfirmDialog, LocalDropdownMenu, LocalEmptyState, SkeletonRow, LocalTable, EditableHiringName, EditableDomainCell, UploadModal, RemarksModal, EditableCell are omitted for brevity, assumed functional) ...
@@ -255,7 +256,7 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, title, instructions, re
             <div className="relative w-full max-w-4xl bg-white rounded-lg shadow-xl flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                 <div className="p-4 border-b"><h3 className="text-lg font-semibold text-gray-800">{title}</h3></div>
                 <div className="p-6 flex-grow overflow-y-auto space-y-4">
-                    <div className="flex items-center gap-4"><input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>{error && <p className="text-red-600 text-sm font-semibold">{error}</p>}</div>
+                    <div className="flex items-center gap-4"><input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"/>{error && <p className="text-red-600 text-sm font-semibold">{error}</p>}</div>
                     {parsedData.length > 0 && (<div className="border border-gray-200 rounded-lg max-h-80 overflow-auto"><table className="min-w-full text-xs"><thead className="bg-gray-100 sticky top-0"><tr className="text-left font-semibold text-gray-600">{Object.keys(parsedData[0]).map(h => <th key={h} className="p-2 border-b">{h}</th>)}</tr></thead><tbody>{parsedData.slice(0, 10).map((row, i) => (<tr key={i} className="bg-white border-b">{Object.values(row).map((val, j) => <td key={j} className="p-2 truncate" title={val}>{String(val)}</td>)}</tr>))}</tbody></table>{parsedData.length > 10 && <div className="p-2 text-center text-sm bg-gray-50">...and {parsedData.length - 10} more rows</div>}</div>)}
                 </div>
                 <div className="bg-gray-50 p-4 flex justify-between items-center border-t">
@@ -319,7 +320,7 @@ const EditableCell = ({ value, onSave, isLoading, fieldName, rowId }) => {
                 onBlur={handleSave}
                 disabled={isLoading}
                 placeholder=""
-                className="w-full text-xs p-2 border border-transparent rounded-md bg-transparent focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-400 resize-none h-[38px] leading-tight"
+                className="w-full text-xs p-2 border border-transparent rounded-md bg-transparent focus:bg-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 resize-none h-[38px] leading-tight"
             />
             {isLoading && <FiLoader className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-gray-400" />}
         </div>
@@ -330,25 +331,62 @@ const EditableCell = ({ value, onSave, isLoading, fieldName, rowId }) => {
 const MainSheet = () => {
     const { showSuccess, showError } = useAlert();
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(true);
-    const [entries, setEntries] = useState([]);
     const [search, setSearch] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
     const [tempFilters, setTempFilters] = useState({ interviewDate: null, interviewStatus: '' });
     const [activeFilters, setActiveFilters] = useState({ interviewDate: null, interviewStatus: '' });
     const filterMenuRef = useRef(null);
-    const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalItems: 0 });
+    const [currentPage, setCurrentPage] = useState(1);
     const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, entry: null, isLoading: false });
     const [updatingId, setUpdatingId] = useState(null);
-    const [interviewerOptions, setInterviewerOptions] = useState([]);
-    const [hiringNames, setHiringNames] = useState([]);
-    const [domainOptions, setDomainOptions] = useState([]);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
     const [sortConfig, setSortConfig] = useState({ key: 'interviewId', direction: 'desc' });
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-    const [remarksModal, setRemarksModal] = useState({ isOpen: false, content: '' }); 
+    const [remarksModal, setRemarksModal] = useState({ isOpen: false, content: '' });
+
+    const { invalidateMainSheet } = useInvalidateAdmin();
+
+    // --- TanStack Query: build query params ---
+    const queryParams = useMemo(() => {
+        const params = { search: debouncedSearch, page: currentPage, limit: 100, ...activeFilters, sortBy: sortConfig.key, sortOrder: sortConfig.direction };
+        if (activeFilters.interviewDate) {
+            params.interviewDate = format(activeFilters.interviewDate, 'yyyy-MM-dd');
+        }
+        return params;
+    }, [debouncedSearch, currentPage, activeFilters, sortConfig]);
+
+    const { data: entriesData, isLoading: loading } = useMainSheetEntries(queryParams);
+    const entries = entriesData?.entries || [];
+    const pagination = {
+        currentPage: entriesData?.page || 1,
+        totalPages: entriesData?.totalPages || 1,
+        totalItems: entriesData?.totalDocs || 0,
+    };
+
+    const { data: interviewersData } = useInterviewers({ limit: 500, status: 'Active,On Probation' });
+    const interviewerOptions = useMemo(() =>
+        (interviewersData?.interviewers || []).map(i => ({ value: i._id, label: `${i.user.firstName} ${i.user.lastName}`, email: i.user.email })),
+        [interviewersData]
+    );
+
+    const { data: hiringNamesData } = useHiringNames();
+    const hiringNames = hiringNamesData || [];
+
+    const { data: domainsData } = useDomains();
+    const domainOptions = useMemo(() =>
+        (domainsData || []).map(d => ({ value: d.name, label: d.name })),
+        [domainsData]
+    );
+
+    // --- Debounce search input to update query params ---
+    const debouncedSetSearch = useMemo(() => debounce((value) => {
+        setDebouncedSearch(value);
+        setCurrentPage(1);
+    }, 300), []);
+    useEffect(() => { debouncedSetSearch(search); return () => debouncedSetSearch.cancel(); }, [search, debouncedSetSearch]);
 
     const handleSort = (key) => {
         setSortConfig(prevConfig => {
@@ -373,59 +411,6 @@ const MainSheet = () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [isFilterMenuOpen]);
-
-    const silentFetchEntries = useCallback(async (page = 1) => {
-        try {
-            const params = { search, page, limit: 100, ...activeFilters, sortBy: sortConfig.key, sortOrder: sortConfig.direction };
-            if (activeFilters.interviewDate) {
-                params.interviewDate = format(activeFilters.interviewDate, 'yyyy-MM-dd');
-            }
-            const response = await getMainSheetEntries(params);
-            const resData = response.data.data;
-            setEntries(resData.entries || []);
-            setPagination({
-                currentPage: resData.page || 1,
-                totalPages: resData.totalPages || 1,
-                totalItems: resData.totalDocs || 0
-            });
-        } catch (error) { 
-            showError("Failed to refresh main sheet data.");
-        }
-    }, [search, activeFilters, sortConfig, showError]);
-    
-    const fetchEntries = useCallback(async (page = 1) => {
-        setLoading(true);
-        try {
-            const params = { search, page, limit: 100, ...activeFilters, sortBy: sortConfig.key, sortOrder: sortConfig.direction };
-            if (activeFilters.interviewDate) {
-                params.interviewDate = format(activeFilters.interviewDate, 'yyyy-MM-dd');
-            }
-            const response = await getMainSheetEntries(params);
-            const resData = response.data.data;
-            setEntries(resData.entries || []);
-            setPagination({
-                currentPage: resData.page || 1,
-                totalPages: resData.totalPages || 1,
-                totalItems: resData.totalDocs || 0
-            });
-        } catch (error) { 
-            showError("Failed to fetch main sheet data.");
-        } finally { 
-            setLoading(false);
-        }
-    }, [search, activeFilters, sortConfig, showError]);
-
-    useEffect(() => {
-        getUniqueHiringNames().then(res => setHiringNames(res.data.data)).catch(() => showError("Failed to load hiring names list."));
-        getInterviewers({ limit: 500, status: 'Active,On Probation' }).then(res => {
-            const options = (res.data.data.interviewers || []).map(i => ({ value: i._id, label: `${i.user.firstName} ${i.user.lastName}`, email: i.user.email, }));
-            setInterviewerOptions(options);
-        }).catch(() => showError("Failed to load interviewers list."));
-        getDomains().then(res => { const options = (res.data.data || []).map(d => ({ value: d.name, label: d.name })); setDomainOptions(options); }).catch(() => showError("Failed to load domains from Evaluation Setup."));
-    }, [showError]);
-    
-    const debouncedFetch = useMemo(() => debounce(() => fetchEntries(1), 300), [fetchEntries]);
-    useEffect(() => { debouncedFetch(); return () => debouncedFetch.cancel(); }, [debouncedFetch, activeFilters, sortConfig]);
     
     const handleCellSave = async (entryId, fieldKey, newValue) => {
         setUpdatingId(entryId);
@@ -433,10 +418,7 @@ const MainSheet = () => {
             const entry = entries.find(e => e._id === entryId);
             if (!entry) throw new Error("Entry not found");
             await bulkUpdateMainSheetEntries([{ ...entry, [fieldKey]: newValue }]);
-            setEntries(current => current.map(e => e._id === entryId ? { ...e, [fieldKey]: newValue } : e));
-            if (fieldKey === 'hiringName' && newValue && !hiringNames.includes(newValue)) {
-                setHiringNames(prev => [...prev, newValue].sort());
-            }
+            invalidateMainSheet();
         } catch (error) {
             showError(`Failed to update ${fieldKey}.`);
         } finally {
@@ -449,7 +431,7 @@ const MainSheet = () => {
         try {
             const response = await refreshRecordingLinks();
             showSuccess(response.data.message);
-            await silentFetchEntries(pagination.currentPage);
+            invalidateMainSheet();
         } catch (error) {
             showError('Failed to refresh recording links.');
         } finally {
@@ -467,7 +449,7 @@ const MainSheet = () => {
             }
             showSuccess(`${created} entries imported successfully!`);
             setIsUploadModalOpen(false);
-            fetchEntries(1);
+            invalidateMainSheet();
         } catch(err) {
             showError(err.response?.data?.message || 'Bulk upload failed. Please ensure the data format is correct.');
         } finally {
@@ -482,8 +464,6 @@ const MainSheet = () => {
     const handleInterviewerChange = async (entryId, newInterviewerId) => {
         const valueToSend = newInterviewerId === '' ? null : newInterviewerId;
         await handleCellSave(entryId, 'interviewer', valueToSend);
-        const selectedInterviewer = interviewerOptions.find(opt => opt.value === newInterviewerId);
-        setEntries(current => current.map(e => e._id === entryId ? { ...e, interviewer: selectedInterviewer ? { _id: selectedInterviewer.value, user: { firstName: selectedInterviewer.label.split(' ')[0], lastName: selectedInterviewer.label.split(' ').slice(1).join(' '), email: selectedInterviewer.email }} : null } : e));
     };
 
     const handleDeleteRequest = useCallback((entry) => setDeleteDialog({ isOpen: true, entry, isLoading: false }), []);
@@ -494,7 +474,7 @@ const MainSheet = () => {
         try {
             await deleteMainSheetEntry(deleteDialog.entry._id);
             showSuccess('Entry deleted successfully!');
-            silentFetchEntries(pagination.currentPage);
+            invalidateMainSheet();
         } catch (error) { showError('Failed to delete entry.'); } 
         finally { setDeleteDialog({ isOpen: false, entry: null, isLoading: false }); }
     };
@@ -538,10 +518,10 @@ const MainSheet = () => {
         { key: 'uid', title: 'UID', minWidth: '120px' },
         { key: 'mobileNumber', title: 'Mobile', minWidth: '120px' },
         { key: 'mailId', title: "Mail ID", minWidth: '200px' },
-        { key: 'candidateResume', title: 'Resume', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Link</a> : '' },
-        { key: 'meetingLink', title: 'Meeting Link', minWidth: '250px', render: (row) => row.meetingLink ? (<a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate block max-w-[250px]" title={row.meetingLink}>{row.meetingLink}</a>) : '' },
-        { key: 'recordingLink', title: 'Recording Link', minWidth: '250px', render: (row) => row.recordingLink ? (<a href={row.recordingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate block max-w-[250px]" title={row.recordingLink}>{row.recordingLink}</a>) : '' },
-        { key: 'transcriptLink', title: 'Transcript Link', minWidth: '250px', render: (row) => row.transcriptLink ? (<a href={row.transcriptLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate block max-w-[250px]" title={row.transcriptLink}>{row.transcriptLink}</a>) : '' },
+        { key: 'candidateResume', title: 'Resume', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline">Link</a> : '' },
+        { key: 'meetingLink', title: 'Meeting Link', minWidth: '250px', render: (row) => row.meetingLink ? (<a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline truncate block max-w-[250px]" title={row.meetingLink}>{row.meetingLink}</a>) : '' },
+        { key: 'recordingLink', title: 'Recording Link', minWidth: '250px', render: (row) => row.recordingLink ? (<a href={row.recordingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline truncate block max-w-[250px]" title={row.recordingLink}>{row.recordingLink}</a>) : '' },
+        { key: 'transcriptLink', title: 'Transcript Link', minWidth: '250px', render: (row) => row.transcriptLink ? (<a href={row.transcriptLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline truncate block max-w-[250px]" title={row.transcriptLink}>{row.transcriptLink}</a>) : '' },
         { key: 'interviewDate', title: 'Date', render: (row) => row.interviewDate ? formatDate(row.interviewDate) : '' },
         { 
             key: 'interviewTime', 
@@ -557,9 +537,9 @@ const MainSheet = () => {
             // --- MODIFICATION END ---
         },
         { key: 'interviewDuration', title: 'Duration' },
-        { key: 'interviewStatus', title: 'Status', minWidth: '150px', render: (row) => { const statusColors = {'Completed': 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200','Scheduled': 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200','InProgress': 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200','Cancelled': 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200' }; return (<select value={row.interviewStatus || ''} onChange={(e) => handleStatusChange(row._id, e.target.value)} disabled={updatingId === row._id} className={`w-full text-xs font-semibold px-2 py-1.5 border rounded-md shadow-sm focus:outline-none focus:ring-1 transition-colors cursor-pointer ${statusColors[row.interviewStatus] || 'bg-gray-100'}`} onClick={(e) => e.stopPropagation()}><option value="" disabled>Select Status</option>{MAIN_SHEET_INTERVIEW_STATUSES.map(status => (<option key={status.value} value={status.value}>{status.label}</option>))}</select>); } },
+        { key: 'interviewStatus', title: 'Status', minWidth: '150px', render: (row) => { const statusColors = {'Completed': 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200','Scheduled': 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200','InProgress': 'bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-200','Cancelled': 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200' }; return (<select value={row.interviewStatus || ''} onChange={(e) => handleStatusChange(row._id, e.target.value)} disabled={updatingId === row._id} className={`w-full text-xs font-semibold px-2 py-1.5 border rounded-md shadow-sm focus:outline-none focus:ring-1 transition-colors cursor-pointer ${statusColors[row.interviewStatus] || 'bg-gray-100'}`} onClick={(e) => e.stopPropagation()}><option value="" disabled>Select Status</option>{MAIN_SHEET_INTERVIEW_STATUSES.map(status => (<option key={status.value} value={status.value}>{status.label}</option>))}</select>); } },
         { key: 'remarks', title: 'Remarks', minWidth: '250px', render: (row) => <EditableCell value={row.remarks} onSave={handleCellSave} fieldName="remarks" rowId={row._id} isLoading={updatingId === row._id} /> },
-        { key: 'interviewerName', title: 'Interviewer', minWidth: '180px', render: (row) => (<select value={row.interviewer?._id || ''} onChange={(e) => handleInterviewerChange(row._id, e.target.value)} disabled={updatingId === row._id} className="w-full p-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors" onClick={(e) => e.stopPropagation()}><option value="">Unassigned</option>{interviewerOptions.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select>) },
+        { key: 'interviewerName', title: 'Interviewer', minWidth: '180px', render: (row) => (<select value={row.interviewer?._id || ''} onChange={(e) => handleInterviewerChange(row._id, e.target.value)} disabled={updatingId === row._id} className="w-full p-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-slate-400 transition-colors" onClick={(e) => e.stopPropagation()}><option value="">Unassigned</option>{interviewerOptions.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select>) },
         { key: 'interviewerMail', title: "Interviewer Mail", minWidth: '200px', render: (row) => row.interviewer?.user?.email || '' },
         { key: 'interviewerRemarks', title: 'Interviewer Remarks', minWidth: '250px', render: (row) => {
             const remarks = row.interviewerRemarks;
@@ -569,7 +549,7 @@ const MainSheet = () => {
             return (
                 <div className="flex items-center overflow-hidden p-2">
                     <span className="truncate" title={remarks}>{remarks.substring(0, charLimit)}...</span>
-                    <button onClick={() => openRemarksModal(remarks)} className="ml-1 text-blue-600 hover:underline text-xs font-semibold flex-shrink-0">more</button>
+                    <button onClick={() => openRemarksModal(remarks)} className="ml-1 text-blue-600 hover:text-blue-800 hover:underline text-xs font-semibold flex-shrink-0">more</button>
                 </div>
             );
         }},
@@ -592,47 +572,58 @@ const MainSheet = () => {
     const showingTo = Math.min(pagination.currentPage * 100, pagination.totalItems);
 
     return (
-        <div className="h-full w-full flex flex-col bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-            <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 flex-shrink-0">
-                <h1 className="text-xl font-bold text-gray-800">Master Data Sheet</h1>
-                <div className="flex items-center gap-2 flex-wrap">
-                    <LocalSearchInput value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch(e => ({...e, search: ''}))} placeholder="Search..." />
-                    <div className="relative" ref={filterMenuRef}>
-                        <LocalButton variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}>
-                            <FiFilter className="h-4 w-4 mr-2" />
-                            Filter
-                            {isFilterActive && <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-2 p-1 rounded-full hover:bg-gray-200"><FiX className="h-3 w-3 text-gray-500" /></span>}
-                        </LocalButton>
-                        {isFilterMenuOpen && (
-                            <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-md shadow-lg border z-20 p-4">
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Interview Date</label>
-                                        <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(prev => ({ ...prev, interviewDate: date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-300 rounded-md text-sm"/>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Interview Status</label>
-                                        <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(prev => ({...prev, interviewStatus: e.target.value}))} className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm">
-                                            <option value="">All Statuses</option>
-                                            {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className="mt-4 pt-4 border-t flex justify-end gap-2">
-                                    <LocalButton variant="outline" onClick={handleClearFilters} className="!text-xs">Clear</LocalButton>
-                                    <LocalButton variant="primary" onClick={handleApplyFilters} className="!text-xs">Apply</LocalButton>
-                                </div>
-                            </div>
+        <div className="h-full w-full flex flex-col overflow-hidden">
+            {/* Header */}
+            <div className="bg-white border-b border-gray-200 px-5 py-3 flex-shrink-0">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                    <div className="flex items-center gap-4">
+                        <h1 className="text-lg font-bold text-gray-900">Main Sheet</h1>
+                        {pagination.totalItems > 0 && (
+                            <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full">{pagination.totalItems} records</span>
                         )}
                     </div>
-                    <LocalButton variant="outline" icon={FiRefreshCw} onClick={handleRefreshRecordings} isLoading={isRefreshing}>{isRefreshing ? 'Refreshing...' : 'Reload'}</LocalButton>
-                    <LocalButton variant="outline" icon={FiDownload} onClick={handleExport} isLoading={isExporting}>{isExporting ? 'Exporting...' : 'Export'}</LocalButton>
-                    <LocalButton variant="outline" icon={FiUpload} onClick={() => setIsUploadModalOpen(true)}>Import</LocalButton>
-                    <LocalButton variant="primary" icon={FiPlus} onClick={() => navigate('/admin/main-sheet/add')}>Add Entries</LocalButton>
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <div className="w-56">
+                            <LocalSearchInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search..." />
+                        </div>
+                        <div className="relative" ref={filterMenuRef}>
+                            <LocalButton variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}>
+                                <FiFilter className="h-4 w-4 mr-1.5" />
+                                Filter
+                                {isFilterActive && <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-1.5 p-0.5 rounded-full hover:bg-gray-200"><FiX className="h-3 w-3 text-gray-500" /></span>}
+                            </LocalButton>
+                            {isFilterMenuOpen && (
+                                <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 z-20 p-4">
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Date</label>
+                                            <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(prev => ({ ...prev, interviewDate: date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10"/>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Status</label>
+                                            <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(prev => ({...prev, interviewStatus: e.target.value}))} className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer">
+                                                <option value="">All Statuses</option>
+                                                {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 pt-3 border-t border-gray-100 flex justify-end gap-2">
+                                        <LocalButton variant="outline" onClick={handleClearFilters} className="!text-xs">Clear</LocalButton>
+                                        <LocalButton variant="primary" onClick={handleApplyFilters} className="!text-xs">Apply</LocalButton>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <div className="h-5 w-px bg-gray-200 hidden sm:block" />
+                        <LocalButton variant="outline" icon={FiRefreshCw} onClick={handleRefreshRecordings} isLoading={isRefreshing}>Reload</LocalButton>
+                        <LocalButton variant="outline" icon={FiDownload} onClick={handleExport} isLoading={isExporting}>Export</LocalButton>
+                        <LocalButton variant="outline" icon={FiUpload} onClick={() => setIsUploadModalOpen(true)}>Import</LocalButton>
+                        <LocalButton variant="primary" icon={FiPlus} onClick={() => navigate('/admin/main-sheet/add')}>Add Entries</LocalButton>
+                    </div>
                 </div>
             </div>
             
-            <div className="flex-grow overflow-auto">
+            <div className="flex-1 overflow-auto bg-white">
                 <LocalTable
                     columns={columns}
                     data={entries}
@@ -645,7 +636,7 @@ const MainSheet = () => {
             </div>
 
             {!loading && pagination && pagination.totalPages > 1 && (
-                <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4 flex-shrink-0">
+                <div className="flex items-center justify-between border-t border-gray-200 bg-white px-5 py-3 flex-shrink-0">
                     <div>
                         <p className="text-sm text-gray-700">
                             Showing <span className="font-medium">{showingFrom}</span> to <span className="font-medium">{showingTo}</span> of{' '}
@@ -655,7 +646,7 @@ const MainSheet = () => {
                     <div className="flex space-x-2">
                         <LocalButton
                             variant="outline"
-                            onClick={() => fetchEntries(pagination.currentPage - 1)}
+                            onClick={() => setCurrentPage(pagination.currentPage - 1)}
                             disabled={loading || pagination.currentPage <= 1}
                             className="px-3 py-2"
                         >
@@ -675,12 +666,12 @@ const MainSheet = () => {
                                 }
 
                                 if (pageNumber > pagination.totalPages || pageNumber < 1) return null;
-                                
+
                                 return (
                                     <LocalButton
                                         key={i}
                                         variant={pageNumber === pagination.currentPage ? "primary" : "outline"}
-                                        onClick={() => fetchEntries(pageNumber)}
+                                        onClick={() => setCurrentPage(pageNumber)}
                                         className="px-3 py-2 min-w-[40px]"
                                     >
                                         {pageNumber}
@@ -690,7 +681,7 @@ const MainSheet = () => {
                         </div>
                         <LocalButton
                             variant="outline"
-                            onClick={() => fetchEntries(pagination.currentPage + 1)}
+                            onClick={() => setCurrentPage(pagination.currentPage + 1)}
                             disabled={loading || pagination.currentPage >= pagination.totalPages}
                             className="px-3 py-2"
                         >

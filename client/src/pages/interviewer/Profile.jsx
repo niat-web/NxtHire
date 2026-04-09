@@ -1,18 +1,19 @@
 // client/src/pages/interviewer/Profile.jsx
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { 
-    FiSave, FiUser, FiDollarSign, FiKey, FiEye, FiEyeOff, FiBriefcase, 
-    FiLock, FiEdit, FiTrash2, FiPlus, FiPhone, FiMail, FiCheckCircle, 
+import {
+    FiSave, FiUser, FiDollarSign, FiKey, FiEye, FiEyeOff, FiBriefcase,
+    FiLock, FiEdit, FiTrash2, FiPlus, FiPhone, FiMail, FiCheckCircle,
     FiAlertTriangle, FiX, FiLayers, FiShield, FiCalendar, FiMapPin
 } from 'react-icons/fi';
-import { getProfile, updateProfile, updateBankDetails, addExperience, updateExperience, deleteExperience, addSkill, updateSkill, deleteSkill } from '../../api/interviewer.api';
+import { updateProfile, updateBankDetails, addExperience, updateExperience, deleteExperience, addSkill, updateSkill, deleteSkill } from '../../api/interviewer.api';
 import { useAuth } from '../../hooks/useAuth';
 import { useAlert } from '../../hooks/useAlert';
 import { formatDate } from '../../utils/formatters';
 import Badge from '../../components/common/Badge';
+import { useInterviewerProfile, useInvalidateInterviewer } from '../../hooks/useInterviewerQueries';
 
 // --- STYLED UI COMPONENTS ---
 
@@ -245,8 +246,6 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, itemType, isLoading })
 const Profile = () => {
   const { currentUser, updateProfile: updateAuthProfile, changePassword } = useAuth();
   const { showSuccess, showError } = useAlert();
-  const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState(null);
   const [activeTab, setActiveTab] = useState('Experience');
   const [submittingSection, setSubmittingSection] = useState(null);
   const [isExperienceModalOpen, setIsExperienceModalOpen] = useState(false);
@@ -255,44 +254,41 @@ const Profile = () => {
   const [editingSkill, setEditingSkill] = useState(null);
   const [deleteModalState, setDeleteModalState] = useState({ isOpen: false, item: null, type: '' });
 
-  
+  const { data: profile, isLoading: loading } = useInterviewerProfile();
+  const { invalidateProfile } = useInvalidateInterviewer();
+
   const { register: registerBasic, handleSubmit: handleSubmitBasic, formState: { errors: errorsBasic }, reset: resetBasic } = useForm();
   const { register: registerBank, handleSubmit: handleSubmitBank, formState: { errors: errorsBank }, reset: resetBank } = useForm();
   const { register: registerPassword, handleSubmit: handleSubmitPassword, formState: { errors: errorsPassword }, reset: resetPasswordHook, watch } = useForm();
-  
+
   const newPassword = watch('newPassword', '');
-  
-  const fetchProfileData = useCallback(() => {
-    setLoading(true);
-    getProfile().then(response => {
-        const data = response.data.data;
-        setProfile(data);
+
+  useEffect(() => {
+    if (profile) {
         resetBasic({
           firstName: currentUser?.firstName, lastName: currentUser?.lastName,
           phoneNumber: currentUser?.phoneNumber, whatsappNumber: currentUser?.whatsappNumber,
-          currentEmployer: data.currentEmployer, jobTitle: data.jobTitle,
-          yearsOfExperience: data.yearsOfExperience, companyType: data.companyType
+          currentEmployer: profile.currentEmployer, jobTitle: profile.jobTitle,
+          yearsOfExperience: profile.yearsOfExperience, companyType: profile.companyType
         });
         resetBank({
-            accountName: data.bankDetails?.accountName, accountNumber: data.bankDetails?.accountNumber,
-            bankName: data.bankDetails?.bankName, ifscCode: data.bankDetails?.ifscCode
+            accountName: profile.bankDetails?.accountName, accountNumber: profile.bankDetails?.accountNumber,
+            bankName: profile.bankDetails?.bankName, ifscCode: profile.bankDetails?.ifscCode
         });
-    }).catch(() => showError('Failed to load profile data.'))
-    .finally(() => setLoading(false));
-  }, [currentUser, resetBasic, resetBank, showError]);
-  
-  useEffect(fetchProfileData, [fetchProfileData]);
+    }
+  }, [profile, currentUser, resetBasic, resetBank]);
   
   const onSubmitBasicInfo = async (data) => {
     setSubmittingSection('basic');
     try {
       await updateAuthProfile({ firstName: data.firstName, lastName: data.lastName, phoneNumber: data.phoneNumber, whatsappNumber: data.whatsappNumber });
-      await updateProfile({ 
-          currentEmployer: data.currentEmployer, 
+      await updateProfile({
+          currentEmployer: data.currentEmployer,
           jobTitle: data.jobTitle,
           yearsOfExperience: data.yearsOfExperience,
           companyType: data.companyType
       });
+      invalidateProfile();
       showSuccess('Profile updated successfully!');
     } catch (error) { showError('Failed to update profile.'); } 
     finally { setSubmittingSection(null); }
@@ -302,6 +298,7 @@ const Profile = () => {
     setSubmittingSection('bank');
     try {
       await updateBankDetails(data);
+      invalidateProfile();
       showSuccess('Bank details updated successfully!');
     } catch (error) { showError('Failed to update bank details.'); } 
     finally { setSubmittingSection(null); }
@@ -328,7 +325,7 @@ const Profile = () => {
               await addExperience(data);
               showSuccess("Experience added!");
           }
-          fetchProfileData();
+          invalidateProfile();
           setIsExperienceModalOpen(false);
           setEditingExperience(null);
       } catch (err) { showError("Failed to save experience."); } 
@@ -345,7 +342,7 @@ const Profile = () => {
             await addSkill(data);
             showSuccess("Skill added!");
         }
-        fetchProfileData();
+        invalidateProfile();
         setIsSkillModalOpen(false);
         setEditingSkill(null);
     } catch (err) {
@@ -372,7 +369,7 @@ const Profile = () => {
             await deleteSkill(item._id);
             showSuccess("Skill deleted.");
         }
-        fetchProfileData();
+        invalidateProfile();
         setDeleteModalState({ isOpen: false, item: null, type: '' });
     } catch (err) {
         showError(`Failed to delete ${type.toLowerCase()}.`);
@@ -382,62 +379,124 @@ const Profile = () => {
   };
 
   if (loading) return <LocalLoader />;
-  
+
   const tabs = [
     { id: 'Experience', label: 'Experience', icon: FiBriefcase },
     { id: 'Skills', label: 'Skills', icon: FiLayers },
     { id: 'Profile Details', label: 'Profile Details', icon: FiUser },
     { id: 'Security', label: 'Security', icon: FiShield }
   ];
-  
+
+  const statusColor = profile?.status === 'Active' ? 'bg-emerald-500' : profile?.status === 'On Probation' ? 'bg-amber-500' : 'bg-gray-400';
+
   return (
-    <div className="flex flex-col h-full bg-[#F5F7F9]">
-        {/* Header Section */}
-        <div className="bg-white border-b border-gray-200 px-6 py-8 flex-shrink-0">
-            <div className="flex flex-col md:flex-row items-center gap-6">
-                <div className="h-20 w-20 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white text-3xl font-bold border-4 border-white shadow-lg">
-                    {currentUser?.firstName?.charAt(0)}
-                </div>
-                <div className="flex-grow text-center md:text-left">
-                    <h1 className="text-2xl font-bold text-gray-900">{currentUser?.firstName} {currentUser?.lastName}</h1>
-                    <div className="mt-2 flex flex-col md:flex-row items-center gap-x-6 gap-y-2 text-sm text-gray-500 font-medium">
-                        <span className="flex items-center"><FiBriefcase className="mr-2" /> {profile?.jobTitle || 'No Title'} at {profile?.currentEmployer || 'No Company'}</span>
-                        <span className="flex items-center"><FiMail className="mr-2" /> {currentUser?.email}</span>
-                        <span className="flex items-center"><FiPhone className="mr-2" /> {currentUser?.phoneNumber || 'No phone'}</span>
+    <div className="flex h-full bg-[#F5F7F9] overflow-hidden">
+
+        {/* ─── LEFT: Profile Sidebar ─────────────────────────────────── */}
+        <div className="w-72 shrink-0 bg-white border-r border-gray-200 flex flex-col overflow-y-auto hidden lg:flex">
+            {/* Avatar & Info */}
+            <div className="p-6 text-center border-b border-gray-100">
+                <div className="relative inline-block">
+                    <div className="h-20 w-20 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white text-2xl font-bold mx-auto shadow-lg">
+                        {currentUser?.firstName?.charAt(0)}
                     </div>
+                    <span className={`absolute bottom-1 right-1 w-4 h-4 ${statusColor} rounded-full border-2 border-white`} title={profile?.status} />
                 </div>
-                <div className="flex gap-3">
-                     <div className="text-center px-4 py-2 bg-gray-50 rounded-lg border border-gray-100">
-                         <span className="block text-xs font-bold text-gray-400 uppercase tracking-wide">Status</span>
-                         <Badge variant={profile?.status === 'Active' ? 'success' : 'warning'}>{profile?.status}</Badge>
-                     </div>
-                </div>
+                <h2 className="text-base font-bold text-gray-900 mt-3">{currentUser?.firstName} {currentUser?.lastName}</h2>
+                <p className="text-xs text-gray-500 mt-0.5">{profile?.jobTitle || 'No Title'} at {profile?.currentEmployer || '—'}</p>
+                <span className={`inline-block mt-2 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide rounded-full ${
+                    profile?.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                }`}>
+                    {profile?.status}
+                </span>
             </div>
-            {/* Tabs */}
-            <div className="flex space-x-1 mt-8 border-b border-gray-200 overflow-x-auto">
+
+            {/* Quick Info */}
+            <div className="px-5 py-4 space-y-3 border-b border-gray-100">
+                <div className="flex items-center gap-3 text-sm">
+                    <FiMail className="w-4 h-4 text-gray-400 shrink-0" />
+                    <span className="text-gray-600 truncate text-xs">{currentUser?.email}</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm">
+                    <FiPhone className="w-4 h-4 text-gray-400 shrink-0" />
+                    <span className="text-gray-600 text-xs">{currentUser?.phoneNumber || '—'}</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm">
+                    <FiBriefcase className="w-4 h-4 text-gray-400 shrink-0" />
+                    <span className="text-gray-600 text-xs">{profile?.yearsOfExperience || 0} years experience</span>
+                </div>
+                {profile?.domains?.length > 0 && (
+                    <div className="flex items-start gap-3 text-sm">
+                        <FiMapPin className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
+                        <div className="flex flex-wrap gap-1">
+                            {profile.domains.map((d, i) => (
+                                <span key={i} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] rounded font-medium">{d}</span>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Navigation */}
+            <nav className="flex-1 p-3 space-y-0.5">
                 {tabs.map(tab => {
                     const Icon = tab.icon;
                     return (
-                        <button 
-                            key={tab.id} 
-                            onClick={() => setActiveTab(tab.id)} 
-                            className={`flex items-center px-4 py-3 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
-                                activeTab === tab.id 
-                                ? 'border-gray-900 text-gray-900' 
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            }`}
-                        >
-                            <Icon className={`mr-2 h-4 w-4 ${activeTab === tab.id ? 'text-gray-900' : 'text-gray-400'}`} />
+                        <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                            className={`flex items-center gap-2.5 w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                                activeTab === tab.id
+                                    ? 'bg-slate-900 text-white'
+                                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                            }`}>
+                            <Icon className={`w-4 h-4 ${activeTab === tab.id ? 'text-white' : 'text-gray-400'}`} />
                             {tab.label}
                         </button>
-                    )
+                    );
                 })}
-            </div>
+            </nav>
+
+            {/* Profile Completeness */}
+            {profile?.profileCompleteness !== undefined && (
+                <div className="p-4 border-t border-gray-100">
+                    <div className="flex justify-between items-center mb-1.5">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Profile</span>
+                        <span className="text-[10px] font-bold text-gray-600">{Math.round(profile.profileCompleteness)}%</span>
+                    </div>
+                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className={`h-full rounded-full transition-all ${profile.profileCompleteness === 100 ? 'bg-emerald-500' : 'bg-indigo-500'}`}
+                            style={{ width: `${profile.profileCompleteness}%` }} />
+                    </div>
+                </div>
+            )}
         </div>
 
-        {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-            <div className="max-w-5xl mx-auto space-y-6">
+        {/* ─── RIGHT: Tab Content ────────────────────────────────────── */}
+        <div className="flex-1 overflow-y-auto">
+            {/* Mobile header (visible only on sm) */}
+            <div className="lg:hidden bg-white border-b border-gray-200 p-4">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white text-lg font-bold">
+                        {currentUser?.firstName?.charAt(0)}
+                    </div>
+                    <div>
+                        <h2 className="text-base font-bold text-gray-900">{currentUser?.firstName} {currentUser?.lastName}</h2>
+                        <p className="text-xs text-gray-500">{profile?.jobTitle} at {profile?.currentEmployer}</p>
+                    </div>
+                </div>
+                <div className="flex gap-1 overflow-x-auto no-scrollbar">
+                    {tabs.map(tab => (
+                        <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors ${
+                                activeTab === tab.id ? 'bg-slate-900 text-white' : 'bg-gray-100 text-gray-600'
+                            }`}>
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="p-6">
+                <div className="max-w-3xl mx-auto space-y-6">
                 
                 {/* --- EXPERIENCE TAB --- */}
                 {activeTab === 'Experience' && (
@@ -449,13 +508,13 @@ const Profile = () => {
                         
                         {/* Current Role Card */}
                         {profile?.jobTitle && profile?.currentEmployer && (
-                             <div className="bg-blue-50 rounded-xl p-6 border border-blue-100 flex justify-between items-center">
+                             <div className="bg-emerald-50 rounded-xl p-6 border border-emerald-100 flex justify-between items-center">
                                 <div>
-                                    <h3 className="text-sm font-bold text-blue-900 uppercase tracking-wide mb-1">Current Role</h3>
+                                    <h3 className="text-sm font-bold text-emerald-900 uppercase tracking-wide mb-1">Current Role</h3>
                                     <div className="text-lg font-bold text-gray-900">{profile.jobTitle}</div>
                                     <div className="text-gray-600 font-medium">{profile.currentEmployer} • {profile.yearsOfExperience} Years Exp.</div>
                                 </div>
-                                <div className="p-3 bg-blue-100 rounded-full text-blue-600">
+                                <div className="p-3 bg-emerald-100 rounded-full text-emerald-600">
                                     <FiBriefcase className="h-6 w-6" />
                                 </div>
                              </div>
@@ -476,7 +535,7 @@ const Profile = () => {
                                                 <p className="text-gray-600 font-medium">{exp.company}</p>
                                             </div>
                                             <div className="flex gap-2">
-                                                <button onClick={() => { setEditingExperience(exp); setIsExperienceModalOpen(true); }} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><FiEdit className="h-4 w-4"/></button>
+                                                <button onClick={() => { setEditingExperience(exp); setIsExperienceModalOpen(true); }} className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><FiEdit className="h-4 w-4"/></button>
                                                 <button onClick={() => handleDeleteRequest(exp, 'Experience')} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><FiTrash2 className="h-4 w-4"/></button>
                                             </div>
                                         </div>
@@ -511,19 +570,20 @@ const Profile = () => {
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {profile?.skills?.map(skill => (
-                                    <div key={skill._id} className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center group hover:border-blue-200 transition-colors">
+                                    <div key={skill._id} className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center group hover:border-slate-300 transition-colors">
                                         <div>
                                             <h4 className="font-bold text-gray-900">{skill.skill}</h4>
                                             <span className={`inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded ${
                                                 skill.proficiencyLevel === 'Expert' ? 'bg-purple-50 text-purple-700' :
-                                                skill.proficiencyLevel === 'Advanced' ? 'bg-green-50 text-green-700' :
-                                                'bg-blue-50 text-blue-700'
+                                                skill.proficiencyLevel === 'Advanced' ? 'bg-emerald-50 text-emerald-700' :
+                                                skill.proficiencyLevel === 'Intermediate' ? 'bg-sky-50 text-sky-700' :
+                                                'bg-gray-100 text-gray-600'
                                             }`}>
                                                 {skill.proficiencyLevel}
                                             </span>
                                         </div>
                                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button onClick={() => { setEditingSkill(skill); setIsSkillModalOpen(true); }} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><FiEdit /></button>
+                                            <button onClick={() => { setEditingSkill(skill); setIsSkillModalOpen(true); }} className="p-1.5 text-gray-400 hover:text-indigo-600 rounded"><FiEdit /></button>
                                             <button onClick={() => handleDeleteRequest(skill, 'Skill')} className="p-1.5 text-gray-400 hover:text-red-600 rounded"><FiTrash2 /></button>
                                         </div>
                                     </div>
@@ -586,6 +646,7 @@ const Profile = () => {
                     </form>
                 )}
             </div>
+        </div>
         </div>
 
         <ExperienceModal isOpen={isExperienceModalOpen} onClose={() => setIsExperienceModalOpen(false)} onSave={onSaveExperience} experience={editingExperience} isLoading={submittingSection === 'experience'} />

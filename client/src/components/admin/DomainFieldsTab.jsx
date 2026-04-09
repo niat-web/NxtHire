@@ -17,7 +17,7 @@ const LocalButton = ({ children, onClick, type = 'button', isLoading = false, ic
     const sizes = { sm: 'text-xs px-3 py-1.5', md: 'text-sm px-4 py-2.5' };
     const variants = {
         primary: 'bg-gray-900 text-white hover:bg-black border border-transparent shadow-sm focus:ring-gray-900',
-        secondary: 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200',
+        secondary: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200',
         success: 'bg-green-600 text-white hover:bg-green-700 border-transparent shadow-sm focus:ring-green-500',
         outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-gray-500',
     };
@@ -94,7 +94,7 @@ const ImportModal = ({ isOpen, onClose, onImportOptions, onImportAllOptions, onI
                                     {filteredDomains.map(domain => (
                                         <li key={domain.domainName}>
                                             <button type="button" onClick={() => { setSelectedDomain(domain); setSelectedParameter(null); }}
-                                                className={`w-full text-left px-3 py-2 text-sm rounded-md font-medium transition-colors ${selectedDomain?.domainName === domain.domainName ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                                                className={`w-full text-left px-3 py-2 text-sm rounded-md font-medium transition-colors ${selectedDomain?.domainName === domain.domainName ? 'bg-emerald-50 text-emerald-700' : 'text-gray-700 hover:bg-gray-100'}`}
                                             >
                                                 {domain.domainName}
                                             </button>
@@ -111,7 +111,7 @@ const ImportModal = ({ isOpen, onClose, onImportOptions, onImportAllOptions, onI
                                                 <ul className="space-y-1">
                                                     {category.parameters.map(param => (
                                                         <li key={param.parameterName}>
-                                                            <div className="group flex justify-between items-center rounded-md bg-white border border-gray-200 hover:border-blue-300 transition-all">
+                                                            <div className="group flex justify-between items-center rounded-md bg-white border border-gray-200 hover:border-emerald-300 transition-all">
                                                                 <button type="button" onClick={() => setSelectedParameter({ ...param, categoryName: category.categoryName })} className="flex-grow text-left px-3 py-2 text-sm font-medium text-gray-800">
                                                                     {param.parameterName}
                                                                 </button>

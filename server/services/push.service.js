@@ -2,12 +2,24 @@ const webpush = require('web-push');
 const Interviewer = require('../models/Interviewer');
 const { logEvent, logError } = require('../middleware/logger.middleware');
 
-// Configure web-push with VAPID keys
-webpush.setVapidDetails(
-  'mailto:support@yourwebsite.com',
-  process.env.VAPID_PUBLIC_KEY,
-  process.env.VAPID_PRIVATE_KEY
-);
+let pushNotificationsEnabled = false;
+
+const vapidSubject = process.env.VAPID_SUBJECT || `mailto:${process.env.FROM_EMAIL || 'support@yourwebsite.com'}`;
+
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  try {
+    webpush.setVapidDetails(
+      vapidSubject,
+      process.env.VAPID_PUBLIC_KEY,
+      process.env.VAPID_PRIVATE_KEY
+    );
+    pushNotificationsEnabled = true;
+  } catch (error) {
+    logError('push_configuration_failed', error);
+  }
+} else {
+  logEvent('push_notifications_disabled', { reason: 'missing_vapid_keys' });
+}
 
 /**
  * Sends a push notification to a single subscription.
@@ -15,6 +27,10 @@ webpush.setVapidDetails(
  * @param {object} payload - The data to send with the notification.
  */
 const sendPushNotification = async (subscription, payload) => {
+  if (!pushNotificationsEnabled) {
+    return;
+  }
+
   try {
     await webpush.sendNotification(subscription, JSON.stringify(payload));
   } catch (error) {
@@ -33,6 +49,11 @@ const sendPushNotification = async (subscription, payload) => {
  */
 const sendNotificationToInterviewer = async (interviewerId, payload) => {
   try {
+    if (!pushNotificationsEnabled) {
+      logEvent('push_skipped_not_configured', { interviewerId });
+      return;
+    }
+
     const interviewer = await Interviewer.findById(interviewerId).select('pushSubscriptions');
     if (!interviewer || !interviewer.pushSubscriptions || interviewer.pushSubscriptions.length === 0) {
       logEvent('push_skipped_no_subscriptions', { interviewerId });
@@ -69,5 +90,6 @@ const sendNotificationToInterviewer = async (interviewerId, payload) => {
 
 module.exports = {
   sendPushNotification,
-  sendNotificationToInterviewer
+  sendNotificationToInterviewer,
+  pushNotificationsEnabled
 };

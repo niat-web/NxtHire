@@ -14,8 +14,8 @@ const Alert = ({
   // Type based classes and icons
   const typeConfig = {
     info: {
-      containerClass: 'bg-blue-50 border-blue-400 text-blue-800',
-      icon: <FiInfo className="h-5 w-5 text-blue-500" />,
+      containerClass: 'bg-emerald-50 border-emerald-400 text-emerald-800',
+      icon: <FiInfo className="h-5 w-5 text-emerald-500" />,
     },
     success: {
       containerClass: 'bg-green-50 border-green-400 text-green-800',
@@ -48,7 +48,7 @@ const Alert = ({
                 type="button"
                 onClick={onClose}
                 className={`inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                  type === 'info' ? 'text-blue-500 hover:bg-blue-100 focus:ring-blue-500' :
+                  type === 'info' ? 'text-emerald-500 hover:bg-emerald-100 focus:ring-emerald-500' :
                   type === 'success' ? 'text-green-500 hover:bg-green-100 focus:ring-green-500' :
                   type === 'warning' ? 'text-yellow-500 hover:bg-yellow-100 focus:ring-yellow-500' :
                   'text-red-500 hover:bg-red-100 focus:ring-red-500'

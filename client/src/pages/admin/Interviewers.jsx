@@ -1,5 +1,5 @@
 // client/src/pages/admin/Interviewers.jsx
-import React, { useEffect, useState, useMemo, useCallback, useRef, Fragment } from 'react';
+import React, { useEffect, useState, useMemo, useRef, Fragment } from 'react';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import {
@@ -12,12 +12,13 @@ import { Dialog, Transition } from '@headlessui/react';
 
 // Common Components Imports
 import Table from '../../components/common/Table';
-import { 
-    getInterviewers, updateInterviewer, bulkUploadInterviewers, bulkDeleteInterviewers,
-    sendWelcomeEmail, sendProbationEmail, markProbationAsSent 
+import {
+    updateInterviewer, bulkUploadInterviewers, bulkDeleteInterviewers,
+    sendWelcomeEmail, sendProbationEmail, markProbationAsSent
 } from '../../api/admin.api';
 import { INTERVIEWER_STATUS, DOMAINS } from '../../utils/constants';
 import { debounce } from '../../utils/helpers';
+import { useInterviewers, useInvalidateAdmin } from '../../hooks/useAdminQueries';
 import { formatDateTime } from '../../utils/formatters';
 import { useAlert } from '../../hooks/useAlert';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
@@ -41,7 +42,7 @@ const LocalButton = ({ children, onClick, type = 'button', isLoading = false, va
         outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50', 
         danger: 'bg-white text-red-600 border border-red-200 hover:bg-red-50',
         text: 'bg-transparent text-gray-500 hover:text-gray-900 px-0',
-        icon: 'bg-transparent text-gray-500 hover:text-blue-600 hover:bg-blue-50'
+        icon: 'bg-transparent text-gray-500 hover:text-indigo-600 hover:bg-indigo-50'
     };
 
     return (
@@ -57,11 +58,11 @@ const LocalButton = ({ children, onClick, type = 'button', isLoading = false, va
 };
 
 const CustomSelect = ({ value, onChange, options, placeholder }) => (
-    <div className="relative w-full">
+    <div className="relative">
         <select
             value={value}
             onChange={onChange}
-            className="w-full appearance-none bg-white border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 block p-2.5 pr-8 cursor-pointer hover:border-gray-300 transition-colors"
+            className="appearance-none bg-white border border-gray-200 text-gray-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 block py-2 pl-3 pr-8 cursor-pointer hover:border-gray-300 transition-colors"
         >
             <option value="">{placeholder}</option>
             {options.map((opt) => (
@@ -109,7 +110,7 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
                                 {/* Header */}
                                 <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                                     <div className="flex items-center gap-4">
-                                        <div className="h-12 w-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-lg font-bold">
+                                        <div className="h-12 w-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg font-bold">
                                             {data.user?.firstName?.[0]}{data.user?.lastName?.[0]}
                                         </div>
                                         <div>
@@ -252,45 +253,50 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, isLoading }) => {
 
 const Interviewers = () => {
     const { showSuccess, showError } = useAlert();
-    const [loading, setLoading] = useState(true);
-    const [interviewers, setInterviewers] = useState([]);
+    const { invalidateInterviewers } = useInvalidateAdmin();
     const [sortConfig, setSortConfig] = useState({ key: 'onboardingDate', direction: 'desc' });
     const [filters, setFilters] = useState({ search: '', status: '', domain: '' });
+    const [debouncedFilters, setDebouncedFilters] = useState(filters);
+    const [currentPage, setCurrentPage] = useState(1);
     const [modalState, setModalState] = useState({ type: null, data: null }); // 'add', 'edit', 'view'
     const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, ids: [], isBulk: false });
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [selectedRows, setSelectedRows] = useState([]);
-    const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalItems: 0, itemsPerPage: 15 });
+    const itemsPerPage = 15;
     const [updatingId, setUpdatingId] = useState(null);
 
-    // Fetch Logic
-    const fetchInterviewers = useCallback(async (page = 1) => {
-        setLoading(true);
-        try {
-            const response = await getInterviewers({ 
-                page, 
-                limit: pagination.itemsPerPage, 
-                search: filters.search, 
-                status: filters.status, 
-                domain: filters.domain, 
-                sortBy: sortConfig.key, 
-                sortOrder: sortConfig.direction 
-            });
-            const resData = response.data.data;
-            setInterviewers(resData.interviewers || []);
-            setPagination(prev => ({ 
-                ...prev, 
-                currentPage: page, 
-                totalPages: Math.ceil((resData.totalDocs || 0) / prev.itemsPerPage), 
-                totalItems: resData.totalDocs || 0 
-            }));
-        } catch (error) { showError('Error fetching data'); } finally { setLoading(false); }
-    }, [filters, sortConfig, pagination.itemsPerPage, showError]);
+    // Debounce filter/sort changes to avoid excessive queries
+    const debouncedUpdate = useMemo(() => debounce((newFilters) => {
+        setDebouncedFilters(newFilters);
+        setCurrentPage(1);
+    }, 400), []);
 
-    const debouncedFetch = useMemo(() => debounce(() => fetchInterviewers(1), 400), [fetchInterviewers]);
-    
-    useEffect(() => { debouncedFetch(); return () => debouncedFetch.cancel(); }, [filters, sortConfig, debouncedFetch]);
+    useEffect(() => { debouncedUpdate(filters); return () => debouncedUpdate.cancel(); }, [filters, debouncedUpdate]);
+
+    // Reset to page 1 when sort changes
+    useEffect(() => { setCurrentPage(1); }, [sortConfig]);
+
+    // Memoized query params
+    const queryParams = useMemo(() => ({
+        page: currentPage,
+        limit: itemsPerPage,
+        search: debouncedFilters.search,
+        status: debouncedFilters.status,
+        domain: debouncedFilters.domain,
+        sortBy: sortConfig.key,
+        sortOrder: sortConfig.direction,
+    }), [currentPage, itemsPerPage, debouncedFilters, sortConfig]);
+
+    // TanStack Query
+    const { data, isLoading: loading } = useInterviewers(queryParams, {
+        keepPreviousData: true,
+    });
+
+    const interviewers = data?.interviewers || [];
+    const totalDocs = data?.totalDocs || 0;
+    const totalPages = Math.ceil(totalDocs / itemsPerPage);
+
     useEffect(() => setSelectedRows([]), [interviewers]);
 
     // Handlers
@@ -299,7 +305,7 @@ const Interviewers = () => {
         try {
             await updateInterviewer(id, { status });
             showSuccess('Status updated');
-            setInterviewers(prev => prev.map(i => i._id === id ? { ...i, status } : i));
+            invalidateInterviewers();
         } catch { showError('Update failed'); } finally { setUpdatingId(null); }
     };
 
@@ -307,9 +313,7 @@ const Interviewers = () => {
         try {
             await sendWelcomeEmail(id);
             showSuccess('Welcome email sent successfully!');
-            // Optimistic update
-            setInterviewers(prev => prev.map(i => i._id === id ? { ...i, welcomeEmailSentAt: new Date().toISOString() } : i));
-            // Also update modal data if open
+            invalidateInterviewers();
             if (modalState.data && modalState.data._id === id) {
                 setModalState(prev => ({ ...prev, data: { ...prev.data, welcomeEmailSentAt: new Date().toISOString() } }));
             }
@@ -320,7 +324,7 @@ const Interviewers = () => {
         try {
             await sendProbationEmail(id);
             showSuccess('Probation completion email sent successfully!');
-            setInterviewers(prev => prev.map(i => i._id === id ? { ...i, probationEmailSentAt: new Date().toISOString() } : i));
+            invalidateInterviewers();
             if (modalState.data && modalState.data._id === id) {
                 setModalState(prev => ({ ...prev, data: { ...prev.data, probationEmailSentAt: new Date().toISOString() } }));
             }
@@ -331,7 +335,7 @@ const Interviewers = () => {
         try {
             await markProbationAsSent(id);
             showSuccess('Successfully marked as sent!');
-            setInterviewers(prev => prev.map(i => i._id === id ? { ...i, probationEmailSentAt: new Date().toISOString() } : i));
+            invalidateInterviewers();
             if (modalState.data && modalState.data._id === id) {
                 setModalState(prev => ({ ...prev, data: { ...prev.data, probationEmailSentAt: new Date().toISOString() } }));
             }
@@ -344,17 +348,17 @@ const Interviewers = () => {
             showSuccess(`Deleted ${deleteDialog.ids.length} records`);
             setDeleteDialog({ isOpen: false, ids: [], isBulk: false });
             setSelectedRows([]);
-            fetchInterviewers(1);
+            invalidateInterviewers();
         } catch { showError("Delete failed"); }
     };
 
-    const handleUpload = async (data) => {
+    const handleUpload = async (uploadData) => {
         setIsUploading(true);
         try {
-            const res = await bulkUploadInterviewers(data);
+            const res = await bulkUploadInterviewers(uploadData);
             showSuccess(`Created: ${res.data.data.created}, Failed: ${res.data.data.failedEntries.length}`);
             setIsUploadModalOpen(false);
-            fetchInterviewers(1);
+            invalidateInterviewers();
         } catch { showError("Upload failed"); } finally { setIsUploading(false); }
     };
 
@@ -432,106 +436,79 @@ const Interviewers = () => {
                 </div>
             ) 
         },
-        { 
-            key: 'actions', 
-            title: 'Actions', 
-            minWidth: '120px', 
+        {
+            key: 'actions',
+            title: '',
+            minWidth: '60px',
             render: (r) => (
-                <div className="flex items-center gap-1">
-                    <button 
-                        onClick={() => setModalState({ type: 'view', data: r })}
-                        className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
-                        title="View Details"
-                    >
-                        <FiEye className="w-4 h-4" />
-                    </button>
-                    <button 
-                        onClick={() => setModalState({ type: 'edit', data: r })}
-                        className="p-1.5 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" 
-                        title="Edit"
-                    >
-                        <FiEdit className="w-4 h-4" />
-                    </button>
-                    <button 
-                        onClick={() => setDeleteDialog({ isOpen: true, ids: [r._id], isBulk: false })}
-                        className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" 
-                        title="Delete"
-                    >
-                        <FiTrash2 className="w-4 h-4" />
-                    </button>
-                </div>
-            ) 
+                <button
+                    onClick={() => setModalState({ type: 'view', data: r })}
+                    className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                    title="View Details"
+                >
+                    <FiEye className="w-4 h-4" />
+                </button>
+            )
         }
     ], [interviewers, selectedRows, updatingId]);
 
     return (
-        <div className="flex flex-col h-full bg-[#F5F7F9]">
+        <div className="flex flex-col h-full overflow-hidden">
 
-            {/* Filter Card */}
-            <div className="p-6 flex-shrink-0">
-                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col xl:flex-row xl:items-end justify-between gap-4">
-                    {/* Filters */}
-                    <div className="flex flex-wrap items-end gap-3 flex-1">
-                        <div className="w-full sm:w-64">
-                            <div className="relative">
-                                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                <input 
-                                    type="text" 
-                                    value={filters.search} 
-                                    onChange={(e) => setFilters(p => ({ ...p, search: e.target.value }))} 
-                                    placeholder="Search by name, email..." 
-                                    className="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-colors" 
-                                />
-                            </div>
-                        </div>
-                        <div className="w-full sm:w-44">
-                            <CustomSelect 
-                                value={filters.status} 
-                                onChange={(e) => setFilters(p => ({ ...p, status: e.target.value }))} 
-                                options={Object.values(INTERVIEWER_STATUS).map(s => ({ value: s, label: s }))} 
-                                placeholder="All Status"
+            {/* Header Bar */}
+            <div className="bg-white border-b border-gray-200 px-5 py-3 flex-shrink-0">
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-2 flex-1">
+                        <div className="relative w-full sm:w-56">
+                            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <input
+                                type="text"
+                                value={filters.search}
+                                onChange={(e) => setFilters(p => ({ ...p, search: e.target.value }))}
+                                placeholder="Search by name, email..."
+                                className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all"
                             />
                         </div>
-                        <div className="w-full sm:w-44">
-                            <CustomSelect 
-                                value={filters.domain} 
-                                onChange={(e) => setFilters(p => ({ ...p, domain: e.target.value }))} 
-                                options={DOMAINS} 
-                                placeholder="All Domains"
-                            />
-                        </div>
+                        <CustomSelect
+                            value={filters.status}
+                            onChange={(e) => setFilters(p => ({ ...p, status: e.target.value }))}
+                            options={Object.values(INTERVIEWER_STATUS).map(s => ({ value: s, label: s }))}
+                            placeholder="All Status"
+                        />
+                        <CustomSelect
+                            value={filters.domain}
+                            onChange={(e) => setFilters(p => ({ ...p, domain: e.target.value }))}
+                            options={DOMAINS}
+                            placeholder="All Domains"
+                        />
                         {(filters.search || filters.status || filters.domain) && (
-                            <LocalButton variant="text" size="sm" onClick={resetFilters} className="mb-0.5">CLEAR ALL</LocalButton>
+                            <button onClick={resetFilters} className="text-xs text-gray-500 hover:text-gray-900 font-medium px-2">Clear</button>
                         )}
                     </div>
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-3 w-full xl:w-auto justify-end">
-                        {/* Selected Actions (Edit/Delete) */}
+                    <div className="flex items-center gap-2 shrink-0">
                         {selectedRows.length > 0 && (
-                            <div className="flex items-center gap-2 bg-gray-900 text-white px-3 py-1.5 rounded-lg shadow-md mr-2">
-                                <span className="text-xs font-semibold mr-2">{selectedRows.length} Selected</span>
+                            <div className="flex items-center gap-2 bg-slate-800 text-white px-3 py-1.5 rounded-lg shadow mr-1">
+                                <span className="text-xs font-semibold">{selectedRows.length} selected</span>
                                 {selectedRows.length === 1 && (
-                                    <button onClick={() => setModalState({ type: 'edit', data: interviewers.find(i => i._id === selectedRows[0]) })} className="p-1 hover:bg-gray-700 rounded transition" title="Edit Selection">
-                                        <FiEdit className="w-4 h-4" />
+                                    <button onClick={() => setModalState({ type: 'edit', data: interviewers.find(i => i._id === selectedRows[0]) })} className="p-1 hover:bg-slate-700 rounded" title="Edit">
+                                        <FiEdit className="w-3.5 h-3.5" />
                                     </button>
                                 )}
-                                <button onClick={() => setDeleteDialog({ isOpen: true, ids: selectedRows, isBulk: true })} className="p-1 hover:bg-gray-700 rounded transition" title="Delete Selection">
-                                    <FiTrash2 className="w-4 h-4" />
+                                <button onClick={() => setDeleteDialog({ isOpen: true, ids: selectedRows, isBulk: true })} className="p-1 hover:bg-slate-700 rounded" title="Delete">
+                                    <FiTrash2 className="w-3.5 h-3.5" />
                                 </button>
                             </div>
                         )}
-
                         <LocalButton variant="outline" icon={FiUpload} onClick={() => setIsUploadModalOpen(true)}>Import</LocalButton>
-                        <LocalButton variant="accent" icon={FiPlus} onClick={() => setModalState({ type: 'add', data: null })}>Add Interviewer</LocalButton>
+                        <LocalButton variant="primary" icon={FiPlus} onClick={() => setModalState({ type: 'add', data: null })}>Add Interviewer</LocalButton>
                     </div>
                 </div>
             </div>
 
-            {/* Table Area (Full Fit) */}
-            <div className="flex-1 px-6 pb-6 overflow-hidden">
-                <div className="h-full bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col">
-                    <div className="flex-1 overflow-auto">
+            {/* Table */}
+            <div className="flex-1 overflow-hidden flex flex-col">
+                <div className="flex-1 overflow-auto">
                         <Table 
                             columns={columns} 
                             data={interviewers} 
@@ -542,22 +519,31 @@ const Interviewers = () => {
                         />
                     </div>
                     
-                    {/* Pagination */}
-                    {!loading && pagination.totalItems > 0 && (
-                        <div className="px-6 py-4 border-t border-gray-100 flex justify-between items-center bg-white rounded-b-xl">
-                            <LocalButton variant="outline" size="icon" icon={FiChevronLeft} onClick={() => fetchInterviewers(pagination.currentPage - 1)} disabled={pagination.currentPage === 1} />
-                            <span className="text-sm font-medium text-gray-600">Page <b className="text-gray-900">{pagination.currentPage}</b> of {pagination.totalPages}</span>
-                            <LocalButton variant="outline" size="icon" icon={FiChevronRight} onClick={() => fetchInterviewers(pagination.currentPage + 1)} disabled={pagination.currentPage === pagination.totalPages} />
+                {/* Pagination */}
+                {!loading && totalDocs > 0 && (
+                    <div className="px-5 py-3 border-t border-gray-200 bg-white flex items-center justify-between shrink-0">
+                        <p className="text-xs text-gray-500">
+                            Page <b className="text-gray-900">{currentPage}</b> of {totalPages} ({totalDocs} total)
+                        </p>
+                        <div className="flex items-center gap-1.5">
+                            <button onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage === 1}
+                                className="p-1.5 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                                <FiChevronLeft className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage === totalPages}
+                                className="p-1.5 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                                <FiChevronRight className="w-4 h-4" />
+                            </button>
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
 
             {/* Modals */}
             <InterviewerFormModal 
                 isOpen={modalState.type === 'add' || modalState.type === 'edit'} 
                 onClose={() => setModalState({ type: null, data: null })} 
-                onSuccess={() => { setModalState({ type: null, data: null }); fetchInterviewers(pagination.currentPage); }} 
+                onSuccess={() => { setModalState({ type: null, data: null }); invalidateInterviewers(); }}
                 interviewerData={modalState.type === 'edit' ? modalState.data : null} 
             />
             

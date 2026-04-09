@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FiArrowLeft, FiSave } from 'react-icons/fi';
 import { useAlert } from '../../hooks/useAlert';
-import { createInterviewBooking, updateInterviewBooking, getInterviewBookingDetails } from '../../api/admin.api';
+import { createInterviewBooking, updateInterviewBooking } from '../../api/admin.api';
+import { useInterviewBookingDetails, useInvalidateAdmin } from '../../hooks/useAdminQueries';
 import BookingForm from '../../components/admin/BookingForm';
 import Loader from '../../components/common/Loader';
 
@@ -12,21 +13,15 @@ const NewInterviewBooking = () => {
     const isEditMode = !!id;
     const { showSuccess, showError } = useAlert();
 
-    const [bookingData, setBookingData] = useState(null);
-    const [loading, setLoading] = useState(isEditMode);
+    const { data: bookingData, isLoading: loading } = useInterviewBookingDetails(id, {
+        enabled: isEditMode,
+        onError: () => {
+            showError("Failed to load booking details.");
+            navigate('/admin/bookings/interviewer-bookings');
+        },
+    });
+    const { invalidateBookings } = useInvalidateAdmin();
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    useEffect(() => {
-        if (isEditMode) {
-            getInterviewBookingDetails(id)
-                .then(res => setBookingData(res.data.data))
-                .catch(() => {
-                    showError("Failed to load booking details.");
-                    navigate('/admin/bookings/interviewer-bookings');
-                })
-                .finally(() => setLoading(false));
-        }
-    }, [id, isEditMode, navigate, showError]);
 
     const onSubmit = async (data) => {
         setIsSubmitting(true);
@@ -48,6 +43,7 @@ const NewInterviewBooking = () => {
                 await createInterviewBooking(payload);
                 showSuccess("Booking request created successfully.");
             }
+            invalidateBookings();
             navigate('/admin/bookings/interviewer-bookings');
         } catch (err) {
             showError(`Failed to ${isEditMode ? 'update' : 'create'} booking request.`);
@@ -76,7 +72,7 @@ const NewInterviewBooking = () => {
                     type="submit"
                     form="booking-form" // This links the button to the form inside BookingForm component
                     disabled={isSubmitting}
-                    className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-60 bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500"
+                    className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-60 bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500"
                 >
                     {isSubmitting ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" /> : <FiSave className="h-4 w-4 mr-2" />}
                     {isSubmitting ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Create & Notify')}

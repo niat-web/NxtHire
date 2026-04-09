@@ -226,7 +226,7 @@ const InterviewerDetails = () => {
           
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="flex-shrink-0 p-3 rounded-md bg-blue-100 text-blue-700">
+              <div className="flex-shrink-0 p-3 rounded-md bg-emerald-100 text-emerald-700">
                 <FiDollarSign className="h-6 w-6" />
               </div>
               <div className="ml-5">

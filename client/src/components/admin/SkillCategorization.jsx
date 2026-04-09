@@ -63,7 +63,7 @@ const SkillCategorization = ({ applicant, skillAssessment, onCategorizeComplete 
         <div className="mt-3 flex items-center flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
           <div className="flex items-center gap-2 hover:text-primary-600"><FiMail className="text-gray-400"/> {applicant.email}</div>
           <div className="flex items-center gap-2 hover:text-primary-600"><FiPhone className="text-gray-400"/> {applicant.phoneNumber}</div>
-          <a href={applicant.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline">
+          <a href={applicant.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-800 hover:underline">
             <FiLinkedin className="text-gray-400"/> View LinkedIn Profile
           </a>
         </div>

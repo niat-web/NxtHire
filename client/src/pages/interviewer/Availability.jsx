@@ -1,16 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Loader from '@/components/common/Loader';
 import Button from '@/components/common/Button';
 import EmptyState from '@/components/common/EmptyState';
 import Modal from '@/components/common/Modal';
 import Textarea from '@/components/common/Textarea';
-import { getBookingRequests, declineBookingRequest } from '@/api/interviewer.api';
+import { declineBookingRequest } from '@/api/interviewer.api';
 import { useAlert } from '@/hooks/useAlert';
 import { FiCalendar, FiClock, FiCheckCircle, FiXCircle, FiInbox, FiLock, FiAlertCircle } from 'react-icons/fi';
 import { formatDate } from '@/utils/formatters';
 import { useForm } from 'react-hook-form';
 import { subDays, startOfDay } from 'date-fns'; // Import date helpers
+import { useBookingRequests, useInvalidateInterviewer } from '@/hooks/useInterviewerQueries';
 
 // --- IMPORT THE UPDATED MODAL ---
 import SlotSubmissionModal from '../../components/interviewer/SlotSubmissionModal'; 
@@ -50,34 +51,22 @@ const DeclineModal = ({ isOpen, onClose, onSubmit, request }) => {
 const Availability = () => {
   const { showSuccess, showError } = useAlert();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [requests, setRequests] = useState([]);
   const [declineModalState, setDeclineModalState] = useState({ isOpen: false, request: null });
-  
+
   const [submissionModalState, setSubmissionModalState] = useState({ isOpen: false, request: null });
 
-  const fetchRequests = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await getBookingRequests();
-      // Sort: Open first, then by date descending
-      const sortedRequests = [...response.data.data].sort((a, b) => {
-          if (a.bookingStatus === 'Open' && b.bookingStatus !== 'Open') return -1;
-          if (a.bookingStatus !== 'Open' && b.bookingStatus === 'Open') return 1;
-          return new Date(b.bookingDate) - new Date(a.bookingDate);
-      });
-      setRequests(sortedRequests);
-    } catch (error) {
-      console.error('Error fetching booking requests:', error);
-      showError('Failed to load booking requests. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  }, [showError]);
+  const { data: rawRequests, isLoading: loading } = useBookingRequests();
+  const { invalidateBookings } = useInvalidateInterviewer();
 
-  useEffect(() => {
-    fetchRequests();
-  }, [fetchRequests]);
+  // Sort: Open first, then by date descending
+  const requests = useMemo(() => {
+    if (!rawRequests) return [];
+    return [...rawRequests].sort((a, b) => {
+        if (a.bookingStatus === 'Open' && b.bookingStatus !== 'Open') return -1;
+        if (a.bookingStatus !== 'Open' && b.bookingStatus === 'Open') return 1;
+        return new Date(b.bookingDate) - new Date(a.bookingDate);
+    });
+  }, [rawRequests]);
 
   const handleProvideAvailability = (request) => {
       setSubmissionModalState({ isOpen: true, request: request });
@@ -108,7 +97,7 @@ const Availability = () => {
   const handleSuccess = () => {
     handleCloseDeclineModal();
     handleCloseSubmissionModal();
-    fetchRequests();
+    invalidateBookings();
   };
 
   // Helper to get reference dates

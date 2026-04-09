@@ -19,7 +19,7 @@ const LocalButton = ({ children, onClick, type = 'button', isLoading = false, va
         primary: 'bg-gray-900 text-white hover:bg-black border border-transparent shadow-sm focus:ring-gray-900',
         outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 hover:border-gray-400',
         ghost: 'bg-transparent text-gray-400 hover:text-red-600 hover:bg-red-50',
-        secondary: 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
+        secondary: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
     };
 
     return (
@@ -152,8 +152,8 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                             </div>
                         </section>
 
-                        <div className="mt-auto p-3 bg-blue-50 rounded-lg border border-blue-100">
-                            <p className="text-xs text-blue-800 font-medium leading-relaxed">
+                        <div className="mt-auto p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                            <p className="text-xs text-emerald-800 font-medium leading-relaxed">
                                 <strong>Note:</strong> Slots will be added to the interviewer's availability for the selected date.
                             </p>
                         </div>
@@ -163,13 +163,13 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                     <div className="flex-1 flex flex-col h-full bg-white min-w-0">
                         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
                             <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><FiClock className="h-4 w-4" /></div>
+                                <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg"><FiClock className="h-4 w-4" /></div>
                                 Define Slots
                             </h3>
                             <button 
                                 type="button" 
                                 onClick={() => append({ startTime: '', endTime: '' })}
-                                className="text-xs font-bold text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                                className="text-xs font-bold text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
                             >
                                 <FiPlus className="h-3 w-3" /> Add Slot
                             </button>
@@ -182,7 +182,7 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                                         <div className="relative">
                                             <select 
                                                 {...register(`slots.${index}.startTime`, { required: true })} 
-                                                className="w-full pl-3 pr-8 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium focus:ring-1 focus:ring-blue-500 focus:bg-white focus:border-blue-500 transition-colors appearance-none cursor-pointer"
+                                                className="w-full pl-3 pr-8 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium focus:ring-1 focus:ring-emerald-500 focus:bg-white focus:border-emerald-500 transition-colors appearance-none cursor-pointer"
                                             >
                                                 <option value="">Start Time</option>
                                                 {TIME_SLOTS.map(slot => <option key={slot.value} value={slot.value}>{slot.label}</option>)}
@@ -197,7 +197,7 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                                         <div className="relative">
                                             <select 
                                                 {...register(`slots.${index}.endTime`, { required: true, validate: (value) => validateEndTime(value, index) })} 
-                                                className={`w-full pl-3 pr-8 py-2 bg-gray-50 border rounded-lg text-sm font-medium focus:ring-1 focus:bg-white transition-colors appearance-none cursor-pointer ${errors.slots?.[index]?.endTime ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-200 focus:border-blue-500 focus:ring-blue-500'}`}
+                                                className={`w-full pl-3 pr-8 py-2 bg-gray-50 border rounded-lg text-sm font-medium focus:ring-1 focus:bg-white transition-colors appearance-none cursor-pointer ${errors.slots?.[index]?.endTime ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-500'}`}
                                             >
                                                 <option value="">End Time</option>
                                                 {TIME_SLOTS.map(slot => <option key={slot.value} value={slot.value}>{slot.label}</option>)}
