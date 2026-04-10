@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { adminKeys } from './queryKeys';
 import * as adminApi from '../api/admin.api';
 
@@ -11,6 +11,7 @@ export const useDashboardStats = (options) =>
     queryKey: adminKeys.dashboardStats(),
     queryFn: () => adminApi.getDashboardStats(),
     select,
+    staleTime: 2 * 60 * 1000,
     ...options,
   });
 
@@ -38,6 +39,7 @@ export const useApplicants = (params, options) =>
     queryFn: () => adminApi.getApplicants(params),
     select,
     staleTime: 60 * 1000,
+    placeholderData: keepPreviousData,
     ...options,
   });
 
@@ -76,6 +78,7 @@ export const useInterviewers = (params, options) =>
     queryFn: () => adminApi.getInterviewers(params),
     select,
     staleTime: 60 * 1000,
+    placeholderData: keepPreviousData,
     ...options,
   });
 
@@ -95,6 +98,7 @@ export const useUsers = (params, options) =>
     queryFn: () => adminApi.getUsers(params),
     select,
     staleTime: 2 * 60 * 1000,
+    placeholderData: keepPreviousData,
     ...options,
   });
 
@@ -105,6 +109,7 @@ export const useMainSheetEntries = (params, options) =>
     queryFn: () => adminApi.getMainSheetEntries(params),
     select,
     staleTime: 30 * 1000,
+    placeholderData: keepPreviousData,
     ...options,
   });
 
@@ -255,6 +260,7 @@ export const usePayoutSheet = (params, options) =>
     queryFn: () => adminApi.getPayoutSheet(params),
     select,
     staleTime: 60 * 1000,
+    placeholderData: keepPreviousData,
     ...options,
   });
 
@@ -264,6 +270,7 @@ export const usePaymentRequests = (params, options) =>
     queryFn: () => adminApi.getPaymentRequests(params),
     select,
     staleTime: 30 * 1000,
+    placeholderData: keepPreviousData,
     ...options,
   });
 

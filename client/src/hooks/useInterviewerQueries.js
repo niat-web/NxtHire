@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { interviewerKeys } from './queryKeys';
 import * as interviewerApi from '../api/interviewer.api';
 
@@ -9,6 +9,7 @@ export const useInterviewerMetrics = (options) =>
     queryKey: interviewerKeys.metrics(),
     queryFn: () => interviewerApi.getMetrics(),
     select,
+    staleTime: 2 * 60 * 1000,
     ...options,
   });
 
@@ -71,6 +72,7 @@ export const usePaymentHistory = (params, options) =>
     queryFn: () => interviewerApi.getPaymentHistory(params),
     select,
     staleTime: 2 * 60 * 1000,
+    placeholderData: keepPreviousData,
     ...options,
   });
 

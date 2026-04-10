@@ -19,10 +19,13 @@ registerServiceWorker(); // Register the service worker
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000,      // Data stays fresh for 5 minutes
-      gcTime: 10 * 60 * 1000,         // Garbage collect after 10 minutes
-      refetchOnWindowFocus: false,     // Don't refetch when tab gains focus
-      retry: 1,                        // Retry failed requests once
+      staleTime: 5 * 60 * 1000,        // Data stays fresh for 5 minutes
+      gcTime: 30 * 60 * 1000,           // Keep cache for 30 minutes (was 10)
+      refetchOnWindowFocus: false,       // Don't refetch when tab gains focus
+      refetchOnMount: 'always',          // Always check freshness on mount (serves cache instantly if fresh)
+      refetchOnReconnect: true,          // Refetch when internet comes back
+      retry: 1,                          // Retry failed requests once
+      networkMode: 'offlineFirst',       // Serve cache immediately, refetch in background
     },
   },
 })

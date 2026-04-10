@@ -8,37 +8,55 @@ import { useAlert } from '../hooks/useAlert';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Hydrate user from localStorage immediately (no flash)
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const cached = localStorage.getItem('cachedUser');
+      return cached ? JSON.parse(cached) : null;
+    } catch { return null; }
+  });
+  const [loading, setLoading] = useState(() => {
+    // If we have a cached user + valid token, skip the loading spinner
+    const token = localStorage.getItem('token');
+    const cached = localStorage.getItem('cachedUser');
+    if (token && cached) {
+      try {
+        const decoded = jwtDecode(token);
+        if (decoded.exp > Date.now() / 1000) return false;
+      } catch {}
+    }
+    return true;
+  });
   const [error, setError] = useState(null);
   const { showError } = useAlert();
 
-  // Initialize auth state from localStorage
+  // Initialize auth state — verify with server in background
   useEffect(() => {
     const initAuth = async () => {
       try {
         const token = localStorage.getItem('token');
-        
+
         if (token) {
-          // Check if token is expired
           const decodedToken = jwtDecode(token);
           const currentTime = Date.now() / 1000;
-          
+
           if (decodedToken.exp < currentTime) {
-            // Token expired, logout
             logout();
           } else {
-            // Set auth header for all requests
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            
-            // Get user data
+
             const response = await api.get('/api/auth/me');
-            setCurrentUser(response.data.data);
+            const userData = response.data.data;
+            setCurrentUser(userData);
+            // Cache user for instant hydration on next load
+            localStorage.setItem('cachedUser', JSON.stringify(userData));
           }
         }
       } catch (err) {
         console.error('Auth initialization error:', err);
         localStorage.removeItem('token');
+        localStorage.removeItem('cachedUser');
+        setCurrentUser(null);
       } finally {
         setLoading(false);
       }
@@ -85,6 +103,7 @@ export const AuthProvider = ({ children }) => {
   // Logout function
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('cachedUser');
     delete api.defaults.headers.common['Authorization'];
     setCurrentUser(null);
   };
