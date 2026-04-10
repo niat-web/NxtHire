@@ -121,10 +121,10 @@ const Applicants = () => {
     ], []);
 
     return (
-        <div className="h-full flex flex-col bg-white border border-gray-200 shadow-md overflow-hidden">
+        <div className="h-full flex flex-col bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
             {/* Header section with title and controls */}
-            <div className="px-6 py-4 bg-gray-50/75 border-b border-gray-200 flex flex-col md:flex-row items-center justify-between gap-4 flex-shrink-0">
-                <h2 className="text-lg font-semibold text-gray-800 self-start md:self-center">Applicants</h2>
+            <div className="px-6 py-4 bg-white border-b border-gray-200 flex flex-col md:flex-row items-center justify-between gap-4 flex-shrink-0 shadow-sm">
+                <h2 className="text-lg font-semibold text-gray-900 self-start md:self-center">Applicants</h2>
                 <div className="flex items-center gap-2 flex-wrap">
                     <SearchInput value={filters.search} onChange={(e) => handleFilterChange('search', e.target.value)} placeholder="Search..." className="w-full sm:w-48" />
                     <FilterDropdown label="Status" options={statusOptions} selectedValue={filters.status} onChange={(val) => handleFilterChange('status', val)}/>
@@ -147,8 +147,8 @@ const Applicants = () => {
 
             {/* Pagination outside the scrolling container */}
             {totalItems > 15 && (
-                 <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 flex-shrink-0">
-                    <p className="text-sm text-gray-700"> Page <span className="font-medium">{pagination.currentPage}</span> of <span className="font-medium">{totalPages}</span></p>
+                 <div className="flex items-center justify-between border-t border-gray-200 bg-white px-6 py-3 flex-shrink-0">
+                    <p className="text-xs text-gray-500"> Page <span className="font-medium text-gray-900">{pagination.currentPage}</span> of <span className="font-medium text-gray-900">{totalPages}</span></p>
                     <div className="space-x-2">
                        <Button variant="outline" onClick={() => handlePageChange(pagination.currentPage - 1)} disabled={pagination.currentPage <= 1}>Previous</Button>
                        <Button variant="outline" onClick={() => handlePageChange(pagination.currentPage + 1)} disabled={pagination.currentPage >= totalPages}>Next</Button>
@@ -166,10 +166,10 @@ const Applicants = () => {
             <Modal isOpen={historyModal.isOpen} onClose={() => setHistoryModal({ isOpen: false, data: [], name: '' })} title={`Status History for ${historyModal.name}`} size="lg">
                 <div className="overflow-y-auto max-h-[60vh]">
                     <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                        <thead className="bg-gradient-to-r from-indigo-50 to-blue-50">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">

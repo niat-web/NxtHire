@@ -12,7 +12,7 @@ const ResetPassword = () => {
   // --- Invalid Token View ---
   if (!token) {
     return (
-      <div className="min-h-screen w-full bg-[#F5F7F9] flex items-center justify-center p-4">
+      <div className="min-h-screen w-full bg-gray-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 p-8 text-center">
           <div className="mx-auto w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mb-4 border border-red-100">
             <AlertTriangle className="h-7 w-7 text-red-600" />
@@ -36,7 +36,7 @@ const ResetPassword = () => {
 
   // --- Main Form View ---
   return (
-    <div className="min-h-screen w-full bg-[#F5F7F9] flex items-center justify-center p-4 relative">
+    <div className="min-h-screen w-full bg-gray-50 flex items-center justify-center p-4 relative">
 
       {/* Back Link */}
       <div className="absolute top-6 left-6 md:top-10 md:left-10 z-10">

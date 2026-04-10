@@ -1,7 +1,7 @@
 // client/src/components/admin/AnalyticsDashboard.jsx
 import React, { useState, useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Calendar, CheckSquare, Clock, X, BarChart3, Inbox, Loader2 } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Calendar, BarChart3, Inbox, Loader2 } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import StatusBadge from '../common/StatusBadge';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -10,58 +10,44 @@ import { format as formatDateFns, startOfWeek } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 const STATUS_COLORS = {
-  Scheduled: '#3B82F6',
-  Completed: '#10B981',
-  InProgress: '#F59E0B',
-  Cancelled: '#EF4444',
-  Pending: '#94A3B8',
+  Scheduled:  { color: '#6366f1', bg: 'bg-indigo-50',  text: 'text-indigo-600' },
+  Completed:  { color: '#10B981', bg: 'bg-emerald-50', text: 'text-emerald-600' },
+  InProgress: { color: '#F59E0B', bg: 'bg-amber-50',   text: 'text-amber-600' },
+  Cancelled:  { color: '#EF4444', bg: 'bg-red-50',     text: 'text-red-600' },
+  Pending:    { color: '#94A3B8', bg: 'bg-gray-50',    text: 'text-gray-500' },
 };
 
 const ChartTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
+  const items = payload.filter(p => p.value > 0);
+  if (!items.length) return null;
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-md p-5 text-sm">
-      <p className="font-semibold text-gray-800 mb-1.5">{label}</p>
-      {payload.map((p, i) =>
-        p.value > 0 ? (
-          <div key={i} className="flex items-center gap-2 text-gray-600">
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: p.fill }} />
-            <span className="capitalize">{p.name}:</span>
-            <span className="font-semibold text-gray-900">{p.value}</span>
-          </div>
-        ) : null
-      )}
+    <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-3 text-xs min-w-[120px]">
+      <p className="font-semibold text-gray-900 mb-2">{label}</p>
+      {items.map((p, i) => (
+        <div key={i} className="flex items-center justify-between gap-4 py-0.5">
+          <span className="flex items-center gap-1.5 text-gray-500">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: p.fill }} />
+            {p.name}
+          </span>
+          <span className="font-bold text-gray-900">{p.value}</span>
+        </div>
+      ))}
     </div>
   );
 };
 
-const MiniStat = ({ label, value, color }) => (
-  <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50">
-    <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
-    <span className="text-xs text-gray-500">{label}</span>
-    <span className="text-sm font-semibold text-gray-900 ml-auto">{value}</span>
-  </div>
-);
-
 const DateInput = React.forwardRef(({ value, onClick, view }, ref) => {
   let label = 'Select Date';
   if (value) {
-    if (view === 'weekly') {
-      label = `Week of ${formatDateFns(startOfWeek(new Date(value), { weekStartsOn: 1 }), 'MMM d, yyyy')}`;
-    } else if (view === 'monthly') {
-      label = formatDateFns(new Date(value), 'MMMM yyyy');
-    } else {
-      label = formatDateFns(new Date(value), 'MMM d, yyyy');
-    }
+    if (view === 'weekly') label = `Week of ${formatDateFns(startOfWeek(new Date(value), { weekStartsOn: 1 }), 'MMM d')}`;
+    else if (view === 'monthly') label = formatDateFns(new Date(value), 'MMM yyyy');
+    else label = formatDateFns(new Date(value), 'MMM d, yyyy');
   }
   return (
-    <button
-      onClick={onClick}
-      ref={ref}
-      className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-100 transition-colors"
-    >
-
-      <Calendar size={14} className="text-gray-400" />
+    <button onClick={onClick} ref={ref}
+      className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors">
+      <Calendar size={13} className="text-gray-400" />
       {label}
     </button>
   );
@@ -72,11 +58,7 @@ const AnalyticsDashboard = () => {
   const [targetDate, setTargetDate] = useState(null);
   const [hiddenSeries, setHiddenSeries] = useState([]);
 
-  const { data: latestDateData } = useLatestInterviewDate({
-    staleTime: 10 * 60 * 1000,
-  });
-
-  // Set targetDate from latest interview date (only once when data arrives)
+  const { data: latestDateData } = useLatestInterviewDate({ staleTime: 10 * 60 * 1000 });
   const effectiveDate = targetDate || (latestDateData?.latestDate ? new Date(latestDateData.latestDate) : null);
 
   const analyticsParams = effectiveDate ? { view, targetDate: effectiveDate.toISOString() } : null;
@@ -108,121 +90,115 @@ const AnalyticsDashboard = () => {
     return week;
   }, [analyticsData, view]);
 
-  const handleLegendClick = (dataKey) => {
-    setHiddenSeries(prev =>
-      prev.includes(dataKey) ? prev.filter(k => k !== dataKey) : [...prev, dataKey]
-    );
-  };
+  const totalInterviews = Object.values(totals).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="space-y-5">
-      {/* Header row */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <BarChart3 size={18} className="text-gray-400" />
-          <h2 className="text-sm font-semibold text-gray-900">Interview Analytics</h2>
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
+            <BarChart3 size={15} className="text-indigo-600" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold text-gray-900">Interview Analytics</h2>
+            <p className="text-xs text-gray-400">{totalInterviews} total this {view === 'daily' ? 'day' : view === 'monthly' ? 'month' : 'week'}</p>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {/* View toggle */}
+        <div className="flex items-center gap-2">
           <div className="flex bg-gray-100 rounded-lg p-0.5">
             {['daily', 'weekly', 'monthly'].map(v => (
-              <button
-                key={v}
-                onClick={() => setView(v)}
+              <button key={v} onClick={() => setView(v)}
                 className={cn(
-                  'px-3 py-1 text-xs font-medium rounded-lg capitalize transition-colors',
-                  view === v ? 'bg-white text-gray-900 shadow-md' : 'text-gray-500 hover:text-gray-700'
-                )}
-              >
+                  'px-2.5 py-1 text-xs font-medium rounded-md capitalize transition-all',
+                  view === v ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                )}>
                 {v}
               </button>
             ))}
           </div>
-
-          <div className="relative z-20">
-            <DatePicker
-              selected={targetDate}
-              onChange={d => setTargetDate(d)}
-              showWeekNumbers={view === 'weekly'}
-              showMonthYearPicker={view === 'monthly'}
-              customInput={<DateInput view={view} />}
-            />
-          </div>
+          <DatePicker
+            selected={targetDate}
+            onChange={d => setTargetDate(d)}
+            showWeekNumbers={view === 'weekly'}
+            showMonthYearPicker={view === 'monthly'}
+            customInput={<DateInput view={view} />}
+            withPortal={false}
+            popperClassName="!z-[9999]"
+            popperProps={{ strategy: 'fixed' }}
+            popperPlacement="bottom-end"
+          />
         </div>
-      </div>
-
-      {/* Mini stat pills */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-        <MiniStat label="Scheduled" value={totals.Scheduled} color={STATUS_COLORS.Scheduled} />
-        <MiniStat label="Completed" value={totals.Completed} color={STATUS_COLORS.Completed} />
-        <MiniStat label="In Progress" value={totals.InProgress} color={STATUS_COLORS.InProgress} />
-        <MiniStat label="Cancelled" value={totals.Cancelled} color={STATUS_COLORS.Cancelled} />
-        <MiniStat label="Pending" value={totals.Pending} color={STATUS_COLORS.Pending} />
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center min-h-[260px]">
-          <Loader2 size={22} className="animate-spin text-gray-300" />
+        <div className="flex items-center justify-center min-h-[280px]">
+          <Loader2 size={22} className="animate-spin text-indigo-500" />
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Chart */}
-          <div className="lg:col-span-2 bg-gray-50 rounded-xl p-4 border border-gray-100 min-h-[280px]">
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }} barGap={3}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} dy={8} />
-                <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} allowDecimals={false} axisLine={false} tickLine={false} />
-                <Tooltip content={<ChartTooltip />} cursor={{ fill: '#f8fafc' }} />
-                <Legend
-                  wrapperStyle={{ fontSize: '11px', paddingTop: '16px', cursor: 'pointer' }}
-                  onClick={e => handleLegendClick(e.dataKey)}
-                  iconType="circle"
-                  iconSize={8}
-                />
-                {Object.entries(STATUS_COLORS).map(([status, color]) => (
-                  <Bar
-                    key={status}
-                    dataKey={status}
-                    fill={color}
-                    barSize={10}
-                    radius={[3, 3, 0, 0]}
-                    hide={hiddenSeries.includes(status)}
-                    animationDuration={800}
-                  />
-                ))}
-              </BarChart>
-            </ResponsiveContainer>
+          {/* Chart + Legend */}
+          <div className="lg:col-span-2 space-y-3">
+            {/* Inline stat legend — clickable to toggle series */}
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(STATUS_COLORS).map(([status, c]) => {
+                const hidden = hiddenSeries.includes(status);
+                return (
+                  <button key={status} onClick={() => setHiddenSeries(prev => prev.includes(status) ? prev.filter(k => k !== status) : [...prev, status])}
+                    className={cn(
+                      'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all',
+                      hidden
+                        ? 'bg-white border-gray-200 text-gray-400 opacity-50'
+                        : `${c.bg} ${c.text} border-transparent`
+                    )}>
+                    <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: hidden ? '#d1d5db' : c.color }} />
+                    {status === 'InProgress' ? 'In Progress' : status}
+                    <span className={cn('font-bold ml-0.5', hidden ? 'text-gray-400' : '')}>{totals[status]}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Chart */}
+            <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-100">
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={chartData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }} barGap={2}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} dy={8} />
+                  <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} allowDecimals={false} axisLine={false} tickLine={false} />
+                  <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(99, 102, 241, 0.04)' }} />
+                  {Object.entries(STATUS_COLORS).map(([status, c]) => (
+                    <Bar key={status} dataKey={status} fill={c.color} barSize={8} radius={[4, 4, 0, 0]}
+                      hide={hiddenSeries.includes(status)} animationDuration={600} />
+                  ))}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
-          {/* Recent interviews sidebar */}
-          <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 flex flex-col">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-              Recent Interviews
-            </h3>
-            <div className="flex-1 overflow-y-auto space-y-2 max-h-[300px]">
+          {/* Recent Interviews sidebar */}
+          <div className="bg-gray-50/80 rounded-xl border border-gray-100 flex flex-col overflow-hidden">
+            <div className="px-4 py-3 border-b border-gray-100">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Recent Interviews</h3>
+            </div>
+            <div className="flex-1 overflow-y-auto p-3 space-y-1.5 max-h-[320px]">
               {recentInterviews.length > 0 ? (
                 recentInterviews.map(iv => (
-                  <div
-                    key={iv._id}
-                    className="flex items-center justify-between gap-2 p-2.5 bg-white rounded-xl border border-gray-100 hover:shadow-md transition-shadow"
-                  >
+                  <div key={iv._id} className="flex items-center justify-between gap-2 p-2.5 bg-white rounded-lg border border-gray-100 hover:shadow-sm transition-shadow">
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{iv.candidateName}</p>
-                      <p className="text-xs text-gray-400 font-mono">{iv.interviewId || 'N/A'}</p>
+                      <p className="text-xs font-semibold text-gray-900 truncate">{iv.candidateName}</p>
+                      <p className="text-[10px] text-gray-400 font-mono mt-0.5">{iv.interviewId || 'N/A'}</p>
                     </div>
                     <div className="flex flex-col items-end gap-1 shrink-0">
                       <StatusBadge status={iv.interviewStatus} />
-                      <span className="text-xs text-gray-400">
-                        {formatDateFns(new Date(iv.interviewDate), 'MMM d')}
-                      </span>
+                      <span className="text-[10px] text-gray-400">{formatDateFns(new Date(iv.interviewDate), 'MMM d')}</span>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-gray-400">
-                  <Inbox size={24} className="mb-2 opacity-40" />
+                <div className="flex flex-col items-center justify-center py-10 text-gray-400">
+                  <Inbox size={20} className="mb-2 opacity-40" />
                   <p className="text-xs">No recent interviews</p>
                 </div>
               )}

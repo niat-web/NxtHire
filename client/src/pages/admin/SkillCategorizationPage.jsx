@@ -38,7 +38,7 @@ const SimpleButton = ({ children, variant = 'primary', icon: Icon, ...props }) =
 };
 
 const SimpleCard = ({ children, className = '' }) => (
-    <div className={`bg-white border border-gray-200 rounded-xl shadow-md ${className}`}>
+    <div className={`bg-white border border-gray-100 rounded-xl shadow-sm ${className}`}>
         {children}
     </div>
 );

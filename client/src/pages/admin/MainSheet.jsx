@@ -6,7 +6,7 @@ import CreatableSelect from 'react-select/creatable';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from 'date-fns';
-import { Download, Plus, Edit, Trash2, MoreVertical, Search, Inbox, AlertTriangle, ChevronLeft, ChevronRight, RefreshCw, Upload, Filter, X, Loader2 } from 'lucide-react';
+import { Download, Plus, Edit, Trash2, MoreVertical, Search, Inbox, AlertTriangle, ChevronLeft, ChevronRight, ChevronDown, RefreshCw, Upload, Filter, X, Loader2 } from 'lucide-react';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { deleteMainSheetEntry, bulkUpdateMainSheetEntries, refreshRecordingLinks, bulkUploadMainSheetEntries as bulkUpload, exportMainSheet } from '@/api/admin.api';
@@ -31,16 +31,22 @@ const LocalButton = ({ children, onClick, isLoading = false, variant = 'primary'
 };
 
 const LocalSearchInput = ({ value, onChange, placeholder }) => (
-    <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" /><input type="text" value={value} onChange={onChange} placeholder={placeholder} className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 text-sm bg-gray-50" /></div>
+    <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" /><input type="text" value={value} onChange={onChange} placeholder={placeholder} className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-gray-400 text-sm bg-gray-50" /></div>
 );
 
 // ... (other local components: LocalConfirmDialog, LocalDropdownMenu, LocalEmptyState, SkeletonRow, LocalTable, EditableHiringName, EditableDomainCell, UploadModal, RemarksModal, EditableCell are omitted for brevity, assumed functional) ...
 
+const skeletonWidths = {
+    candidateName: 'w-32', interviewId: 'w-16', uniqueId: 'w-44', mobileNumber: 'w-20', mailId: 'w-36',
+    resumeLink: 'w-8', meetingLink: 'w-10', interviewDate: 'w-20', interviewTime: 'w-24',
+    interviewDuration: 'w-12', interviewStatus: 'w-20', remarks: 'w-28', interviewerName: 'w-28',
+    interviewerMail: 'w-32', interviewerRemarks: 'w-28', hiringName: 'w-20', techStack: 'w-20', actions: 'w-6',
+};
 const SkeletonRow = ({ columns }) => (
     <tr className="animate-pulse">
         {columns.map(col => (
-            <td key={col.key} className={`px-3 py-3 whitespace-nowrap text-sm align-middle ${col.isSticky ? 'sticky left-0 z-1 bg-white' : ''}`}>
-                <div className={`h-4 ${col.key === 'actions' ? 'w-10' : 'w-full'} bg-gray-200 rounded`}></div>
+            <td key={col.key} className={`px-3 py-2 whitespace-nowrap text-sm align-middle ${col.isSticky ? 'sticky left-0 z-[1] bg-white' : ''}`}>
+                <div className={`h-3.5 ${skeletonWidths[col.key] || 'w-24'} bg-gray-100 rounded-md`}></div>
             </td>
         ))}
     </tr>
@@ -50,7 +56,7 @@ const LocalConfirmDialog = ({ isOpen, onClose, onConfirm, title, message, isLoad
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" onClick={onClose}>
-            <div className="relative w-full max-w-md bg-white rounded-xl shadow-md" onClick={e => e.stopPropagation()}>
+            <div className="relative w-full max-w-md bg-white rounded-xl shadow-lg" onClick={e => e.stopPropagation()}>
                 <div className="p-6">
                     <div className="flex items-start">
                         <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
@@ -92,7 +98,7 @@ const LocalDropdownMenu = ({ options }) => {
     }, [isOpen]);
 
     const MenuContent = () => (
-        <div ref={menuRef} className="fixed z-50 w-48 origin-top-right bg-white rounded-xl shadow-md ring-1 ring-black ring-opacity-5 focus:outline-none" style={{ top: `${position.top}px`, left: `${position.left}px` }}>
+        <div ref={menuRef} className="fixed z-50 w-48 origin-top-right bg-white rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" style={{ top: `${position.top}px`, left: `${position.left}px` }}>
             <div className="py-1">
                 {options.map((option) => (
                     <button key={option.label} onClick={() => { option.onClick(); setIsOpen(false); }} className={`group flex items-center w-full px-4 py-2 text-sm ${option.isDestructive ? 'text-red-700 hover:bg-red-50' : 'text-gray-700 hover:bg-gray-100'}`}>
@@ -113,33 +119,40 @@ const LocalEmptyState = ({ message, icon: Icon }) => (
 );
 
 const LocalTable = ({ columns, data, isLoading, emptyMessage, emptyIcon, sortConfig, onSort }) => (
-    <div className="w-full overflow-x-auto">
+    <div className="w-full h-full overflow-auto">
         <table className="min-w-full bg-white divide-y divide-gray-200 border-collapse">
-            <thead className="bg-gray-100/95 backdrop-blur-sm">
+            <thead>
                 <tr>
                     {columns.map(col => (
-                        <th 
-                           key={col.key} 
-                           scope="col" 
-                           onClick={() => col.sortable && onSort && onSort(col.key)} 
-                           className={`sticky top-0 z-10 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b ${col.sortable ? 'cursor-pointer hover:bg-gray-200' : ''} ${col.isSticky ? 'sticky left-0 z-20' : ''} bg-gray-100/95 backdrop-blur-sm`}
+                        <th
+                           key={col.key}
+                           scope="col"
+                           onClick={() => col.sortable && onSort && onSort(col.key)}
+                           className={`sticky top-0 z-10 px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap ${col.sortable ? 'cursor-pointer hover:text-gray-900' : ''} ${col.isSticky ? 'left-0 z-20' : ''} bg-gradient-to-r from-indigo-50 to-blue-50`}
                            style={{ minWidth: col.minWidth }}
                         >
-                            <div className="flex items-center gap-2">{col.title} {col.sortable && (sortConfig.key === col.key ? (sortConfig.direction === 'asc' ? '▲' : '▼') : <span className="text-gray-300">▲▼</span>)}</div>
+                            <div className="flex items-center gap-1.5">
+                                {col.title}
+                                {col.sortable && (
+                                    <span className="text-[10px]">
+                                        {sortConfig.key === col.key ? (sortConfig.direction === 'asc' ? '▲' : '▼') : <span className="text-gray-300">⇅</span>}
+                                    </span>
+                                )}
+                            </div>
                         </th>
                     ))}
                 </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-100">
                 {isLoading ? (
                     [...Array(15)].map((_, i) => <SkeletonRow key={i} columns={columns} />)
                 ) : data.length === 0 ? (
                     <tr><td colSpan={columns.length}><LocalEmptyState message={emptyMessage} icon={emptyIcon} /></td></tr>
                 ) : (
                     data.map((row, rowIndex) => (
-                        <tr key={row._id || rowIndex} className="hover:bg-gray-50 transition-colors align-top even:bg-gray-50 group">
+                        <tr key={row._id || rowIndex} className="hover:bg-gray-50/80 transition-colors group">
                             {columns.map(col => (
-                                <td key={col.key} className={`px-3 whitespace-nowrap text-sm text-gray-700 align-middle ${col.isSticky ? 'sticky left-0 z-1 group-even:bg-gray-50 bg-white group-hover:bg-gray-50' : ''}`}>
+                                <td key={col.key} className={`px-3 py-px whitespace-nowrap text-sm text-gray-700 align-middle ${col.isSticky ? 'sticky left-0 z-[1] bg-white group-hover:bg-gray-50/80' : ''}`}>
                                     {col.render ? col.render(row, rowIndex) : row[col.key]}
                                 </td>
                             ))}
@@ -248,7 +261,7 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, title, instructions, re
 
     return isOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={onClose}>
-            <div className="relative w-full max-w-4xl bg-white rounded-xl shadow-md flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+            <div className="relative w-full max-w-4xl bg-white rounded-xl shadow-lg flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                 <div className="p-4 border-b"><h3 className="text-lg font-semibold text-gray-800">{title}</h3></div>
                 <div className="p-6 flex-grow overflow-y-auto space-y-4">
                     <div className="flex items-center gap-4"><input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>{error && <p className="text-red-600 text-sm font-semibold">{error}</p>}</div>
@@ -275,7 +288,7 @@ const RemarksModal = ({ isOpen, onClose, content }) => {
             onClick={onClose}
         >
             <div 
-                className="relative w-full max-w-lg bg-white rounded-xl shadow-md"
+                className="relative w-full max-w-lg bg-white rounded-xl shadow-lg"
                 onClick={e => e.stopPropagation()}
             >
                 <div className="px-6 py-4 border-b flex justify-between items-center">
@@ -533,9 +546,9 @@ const MainSheet = () => {
             // --- MODIFICATION END ---
         },
         { key: 'interviewDuration', title: 'Duration' },
-        { key: 'interviewStatus', title: 'Status', minWidth: '150px', render: (row) => { const statusColors = {'Completed': 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200','Scheduled': 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200','InProgress': 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200','Cancelled': 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200' }; return (<select value={row.interviewStatus || ''} onChange={(e) => handleStatusChange(row._id, e.target.value)} disabled={updatingId === row._id} className={`w-full text-xs font-semibold px-2 py-1.5 border rounded-md shadow-sm focus:outline-none focus:ring-1 transition-colors cursor-pointer ${statusColors[row.interviewStatus] || 'bg-gray-100'}`} onClick={(e) => e.stopPropagation()}><option value="" disabled>Select Status</option>{MAIN_SHEET_INTERVIEW_STATUSES.map(status => (<option key={status.value} value={status.value}>{status.label}</option>))}</select>); } },
+        { key: 'interviewStatus', title: 'Status', minWidth: '130px', render: (row) => { const statusColors = {'Completed': 'bg-emerald-50 text-emerald-700 border-emerald-200','Scheduled': 'bg-amber-50 text-amber-700 border-amber-200','InProgress': 'bg-blue-50 text-blue-700 border-blue-200','Cancelled': 'bg-red-50 text-red-700 border-red-200' }; return (<div className="relative"><select value={row.interviewStatus || ''} onChange={(e) => handleStatusChange(row._id, e.target.value)} disabled={updatingId === row._id} className={`w-full text-xs font-semibold pl-2 pr-5 py-1 border rounded-md cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-indigo-500/20 ${statusColors[row.interviewStatus] || 'bg-gray-50 text-gray-500 border-gray-200'}`} onClick={(e) => e.stopPropagation()}><option value="" disabled>Select</option>{MAIN_SHEET_INTERVIEW_STATUSES.map(status => (<option key={status.value} value={status.value}>{status.label}</option>))}</select><ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400 pointer-events-none" /></div>); } },
         { key: 'remarks', title: 'Remarks', minWidth: '250px', render: (row) => <EditableCell value={row.remarks} onSave={handleCellSave} fieldName="remarks" rowId={row._id} isLoading={updatingId === row._id} /> },
-        { key: 'interviewerName', title: 'Interviewer', minWidth: '180px', render: (row) => (<select value={row.interviewer?._id || ''} onChange={(e) => handleInterviewerChange(row._id, e.target.value)} disabled={updatingId === row._id} className="w-full p-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-slate-400 transition-colors" onClick={(e) => e.stopPropagation()}><option value="">Unassigned</option>{interviewerOptions.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select>) },
+        { key: 'interviewerName', title: 'Interviewer', minWidth: '180px', render: (row) => (<div className="relative"><select value={row.interviewer?._id || ''} onChange={(e) => handleInterviewerChange(row._id, e.target.value)} disabled={updatingId === row._id} className="w-full pl-2 pr-5 py-1 text-xs border border-gray-200 rounded-md bg-white cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-indigo-500/20 text-gray-700 hover:border-gray-300 transition-colors" onClick={(e) => e.stopPropagation()}><option value="">Unassigned</option>{interviewerOptions.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select><ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400 pointer-events-none" /></div>) },
         { key: 'interviewerMail', title: "Interviewer Mail", minWidth: '200px', render: (row) => row.interviewer?.user?.email || '' },
         { key: 'interviewerRemarks', title: 'Interviewer Remarks', minWidth: '250px', render: (row) => {
             const remarks = row.interviewerRemarks;
@@ -570,12 +583,12 @@ const MainSheet = () => {
     return (
         <div className="h-full w-full flex flex-col overflow-hidden">
             {/* Header */}
-            <div className="bg-white border-b border-gray-200 px-5 py-3 flex-shrink-0">
+            <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0 shadow-sm">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                         <h1 className="text-lg font-semibold text-gray-900">Main Sheet</h1>
                         {pagination.totalItems > 0 && (
-                            <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full">{pagination.totalItems} records</span>
+                            <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">{pagination.totalItems} records</span>
                         )}
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">
@@ -583,43 +596,53 @@ const MainSheet = () => {
                             <LocalSearchInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search..." />
                         </div>
                         <div className="relative" ref={filterMenuRef}>
-                            <LocalButton variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}>
-                                <Filter className="h-4 w-4 mr-1.5" />
+                            <ShadcnButton variant="outline" size="sm" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} className="rounded-lg">
+                                <Filter className="h-3.5 w-3.5 mr-1.5" />
                                 Filter
                                 {isFilterActive && <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-1.5 p-0.5 rounded-full hover:bg-gray-200"><X className="h-3 w-3 text-gray-500" /></span>}
-                            </LocalButton>
+                            </ShadcnButton>
                             {isFilterMenuOpen && (
-                                <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 z-20 p-4">
+                                <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 z-[60] p-4">
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Date</label>
-                                            <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(prev => ({ ...prev, interviewDate: date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10"/>
+                                            <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Date</label>
+                                            <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(prev => ({ ...prev, interviewDate: date }))} isClearable placeholderText="Select a date"
+                                                className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                                                popperClassName="!z-[9999]" popperProps={{ strategy: 'fixed' }} />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Status</label>
-                                            <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(prev => ({...prev, interviewStatus: e.target.value}))} className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer">
+                                            <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Status</label>
+                                            <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(prev => ({...prev, interviewStatus: e.target.value}))} className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer">
                                                 <option value="">All Statuses</option>
                                                 {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
                                             </select>
                                         </div>
                                     </div>
                                     <div className="mt-4 pt-3 border-t border-gray-100 flex justify-end gap-2">
-                                        <LocalButton variant="outline" onClick={handleClearFilters} className="!text-xs">Clear</LocalButton>
-                                        <LocalButton variant="primary" onClick={handleApplyFilters} className="!text-xs">Apply</LocalButton>
+                                        <ShadcnButton variant="outline" size="sm" onClick={handleClearFilters}>Clear</ShadcnButton>
+                                        <ShadcnButton size="sm" onClick={handleApplyFilters}>Apply</ShadcnButton>
                                     </div>
                                 </div>
                             )}
                         </div>
                         <div className="h-5 w-px bg-gray-200 hidden sm:block" />
-                        <LocalButton variant="outline" icon={RefreshCw} onClick={handleRefreshRecordings} isLoading={isRefreshing}>Reload</LocalButton>
-                        <LocalButton variant="outline" icon={Download} onClick={handleExport} isLoading={isExporting}>Export</LocalButton>
-                        <LocalButton variant="outline" icon={Upload} onClick={() => setIsUploadModalOpen(true)}>Import</LocalButton>
-                        <LocalButton variant="primary" icon={Plus} onClick={() => navigate('/admin/main-sheet/add')}>Add Entries</LocalButton>
+                        <ShadcnButton variant="outline" size="sm" onClick={handleRefreshRecordings} isLoading={isRefreshing} className="rounded-lg">
+                            <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Reload
+                        </ShadcnButton>
+                        <ShadcnButton variant="outline" size="sm" onClick={handleExport} isLoading={isExporting} className="rounded-lg">
+                            <Download className="h-3.5 w-3.5 mr-1.5" /> Export
+                        </ShadcnButton>
+                        <ShadcnButton variant="outline" size="sm" onClick={() => setIsUploadModalOpen(true)} className="rounded-lg">
+                            <Upload className="h-3.5 w-3.5 mr-1.5" /> Import
+                        </ShadcnButton>
+                        <ShadcnButton size="sm" onClick={() => navigate('/admin/main-sheet/add')} className="rounded-lg">
+                            <Plus className="h-3.5 w-3.5 mr-1.5" /> Add Entries
+                        </ShadcnButton>
                     </div>
                 </div>
             </div>
             
-            <div className="flex-1 overflow-auto bg-white">
+            <div className="flex-1 overflow-hidden bg-white">
                 <LocalTable
                     columns={columns}
                     data={entries}
@@ -632,57 +655,44 @@ const MainSheet = () => {
             </div>
 
             {!loading && pagination && pagination.totalPages > 1 && (
-                <div className="flex items-center justify-between border-t border-gray-200 bg-white px-5 py-3 flex-shrink-0">
-                    <div>
-                        <p className="text-sm text-gray-700">
-                            Showing <span className="font-medium">{showingFrom}</span> to <span className="font-medium">{showingTo}</span> of{' '}
-                            <span className="font-medium">{pagination.totalItems}</span> results
-                        </p>
-                    </div>
-                    <div className="flex space-x-2">
-                        <LocalButton
-                            variant="outline"
-                            onClick={() => setCurrentPage(pagination.currentPage - 1)}
-                            disabled={loading || pagination.currentPage <= 1}
-                            className="px-3 py-2"
-                        >
+                <div className="flex items-center justify-between border-t border-gray-200 bg-white px-6 py-3 flex-shrink-0">
+                    <p className="text-xs text-gray-500">
+                        Showing <span className="font-semibold text-gray-900">{showingFrom}</span>–<span className="font-semibold text-gray-900">{showingTo}</span> of <span className="font-semibold text-gray-900">{pagination.totalItems}</span>
+                    </p>
+                    <div className="flex items-center gap-1.5">
+                        <ShadcnButton variant="outline" size="icon" onClick={() => setCurrentPage(pagination.currentPage - 1)}
+                            disabled={loading || pagination.currentPage <= 1} className="h-8 w-8">
                             <ChevronLeft className="h-4 w-4"/>
-                        </LocalButton>
-                        <div className="hidden md:flex space-x-1">
-                            {[...Array(Math.min(5, pagination.totalPages))].map((_, i) => {
-                                let pageNumber;
-                                if (pagination.totalPages <= 5) {
-                                    pageNumber = i + 1;
-                                } else if (pagination.currentPage <= 3) {
-                                    pageNumber = i + 1;
-                                } else if (pagination.currentPage >= pagination.totalPages - 2) {
-                                    pageNumber = pagination.totalPages - 4 + i;
-                                } else {
-                                    pageNumber = pagination.currentPage - 2 + i;
+                        </ShadcnButton>
+                        <div className="hidden md:flex items-center gap-1">
+                            {(() => {
+                                const pages = [];
+                                const total = pagination.totalPages;
+                                const current = pagination.currentPage;
+                                const range = 2;
+                                for (let i = 1; i <= total; i++) {
+                                    if (i === 1 || i === total || (i >= current - range && i <= current + range)) {
+                                        pages.push(i);
+                                    } else if (pages[pages.length - 1] !== '...') {
+                                        pages.push('...');
+                                    }
                                 }
-
-                                if (pageNumber > pagination.totalPages || pageNumber < 1) return null;
-
-                                return (
-                                    <LocalButton
-                                        key={i}
-                                        variant={pageNumber === pagination.currentPage ? "primary" : "outline"}
-                                        onClick={() => setCurrentPage(pageNumber)}
-                                        className="px-3 py-2 min-w-[40px]"
-                                    >
-                                        {pageNumber}
-                                    </LocalButton>
+                                return pages.map((p, idx) =>
+                                    p === '...' ? (
+                                        <span key={`dots-${idx}`} className="px-1.5 text-xs text-gray-400">...</span>
+                                    ) : (
+                                        <ShadcnButton key={p} variant={p === current ? 'default' : 'outline'} size="sm"
+                                            onClick={() => setCurrentPage(p)} className="h-8 w-8 p-0 text-xs">
+                                            {p}
+                                        </ShadcnButton>
+                                    )
                                 );
-                            })}
+                            })()}
                         </div>
-                        <LocalButton
-                            variant="outline"
-                            onClick={() => setCurrentPage(pagination.currentPage + 1)}
-                            disabled={loading || pagination.currentPage >= pagination.totalPages}
-                            className="px-3 py-2"
-                        >
+                        <ShadcnButton variant="outline" size="icon" onClick={() => setCurrentPage(pagination.currentPage + 1)}
+                            disabled={loading || pagination.currentPage >= pagination.totalPages} className="h-8 w-8">
                             <ChevronRight className="h-4 w-4"/>
-                        </LocalButton>
+                        </ShadcnButton>
                     </div>
                 </div>
             )}

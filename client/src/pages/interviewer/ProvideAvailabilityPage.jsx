@@ -60,7 +60,7 @@ const ProvideAvailabilityPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-indigo-50 flex items-center justify-center">
-        <div className="bg-white rounded-2xl shadow-md p-8 max-w-md w-full mx-4">
+        <div className="bg-white rounded-xl shadow-sm p-8 max-w-md w-full mx-4">
           <div className="text-center">
             <div className="relative">
               <div className="w-16 h-16 mx-auto mb-6 relative">
@@ -101,7 +101,7 @@ const ProvideAvailabilityPage = () => {
                   variant="success"
                   size="lg"
                   isLoading={isSubmitting}
-                  className="shadow-md hover:shadow-lg"
+                  className="shadow-sm hover:shadow-md"
                   aria-label={isSubmitting ? 'Submitting availability' : 'Submit availability'}
                 >
                   {!isSubmitting && <Save className="w-4 h-4 mr-2" />}
@@ -118,7 +118,7 @@ const ProvideAvailabilityPage = () => {
           <aside className="xl:col-span-4">
             <div className="sticky top-24 space-y-6">
               {/* Main Details Card */}
-              <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 {/* Card Header */}
                 <div className="bg-gradient-to-r from-indigo-600 to-indigo-600 px-6 py-5">
                   <div className="flex items-center">
@@ -198,7 +198,7 @@ const ProvideAvailabilityPage = () => {
               </div>
 
               {/* Tips and Guidelines Card */}
-              <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
                   <div className="flex items-center">
                     <CheckCircle className="w-6 h-6 text-white mr-3" />
@@ -227,7 +227,7 @@ const ProvideAvailabilityPage = () => {
 
           {/* Main Form Area */}
           <section className="xl:col-span-8">
-            <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
               {/* Form Content */}
               <div className="p-8">
                 {bookingRequest && (
@@ -246,7 +246,7 @@ const ProvideAvailabilityPage = () => {
       {/* Enhanced Loading Overlay */}
       {isSubmitting && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-md p-8 max-w-md w-full transform animate-pulse">
+          <div className="bg-white rounded-xl shadow-sm p-8 max-w-md w-full transform animate-pulse">
             <div className="text-center">
               <div className="relative mb-6">
                 <div className="w-16 h-16 mx-auto relative">

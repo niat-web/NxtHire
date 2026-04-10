@@ -29,7 +29,7 @@ const LocalSearchInput = ({ value, onChange, placeholder }) => (
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm"
+            className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-gray-400 text-sm transition-all"
         />
     </div>
 );
@@ -51,10 +51,10 @@ const LocalEmptyState = ({ message, icon: Icon }) => (
 
 const LocalTable = ({ columns, data, isLoading, emptyMessage, emptyIcon }) => (
     <table className="min-w-full bg-white divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+        <thead className="bg-gradient-to-r from-indigo-50 to-blue-50">
             <tr>
                 {columns.map(col => (
-                    <th key={col.key} scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ minWidth: col.minWidth }}>
+                    <th key={col.key} scope="col" className="px-4 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style={{ minWidth: col.minWidth }}>
                         {col.title}
                     </th>
                 ))}
@@ -99,7 +99,7 @@ const EditableDomainCell = ({ booking, domainOptions, onSave }) => {
     const [isLoading, setIsLoading] = useState(false);
     useEffect(() => { setCurrentValue(booking.domain || ''); }, [booking.domain]);
     const handleSave = async (newDomain) => { if (newDomain === currentValue) return; setIsLoading(true); setCurrentValue(newDomain); try { await updateStudentBooking(booking._id, { domain: newDomain }); onSave(booking._id, 'domain', newDomain); showSuccess("Domain updated successfully."); } catch (err) { showError("Failed to update domain."); setCurrentValue(booking.domain || ''); } finally { setIsLoading(false); } };
-    return (<select value={currentValue} onChange={(e) => handleSave(e.target.value)} disabled={isLoading} className={`w-full text-xs font-semibold px-2 py-1.5 border rounded-lg shadow-md focus:outline-none focus:ring-1 transition-colors cursor-pointer bg-gray-50 hover:bg-gray-100 ${isLoading ? 'opacity-50' : ''}`} onClick={(e) => e.stopPropagation()}><option value="" disabled>Select Domain</option>{domainOptions.map(opt => (opt.value && <option key={opt.value} value={opt.value}>{opt.label}</option>))}</select>);
+    return (<select value={currentValue} onChange={(e) => handleSave(e.target.value)} disabled={isLoading} className={`w-full text-xs font-semibold px-2 py-1.5 border rounded-lg shadow-sm focus:outline-none focus:ring-1 transition-colors cursor-pointer bg-gray-50 hover:bg-gray-100 ${isLoading ? 'opacity-50' : ''}`} onClick={(e) => e.stopPropagation()}><option value="" disabled>Select Domain</option>{domainOptions.map(opt => (opt.value && <option key={opt.value} value={opt.value}>{opt.label}</option>))}</select>);
 };
 
 const EditableHostEmail = ({ booking, hostEmails, onSave }) => {
@@ -149,7 +149,7 @@ const EditableInputCell = ({ booking, fieldKey, value, onSave, placeholder = "Ed
             setCurrentValue(originalValue);
         } finally { setIsLoading(false); }
     };
-    return (<input type="text" value={currentValue} onChange={(e) => setCurrentValue(e.target.value)} onBlur={handleSave} disabled={isLoading} placeholder={placeholder} className="w-full p-2 border border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm disabled:bg-gray-100" />);
+    return (<input type="text" value={currentValue} onChange={(e) => setCurrentValue(e.target.value)} onBlur={handleSave} disabled={isLoading} placeholder={placeholder} className="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm disabled:bg-gray-100" />);
 };
 
 const MeetLinkCell = ({ booking, onLinkGenerated }) => {
@@ -404,13 +404,63 @@ const ConfirmedSlotsView = () => {
 
     return (
        <div className="h-full flex flex-col">
-            <div className="flex justify-between items-center gap-4 p-4 flex-shrink-0">
-                <div className="w-full max-w-sm"><LocalSearchInput value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search..."/></div>
-                <div className="relative" ref={filterMenuRef}><Button variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}><Filter className="h-4 w-4 mr-2 text-indigo-600"/><span className="text-indigo-600">Filter</span>{isFilterActive && <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-2 p-1 rounded-full hover:bg-gray-200"><X className="h-3 w-3 text-gray-500" /></span>}</Button>{isFilterMenuOpen && ( <div className="absolute top-full right-0 mt-2 w-[500px] bg-white rounded-xl shadow-md border z-10 p-5"><div className="space-y-4"><div className="grid grid-cols-2 gap-4"><div><label className="block text-sm font-medium text-gray-700 mb-1">Interview Date</label><DatePicker selected={tempFilters.date} onChange={(date) => setTempFilters(prev => ({ ...prev, date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-300 rounded-lg text-sm"/></div><div><label className="block text-sm font-medium text-gray-700 mb-1">Invited On Date</label><DatePicker selected={tempFilters.invitedOnDate} onChange={(date) => setTempFilters(prev => ({ ...prev, invitedOnDate: date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-300 rounded-lg text-sm"/></div></div><div><label className="block text-sm font-medium text-gray-700 mb-1">Domain</label><select value={tempFilters.domain} onChange={(e) => setTempFilters(prev => ({...prev, domain: e.target.value}))} className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm bg-white">{domainOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}</select></div><div><label className="block text-sm font-medium text-gray-700 mb-1">Public ID</label><Select options={publicBookingOptions} value={publicBookingOptions.find(opt => opt.value === tempFilters.publicId) || null} onChange={(selectedOption) => setTempFilters(prev => ({ ...prev, publicId: selectedOption ? selectedOption.value : '' }))} isClearable isSearchable placeholder="Search or select a Public ID..." styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }), control: base => ({...base, fontSize: '0.875rem'}), menu: base => ({...base, fontSize: '0.875rem'})}} menuPortalTarget={document.body} menuPosition={'fixed'} /></div></div><div className="mt-4 pt-4 border-t flex justify-end gap-2"><Button variant="outline" onClick={handleClearFilters} className="!text-xs">Clear</Button><Button variant="default" onClick={handleApplyFilters} className="!text-xs">Apply</Button></div></div>)}</div>
-            </div>
-            
-            <div className="px-4 border-b border-gray-200 flex-shrink-0">
-                <nav className="-mb-px flex space-x-8" aria-label="Tabs"><button onClick={() => setActiveTab('confirmed')} className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'confirmed' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Confirmed Bookings <span className="ml-2 bg-indigo-100 text-indigo-600 py-0.5 px-2.5 rounded-full text-xs font-medium">{confirmedBookings.length}</span></button><button onClick={() => setActiveTab('pending')} className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'pending' ? 'border-yellow-500 text-yellow-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>Pending Invitations <span className="ml-2 bg-yellow-100 text-yellow-600 py-0.5 px-2.5 rounded-full text-xs font-medium">{pendingInvitations.length}</span></button></nav>
+            {/* Header with search, filter, and tabs */}
+            <div className="bg-white border-b border-gray-200 shrink-0 shadow-sm">
+                <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex-1 max-w-sm"><LocalSearchInput value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search students..."/></div>
+                    <div className="relative" ref={filterMenuRef}>
+                        <Button variant="outline" size="sm" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} className="rounded-lg">
+                            <Filter className="h-3.5 w-3.5 mr-1.5" /> Filter
+                            {isFilterActive && (
+                                <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-1.5 p-0.5 rounded-full hover:bg-gray-200">
+                                    <X className="h-3 w-3 text-gray-500" />
+                                </span>
+                            )}
+                        </Button>
+                        {isFilterMenuOpen && (
+                            <div className="absolute top-full right-0 mt-2 w-[480px] bg-white rounded-xl shadow-xl border border-gray-100 z-50 p-5">
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">Interview Date</label>
+                                            <DatePicker selected={tempFilters.date} onChange={(date) => setTempFilters(prev => ({ ...prev, date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">Invited On Date</label>
+                                            <DatePicker selected={tempFilters.invitedOnDate} onChange={(date) => setTempFilters(prev => ({ ...prev, invitedOnDate: date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">Domain</label>
+                                        <select value={tempFilters.domain} onChange={(e) => setTempFilters(prev => ({...prev, domain: e.target.value}))} className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-sm bg-white">
+                                            {domainOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">Public ID</label>
+                                        <Select options={publicBookingOptions} value={publicBookingOptions.find(opt => opt.value === tempFilters.publicId) || null} onChange={(selectedOption) => setTempFilters(prev => ({ ...prev, publicId: selectedOption ? selectedOption.value : '' }))} isClearable isSearchable placeholder="Search or select..." styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }), control: base => ({...base, fontSize: '0.875rem', borderRadius: '0.5rem', borderColor: '#e5e7eb'}), menu: base => ({...base, fontSize: '0.875rem'})}} menuPortalTarget={document.body} menuPosition={'fixed'} />
+                                    </div>
+                                </div>
+                                <div className="mt-5 pt-4 border-t border-gray-100 flex justify-end gap-2">
+                                    <Button variant="outline" size="sm" onClick={handleClearFilters}>Clear</Button>
+                                    <Button size="sm" onClick={handleApplyFilters}>Apply Filters</Button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Tabs */}
+                <div className="px-6">
+                    <nav className="-mb-px flex space-x-6">
+                        <button onClick={() => setActiveTab('confirmed')} className={`whitespace-nowrap py-3 border-b-2 text-sm font-medium transition-colors ${activeTab === 'confirmed' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+                            Confirmed <span className={`ml-1.5 py-0.5 px-2 rounded-full text-[10px] font-bold ${activeTab === 'confirmed' ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-500'}`}>{confirmedBookings.length}</span>
+                        </button>
+                        <button onClick={() => setActiveTab('pending')} className={`whitespace-nowrap py-3 border-b-2 text-sm font-medium transition-colors ${activeTab === 'pending' ? 'border-amber-500 text-amber-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+                            Pending <span className={`ml-1.5 py-0.5 px-2 rounded-full text-[10px] font-bold ${activeTab === 'pending' ? 'bg-amber-100 text-amber-600' : 'bg-gray-100 text-gray-500'}`}>{pendingInvitations.length}</span>
+                        </button>
+                    </nav>
+                </div>
             </div>
 
             <div className="flex-grow overflow-hidden flex flex-col">

@@ -40,7 +40,7 @@ const SettingsSidebar = memo(({ activeTab, onTabClick }) => (
             )}
           >
             <tab.icon className="w-4 h-4" />
-            <span>{tab.label}</span>
+            <span className="flex-1 text-left">{tab.label}</span>
           </button>
         );
       })}

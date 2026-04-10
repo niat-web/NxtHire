@@ -147,10 +147,10 @@ const UserManagement = () => {
     }, [activeTab, pagination.totalItems]);
 
     return (
-        <div className="flex flex-col h-full bg-[#F5F7F9]">
+        <div className="flex flex-col h-full bg-gray-50">
 
             {/* Header */}
-            <div className="bg-white border-b border-gray-200 px-6 py-4 shrink-0">
+            <div className="bg-white border-b border-gray-200 px-6 py-4 shrink-0 shadow-sm">
                 <div className="flex items-center justify-between mb-4">
                     <div>
                         <h1 className="text-lg font-semibold text-gray-900">User Management</h1>
@@ -184,7 +184,7 @@ const UserManagement = () => {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                         <input type="text" value={search} onChange={e => setSearch(e.target.value)}
                             placeholder="Search by name or email..."
-                            className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all" />
+                            className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-gray-400 transition-all" />
                     </div>
                 </div>
             </div>

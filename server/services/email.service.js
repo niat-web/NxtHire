@@ -49,6 +49,7 @@ const TEMPLATE_SETTING_MAP = {
   'interviewCancelled': 'emailInterviewCancelled',
   'studentBookingInvitation': 'emailStudentBookingInvitation',
   'studentBookingReminder': 'emailStudentBookingReminder',
+  'meetLinkNotification': 'emailMeetLinkNotification',
   'passwordReset': 'emailPasswordReset',
 };
 

@@ -20,7 +20,7 @@ const Loader = ({ text }) => (
 const Table = ({ columns, data, isLoading, emptyMessage, emptyIcon: EmptyIcon }) => (
     <div className="w-full overflow-x-auto">
         <table className="min-w-full bg-white divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gradient-to-r from-indigo-50 to-blue-50">
                 <tr>{columns.map(col => <th key={col.key} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{col.title}</th>)}</tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -46,7 +46,7 @@ const Modal = ({ isOpen, onClose, title, children, footer }) => {
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
-            <div className="relative w-full max-w-3xl bg-white rounded-xl shadow-md flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+            <div className="relative w-full max-w-3xl bg-white rounded-xl shadow-lg flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                 <div className="flex-shrink-0 px-6 py-4 border-b flex justify-between items-center"><h3 className="text-lg font-semibold text-gray-900">{title}</h3><Button variant="ghost" size="icon" onClick={onClose} className="text-gray-500"><X className="h-5 w-5" /></Button></div>
                 <div className="flex-grow p-6 overflow-y-auto">{children}</div>
                 {footer && <div className="flex-shrink-0 px-6 py-4 border-t bg-gray-50 flex justify-end gap-3 rounded-b-xl">{footer}</div>}

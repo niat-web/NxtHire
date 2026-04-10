@@ -144,30 +144,30 @@ const BookingSlots = () => {
     const selectedSlotsCount = Object.values(selectedSlots).reduce((count, item) => count + item.slots.length, 0);
 
     return (
-        <div className="h-full flex flex-col bg-slate-50">
+        <div className="h-full flex flex-col bg-gray-50">
             {/* Header */}
-            <div className="bg-white border-b border-slate-200 px-6 py-4">
+            <div className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex flex-col md:flex-row gap-3 flex-1">
                         <div className="relative flex-1 md:max-w-md">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                             <input
                                 type="text"
                                 value={searchFilter}
                                 onChange={(e) => setSearchFilter(e.target.value)}
                                 placeholder="Search by name or email..."
-                                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
+                                className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-gray-400"
                             />
                         </div>
 
                         <div className="relative min-w-[180px]">
-                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10" />
+                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
                             <DatePicker
                                 selected={dateFilter}
                                 onChange={(date) => setDateFilter(date)}
                                 isClearable
                                 placeholderText="Filter by date"
-                                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
+                                className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-gray-400"
                             />
                         </div>
                     </div>
@@ -193,40 +193,54 @@ const BookingSlots = () => {
             <div className="flex-1 overflow-auto px-6 py-4">
                 {loading ? (
                     <div className="flex items-center justify-center h-64">
-                        <div className="w-10 h-10 border-4 border-slate-200 border-t-slate-700 rounded-full animate-spin"></div>
+                        <div className="w-10 h-10 border-4 border-gray-200 border-t-indigo-600 rounded-full animate-spin"></div>
                     </div>
                 ) : slots.length === 0 ? (
-                    <div className="text-center py-16 text-slate-500">
+                    <div className="text-center py-16 text-gray-500">
                         No slots found. {searchFilter || dateFilter ? "Try adjusting your filters." : ""}
                     </div>
                 ) : (
-                    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
                         <table className="w-full text-sm">
-                            <thead className="bg-slate-50 border-b border-slate-200">
+                            <thead className="bg-gradient-to-r from-indigo-50 to-blue-50">
                                 <tr>
-                                    <th className="text-left px-4 py-3 font-semibold text-slate-700 w-8"></th>
-                                    <th className="text-left px-4 py-3 font-semibold text-slate-700">Interviewer</th>
-                                    <th className="text-left px-4 py-3 font-semibold text-slate-700 whitespace-nowrap w-40">Date</th>
-                                    <th className="text-left pl-8 pr-4 py-3 font-semibold text-slate-700">Time Slots</th>
-                                    <th className="text-left px-4 py-3 font-semibold text-slate-700 w-16"></th>
+                                    <th className="text-left px-4 py-3 w-8">
+                                        <input type="checkbox"
+                                            checked={slots.length > 0 && slots.every(row => selectedSlots[row.submissionId]?.slots.length === row.timeSlots.length)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    const all = {};
+                                                    slots.forEach(row => { all[row.submissionId] = { interviewerId: row.interviewerId, date: row.interviewDate, slots: row.timeSlots.map(s => ({ startTime: s.startTime, endTime: s.endTime })) }; });
+                                                    setSelectedSlots(all);
+                                                } else {
+                                                    setSelectedSlots({});
+                                                }
+                                            }}
+                                            className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500/20"
+                                        />
+                                    </th>
+                                    <th className="text-left px-4 py-3 font-semibold text-gray-600 uppercase text-xs tracking-wider">Interviewer</th>
+                                    <th className="text-left px-4 py-3 font-semibold text-gray-600 uppercase text-xs tracking-wider whitespace-nowrap w-40">Date</th>
+                                    <th className="text-left pl-8 pr-4 py-3 font-semibold text-gray-600 uppercase text-xs tracking-wider">Time Slots</th>
+                                    <th className="text-left px-4 py-3 font-semibold text-gray-600 uppercase text-xs tracking-wider w-16"></th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100">
+                            <tbody className="divide-y divide-gray-100">
                                 {slots.map((row) => {
                                     const entry = selectedSlots[row.submissionId];
                                     const isAllSelected = entry && entry.slots.length === row.timeSlots.length;
                                     
                                     return (
-                                        <tr key={row.submissionId} className="hover:bg-slate-50 transition-colors">
+                                        <tr key={row.submissionId} className="hover:bg-gray-50 transition-colors">
                                             <td className="px-4 py-3">
-                                                <input type="checkbox" checked={isAllSelected || false} onChange={() => handleSelectAllForRow(row)} className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-2 focus:ring-slate-900/10" />
+                                                <input type="checkbox" checked={isAllSelected || false} onChange={() => handleSelectAllForRow(row)} className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500/20" />
                                             </td>
                                             <td className="px-4 py-3">
-                                                <div className="font-medium text-slate-800">{row.fullName}</div>
-                                                <div className="text-xs text-slate-500">{row.email}</div>
-                                                <div className="text-xs text-slate-400 mt-1">{formatDateTime(row.submittedAt)}</div>
+                                                <div className="font-medium text-gray-800">{row.fullName}</div>
+                                                <div className="text-xs text-gray-500">{row.email}</div>
+                                                <div className="text-xs text-gray-400 mt-1">{formatDateTime(row.submittedAt)}</div>
                                             </td>
-                                            <td className="px-4 py-3 text-slate-700 whitespace-nowrap w-40">{formatDate(row.interviewDate)}</td>
+                                            <td className="px-4 py-3 text-gray-700 whitespace-nowrap w-40">{formatDate(row.interviewDate)}</td>
                                             <td className="pl-8 pr-4 py-3">
                                                 <div className="flex flex-wrap gap-1.5">
                                                     {row.timeSlots.map((slot, idx) => {

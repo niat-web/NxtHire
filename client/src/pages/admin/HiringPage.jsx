@@ -40,14 +40,14 @@ const HiringSidebar = memo(({ activeTab, onTabClick, counts }) => (
             key={tab.id}
             onClick={() => onTabClick(tab.id)}
             className={cn(
-              'flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150',
+              'flex items-center w-full px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-150',
               isActive
-                ? 'bg-indigo-600 text-white shadow'
+                ? 'bg-indigo-600 text-white'
                 : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
             )}
           >
-            <tab.icon className="w-5 h-5" />
-            <span className="ml-3 flex-1 text-left">{tab.label}</span>
+            <tab.icon className="w-4 h-4" />
+            <span className="ml-2.5 flex-1 text-left">{tab.label}</span>
             {count > 0 && (
               <Badge className={cn('ml-auto', isActive ? 'bg-white/20 text-white border-transparent' : 'bg-red-500 text-white border-transparent blinking-count')}>
                 {count}
@@ -82,7 +82,7 @@ const HiringPage = () => {
   return (
     <div className="flex h-full w-full overflow-hidden">
       <HiringSidebar activeTab={activeTab} onTabClick={handleTabClick} counts={counts} />
-      <main className="flex-1 overflow-y-auto bg-gray-50">
+      <main className="flex-1 overflow-y-auto bg-gray-50/50">
         <ActiveComponent key={activeTab} />
       </main>
     </div>

@@ -43,7 +43,7 @@ const CustomSelect = ({ value, onChange, options, placeholder }) => (
         <select
             value={value}
             onChange={onChange}
-            className="appearance-none bg-white border border-gray-200 text-gray-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 block py-2 pl-3 pr-8 cursor-pointer hover:border-gray-300 transition-colors"
+            className="appearance-none bg-white border border-gray-200 text-gray-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-gray-400 block py-2 pl-3 pr-8 cursor-pointer hover:border-gray-300 transition-colors"
         >
             <option value="">{placeholder}</option>
             {options.map((opt) => (
@@ -87,7 +87,7 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
                 <div className="fixed inset-0 overflow-y-auto">
                     <div className="flex min-h-full items-center justify-center p-4 text-center">
                         <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
-                            <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-md transition-all flex flex-col max-h-[90vh]">
+                            <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-xl bg-white text-left align-middle shadow-lg transition-all flex flex-col max-h-[90vh]">
                                 {/* Header */}
                                 <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                                     <div className="flex items-center gap-4">
@@ -216,7 +216,7 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, isLoading }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={onClose}>
-            <div className="w-full max-w-lg bg-white rounded-xl shadow-md p-6" onClick={e => e.stopPropagation()}>
+            <div className="w-full max-w-lg bg-white rounded-xl shadow-lg border border-gray-100 p-6" onClick={e => e.stopPropagation()}>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Bulk Import Interviewers</h3>
                 <div className="space-y-4">
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-100 file:text-gray-700 cursor-pointer border border-gray-200 rounded-lg p-2" />
@@ -436,10 +436,10 @@ const Interviewers = () => {
     ], [interviewers, selectedRows, updatingId]);
 
     return (
-        <div className="flex flex-col h-full overflow-hidden">
+        <div className="flex flex-col h-full overflow-hidden bg-white rounded-xl border border-gray-100 shadow-sm">
 
             {/* Header Bar */}
-            <div className="bg-white border-b border-gray-200 px-5 py-3 flex-shrink-0">
+            <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0 shadow-sm">
                 <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
                     <div className="flex flex-wrap items-center gap-2 flex-1">
                         <div className="relative w-full sm:w-56">
@@ -449,7 +449,7 @@ const Interviewers = () => {
                                 value={filters.search}
                                 onChange={(e) => setFilters(p => ({ ...p, search: e.target.value }))}
                                 placeholder="Search by name, email..."
-                                className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all"
+                                className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-gray-400 transition-all"
                             />
                         </div>
                         <CustomSelect
@@ -504,7 +504,7 @@ const Interviewers = () => {
                     
                 {/* Pagination */}
                 {!loading && totalDocs > 0 && (
-                    <div className="px-5 py-3 border-t border-gray-200 bg-white flex items-center justify-between shrink-0">
+                    <div className="px-6 py-3 border-t border-gray-200 bg-white flex items-center justify-between shrink-0">
                         <p className="text-xs text-gray-500">
                             Page <b className="text-gray-900">{currentPage}</b> of {totalPages} ({totalDocs} total)
                         </p>

@@ -251,29 +251,29 @@ const AuthorizeStudentsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 p-8 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="h-12 w-12 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
-          <p className="text-slate-500 font-medium animate-pulse">Loading booking details...</p>
+          <p className="text-gray-500 font-medium animate-pulse">Loading booking details...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-slate-50/50">
+    <div className="min-h-screen w-full flex flex-col bg-gray-50/50">
       {/* Top Navigation Bar */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-30 px-6 py-4 shadow-md">
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-30 px-6 py-4 shadow-sm">
         <div className="max-w-[1600px] mx-auto w-full flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link
               to="/admin/bookings/student-bookings"
-              className="h-10 w-10 flex items-center justify-center rounded-full bg-slate-50 border border-slate-200 text-slate-600 hover:bg-white hover:text-indigo-600 hover:border-indigo-200 transition-all duration-200 shadow-md"
+              className="h-10 w-10 flex items-center justify-center rounded-full bg-gray-50 border border-gray-200 text-gray-600 hover:bg-white hover:text-indigo-600 hover:border-indigo-200 transition-all duration-200 shadow-sm"
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
-              <h1 className="text-xl font-semibold text-slate-900">Authorize Students</h1>
+              <h1 className="text-xl font-semibold text-gray-900">Authorize Students</h1>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -296,9 +296,9 @@ const AuthorizeStudentsPage = () => {
             <div className="xl:col-span-4 flex flex-col gap-6 h-full overflow-y-auto pb-6">
 
               {/* Paste Data Card */}
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden flex flex-col">
-                <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                  <div className="flex items-center gap-2 font-semibold text-slate-800">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+                <div className="p-5 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+                  <div className="flex items-center gap-2 font-semibold text-gray-800">
                     <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
                       <FileText className="h-4 w-4" />
                     </div>
@@ -315,13 +315,13 @@ const AuthorizeStudentsPage = () => {
                       value={pastedText}
                       onChange={(e) => processText(e.target.value)}
                       placeholder={`Paste student data here...\n\nSupported Columns:\n${columnsHelp.join(', ')}`}
-                      className="w-full h-full absolute inset-0 p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono text-slate-700 placeholder:text-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all resize-none"
+                      className="w-full h-full absolute inset-0 p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm font-mono text-gray-700 placeholder:text-gray-400 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all resize-none"
                       spellCheck={false}
                     />
                   </div>
 
                   <div className="flex items-center justify-between pt-2">
-                    <p className="text-xs text-slate-500 flex items-center gap-1.5">
+                    <p className="text-xs text-gray-500 flex items-center gap-1.5">
                       <Info className="text-indigo-500" />
                       Tab or comma separated
                     </p>
@@ -333,9 +333,9 @@ const AuthorizeStudentsPage = () => {
               </div>
 
               {/* File Upload Card */}
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
-                <div className="p-5 border-b border-slate-100 bg-slate-50/50">
-                  <div className="flex items-center gap-2 font-semibold text-slate-800">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="p-5 border-b border-gray-100 bg-gray-50/50">
+                  <div className="flex items-center gap-2 font-semibold text-gray-800">
                     <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">
                       <Upload className="h-4 w-4" />
                     </div>
@@ -345,7 +345,7 @@ const AuthorizeStudentsPage = () => {
                 <div className="p-5">
                   <div
                     ref={dropRef}
-                    className="group relative border-2 border-dashed border-slate-300 hover:border-indigo-500 hover:bg-indigo-50/30 rounded-xl p-8 text-center transition-all duration-200 cursor-pointer"
+                    className="group relative border-2 border-dashed border-gray-300 hover:border-indigo-500 hover:bg-indigo-50/30 rounded-xl p-8 text-center transition-all duration-200 cursor-pointer"
                     onClick={() => fileInputRef.current?.click()}
                   >
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv,.xlsx,.xls,.xlsm" className="hidden" />
@@ -353,47 +353,47 @@ const AuthorizeStudentsPage = () => {
                     <div className="mb-4 inline-flex items-center justify-center h-12 w-12 rounded-full bg-indigo-50 text-indigo-600 group-hover:scale-110 transition-transform">
                       <Upload className="h-6 w-6" />
                     </div>
-                    <h3 className="text-sm font-semibold text-slate-900 mb-1">Click to upload or drag and drop</h3>
-                    <p className="text-xs text-slate-500">CSV, Excel files (max 10MB)</p>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-1">Click to upload or drag and drop</h3>
+                    <p className="text-xs text-gray-500">CSV, Excel files (max 10MB)</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Right Panel: Data Table */}
-            <div className="xl:col-span-8 flex flex-col h-full overflow-hidden bg-white rounded-2xl shadow-md border border-slate-200">
+            <div className="xl:col-span-8 flex flex-col h-full overflow-hidden bg-white rounded-xl shadow-sm border border-gray-200">
 
               {/* Toolbar */}
-              <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
+              <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
                 <div className="relative flex-1 max-w-md">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 h-4 w-4" />
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <input
                     type="text"
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="Search students..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
                   />
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors select-none">
+                  <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors select-none">
                     <input
                       type="checkbox"
-                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+                      className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
                       checked={showInvalidOnly}
                       onChange={(e) => setShowInvalidOnly(e.target.checked)}
                     />
-                    <span className="text-sm text-slate-700 font-medium">Show Invalid</span>
+                    <span className="text-sm text-gray-700 font-medium">Show Invalid</span>
                   </label>
                 </div>
               </div>
 
               {/* Stats Bar */}
-              <div className="px-4 py-3 bg-slate-50/50 border-b border-slate-200 flex items-center gap-4 text-sm overflow-x-auto">
-                <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white border border-slate-200 shadow-md">
-                  <div className="h-2 w-2 rounded-full bg-slate-400" />
-                  <span className="text-slate-600 font-medium">Total: {students.length}</span>
+              <div className="px-4 py-3 bg-gray-50/50 border-b border-gray-200 flex items-center gap-4 text-sm overflow-x-auto">
+                <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white border border-gray-200 shadow-sm">
+                  <div className="h-2 w-2 rounded-full bg-gray-400" />
+                  <span className="text-gray-600 font-medium">Total: {students.length}</span>
                 </div>
                 <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-green-50 border border-green-100 text-green-700">
                   <CheckCircle className="h-3.5 w-3.5" />
@@ -411,11 +411,11 @@ const AuthorizeStudentsPage = () => {
               <div className="flex-1 overflow-auto relative">
                 {filtered.length === 0 ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
-                    <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                      <Search className="h-8 w-8 text-slate-300" />
+                    <div className="h-20 w-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                      <Search className="h-8 w-8 text-gray-300" />
                     </div>
-                    <h3 className="text-lg font-semibold text-slate-900 mb-1">No students found</h3>
-                    <p className="text-slate-500 max-w-xs mx-auto">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">No students found</h3>
+                    <p className="text-gray-500 max-w-xs mx-auto">
                       {students.length === 0
                         ? "Get started by pasting data or uploading a file."
                         : "No results match your search filters."}
@@ -423,23 +423,23 @@ const AuthorizeStudentsPage = () => {
                   </div>
                 ) : (
                   <table className="w-full text-left border-collapse">
-                    <thead className="bg-slate-50 sticky top-0 z-10 shadow-sm">
+                    <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm">
                       <tr>
-                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider w-16 text-center">Status</th>
-                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Hiring Name</th>
-                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Domain</th>
-                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">User ID</th>
-                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Full Name</th>
-                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Email</th>
-                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Mobile</th>
-                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Resume</th>
+                        <th className="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-16 text-center">Status</th>
+                        <th className="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Hiring Name</th>
+                        <th className="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Domain</th>
+                        <th className="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">User ID</th>
+                        <th className="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Full Name</th>
+                        <th className="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                        <th className="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Mobile</th>
+                        <th className="py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Resume</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {filtered.map((s, i) => (
                         <tr
                           key={`${s.email || 'row'}-${i}`}
-                          className={cn('group transition-colors hover:bg-slate-50', !s._isValid && 'bg-red-50/50 hover:bg-red-50')}
+                          className={cn('group transition-colors hover:bg-gray-50', !s._isValid && 'bg-red-50/50 hover:bg-red-50')}
                         >
                           <td className="py-3 px-4 text-center">
                             {s._isValid ? (
@@ -452,12 +452,12 @@ const AuthorizeStudentsPage = () => {
                               </div>
                             )}
                           </td>
-                          <td className="py-3 px-4 text-sm text-slate-700">{s.hiringName}</td>
-                          <td className="py-3 px-4 text-sm text-slate-700">{s.domain}</td>
-                          <td className="py-3 px-4 text-sm text-slate-700 font-mono text-xs">{s.userId}</td>
-                          <td className="py-3 px-4 text-sm font-medium text-slate-900">{s.fullName}</td>
-                          <td className="py-3 px-4 text-sm text-slate-600">{s.email}</td>
-                          <td className="py-3 px-4 text-sm text-slate-600">{s.mobileNumber}</td>
+                          <td className="py-3 px-4 text-sm text-gray-700">{s.hiringName}</td>
+                          <td className="py-3 px-4 text-sm text-gray-700">{s.domain}</td>
+                          <td className="py-3 px-4 text-sm text-gray-700 font-mono text-xs">{s.userId}</td>
+                          <td className="py-3 px-4 text-sm font-medium text-gray-900">{s.fullName}</td>
+                          <td className="py-3 px-4 text-sm text-gray-600">{s.email}</td>
+                          <td className="py-3 px-4 text-sm text-gray-600">{s.mobileNumber}</td>
                           <td className="py-3 px-4 text-sm">
                             {s.resumeLink ? (
                               <a
@@ -469,7 +469,7 @@ const AuthorizeStudentsPage = () => {
                                 View <FileText className="h-3 w-3" />
                               </a>
                             ) : (
-                              <span className="text-slate-400 text-xs italic">Missing</span>
+                              <span className="text-gray-400 text-xs italic">Missing</span>
                             )}
                           </td>
                         </tr>
@@ -480,8 +480,8 @@ const AuthorizeStudentsPage = () => {
               </div>
 
               {/* Footer Actions */}
-              <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
-                <div className="text-sm text-slate-500 font-medium">
+              <div className="p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+                <div className="text-sm text-gray-500 font-medium">
                   Showing {filtered.length} of {students.length} students
                 </div>
                 <div className="flex items-center gap-3">
@@ -498,7 +498,7 @@ const AuthorizeStudentsPage = () => {
                     disabled={validCount === 0}
                     variant="success"
                     size="lg"
-                    className="shadow-md shadow-indigo-600/20"
+                    className="shadow-sm shadow-indigo-600/20"
                   >
                     {!isSaving && <Send className="mr-2 h-4 w-4" />}
                     {`Authorize & Invite ${validCount} Students`}

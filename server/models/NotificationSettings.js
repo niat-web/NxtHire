@@ -33,6 +33,7 @@ const notificationSettingsSchema = new mongoose.Schema({
   // Student emails
   emailStudentBookingInvitation: { type: Boolean, default: true },
   emailStudentBookingReminder: { type: Boolean, default: true },
+  emailMeetLinkNotification: { type: Boolean, default: true },
 
   // Bulk/Custom emails
   emailCustomBulkEmail: { type: Boolean, default: true },

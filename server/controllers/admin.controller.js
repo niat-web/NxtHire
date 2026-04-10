@@ -2612,8 +2612,54 @@ const generateMeetLink = asyncHandler(async (req, res) => {
         }
         
         await session.commitTransaction();
-        
+
         logEvent('main_sheet_meetlink_synced', { studentBookingId: booking._id, interviewId: booking.interviewId, adminId: req.user._id });
+
+        // Send meet link notification emails to student and interviewer
+        const formatTime12h = (t) => {
+            if (!t) return '';
+            const [h, m] = t.split(':').map(Number);
+            const period = h >= 12 ? 'PM' : 'AM';
+            const hour12 = h % 12 || 12;
+            return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
+        };
+        const interviewDateFormatted = new Date(bookingDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const timeSlotFormatted = `${formatTime12h(bookedSlot.startTime)} - ${formatTime12h(bookedSlot.endTime)}`;
+        const interviewerName = booking.bookedInterviewer?.user ? `${booking.bookedInterviewer.user.firstName || ''} ${booking.bookedInterviewer.user.lastName || ''}`.trim() : '';
+        const meetLinkTemplateData = {
+            meetLink: googleEvent.hangoutLink,
+            interviewDate: interviewDateFormatted,
+            timeSlot: timeSlotFormatted,
+            domain: booking.domain || '',
+            interviewerName,
+        };
+
+        // Email to student
+        if (studentEmail) {
+            sendEmail({
+                recipientEmail: studentEmail,
+                templateName: 'meetLinkNotification',
+                subject: `Interview Scheduled - ${interviewDateFormatted}`,
+                templateData: { ...meetLinkTemplateData, name: booking.studentName || 'Student' },
+                sentBy: req.user._id,
+                isAutomated: true,
+                metadata: { bookingId: booking._id.toString() },
+            }).catch(err => console.error('Meet link email to student failed:', err.message));
+        }
+
+        // Email to interviewer
+        if (interviewerEmail) {
+            sendEmail({
+                recipientEmail: interviewerEmail,
+                templateName: 'meetLinkNotification',
+                subject: `Interview Scheduled - ${interviewDateFormatted}`,
+                templateData: { ...meetLinkTemplateData, name: interviewerName || 'Interviewer' },
+                sentBy: req.user._id,
+                isAutomated: true,
+                metadata: { bookingId: booking._id.toString() },
+            }).catch(err => console.error('Meet link email to interviewer failed:', err.message));
+        }
+
         res.json({ success: true, data: booking });
 
     } catch (error) {

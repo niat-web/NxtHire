@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Mail, MessageCircle, Bell, Loader2,
+  Mail, MessageCircle, Bell, Loader2, Video,
   Users, UserCheck, Briefcase, Shield, Send, CreditCard, FileText,
   AlertCircle, CheckCircle, Clock, Zap,
 } from 'lucide-react';
@@ -100,7 +100,7 @@ const NotificationsPage = () => {
   const applicantKeys = ['emailApplicationConfirmation', 'emailSkillAssessmentInvitation', 'emailProfileRejection', 'emailGuidelinesInvitation', 'emailAccountCreation'];
   const adminKeys = ['emailNewApplicantNotification', 'emailWorkflowReminder'];
   const interviewerKeys = ['emailBookingRequestNotification', 'emailProbationComplete', 'emailNewInterviewerWelcome', 'emailPaymentConfirmation', 'emailInvoiceMail', 'emailPaymentReceivedConfirmation', 'emailInterviewCancelled'];
-  const studentKeys = ['emailStudentBookingInvitation', 'emailStudentBookingReminder'];
+  const studentKeys = ['emailStudentBookingInvitation', 'emailStudentBookingReminder', 'emailMeetLinkNotification'];
   const otherKeys = ['emailCustomBulkEmail', 'emailPasswordReset'];
   const allEmailKeys = [...applicantKeys, ...adminKeys, ...interviewerKeys, ...studentKeys, ...otherKeys];
   const whatsappPushKeys = ['whatsappInterviewerWelcome', 'pushBookingRequest'];
@@ -185,6 +185,7 @@ const NotificationsPage = () => {
               <GroupLabel label="Students" color="text-sky-500" />
               <Row icon={Send} color="bg-sky-50 text-sky-600" title="Booking Invitation" desc="Invite to book interview slot" settingKey="emailStudentBookingInvitation" settings={settings} onToggle={handleToggle} saving={saving} />
               <Row icon={Clock} color="bg-sky-50 text-sky-500" title="Booking Reminder" desc="Remind to complete booking" settingKey="emailStudentBookingReminder" settings={settings} onToggle={handleToggle} saving={saving} />
+              <Row icon={Video} color="bg-indigo-50 text-indigo-500" title="Meet Link Notification" desc="Send meet link, date & time after generating" settingKey="emailMeetLinkNotification" settings={settings} onToggle={handleToggle} saving={saving} />
 
               <GroupLabel label="Other" color="text-gray-400" />
               <Row icon={Send} color="bg-gray-50 text-gray-500" title="Custom Bulk Email" desc="Admin custom templated emails" settingKey="emailCustomBulkEmail" settings={settings} onToggle={handleToggle} saving={saving} />

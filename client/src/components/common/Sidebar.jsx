@@ -13,7 +13,6 @@ const Sidebar = ({ navItems, variant = 'admin' }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
-  // Close menu on outside click
   useEffect(() => {
     const handleClick = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -24,34 +23,14 @@ const Sidebar = ({ navItems, variant = 'admin' }) => {
     return () => document.removeEventListener('mousedown', handleClick);
   }, [menuOpen]);
 
-  const styles = {
-    admin: {
-      bg: 'bg-slate-900',
-      border: 'border-slate-800',
-      sectionLabel: 'text-indigo-400',
-      linkText: 'text-slate-300',
-      linkHoverText: 'hover:text-white',
-      linkHoverBg: 'hover:bg-slate-800',
-      linkActiveBg: 'bg-indigo-600',
-      linkActiveText: 'text-white',
-      userText: 'text-white',
-      userRoleText: 'text-slate-400',
-    },
-    interviewer: {
-      bg: 'bg-slate-900',
-      border: 'border-slate-800',
-      sectionLabel: 'text-indigo-400',
-      linkText: 'text-slate-300',
-      linkHoverText: 'hover:text-white',
-      linkHoverBg: 'hover:bg-slate-800',
-      linkActiveBg: 'bg-indigo-600',
-      linkActiveText: 'text-white',
-      userText: 'text-white',
-      userRoleText: 'text-slate-400',
-    }
+  const theme = {
+    sectionLabel: 'text-indigo-500',
+    linkText: 'text-indigo-200',
+    linkHover: 'hover:bg-white/10 hover:text-white',
+    linkActive: 'bg-indigo-600 text-white shadow-lg',
+    userText: 'text-white',
+    userRoleText: 'text-indigo-300',
   };
-
-  const theme = styles[variant] || styles.admin;
 
   const profileMenuItems = variant === 'admin'
     ? [
@@ -65,73 +44,67 @@ const Sidebar = ({ navItems, variant = 'admin' }) => {
       ];
 
   return (
-    <div className={cn('sticky top-0 h-screen w-[232px] flex-shrink-0 shadow-xl overflow-visible', theme.bg)}>
-      <div className="flex flex-col h-full">
+    <div className="sticky top-0 h-screen w-64 flex-shrink-0 overflow-visible shadow-xl z-40">
+      <aside className="flex h-full flex-col bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900">
+
         {/* Header */}
-        <div className={cn('flex items-center h-14 border-b px-5 shrink-0', theme.border)}>
-          <img src={logoSrc} alt="Logo" className="h-8 w-auto" />
+        <div className="flex items-center border-b border-white/10 px-6 pt-5 shrink-0">
+          <img src={logoSrc} alt="Logo" className="h-9 w-auto brightness-0 invert" />
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 py-2 px-2.5 flex flex-col justify-between min-h-0">
-          <div>
-            {navItems.map((item, index) => {
-              if (item.section) {
-                return (
-                  <div key={`section-${item.section}`} className={cn('px-3 pt-5 pb-1.5', index === 0 && 'pt-2')}>
-                    <p className={cn('text-[11px] font-semibold uppercase tracking-wider', theme.sectionLabel)}>
-                      {item.section}
-                    </p>
-                  </div>
-                );
-              }
-
-              const isActive = location.pathname.startsWith(item.path);
+        <nav className="flex-1 space-y-0.5 px-4 py-4 min-h-0">
+          {navItems.map((item, index) => {
+            if (item.section) {
               return (
-                <Link
-                  key={item.label}
-                  to={item.path}
-                  className={cn(
-                    'relative flex items-center py-2 px-3 text-sm font-medium rounded-lg transition-all duration-150',
-                    isActive
-                      ? cn(theme.linkActiveBg, theme.linkActiveText, 'shadow-sm')
-                      : cn(theme.linkText, theme.linkHoverText, theme.linkHoverBg)
-                  )}
-                >
-                  <div className="flex-shrink-0 [&>svg]:w-[18px] [&>svg]:h-[18px]">
-                    {item.icon}
-                  </div>
-                  <span className="ml-2.5 flex-1 whitespace-nowrap overflow-hidden text-ellipsis">{item.label}</span>
-                  <div className="ml-auto flex items-center space-x-1.5 flex-shrink-0">
-                    {item.displayCount > 0 && (
-                      <span className="inline-block py-px px-1.5 text-[10px] font-semibold rounded-full bg-red-500 text-white blinking-count leading-4">
-                        {item.displayCount}
-                      </span>
-                    )}
-                    {item.hasSubmenu && (
-                      <ChevronRight className="h-3.5 w-3.5" />
-                    )}
-                  </div>
-                </Link>
+                <div key={`section-${item.section}`} className={cn('px-3 pt-5 pb-2', index === 0 && 'pt-1')}>
+                  <p className={cn('text-xs font-semibold uppercase tracking-widest', theme.sectionLabel)}>
+                    {item.section}
+                  </p>
+                </div>
               );
-            })}
-          </div>
+            }
+
+            const isActive = location.pathname.startsWith(item.path);
+            return (
+              <Link
+                key={item.label}
+                to={item.path}
+                className={cn(
+                  'flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                  isActive ? theme.linkActive : cn(theme.linkText, theme.linkHover)
+                )}
+              >
+                <div className="flex-shrink-0 [&>svg]:h-4 [&>svg]:w-4">
+                  {item.icon}
+                </div>
+                <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">{item.label}</span>
+                <div className="ml-auto flex items-center space-x-1.5 flex-shrink-0">
+                  {item.displayCount > 0 && (
+                    <span className="inline-block py-px px-1.5 text-[10px] font-semibold rounded-full bg-red-500 text-white blinking-count leading-4">
+                      {item.displayCount}
+                    </span>
+                  )}
+                  {item.hasSubmenu && (
+                    <ChevronRight className="h-3.5 w-3.5 opacity-60" />
+                  )}
+                </div>
+              </Link>
+            );
+          })}
         </nav>
 
-        {/* Bottom — User profile with popup menu */}
-        <div className={cn('border-t px-2.5 py-2.5 shrink-0 relative', theme.border)} ref={menuRef}>
-          {/* Popup menu */}
+        {/* Bottom — User profile with popup */}
+        <div className="border-t border-white/10 px-4 py-4 shrink-0 relative" ref={menuRef}>
+          {/* Popup menu — appears to the right */}
           {menuOpen && (
             <div className="absolute bottom-2 left-full ml-2 w-60 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50">
-              {/* User info at top of popup */}
               <div className="px-4 py-3 border-b border-gray-100">
                 <p className="text-sm font-semibold text-gray-900 truncate">
                   {currentUser?.firstName} {currentUser?.lastName}
                 </p>
                 <p className="text-xs text-gray-400 truncate">{currentUser?.email}</p>
               </div>
-
-              {/* Menu items */}
               <div className="py-1">
                 {profileMenuItems.map((item) => (
                   <button
@@ -144,8 +117,6 @@ const Sidebar = ({ navItems, variant = 'admin' }) => {
                   </button>
                 ))}
               </div>
-
-              {/* Sign out */}
               <div className="border-t border-gray-100 py-1">
                 <button
                   onClick={() => { logout(); setMenuOpen(false); }}
@@ -162,25 +133,27 @@ const Sidebar = ({ navItems, variant = 'admin' }) => {
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className={cn(
-              'flex items-center w-full px-3 py-2 rounded-lg transition-all duration-150',
-              menuOpen ? 'bg-slate-800' : 'hover:bg-slate-800'
+              'flex items-center w-full gap-3 rounded-xl px-3 py-2.5 transition-all duration-200',
+              menuOpen ? 'bg-white/10' : 'hover:bg-white/10'
             )}
           >
-            <Avatar className="h-8 w-8 bg-white/20 shrink-0">
-              <AvatarFallback className={cn('bg-white/20 font-semibold text-xs', theme.userText)}>
+            <Avatar className="h-8 w-8 bg-indigo-600/50 shrink-0">
+              <AvatarFallback className="bg-indigo-600/50 font-semibold text-xs text-white">
                 {currentUser?.firstName?.charAt(0) || 'A'}
               </AvatarFallback>
             </Avatar>
-            <div className="ml-2.5 min-w-0 text-left flex-1">
+            <div className="min-w-0 text-left flex-1">
               <p className={cn('text-sm font-medium truncate leading-tight', theme.userText)}>
                 {currentUser?.firstName} {currentUser?.lastName}
               </p>
-              <p className={cn('text-xs capitalize leading-tight', theme.userRoleText)}>{currentUser?.role}</p>
+              <p className={cn('text-[11px] capitalize leading-tight', theme.userRoleText)}>
+                {currentUser?.role}
+              </p>
             </div>
-            <ChevronUp size={14} className={cn('text-slate-500 transition-transform shrink-0', !menuOpen && 'rotate-180')} />
+            <ChevronUp size={14} className={cn('text-indigo-400 transition-transform shrink-0', !menuOpen && 'rotate-180')} />
           </button>
         </div>
-      </div>
+      </aside>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/common/Sidebar';
 import Header from '../components/common/Header';
@@ -6,8 +6,10 @@ import PageTransition from '../components/common/PageTransition';
 import { Home, Settings, Calendar, Clipboard, Grid } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { usePushNotifications } from '../hooks/usePushNotifications';
+import { useBookingRequests } from '../hooks/useInterviewerQueries';
 import { useAlert } from '../hooks/useAlert';
 import { cn } from '@/lib/utils';
+import { startOfDay } from 'date-fns';
 
 const InterviewerLayout = () => {
   const { currentUser } = useAuth();
@@ -64,11 +66,23 @@ const InterviewerLayout = () => {
     };
   }, []);
 
+  // Fetch active pending availability requests for sidebar badge
+  const { data: bookingRequests = [] } = useBookingRequests({
+    staleTime: 60 * 1000,
+    refetchInterval: 60 * 1000,
+  });
+  const pendingAvailabilityCount = useMemo(() => {
+    const today = startOfDay(new Date());
+    return bookingRequests.filter(r =>
+      r.status === 'Pending' && r.bookingStatus === 'Open' && startOfDay(new Date(r.bookingDate)) >= today
+    ).length;
+  }, [bookingRequests]);
+
   const interviewerNavItems = [
     { section: 'Overview' },
     { label: 'Dashboard', path: '/interviewer/dashboard', icon: <Home className="w-5 h-5" /> },
     { section: 'Work' },
-    { label: 'Availability', path: '/interviewer/availability', icon: <Calendar className="w-5 h-5" /> },
+    { label: 'Availability', path: '/interviewer/availability', icon: <Calendar className="w-5 h-5" />, displayCount: pendingAvailabilityCount },
     { label: 'Scheduled Interviews', path: '/interviewer/interview-evaluation', icon: <Clipboard className="w-5 h-5" /> },
     { label: 'Domain Evaluation', path: '/interviewer/domain-evaluation', icon: <Grid className="w-5 h-5" /> },
     { section: 'Account' },

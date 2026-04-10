@@ -49,17 +49,17 @@ const Table = ({
   return (
     <div className="flow-root">
         <div className="align-middle inline-block min-w-full">
-          <table className="min-w-full divide-y divide-border">
-            <thead className="bg-muted/50">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gradient-to-r from-indigo-50 to-blue-50">
               <tr>
                 {columns.map((column) => (
                   <th
                     key={column.key}
                     scope="col"
                     className={cn(
-                      'sticky top-0 px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap',
-                      column.isSticky ? 'left-0 z-20 bg-muted/50 border-r border-border' : 'z-10 bg-muted/50 backdrop-blur-sm',
-                      column.sortable && 'cursor-pointer hover:text-foreground'
+                      'sticky top-0 px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap',
+                      column.isSticky ? 'left-0 z-20 bg-gradient-to-r from-indigo-50 to-blue-50 border-r border-indigo-100' : 'z-10 bg-gradient-to-r from-indigo-50 to-blue-50',
+                      column.sortable && 'cursor-pointer hover:text-gray-900'
                     )}
                     style={{ minWidth: column.minWidth }}
                     onClick={() => column.sortable && onSort && onSort(column.key)}
@@ -73,7 +73,7 @@ const Table = ({
               </tr>
             </thead>
             {isLoading && customLoader ? customLoader : (
-              <tbody className="bg-background divide-y divide-border">
+              <tbody className="bg-white divide-y divide-gray-100">
                 {isLoading ? (
                   <tr>
                     <td colSpan={columns.length} className="py-24">
@@ -88,13 +88,13 @@ const Table = ({
                   </tr>
                 ) : (
                   data.map((row, rowIndex) => (
-                    <tr key={row._id || rowIndex} className="even:bg-muted/30 hover:bg-accent transition-colors duration-150 group">
+                    <tr key={row._id || rowIndex} className="hover:bg-gray-50/80 transition-colors duration-150 group">
                       {columns.map((column) => (
                         <td
                           key={`${column.key}-${rowIndex}`}
                           className={cn(
-                            'px-4 py-2 whitespace-nowrap text-sm text-foreground align-middle',
-                            column.isSticky && 'sticky left-0 z-[1] border-r border-border bg-background group-even:bg-muted/30 group-hover:bg-accent'
+                            'px-4 py-2.5 whitespace-nowrap text-sm text-gray-700 align-middle',
+                            column.isSticky && 'sticky left-0 z-[1] border-r border-gray-100 bg-white group-hover:bg-gray-50/80'
                           )}
                         >
                            {column.render ? column.render(row, rowIndex) : (row[column.key] !== null && row[column.key] !== undefined ? row[column.key].toString() : '')}
@@ -109,16 +109,16 @@ const Table = ({
         </div>
 
       {pagination && pagination.totalItems > 10 && (
-          <nav className="flex items-center justify-between border-t border-border bg-background px-4 py-3 sm:px-6">
+          <nav className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
               <div className="flex-1 flex justify-between sm:hidden">
                   <Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={pagination.currentPage === 1}>Previous</Button>
                   <Button variant="outline" size="sm" onClick={handleNextPage} disabled={pagination.currentPage === pagination.totalPages}>Next</Button>
               </div>
               <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">
-                    Showing <span className="font-medium text-foreground">{showingFrom}</span> to <span className="font-medium text-foreground">{showingTo}</span> of{' '}
-                    <span className="font-medium text-foreground">{pagination.totalItems}</span> results
+                  <p className="text-sm text-gray-500">
+                    Showing <span className="font-medium text-gray-900">{showingFrom}</span> to <span className="font-medium text-gray-900">{showingTo}</span> of{' '}
+                    <span className="font-medium text-gray-900">{pagination.totalItems}</span> results
                   </p>
                 </div>
                 <div className="flex items-center gap-3">

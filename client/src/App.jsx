@@ -24,6 +24,10 @@ import PaymentConfirmationPage from '@/pages/public/PaymentConfirmationPage';
 import PaymentReceivedConfirmationPage from '@/pages/public/PaymentReceivedConfirmationPage';
 import InterviewerApplication from '@/pages/public/InterviewerApplication';
 import ApplicationFormPage from '@/pages/public/ApplicationFormPage';
+import AboutPage from '@/pages/public/AboutPage';
+import FAQPage from '@/pages/public/FAQPage';
+import TermsOfServicePage from '@/pages/public/TermsOfServicePage';
+import CookiePolicyPage from '@/pages/public/CookiePolicyPage';
 import DocsPage from '@/pages/DocsPage';
 
 // Admin Pages
@@ -76,6 +80,10 @@ function App() {
     <Routes location={location} key={location.pathname}>
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/faq" element={<FAQPage />} />
+        <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+        <Route path="/cookie-policy" element={<CookiePolicyPage />} />
       </Route>
 
       {/* New route for direct application form */}
@@ -117,7 +125,7 @@ function App() {
           <Route path="/admin/domain-evaluation" element={<AdminDomainEvaluationPage />} />
           <Route path="/admin/custom-email" element={<CustomEmailPage />} />
           <Route path="/admin/notifications" element={<NotificationsPage />} />
-          <Route path="/admin/earnings-report" element={<EarningsReportPage />} />
+          <Route path="/admin/earnings-report/*" element={<EarningsReportPage />} />
           <Route path="/admin/bookings/new" element={<NewInterviewBooking />} />
           <Route path="/admin/bookings/edit/:id" element={<NewInterviewBooking />} />
         </Route>

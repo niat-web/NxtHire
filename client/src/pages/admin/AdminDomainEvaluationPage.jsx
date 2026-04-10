@@ -41,7 +41,7 @@ const RemarksModal = ({ isOpen, onClose, content }) => {
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm" onClick={onClose}>
-            <div className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="relative w-full max-w-lg bg-white rounded-xl shadow-xl flex flex-col" onClick={e => e.stopPropagation()}>
                 <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-xl">
                     <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Interviewer Remarks</h3>
                     <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7 text-gray-500"><X className="h-4 w-4" /></Button>
@@ -263,7 +263,7 @@ const AdminDomainEvaluationPage = () => {
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search candidate..."
-                                className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-colors"
+                                className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
                             />
                         </div>
 
@@ -280,13 +280,13 @@ const AdminDomainEvaluationPage = () => {
                                         <div>
                                             <label className="block text-xs font-medium text-gray-700 mb-1.5">Interview Date</label>
                                             <div className="relative">
-                                                <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(p => ({ ...p, interviewDate: date }))} isClearable placeholderText="Select date" className="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-gray-900" />
+                                                <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(p => ({ ...p, interviewDate: date }))} isClearable placeholderText="Select date" className="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500" />
                                                 <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                                             </div>
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-700 mb-1.5">Status</label>
-                                            <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(p => ({ ...p, interviewStatus: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-1 focus:ring-gray-900">
+                                            <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(p => ({ ...p, interviewStatus: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-1 focus:ring-indigo-500">
                                                 <option value="">All Statuses</option>
                                                 {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                             </select>
@@ -319,10 +319,10 @@ const AdminDomainEvaluationPage = () => {
                     // Summary View
                     <div className="flex-1 overflow-auto bg-white">
                         {loading ? (
-                            <div className="flex h-full items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-gray-300" /></div>
+                            <div className="flex h-full items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-indigo-500" /></div>
                         ) : (
                             <table className="min-w-full text-sm">
-                                <thead className="bg-gray-50 sticky top-0 z-10 shadow-md">
+                                <thead className="bg-gradient-to-r from-indigo-50 to-blue-50 sticky top-0 z-10">
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">Domain</th>
                                         <th className="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">Candidates</th>
@@ -358,7 +358,7 @@ const AdminDomainEvaluationPage = () => {
                     // Detail View (Complex Table) - Full Width/Height
                     <div className="flex-1 overflow-auto custom-scrollbar bg-white">
                         {loading ? (
-                            <div className="flex h-full items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-gray-300" /></div>
+                            <div className="flex h-full items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-indigo-500" /></div>
                         ) : evaluationData.interviews.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-full text-gray-400">
                                 <List className="h-12 w-12 mb-3 opacity-20" />
@@ -366,12 +366,12 @@ const AdminDomainEvaluationPage = () => {
                             </div>
                         ) : (
                             <table className="min-w-full text-sm border-separate border-spacing-0">
-                                <thead className="bg-gray-50 sticky top-0 z-20 shadow-md">
+                                <thead className="bg-gradient-to-r from-indigo-50 to-blue-50 sticky top-0 z-20">
                                     <tr>
                                         {staticColumns.map(col => (
                                             <th 
                                                 key={col.key}
-                                                className={`px-4 py-3 border-b border-r border-gray-200 text-left text-xs font-semibold text-gray-600 bg-gray-50 sticky top-0 ${col.isSticky ? 'z-30' : 'z-20'}`} 
+                                                className={`px-4 py-3 border-b border-r border-gray-200 text-left text-xs font-semibold text-gray-600 bg-indigo-50 sticky top-0 ${col.isSticky ? 'z-30' : 'z-20'}`} 
                                                 style={{ 
                                                     minWidth: col.minWidth, 
                                                     left: col.isSticky ? col.left : 'auto',

@@ -21,9 +21,9 @@ const DomainManagement = () => {
     
     if (loading) {
         return (
-            <div className="flex h-full items-center justify-center bg-[#F5F7F9]">
+            <div className="flex h-full items-center justify-center bg-gray-50">
                 <div className="flex flex-col items-center">
-                    <div className="w-10 h-10 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin mb-4"></div>
+                    <div className="w-10 h-10 border-4 border-gray-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
                     <span className="text-base font-medium text-gray-500">Loading Evaluation Setup...</span>
                 </div>
             </div>
@@ -34,15 +34,15 @@ const DomainManagement = () => {
         <Button
             onClick={() => setActiveTab(id)}
             variant={activeTab === id ? 'default' : 'ghost'}
-            className={`flex items-center gap-2 font-medium ${activeTab === id ? 'bg-gray-900 text-white hover:bg-black shadow-md' : 'text-gray-600 hover:bg-gray-200'}`}
+            className={`flex items-center gap-2 font-medium ${activeTab === id ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'text-gray-600 hover:bg-gray-200'}`}
         >
             <Icon className="h-4 w-4" /> {label}
         </Button>
     );
 
     return (
-        <div className="h-full w-full flex flex-col bg-[#F5F7F9]">
-             <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0 flex justify-between items-center z-10 shadow-md">
+        <div className="h-full w-full flex flex-col bg-gray-50">
+             <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0 flex justify-between items-center z-10 shadow-sm">
                 <h1 className="text-xl font-semibold text-gray-900"></h1>
                 <div className="flex bg-gray-100 p-1 rounded-xl gap-1">
                     <NavBtn id="domains" label="Domains" icon={Grid} />
