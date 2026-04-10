@@ -1,7 +1,7 @@
 // client/src/components/admin/DashboardStats.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FiUsers, FiCheckSquare, FiUserCheck, FiBarChart2, FiExternalLink } from 'react-icons/fi';
+import { Users, CheckSquare, UserCheck, BarChart2, ExternalLink } from 'lucide-react';
 import DashboardStat from '../common/DashboardStat';
 
 const DashboardStats = ({ stats = {} }) => {
@@ -17,13 +17,13 @@ const DashboardStats = ({ stats = {} }) => {
       <DashboardStat
         title="Total Applicants"
         value={totalApplicants.toString()}
-        icon={<FiUsers className="h-6 w-6 text-primary-600" />}
+        icon={<Users className="h-6 w-6 text-primary-600" />}
       />
       
       <DashboardStat
         title="Pending Reviews"
         value={pendingReviews.toString()}
-        icon={<FiCheckSquare className="h-6 w-6 text-primary-600" />}
+        icon={<CheckSquare className="h-6 w-6 text-primary-600" />}
         change={weeklyChange?.pendingReviews}
         changeType={weeklyChange?.pendingReviews > 0 ? 'increase' : 'decrease'}
         changeText="from last week"
@@ -32,7 +32,7 @@ const DashboardStats = ({ stats = {} }) => {
       <DashboardStat
         title="Active Interviewers"
         value={activeInterviewers.toString()}
-        icon={<FiUserCheck className="h-6 w-6 text-primary-600" />}
+        icon={<UserCheck className="h-6 w-6 text-primary-600" />}
       />
     </div>
   );

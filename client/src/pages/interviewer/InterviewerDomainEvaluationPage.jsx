@@ -14,43 +14,29 @@ import {
 import { formatDate, formatTime } from '../../utils/formatters';
 
 import Select from 'react-select';
-import { 
-    FiSearch, FiExternalLink, FiFilter, FiX, FiInfo, FiGrid, 
-    FiCalendar, FiCheck, FiRefreshCw, FiArrowLeft, FiLoader, FiList 
-} from 'react-icons/fi';
+import {
+    Search, ExternalLink, Filter, X, Info, Grid,
+    Calendar, Check, RefreshCw, ArrowLeft, Loader2, List
+} from 'lucide-react';
 import { MAIN_SHEET_INTERVIEW_STATUSES } from '../../utils/constants';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
 
 // --- STYLED UI COMPONENTS ---
 
-const LocalButton = ({ children, onClick, variant = 'primary', icon: Icon, className = '', disabled = false, size = 'md', title = '' }) => {
-    const base = 'inline-flex items-center justify-center font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] whitespace-nowrap focus:outline-none';
-    const sizes = { sm: 'text-xs px-3 py-2 rounded-lg', md: 'text-sm px-4 py-2.5 rounded-lg', icon: 'p-2.5 rounded-lg' };
-    const variants = {
-        primary: 'bg-gray-900 text-white hover:bg-black border border-transparent shadow-sm', 
-        accent: 'bg-[#FFD130] text-gray-900 hover:bg-[#FFC400] border border-[#FFD130] shadow-sm',
-        outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
-        ghost: 'bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900',
-    };
-    return (
-        <button onClick={onClick} disabled={disabled} className={`${base} ${sizes[size]} ${variants[variant]} ${className}`} title={title}>
-            {Icon && <Icon className={`${children ? 'mr-2' : ''} h-4 w-4`} />}
-            {children}
-        </button>
-    );
-};
 
 const EditableStatusCell = React.memo(({ interview, onStatusChange, isUpdating }) => {
     const statusConfig = {
         'Completed': 'bg-green-50 text-green-800 border-green-200 focus:ring-green-500',
-        'Scheduled': 'bg-emerald-50 text-emerald-800 border-emerald-200 focus:ring-emerald-500',
+        'Scheduled': 'bg-emerald-50 text-emerald-800 border-emerald-200 focus:ring-indigo-500',
         'InProgress': 'bg-purple-50 text-purple-800 border-purple-200 focus:ring-purple-500',
         'Cancelled': 'bg-red-50 text-red-800 border-red-200 focus:ring-red-500',
     };
-    // Reduced padding (py-1) for tighter rows
-    const baseClasses = 'w-full text-xs font-bold px-2 py-1 border rounded-md shadow-sm focus:outline-none focus:ring-1 transition-colors cursor-pointer appearance-none';
+    const baseClasses = 'w-full text-xs font-medium px-2 py-1 border rounded-lg shadow-md focus:outline-none focus:ring-1 transition-colors cursor-pointer appearance-none';
     const colorClass = statusConfig[interview.interviewStatus] || 'bg-gray-50 text-gray-800 border-gray-200';
 
     return (
@@ -58,7 +44,7 @@ const EditableStatusCell = React.memo(({ interview, onStatusChange, isUpdating }
             value={interview.interviewStatus || ''}
             onChange={(e) => onStatusChange(interview._id, e.target.value)}
             disabled={isUpdating}
-            className={`${baseClasses} ${colorClass}`}
+            className={cn(baseClasses, colorClass)}
             onClick={(e) => e.stopPropagation()}
         >
             <option value="" disabled>Select Status</option>
@@ -82,7 +68,7 @@ const EditableRemarksCell = React.memo(({ interview, onSave, isUpdating }) => {
             disabled={isUpdating}
             placeholder="Add remarks..."
             // Reduced min-height and padding
-            className="w-full h-full min-h-[28px] bg-transparent text-xs p-1 border-0 focus:ring-1 focus:ring-emerald-500 rounded resize-none focus:bg-white transition-colors"
+            className="w-full h-full min-h-[28px] bg-transparent text-xs p-1 border-0 focus:ring-1 focus:ring-indigo-500 rounded resize-none focus:bg-white transition-colors"
         />
     );
 });
@@ -267,7 +253,7 @@ const InterviewerDomainEvaluationPage = () => {
                     placeholder="Value..."
                     disabled={isLoading}
                     // Reduced padding for text input
-                    className="w-full h-full bg-transparent p-1 text-xs border-0 focus:ring-1 focus:ring-emerald-500 rounded focus:bg-white transition-colors"
+                    className="w-full h-full bg-transparent p-1 text-xs border-0 focus:ring-1 focus:ring-indigo-500 rounded focus:bg-white transition-colors"
                 />
             );
         }
@@ -280,7 +266,7 @@ const InterviewerDomainEvaluationPage = () => {
                 value={savedValue || ''}
                 onChange={(e) => handleSaveEvaluation(interview._id, fieldHeader, e.target.value)}
                 // Reduced padding for select
-                className={`w-full h-full p-1 text-xs border-0 focus:ring-1 focus:ring-emerald-500 rounded cursor-pointer transition-colors ${currentStyle}`}
+                className={`w-full h-full p-1 text-xs border-0 focus:ring-1 focus:ring-indigo-500 rounded cursor-pointer transition-colors ${currentStyle}`}
                 disabled={isLoading}
             >
                 <option value="" className="text-gray-400 bg-white">Select...</option>
@@ -308,8 +294,8 @@ const InterviewerDomainEvaluationPage = () => {
         { key: 'interviewId', title: 'ID', minWidth: '100px' }, 
         { key: 'mobileNumber', title: 'Mobile', minWidth: '120px' }, 
         { key: 'mailId', title: 'Email', minWidth: '200px' }, 
-        { key: 'candidateResume', title: 'Resume', minWidth: '100px', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-800 font-medium"><FiExternalLink /> Link</a> : '-' }, 
-        { key: 'meetingLink', title: 'Link', minWidth: '180px', render: (row) => row.meetingLink ? <a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline truncate block max-w-[180px] text-xs" title={row.meetingLink}>{row.meetingLink}</a> : '-' }, 
+        { key: 'candidateResume', title: 'Resume', minWidth: '100px', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-medium"><ExternalLink /> Link</a> : '-' },
+        { key: 'meetingLink', title: 'Link', minWidth: '180px', render: (row) => row.meetingLink ? <a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline truncate block max-w-[180px] text-xs" title={row.meetingLink}>{row.meetingLink}</a> : '-' }, 
         { key: 'interviewDate', title: 'Date', minWidth: '110px', render: (row) => formatDate(row.interviewDate)}, 
         { 
             key: 'interviewTime', 
@@ -344,9 +330,9 @@ const InterviewerDomainEvaluationPage = () => {
                     
                     {/* Info Help */}
                     <div className="relative group mr-2">
-                        <FiInfo className="h-5 w-5 text-emerald-500 cursor-help" />
+                        <Info className="h-5 w-5 text-indigo-500 cursor-help" />
                         <div className="absolute top-full right-0 mt-2 w-72 bg-gray-900 text-white text-xs rounded-lg shadow-xl p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                            <p className="font-bold mb-1">Important:</p>
+                            <p className="font-semibold mb-1">Important:</p>
                             <ul className="list-disc list-inside space-y-1 opacity-90">
                                 <li>Review the Help Document before starting.</li>
                                 <li>Ensure recording is ON.</li>
@@ -357,7 +343,7 @@ const InterviewerDomainEvaluationPage = () => {
                     {selectedDomain && (
                         <>
                             <div className="relative w-full sm:w-64">
-                                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                                 <input
                                     type="text"
                                     value={search}
@@ -369,22 +355,22 @@ const InterviewerDomainEvaluationPage = () => {
 
                             {/* Filter Dropdown - z-50 ensures it's above table headers */}
                             <div className="relative z-50" ref={filterMenuRef}>
-                                <LocalButton variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} icon={FiFilter} className={`${(activeFilters.interviewDate || activeFilters.interviewStatus) ? '!border-emerald-500 !text-emerald-600 !bg-emerald-50' : ''}`}>
-                                    Filter
-                                </LocalButton>
+                                <Button variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} className={cn((activeFilters.interviewDate || activeFilters.interviewStatus) && "border-indigo-500 text-indigo-600 bg-indigo-50")}>
+                                    <Filter className="h-4 w-4 mr-2" />Filter
+                                </Button>
                                 {isFilterMenuOpen && (
                                     <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 p-4 z-50">
-                                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Filter Records</h4>
+                                        <h4 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Filter Records</h4>
                                         <div className="space-y-4">
                                             <div>
-                                                <label className="block text-xs font-bold text-gray-700 mb-1.5">Interview Date</label>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1.5">Interview Date</label>
                                                 <div className="relative">
                                                     <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(p => ({ ...p, interviewDate: date }))} isClearable placeholderText="Select date" className="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-gray-900" />
-                                                    <FiCalendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                                    <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                                                 </div>
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold text-gray-700 mb-1.5">Status</label>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1.5">Status</label>
                                                 <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(p => ({ ...p, interviewStatus: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-1 focus:ring-gray-900">
                                                     <option value="">All Statuses</option>
                                                     {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
@@ -392,14 +378,14 @@ const InterviewerDomainEvaluationPage = () => {
                                             </div>
                                         </div>
                                         <div className="mt-5 pt-3 border-t border-gray-100 flex justify-end gap-2">
-                                            <LocalButton variant="ghost" size="sm" onClick={handleClearFilters}>Clear</LocalButton>
-                                            <LocalButton variant="primary" size="sm" onClick={handleApplyFilters}>Apply</LocalButton>
+                                            <Button variant="ghost" size="sm" onClick={handleClearFilters}>Clear</Button>
+                                            <Button variant="default" size="sm" onClick={handleApplyFilters}>Apply</Button>
                                         </div>
                                     </div>
                                 )}
                             </div>
                             
-                            <LocalButton variant="ghost" onClick={() => { setSelectedDomain(null); handleClearFilters(); }} icon={FiX} title="Close View" />
+                            <Button variant="ghost" onClick={() => { setSelectedDomain(null); handleClearFilters(); }} title="Close View"><X className="h-4 w-4" /></Button>
                         </>
                     )}
                 </div>
@@ -411,38 +397,38 @@ const InterviewerDomainEvaluationPage = () => {
                     // Summary View
                     <div className="flex-1 overflow-auto bg-white">
                         {loading ? (
-                            <div className="flex h-full items-center justify-center"><FiLoader className="animate-spin h-8 w-8 text-gray-300" /></div>
+                            <div className="flex h-full items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-gray-300" /></div>
                         ) : (
                             <table className="min-w-full text-sm">
-                                <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm">
+                                <thead className="bg-gray-50 sticky top-0 z-10 shadow-md">
                                     <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Domain</th>
-                                        <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Help Doc</th>
-                                        <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Total</th>
-                                        <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Scheduled</th>
-                                        <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Completed</th>
-                                        <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Pending</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Domain</th>
+                                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Help Doc</th>
+                                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Total</th>
+                                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Scheduled</th>
+                                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Completed</th>
+                                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Pending</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50 bg-white">
                                     {summaryData.map(item => (
-                                        <tr key={item.domainName} className="hover:bg-emerald-50/50 transition-colors group">
+                                        <tr key={item.domainName} className="hover:bg-indigo-50/50 transition-colors group">
                                             <td className="px-6 py-4">
-                                                <button onClick={() => setSelectedDomain({ value: item.domainName, label: item.domainName })} className="font-bold text-gray-900 group-hover:text-emerald-600 flex items-center gap-2">
+                                                <button onClick={() => setSelectedDomain({ value: item.domainName, label: item.domainName })} className="font-semibold text-gray-900 group-hover:text-indigo-600 flex items-center gap-2">
                                                     {item.domainName}
-                                                    <FiArrowLeft className="rotate-180 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                    <ArrowLeft className="rotate-180 opacity-0 group-hover:opacity-100 transition-opacity" />
                                                 </button>
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 {item.interviewHelpDoc ? (
-                                                    <a href={item.interviewHelpDoc} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-emerald-600 hover:underline font-medium text-xs">
-                                                        View <FiExternalLink />
+                                                    <a href={item.interviewHelpDoc} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-indigo-600 hover:underline font-medium text-xs">
+                                                        View <ExternalLink />
                                                     </a>
                                                 ) : <span className="text-gray-300">-</span>}
                                             </td>
-                                            <td className="px-6 py-4 text-center text-gray-900 font-bold">{item.candidateCount}</td>
-                                            <td className="px-6 py-4 text-center"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-700">{item.scheduledCount}</span></td>
-                                            <td className="px-6 py-4 text-center"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700">{item.completedCount}</span></td>
+                                            <td className="px-6 py-4 text-center text-gray-900 font-semibold">{item.candidateCount}</td>
+                                            <td className="px-6 py-4 text-center"><Badge variant="success">{item.scheduledCount}</Badge></td>
+                                            <td className="px-6 py-4 text-center"><Badge variant="success">{item.completedCount}</Badge></td>
                                             <td className="px-6 py-4 text-center text-gray-400">{item.pendingCount}</td>
                                         </tr>
                                     ))}
@@ -454,16 +440,16 @@ const InterviewerDomainEvaluationPage = () => {
                     // Detail View (Full Width Table)
                     <div className="flex-1 overflow-auto custom-scrollbar bg-white">
                         {loading ? (
-                            <div className="flex h-full items-center justify-center"><FiLoader className="animate-spin h-8 w-8 text-gray-300" /></div>
+                            <div className="flex h-full items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-gray-300" /></div>
                         ) : (
                             <table className="min-w-full text-sm border-separate border-spacing-0">
                                 {/* Fixed Table Header */}
-                                <thead className="bg-gray-50 sticky top-0 z-20 shadow-sm">
+                                <thead className="bg-gray-50 sticky top-0 z-20 shadow-md">
                                     <tr>
                                         {staticColumns.map(col => (
-                                            <th 
-                                                key={col.key} 
-                                                className={`px-4 py-3 border-b border-r border-gray-200 text-left text-xs font-bold text-gray-600 bg-gray-50 sticky top-0 ${col.isSticky ? 'z-30' : 'z-20'}`} 
+                                            <th
+                                                key={col.key}
+                                                className={cn("px-4 py-3 border-b border-r border-gray-200 text-left text-xs font-medium text-gray-600 bg-gray-50 sticky top-0", col.isSticky ? "z-30" : "z-20")} 
                                                 style={{ 
                                                     minWidth: col.minWidth, 
                                                     left: col.isSticky ? col.left : 'auto',
@@ -492,7 +478,7 @@ const InterviewerDomainEvaluationPage = () => {
                                                     key={group.title}
                                                     colSpan={group.columns.length || 1}
                                                     rowSpan={hasSubHeaders ? 1 : 2}
-                                                    className={`px-4 py-2.5 border-b border-r ${color.border} text-center text-[11px] font-bold ${color.text} ${color.bg} uppercase tracking-wider sticky top-0 z-20`}
+                                                    className={`px-4 py-2.5 border-b border-r ${color.border} text-center text-xs font-medium ${color.text} ${color.bg} uppercase tracking-wider sticky top-0 z-20`}
                                                 >
                                                     {group.title}
                                                 </th>
@@ -517,7 +503,7 @@ const InterviewerDomainEvaluationPage = () => {
                                             return group.columns.map(col => (
                                                 <th
                                                     key={`${group.title}-${col.header}`}
-                                                    className={`px-3 py-2 border-b border-r ${color.border} text-left text-[11px] font-medium ${color.text} ${color.bg} whitespace-nowrap top-[41px] sticky z-20`}
+                                                    className={`px-3 py-2 border-b border-r ${color.border} text-left text-xs font-medium ${color.text} ${color.bg} whitespace-nowrap top-[41px] sticky z-20`}
                                                     style={{ minWidth: '160px' }}
                                                 >
                                                     {col.header}
@@ -530,10 +516,9 @@ const InterviewerDomainEvaluationPage = () => {
                                     {evaluationData.interviews.map(interview => (
                                         <tr key={interview._id} className="hover:bg-gray-50/80 transition-colors">
                                             {staticColumns.map(col => (
-                                                <td 
-                                                    key={`${col.key}-${interview._id}`} 
-                                                    // Reduced padding to py-1
-                                                    className={`px-3 py-1 border-r border-gray-100 text-xs text-gray-700 whitespace-nowrap align-middle ${col.isSticky ? 'sticky z-10 bg-white group-hover:bg-gray-50' : ''} ${col.isCustomCell ? 'p-1' : ''}`}
+                                                <td
+                                                    key={`${col.key}-${interview._id}`}
+                                                    className={cn("px-3 py-1 border-r border-gray-100 text-xs text-gray-700 whitespace-nowrap align-middle", col.isSticky && "sticky z-10 bg-white group-hover:bg-gray-50", col.isCustomCell && "p-1")}
                                                     style={{ 
                                                         left: col.isSticky ? col.left : 'auto',
                                                         boxShadow: col.isSticky ? '2px 0 5px -2px rgba(0,0,0,0.05)' : 'none'

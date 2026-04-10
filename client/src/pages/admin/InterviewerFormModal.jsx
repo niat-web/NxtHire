@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import Select from 'react-select';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiSave, FiX } from 'react-icons/fi';
+import { Save, X } from 'lucide-react';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import { useAlert } from '../../hooks/useAlert';
@@ -98,10 +98,10 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
                         className="fixed top-0 right-0 h-screen w-full max-w-lg bg-white shadow-xl z-50 flex flex-col"
                     >
                         {/* Drawer Header */}
-                        <div className="flex justify-between items-center p-3 border-b border-gray-200 flex-shrink-0">
+                        <div className="flex justify-between items-center p-5 border-b border-gray-200 flex-shrink-0">
                             <h2 className="text-xl font-semibold text-gray-800">{isEditMode ? 'Edit Interviewer' : 'Add New Interviewer'}</h2>
                             <button onClick={onClose} className="p-2 rounded-full text-gray-500 hover:bg-gray-100 transition-colors">
-                                <FiX className="h-6 w-6" />
+                                <X className="h-6 w-6" />
                             </button>
                         </div>
 
@@ -122,7 +122,7 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
                                 <Input label="Years of Experience" type="number" step="0.1" {...register('yearsOfExperience', { required: 'Experience is required', valueAsNumber: true })} error={errors.yearsOfExperience?.message} />
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Company Type</label>
-                                    <select {...register('companyType')} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                                    <select {...register('companyType')} className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-md">
                                         {companyTypeOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                     </select>
                                 </div>
@@ -138,11 +138,11 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                                    <select {...register('status')} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">{statusOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}</select>
+                                    <select {...register('status')} className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-md">{statusOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}</select>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Payment Tier</label>
-                                    <select {...register('paymentTier')} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">{tierOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}</select>
+                                    <select {...register('paymentTier')} className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-md">{tierOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}</select>
                                 </div>
                             </form>
                         </div>
@@ -150,7 +150,7 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
                         {/* Drawer Footer */}
                         <div className="flex justify-end gap-4 p-6 border-t border-gray-200 bg-gray-50 flex-shrink-0">
                             <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-                            <Button type="submit" form="interviewer-form" variant="primary" isLoading={isSubmitting} icon={<FiSave/>}>
+                            <Button type="submit" form="interviewer-form" variant="primary" isLoading={isSubmitting} icon={<Save/>}>
                                 {isEditMode ? 'Save Changes' : 'Create Interviewer'}
                             </Button>
                         </div>

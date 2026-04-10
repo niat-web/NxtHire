@@ -1,11 +1,11 @@
-// client/src/pages/admin/InterviewerDetails.jsx
+// client/src/components/admin/InterviewerDetails.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { FiArrowLeft, FiEdit, FiUser, FiCalendar, FiDollarSign, FiCheck, FiStar } from 'react-icons/fi';
+import { ArrowLeft, Edit, User, Calendar, DollarSign, Check, Star } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import StatusBadge from '../../components/common/StatusBadge';
-import Badge from '../../components/common/Badge';
+import { Badge } from '@/components/ui/badge';
 import ProgressBar from '../../components/common/ProgressBar';
 import Loader from '../../components/common/Loader';
 import StatusUpdateModal from '../../components/admin/StatusUpdateModal';
@@ -89,7 +89,7 @@ const InterviewerDetails = () => {
       <div className="flex justify-between items-center">
         <div className="flex items-center">
           <Link to="/admin/interviewers" className="mr-4">
-            <FiArrowLeft className="h-5 w-5 text-gray-500 hover:text-gray-700" />
+            <ArrowLeft className="h-5 w-5 text-gray-500 hover:text-gray-700" />
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">Interviewer Details</h1>
         </div>
@@ -98,7 +98,7 @@ const InterviewerDetails = () => {
           
           <Button
             variant="primary"
-            icon={<FiEdit />}
+            icon={<Edit />}
             iconPosition="left"
             onClick={() => setIsStatusModalOpen(true)}
           >
@@ -112,7 +112,7 @@ const InterviewerDetails = () => {
         title={
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <FiUser className="mr-2 text-primary-600" />
+              <User className="mr-2 text-primary-600" />
               <span>Basic Information</span>
             </div>
             <StatusBadge status={interviewer.status} />
@@ -165,7 +165,7 @@ const InterviewerDetails = () => {
           <h4 className="text-sm font-medium text-gray-500">Domains</h4>
           <div className="mt-1 flex flex-wrap gap-2">
             {interviewer.domains.map((domain) => (
-              <Badge key={domain} variant="primary">{domain}</Badge>
+              <Badge key={domain} variant="default">{domain}</Badge>
             ))}
           </div>
           <p className="mt-1 text-sm text-gray-500">
@@ -191,7 +191,7 @@ const InterviewerDetails = () => {
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
               <div className="flex-shrink-0 p-3 rounded-md bg-primary-100 text-primary-700">
-                <FiCheck className="h-6 w-6" />
+                <Check className="h-6 w-6" />
               </div>
               <div className="ml-5">
                 <p className="text-sm font-medium text-gray-500">Interviews Completed</p>
@@ -203,7 +203,7 @@ const InterviewerDetails = () => {
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
               <div className="flex-shrink-0 p-3 rounded-md bg-yellow-100 text-yellow-700">
-                <FiStar className="h-6 w-6" />
+                <Star className="h-6 w-6" />
               </div>
               <div className="ml-5">
                 <p className="text-sm font-medium text-gray-500">Average Rating</p>
@@ -215,7 +215,7 @@ const InterviewerDetails = () => {
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
               <div className="flex-shrink-0 p-3 rounded-md bg-green-100 text-green-700">
-                <FiCheck className="h-6 w-6" />
+                <Check className="h-6 w-6" />
               </div>
               <div className="ml-5">
                 <p className="text-sm font-medium text-gray-500">Completion Rate</p>
@@ -227,7 +227,7 @@ const InterviewerDetails = () => {
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
               <div className="flex-shrink-0 p-3 rounded-md bg-emerald-100 text-emerald-700">
-                <FiDollarSign className="h-6 w-6" />
+                <DollarSign className="h-6 w-6" />
               </div>
               <div className="ml-5">
                 <p className="text-sm font-medium text-gray-500">Total Earnings</p>
@@ -240,7 +240,7 @@ const InterviewerDetails = () => {
         <div className="mt-6">
           <div className="flex justify-between items-center mb-2">
             <h4 className="text-sm font-medium text-gray-500">Payment Tier</h4>
-            <Badge variant="primary" rounded>{interviewer.paymentTier}</Badge>
+            <Badge variant="default">{interviewer.paymentTier}</Badge>
           </div>
           <p className="text-sm text-gray-500">
             {interviewer.paymentTier === 'Tier 1'
@@ -256,7 +256,7 @@ const InterviewerDetails = () => {
       <Card 
         title={
           <div className="flex items-center">
-            <FiDollarSign className="mr-2 text-primary-600" />
+            <DollarSign className="mr-2 text-primary-600" />
             <span>Payment Information</span>
           </div>
         }
@@ -297,7 +297,7 @@ const InterviewerDetails = () => {
         <Card 
           title={
             <div className="flex items-center">
-              <FiCalendar className="mr-2 text-primary-600" />
+              <Calendar className="mr-2 text-primary-600" />
               <span>Availability</span>
             </div>
           }
@@ -371,7 +371,7 @@ const InterviewerDetails = () => {
         <Card 
           title={
             <div className="flex items-center">
-              <FiUser className="mr-2 text-primary-600" />
+              <User className="mr-2 text-primary-600" />
               <span>Application Information</span>
             </div>
           }

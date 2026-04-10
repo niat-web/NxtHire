@@ -1,7 +1,7 @@
 // client/src/components/common/FilterDropdown.jsx
 import React, { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
-import { FiChevronDown, FiCheck } from 'react-icons/fi';
+import { ChevronDown, Check } from 'lucide-react';
 
 const FilterDropdown = ({
   label,
@@ -21,13 +21,13 @@ const FilterDropdown = ({
     <Menu as="div" className="relative inline-block text-left">
       <div>
         <Menu.Button
-          className={`inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 ${
+          className={`inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 ${
             disabled ? 'opacity-50 cursor-not-allowed' : ''
           } ${buttonClassName}`}
           disabled={disabled}
         >
           {getSelectedLabel()}
-          <FiChevronDown className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+          <ChevronDown className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
         </Menu.Button>
       </div>
 
@@ -42,7 +42,7 @@ const FilterDropdown = ({
       >
         <Menu.Items
           // *** FIX START: Added z-20 to ensure the menu appears above the z-10 sticky header ***
-          className={`absolute right-0 z-20 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none ${menuClassName}`}
+          className={`absolute right-0 z-20 mt-2 w-56 origin-top-right rounded-xl bg-white shadow-md ring-1 ring-black ring-opacity-5 focus:outline-none ${menuClassName}`}
           // *** FIX END ***
         >
           <div className="py-1">
@@ -56,7 +56,7 @@ const FilterDropdown = ({
                     } flex w-full items-center px-4 py-2 text-sm`}
                   >
                     {selectedValue === option.value && (
-                      <FiCheck className="mr-2 h-4 w-4 text-primary-600" />
+                      <Check className="mr-2 h-4 w-4 text-primary-600" />
                     )}
                     <span className={selectedValue === option.value ? 'font-medium' : ''}>
                       {option.label}

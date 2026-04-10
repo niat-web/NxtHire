@@ -155,6 +155,16 @@ const formatPhoneNumber = (phoneNumber) => {
  * @returns {Promise<object>} A promise that resolves to the result of the send operation.
  */
 const sendWelcomeWhatsApp = async (user, applicant) => {
+    // Check notification toggle
+    try {
+        const { isNotificationEnabled } = require('../controllers/notificationSettings.controller');
+        const enabled = await isNotificationEnabled('whatsappInterviewerWelcome');
+        if (!enabled) {
+            logEvent('whatsapp_skipped_disabled', { userId: user._id });
+            return { success: false, skipped: true, reason: 'Disabled by admin' };
+        }
+    } catch (e) { /* fail-open */ }
+
     const phone = applicant.whatsappNumber || user.whatsappNumber;
     if (!phone) {
         logEvent('whatsapp_skipped', { reason: 'No WhatsApp number available', userId: user._id });

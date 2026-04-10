@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import {
-  FiCode, FiCheck, FiArrowRight, FiArrowLeft, FiChevronDown,
-  FiBriefcase, FiAward, FiAlertCircle, FiUser, FiMail, FiMapPin, FiClock
-} from 'react-icons/fi';
+  Code, Check, ArrowRight, ArrowLeft, ChevronDown,
+  Briefcase, Award, AlertCircle, User, Mail, MapPin, Clock
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useAuth } from '../../hooks/useAuth';
 import { checkApplicationStatus, submitSkillAssessment } from '../../api/applicant.api';
 import { APPLICATION_STATUS } from '../../utils/constants';
@@ -24,20 +25,20 @@ const AccordionItem = ({ tech, register, setValue, watch, isOpen, onToggle }) =>
   };
 
   return (
-    <div className={`border rounded-xl transition-all ${isOpen ? 'border-slate-300 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}>
+    <div className={`border rounded-xl transition-all ${isOpen ? 'border-slate-300 shadow-md' : 'border-gray-200 hover:border-gray-300'}`}>
       <input type="hidden" {...register(`technicalSkills.${tech.id}.technology`, { value: tech.name })} />
       <button type="button" onClick={onToggle}
         className="flex justify-between items-center w-full px-5 py-4 text-left">
         <div className="flex items-center gap-3">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${selectedCount > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
-            {selectedCount > 0 ? <FiCheck size={14} /> : tech.name.charAt(0)}
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold ${selectedCount > 0 ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-500'}`}>
+            {selectedCount > 0 ? <Check size={14} /> : tech.name.charAt(0)}
           </div>
           <div>
             <h4 className="text-sm font-semibold text-gray-900">{tech.name}</h4>
             <p className="text-xs text-gray-400">{selectedCount}/{totalCount} selected</p>
           </div>
         </div>
-        <FiChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
       {isOpen && (
         <div className="px-5 pb-5 border-t border-gray-100">
@@ -46,7 +47,7 @@ const AccordionItem = ({ tech, register, setValue, watch, isOpen, onToggle }) =>
               <input type="checkbox" onChange={handleSelectAll}
                 checked={watchedSubSkills.length === allSubSkills.length && allSubSkills.length > 0}
                 className="h-4 w-4 rounded border-gray-300 text-slate-900 focus:ring-slate-500" />
-              <span className="text-xs font-bold text-gray-700 uppercase tracking-wide">Select All</span>
+              <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Select All</span>
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {tech.subSkills.map((subSkill) => (
@@ -148,14 +149,14 @@ const SkillAssessment = () => {
       <div className="h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md text-center p-8">
           <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FiAlertCircle className="w-7 h-7 text-red-600" />
+            <AlertCircle className="w-7 h-7 text-red-600" />
           </div>
-          <h2 className="text-lg font-bold text-gray-900 mb-2">Access Denied</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Access Denied</h2>
           <p className="text-sm text-gray-500 mb-6">{error}</p>
-          <button onClick={() => navigate('/')}
-            className="px-5 py-2 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-black transition-colors">
+          <Button onClick={() => navigate('/')}
+            className="px-5 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-black transition-colors">
             Return Home
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -169,9 +170,9 @@ const SkillAssessment = () => {
     <div className="h-screen flex bg-gray-50 overflow-hidden">
 
       {/* ─── Left Sidebar ──────────────────────────────────────────── */}
-      <div className="hidden lg:flex flex-col w-80 bg-slate-900 text-white shrink-0">
+      <div className="hidden lg:flex flex-col w-80 bg-indigo-600 text-white shrink-0">
         <div className="p-6 border-b border-slate-800">
-          <h1 className="text-base font-bold">Skill Assessment</h1>
+          <h1 className="text-base font-semibold">Skill Assessment</h1>
           <p className="text-xs text-slate-400 mt-1">Complete both steps to submit</p>
         </div>
 
@@ -179,17 +180,17 @@ const SkillAssessment = () => {
         <div className="flex-1 p-6">
           <div className="space-y-1">
             {[
-              { num: 1, label: 'Professional Details', desc: 'Your current role and experience', icon: FiBriefcase },
-              { num: 2, label: 'Technical Skills', desc: 'Select your areas of expertise', icon: FiCode },
+              { num: 1, label: 'Professional Details', desc: 'Your current role and experience', icon: Briefcase },
+              { num: 2, label: 'Technical Skills', desc: 'Select your areas of expertise', icon: Code },
             ].map((s) => (
               <button key={s.num} onClick={() => s.num === 1 && setStep(1)}
                 className={`w-full flex items-start gap-3 p-4 rounded-xl text-left transition-colors ${step === s.num ? 'bg-slate-800' : 'hover:bg-slate-800/50'}`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm font-bold ${
-                  step > s.num ? 'bg-emerald-500 text-white' :
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm font-semibold ${
+                  step > s.num ? 'bg-indigo-500 text-white' :
                   step === s.num ? 'bg-indigo-500 text-white' :
                   'bg-slate-700 text-slate-400'
                 }`}>
-                  {step > s.num ? <FiCheck size={14} /> : s.num}
+                  {step > s.num ? <Check size={14} /> : s.num}
                 </div>
                 <div>
                   <p className={`text-sm font-semibold ${step >= s.num ? 'text-white' : 'text-slate-500'}`}>{s.label}</p>
@@ -216,9 +217,9 @@ const SkillAssessment = () => {
       <div className="flex-1 overflow-y-auto flex flex-col">
         {/* Mobile header */}
         <div className="lg:hidden bg-white border-b border-gray-200 px-5 py-3 flex items-center justify-between sticky top-0 z-10 shrink-0">
-          <h1 className="text-sm font-bold text-gray-900">Skill Assessment</h1>
+          <h1 className="text-sm font-semibold text-gray-900">Skill Assessment</h1>
           <div className="flex items-center gap-2">
-            <span className={`px-2 py-0.5 text-xs font-bold rounded ${step === 1 ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}`}>
+            <span className={`px-2 py-0.5 text-xs font-semibold rounded ${step === 1 ? 'bg-indigo-100 text-indigo-700' : 'bg-indigo-100 text-indigo-700'}`}>
               Step {step}/2
             </span>
           </div>
@@ -231,23 +232,23 @@ const SkillAssessment = () => {
             {step === 1 && (
               <div>
                 <div className="mb-8">
-                  <h2 className="text-xl font-bold text-gray-900">Professional Background</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">Professional Background</h2>
                   <p className="text-sm text-gray-500 mt-1">Tell us about your current role and experience</p>
                 </div>
 
-                <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
+                <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-5">
                   {/* Read-only fields */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-                        <FiUser className="inline w-3 h-3 mr-1" />Full Name
+                        <User className="inline w-3 h-3 mr-1" />Full Name
                       </label>
                       <input {...register('fullName')} disabled
                         className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-400 cursor-not-allowed" />
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-                        <FiMail className="inline w-3 h-3 mr-1" />Email
+                        <Mail className="inline w-3 h-3 mr-1" />Email
                       </label>
                       <input {...register('email')} disabled
                         className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-400 cursor-not-allowed" />
@@ -288,10 +289,10 @@ const SkillAssessment = () => {
                 </div>
 
                 <div className="mt-8 flex justify-end">
-                  <button type="button" onClick={handleNext}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-black transition-colors">
-                    Next <FiArrowRight size={15} />
-                  </button>
+                  <Button type="button" onClick={handleNext}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-black transition-colors">
+                    Next <ArrowRight size={15} />
+                  </Button>
                 </div>
               </div>
             )}
@@ -301,11 +302,11 @@ const SkillAssessment = () => {
               <div className="flex-1 flex flex-col">
                 <div className="mb-4 flex items-start justify-between shrink-0">
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900">Technical Expertise</h2>
+                    <h2 className="text-xl font-semibold text-gray-900">Technical Expertise</h2>
                     <p className="text-sm text-gray-500 mt-1">Select the technologies you're proficient in</p>
                   </div>
                   {totalSelected > 0 && (
-                    <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full shrink-0">
+                    <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-full shrink-0">
                       {totalSelected} skills selected
                     </span>
                   )}
@@ -331,18 +332,18 @@ const SkillAssessment = () => {
                 </div>
 
                 <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center shrink-0">
-                  <button type="button" onClick={() => setStep(1)}
+                  <Button type="button" variant="outline" onClick={() => setStep(1)}
                     className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    <FiArrowLeft size={15} /> Previous
-                  </button>
-                  <button type="submit" disabled={isSubmitting}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-black disabled:opacity-50 transition-colors">
+                    <ArrowLeft size={15} /> Previous
+                  </Button>
+                  <Button type="submit" disabled={isSubmitting}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-black disabled:opacity-50 transition-colors">
                     {isSubmitting ? (
                       <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Submitting...</>
                     ) : (
-                      <><FiAward size={15} /> Submit Assessment</>
+                      <><Award size={15} /> Submit Assessment</>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}

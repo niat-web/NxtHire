@@ -1,10 +1,10 @@
 // client/src/pages/admin/SkillCategorizationPage.jsx
 import React, { useEffect, useState, useMemo } from 'react';
 import {
-    FiBriefcase, FiCheckCircle, FiChevronLeft, FiChevronRight,
-    FiChevronsLeft, FiChevronsRight, FiUser, FiClock, FiStar,
-    FiMail, FiPhone, FiLinkedin, FiSend
-} from 'react-icons/fi';
+    Briefcase, CheckCircle, ChevronLeft, ChevronRight,
+    ChevronsLeft, ChevronsRight, User, Clock, Star,
+    Mail, Phone, Linkedin, Send
+} from 'lucide-react';
 import Loader from '../../components/common/Loader';
 import { processSkillCategorization } from '../../api/admin.api';
 import { useAlert } from '../../hooks/useAlert';
@@ -15,29 +15,30 @@ import { formatDate, formatDateTime } from '../../utils/formatters';
 import Select from 'react-select';
 import { DOMAINS } from '../../utils/constants';
 import { useSkillAssessments, useInvalidateAdmin } from '../../hooks/useAdminQueries';
+import { Button } from '@/components/ui/button';
 
 // --- Simple UI Components ---
 
 const SimpleButton = ({ children, variant = 'primary', icon: Icon, ...props }) => {
-    const variants = {
-        primary: 'bg-emerald-600 text-white hover:bg-emerald-700',
-        secondary: 'bg-gray-200 text-gray-700 hover:bg-gray-300',
-        outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50',
+    const variantMap = {
+        primary: 'default',
+        secondary: 'secondary',
+        outline: 'outline',
     };
-    
+
     return (
-        <button 
-            {...props} 
-            className={`px-4 py-2 rounded text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50 ${variants[variant]}`}
+        <Button
+            variant={variantMap[variant] || 'default'}
+            {...props}
         >
             {Icon && <Icon className="inline w-4 h-4 mr-2" />}
             {children}
-        </button>
+        </Button>
     );
 };
 
 const SimpleCard = ({ children, className = '' }) => (
-    <div className={`bg-white border border-gray-200 rounded-lg shadow-sm ${className}`}>
+    <div className={`bg-white border border-gray-200 rounded-xl shadow-md ${className}`}>
         {children}
     </div>
 );
@@ -45,7 +46,7 @@ const SimpleCard = ({ children, className = '' }) => (
 const SimpleBadge = ({ children, color = 'gray' }) => {
     const colors = {
         gray: 'bg-gray-100 text-gray-800',
-        blue: 'bg-emerald-100 text-emerald-800',
+        blue: 'bg-indigo-100 text-indigo-800',
         green: 'bg-green-100 text-green-800',
         yellow: 'bg-yellow-100 text-yellow-800',
     };
@@ -63,19 +64,19 @@ const ApplicantInfo = ({ applicant, skillAssessment }) => (
     <SimpleCard className="p-6 mb-6">
         <div className="flex justify-between items-start mb-4">
             <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">{applicant.fullName}</h1>
+                <h1 className="text-2xl font-semibold text-gray-900 mb-2">{applicant.fullName}</h1>
                 <div className="space-y-2 text-sm text-gray-600">
                     <div className="flex items-center">
-                        <FiMail className="w-4 h-4 mr-2" />
+                        <Mail className="w-4 h-4 mr-2" />
                         {applicant.email}
                     </div>
                     <div className="flex items-center">
-                        <FiPhone className="w-4 h-4 mr-2" />
+                        <Phone className="w-4 h-4 mr-2" />
                         {applicant.phoneNumber}
                     </div>
                     <div className="flex items-center">
-                        <FiLinkedin className="w-4 h-4 mr-2" />
-                        <a href={applicant.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline">
+                        <Linkedin className="w-4 h-4 mr-2" />
+                        <a href={applicant.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">
                             LinkedIn Profile
                         </a>
                     </div>
@@ -87,30 +88,30 @@ const ApplicantInfo = ({ applicant, skillAssessment }) => (
 );
 
 const BasicMetrics = ({ skillAssessment }) => (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <SimpleCard className="p-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <SimpleCard className="p-5">
             <div className="flex items-center mb-2">
-                <FiUser className="w-5 h-5 text-emerald-600 mr-2" />
+                <User className="w-5 h-5 text-indigo-600 mr-2" />
                 <span className="text-sm font-medium text-gray-600">Current Role</span>
             </div>
             <p className="font-semibold text-gray-900">{skillAssessment.jobTitle}</p>
             <p className="text-sm text-gray-600">{skillAssessment.currentEmployer}</p>
         </SimpleCard>
 
-        <SimpleCard className="p-4">
+        <SimpleCard className="p-5">
             <div className="flex items-center mb-2">
-                <FiClock className="w-5 h-5 text-emerald-600 mr-2" />
+                <Clock className="w-5 h-5 text-indigo-600 mr-2" />
                 <span className="text-sm font-medium text-gray-600">Experience</span>
             </div>
-            <p className="text-xl font-bold text-gray-900">{skillAssessment.yearsOfExperience} years</p>
+            <p className="text-xl font-semibold text-gray-900">{skillAssessment.yearsOfExperience} years</p>
         </SimpleCard>
 
-        <SimpleCard className="p-4">
+        <SimpleCard className="p-5">
             <div className="flex items-center mb-2">
-                <FiStar className="w-5 h-5 text-emerald-600 mr-2" />
+                <Star className="w-5 h-5 text-indigo-600 mr-2" />
                 <span className="text-sm font-medium text-gray-600">Suggested Domain</span>
             </div>
-            <p className="font-semibold text-emerald-700">{skillAssessment.autoCategorizedDomain || 'N/A'}</p>
+            <p className="font-semibold text-indigo-700">{skillAssessment.autoCategorizedDomain || 'N/A'}</p>
         </SimpleCard>
     </div>
 );
@@ -185,7 +186,7 @@ const ReviewForm = ({ applicant, skillAssessment, onCategorizeComplete }) => {
     return (
         <SimpleCard className="p-6">
             <div className="flex items-center mb-6">
-                <FiCheckCircle className="w-5 h-5 text-emerald-600 mr-2" />
+                <CheckCircle className="w-5 h-5 text-indigo-600 mr-2" />
                 <h3 className="text-lg font-semibold text-gray-900">Admin Review</h3>
             </div>
             
@@ -224,7 +225,7 @@ const ReviewForm = ({ applicant, skillAssessment, onCategorizeComplete }) => {
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Add notes about this assessment..."
                         rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                 </div>
                 
@@ -232,7 +233,7 @@ const ReviewForm = ({ applicant, skillAssessment, onCategorizeComplete }) => {
                     <SimpleButton 
                         type="submit" 
                         disabled={isSubmitting || selectedDomains.length === 0}
-                        icon={FiSend}
+                        icon={Send}
                     >
                         {isSubmitting ? 'Processing...' : 'Confirm & Send Guidelines'}
                     </SimpleButton>
@@ -276,7 +277,7 @@ const SimpleSidebar = ({
             
             {!loading && assessments.length === 0 && (
                 <div className="p-8 text-center">
-                    <FiCheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
+                    <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
                     <h3 className="font-medium text-gray-900 mb-2">Queue Empty</h3>
                     <p className="text-sm text-gray-500">No pending assessments</p>
                 </div>
@@ -286,7 +287,7 @@ const SimpleSidebar = ({
                 <button 
                     key={assessment._id} 
                     onClick={() => onSelectAssessment(assessment)} 
-                    className={`w-full text-left p-4 border-b border-gray-100 hover:bg-gray-50 focus:outline-none ${selectedAssessment?._id === assessment._id ? 'bg-emerald-50 border-l-4 border-l-emerald-600' : ''}`}
+                    className={`w-full text-left p-4 border-b border-gray-100 hover:bg-gray-50 focus:outline-none ${selectedAssessment?._id === assessment._id ? 'bg-indigo-50 border-l-4 border-l-indigo-600' : ''}`}
                 >
                     <div className="flex justify-between items-start mb-2">
                         <p className="font-medium text-gray-900">{assessment.applicant.fullName}</p>
@@ -306,7 +307,7 @@ const SimpleSidebar = ({
                     onClick={() => onPageChange(pagination.currentPage - 1)}
                     disabled={pagination.currentPage === 1}
                     variant="outline"
-                    icon={FiChevronLeft}
+                    icon={ChevronLeft}
                 >
                     Previous
                 </SimpleButton>
@@ -319,7 +320,7 @@ const SimpleSidebar = ({
                     onClick={() => onPageChange(pagination.currentPage + 1)}
                     disabled={pagination.currentPage === pagination.totalPages}
                     variant="outline"
-                    icon={FiChevronRight}
+                    icon={ChevronRight}
                 >
                     Next
                 </SimpleButton>
@@ -412,13 +413,15 @@ const SkillCategorizationPage = () => {
             />
 
             <div className="flex-1 relative">
-                <button 
-                    onClick={toggleSidebar} 
-                    className="absolute top-4 left-4 z-10 bg-white border border-gray-300 rounded p-2 hover:bg-gray-50" 
+                <Button
+                    onClick={toggleSidebar}
+                    variant="outline"
+                    size="icon"
+                    className="absolute top-4 left-4 z-10"
                     aria-label={sidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
                 >
-                    {sidebarCollapsed ? <FiChevronsRight className="w-4 h-4" /> : <FiChevronsLeft className="w-4 h-4" />}
-                </button>
+                    {sidebarCollapsed ? <ChevronsRight className="w-4 h-4" /> : <ChevronsLeft className="w-4 h-4" />}
+                </Button>
 
                 <div className="h-full overflow-y-auto p-6">
                     {loading && !selectedAssessment && (
@@ -444,7 +447,7 @@ const SkillCategorizationPage = () => {
                     ) : (!loading && assessments.length > 0 && (
                         <div className="flex items-center justify-center h-full">
                             <div className="text-center">
-                                <FiBriefcase className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                                <Briefcase className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                                 <h3 className="text-lg font-medium text-gray-900 mb-2">Select Assessment</h3>
                                 <p className="text-gray-600">Choose an applicant from the list to review</p>
                             </div>
@@ -454,7 +457,7 @@ const SkillCategorizationPage = () => {
                     {!loading && assessments.length === 0 && (
                         <div className="flex items-center justify-center h-full">
                             <div className="text-center">
-                                <FiCheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                                <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
                                 <h3 className="text-lg font-medium text-gray-900 mb-2">All Done!</h3>
                                 <p className="text-gray-600">No pending assessments to review</p>
                             </div>

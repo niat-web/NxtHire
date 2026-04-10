@@ -1,6 +1,6 @@
 // client/src/components/admin/LinkedInReview.jsx
 import React, { useState } from 'react';
-import { FiThumbsUp, FiThumbsDown, FiExternalLink } from 'react-icons/fi';
+import { ThumbsUp, ThumbsDown, ExternalLink } from 'lucide-react';
 import Card from '../common/Card';
 import Button from '../common/Button';
 import Modal from '../common/Modal';
@@ -100,7 +100,7 @@ const LinkedInReview = ({ applicant, onReviewComplete }) => {
                 className="inline-flex items-center text-primary-600 hover:text-primary-800"
               >
                 <span className="underline">View LinkedIn Profile</span>
-                <FiExternalLink className="ml-1" />
+                <ExternalLink className="ml-1" />
               </a>
             </div>
           </div>
@@ -115,7 +115,7 @@ const LinkedInReview = ({ applicant, onReviewComplete }) => {
           <div className="flex justify-end space-x-4">
             <Button
               variant="outline"
-              icon={<FiThumbsDown className="text-red-500" />}
+              icon={<ThumbsDown className="text-red-500" />}
               iconPosition="left"
               onClick={() => setIsRejectModalOpen(true)}
             >
@@ -124,7 +124,7 @@ const LinkedInReview = ({ applicant, onReviewComplete }) => {
             
             <Button
               variant="primary"
-              icon={<FiThumbsUp />}
+              icon={<ThumbsUp />}
               iconPosition="left"
               onClick={() => setIsApproveModalOpen(true)}
             >
@@ -167,7 +167,7 @@ const LinkedInReview = ({ applicant, onReviewComplete }) => {
             variant="primary"
             onClick={handleApprove}
             disabled={isSubmitting}
-            icon={<FiThumbsUp />}
+            icon={<ThumbsUp />}
             iconPosition="left"
           >
             {isSubmitting ? 'Processing...' : 'Confirm Approval'}
@@ -218,7 +218,7 @@ const LinkedInReview = ({ applicant, onReviewComplete }) => {
             variant="danger"
             onClick={handleReject}
             disabled={isSubmitting}
-            icon={<FiThumbsDown />}
+            icon={<ThumbsDown />}
             iconPosition="left"
           >
             {isSubmitting ? 'Processing...' : 'Confirm Rejection'}

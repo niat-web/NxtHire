@@ -7,6 +7,7 @@ import StatusBadge from '../common/StatusBadge';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useDashboardAnalytics, useLatestInterviewDate } from '@/hooks/useAdminQueries';
 import { format as formatDateFns, startOfWeek } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const STATUS_COLORS = {
   Scheduled: '#3B82F6',
@@ -19,7 +20,7 @@ const STATUS_COLORS = {
 const ChartTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3 text-sm">
+    <div className="bg-white border border-gray-200 rounded-xl shadow-md p-5 text-sm">
       <p className="font-semibold text-gray-800 mb-1.5">{label}</p>
       {payload.map((p, i) =>
         p.value > 0 ? (
@@ -38,7 +39,7 @@ const MiniStat = ({ label, value, color }) => (
   <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50">
     <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
     <span className="text-xs text-gray-500">{label}</span>
-    <span className="text-sm font-bold text-gray-900 ml-auto">{value}</span>
+    <span className="text-sm font-semibold text-gray-900 ml-auto">{value}</span>
   </div>
 );
 
@@ -59,6 +60,7 @@ const DateInput = React.forwardRef(({ value, onClick, view }, ref) => {
       ref={ref}
       className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-100 transition-colors"
     >
+
       <Calendar size={14} className="text-gray-400" />
       {label}
     </button>
@@ -128,11 +130,10 @@ const AnalyticsDashboard = () => {
               <button
                 key={v}
                 onClick={() => setView(v)}
-                className={`px-3 py-1 text-xs font-medium rounded-md capitalize transition-colors ${
-                  view === v
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
+                className={cn(
+                  'px-3 py-1 text-xs font-medium rounded-lg capitalize transition-colors',
+                  view === v ? 'bg-white text-gray-900 shadow-md' : 'text-gray-500 hover:text-gray-700'
+                )}
               >
                 {v}
               </button>
@@ -205,15 +206,15 @@ const AnalyticsDashboard = () => {
                 recentInterviews.map(iv => (
                   <div
                     key={iv._id}
-                    className="flex items-center justify-between gap-2 p-2.5 bg-white rounded-lg border border-gray-100 hover:shadow-sm transition-shadow"
+                    className="flex items-center justify-between gap-2 p-2.5 bg-white rounded-xl border border-gray-100 hover:shadow-md transition-shadow"
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">{iv.candidateName}</p>
-                      <p className="text-[11px] text-gray-400 font-mono">{iv.interviewId || 'N/A'}</p>
+                      <p className="text-xs text-gray-400 font-mono">{iv.interviewId || 'N/A'}</p>
                     </div>
                     <div className="flex flex-col items-end gap-1 shrink-0">
                       <StatusBadge status={iv.interviewStatus} />
-                      <span className="text-[10px] text-gray-400">
+                      <span className="text-xs text-gray-400">
                         {formatDateFns(new Date(iv.interviewDate), 'MMM d')}
                       </span>
                     </div>

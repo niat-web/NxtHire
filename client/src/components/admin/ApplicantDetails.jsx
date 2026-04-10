@@ -1,11 +1,11 @@
-// client/src/pages/admin/ApplicantDetails.jsx
+// client/src/components/admin/ApplicantDetails.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { FiArrowLeft, FiEdit, FiUser, FiFileText, FiCheck, FiX, FiExternalLink } from 'react-icons/fi';
+import { ArrowLeft, Edit, User, FileText, Check, X, ExternalLink } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import StatusBadge from '../../components/common/StatusBadge';
-import Badge from '../../components/common/Badge';
+import { Badge } from '@/components/ui/badge';
 import Loader from '../../components/common/Loader';
 import StatusUpdateModal from '../../components/admin/StatusUpdateModal';
 import { getApplicantDetails, updateApplicantStatus } from '../../api/admin.api';
@@ -94,7 +94,7 @@ const ApplicantDetails = () => {
       <div className="flex justify-between items-center">
         <div className="flex items-center">
           <Link to="/admin/applicants" className="mr-4">
-            <FiArrowLeft className="h-5 w-5 text-gray-500 hover:text-gray-700" />
+            <ArrowLeft className="h-5 w-5 text-gray-500 hover:text-gray-700" />
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">Applicant Details</h1>
         </div>
@@ -103,7 +103,7 @@ const ApplicantDetails = () => {
           
           <Button
             variant="primary"
-            icon={<FiEdit />}
+            icon={<Edit />}
             iconPosition="left"
             onClick={() => setIsStatusModalOpen(true)}
           >
@@ -117,7 +117,7 @@ const ApplicantDetails = () => {
         title={
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <FiUser className="mr-2 text-primary-600" />
+              <User className="mr-2 text-primary-600" />
               <span>Basic Information</span>
             </div>
             <StatusBadge status={applicant.status} />
@@ -166,7 +166,7 @@ const ApplicantDetails = () => {
               className="inline-flex items-center text-primary-600 hover:text-primary-800"
             >
               <span className="underline">{applicant.linkedinProfileUrl}</span>
-              <FiExternalLink className="ml-1" />
+              <ExternalLink className="ml-1" />
             </a>
           </div>
         </div>
@@ -231,7 +231,7 @@ const ApplicantDetails = () => {
         <Card 
           title={
             <div className="flex items-center">
-              <FiFileText className="mr-2 text-primary-600" />
+              <FileText className="mr-2 text-primary-600" />
               <span>Skill Assessment</span>
             </div>
           }
@@ -256,7 +256,7 @@ const ApplicantDetails = () => {
               <div>
                 <h4 className="text-sm font-medium text-gray-500">Domain</h4>
                 <div className="mt-1">
-                  <Badge variant="primary">{skillAssessment.domain}</Badge>
+                  <Badge variant="default">{skillAssessment.domain}</Badge>
                   {skillAssessment.autoCategorizedDomain !== skillAssessment.domain && (
                     <div className="mt-1 text-xs text-gray-500">
                       Auto-categorized as: {skillAssessment.autoCategorizedDomain}
@@ -283,9 +283,9 @@ const ApplicantDetails = () => {
                   <div key={index} className="p-4 border border-gray-200 rounded-lg">
                     <div className="flex justify-between items-center">
                       <h4 className="text-base font-medium text-gray-900">{skill.skill}</h4>
-                      <Badge 
+                      <Badge
                         variant={
-                          skill.proficiencyLevel === 'Expert' ? 'primary' :
+                          skill.proficiencyLevel === 'Expert' ? 'purple' :
                           skill.proficiencyLevel === 'Advanced' ? 'success' :
                           skill.proficiencyLevel === 'Intermediate' ? 'info' :
                           'gray'
@@ -317,7 +317,7 @@ const ApplicantDetails = () => {
         <Card 
           title={
             <div className="flex items-center">
-              <FiUser className="mr-2 text-primary-600" />
+              <User className="mr-2 text-primary-600" />
               <span>Interviewer Information</span>
             </div>
           }
@@ -346,7 +346,7 @@ const ApplicantDetails = () => {
               <div>
                 <h4 className="text-sm font-medium text-gray-500">Payment Tier</h4>
                 <div className="mt-1">
-                  <Badge variant="primary" rounded>
+                  <Badge variant="default">
                     {interviewer.paymentTier}
                   </Badge>
                 </div>

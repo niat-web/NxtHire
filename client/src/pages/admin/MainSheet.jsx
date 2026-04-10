@@ -6,7 +6,7 @@ import CreatableSelect from 'react-select/creatable';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from 'date-fns';
-import { FiDownload, FiPlus, FiEdit, FiTrash2, FiMoreVertical, FiSearch, FiInbox, FiAlertTriangle, FiChevronLeft, FiChevronRight, FiRefreshCw, FiUpload, FiFilter, FiX, FiLoader } from 'react-icons/fi';
+import { Download, Plus, Edit, Trash2, MoreVertical, Search, Inbox, AlertTriangle, ChevronLeft, ChevronRight, RefreshCw, Upload, Filter, X, Loader2 } from 'lucide-react';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { deleteMainSheetEntry, bulkUpdateMainSheetEntries, refreshRecordingLinks, bulkUploadMainSheetEntries as bulkUpload, exportMainSheet } from '@/api/admin.api';
@@ -15,28 +15,23 @@ import { useAlert } from '@/hooks/useAlert';
 import { debounce } from '@/utils/helpers';
 import { formatDate, formatTime } from '@/utils/formatters'; // <-- Ensure formatTime is imported
 import { MAIN_SHEET_INTERVIEW_STATUSES } from '@/utils/constants';
+import { Button as ShadcnButton } from '@/components/ui/button';
 
 // --- SELF-CONTAINED UI COMPONENTS (Definitions omitted for brevity, assumed functional) ---
 // (LocalButton, LocalSearchInput, LocalConfirmDialog, LocalDropdownMenu, LocalEmptyState, SkeletonRow, LocalTable, EditableHiringName, EditableDomainCell, UploadModal, RemarksModal, EditableCell)
 
 const LocalButton = ({ children, onClick, isLoading = false, variant = 'primary', icon: Icon, className = '', disabled = false, type = 'button' }) => {
-    const baseClasses = "inline-flex items-center justify-center px-3.5 py-2 text-sm font-medium rounded-lg focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
-    const variantClasses = {
-        primary: 'bg-slate-900 text-white hover:bg-black shadow-sm',
-        outline: 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-900',
-        danger: 'bg-red-600 text-white hover:bg-red-700 shadow-sm',
-    };
-    const iconOnlyClass = !children && Icon ? '!px-2' : '';
+    const variantMap = { primary: 'default', outline: 'outline', danger: 'destructive', ghost: 'ghost' };
     return (
-        <button type={type} onClick={onClick} disabled={isLoading || disabled} className={`${baseClasses} ${variantClasses[variant]} ${iconOnlyClass} ${className}`}>
-            {isLoading ? <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> : (Icon && <Icon className={`h-4 w-4 ${children ? 'mr-1.5' : ''}`} />)}
-            {isLoading ? "Processing..." : children}
-        </button>
+        <ShadcnButton type={type} onClick={onClick} isLoading={isLoading} disabled={disabled} variant={variantMap[variant] || 'default'} className={className}>
+            {Icon && <Icon className={`h-4 w-4 ${children ? 'mr-1.5' : ''}`} />}
+            {children}
+        </ShadcnButton>
     );
 };
 
 const LocalSearchInput = ({ value, onChange, placeholder }) => (
-    <div className="relative"><FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" /><input type="text" value={value} onChange={onChange} placeholder={placeholder} className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 text-sm bg-gray-50" /></div>
+    <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" /><input type="text" value={value} onChange={onChange} placeholder={placeholder} className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 text-sm bg-gray-50" /></div>
 );
 
 // ... (other local components: LocalConfirmDialog, LocalDropdownMenu, LocalEmptyState, SkeletonRow, LocalTable, EditableHiringName, EditableDomainCell, UploadModal, RemarksModal, EditableCell are omitted for brevity, assumed functional) ...
@@ -55,11 +50,11 @@ const LocalConfirmDialog = ({ isOpen, onClose, onConfirm, title, message, isLoad
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" onClick={onClose}>
-            <div className="relative w-full max-w-md bg-white rounded-lg shadow-lg" onClick={e => e.stopPropagation()}>
+            <div className="relative w-full max-w-md bg-white rounded-xl shadow-md" onClick={e => e.stopPropagation()}>
                 <div className="p-6">
                     <div className="flex items-start">
                         <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                            <FiAlertTriangle className="h-6 w-6 text-red-600" aria-hidden="true" />
+                            <AlertTriangle className="h-6 w-6 text-red-600" aria-hidden="true" />
                         </div>
                         <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                             <h3 className="text-lg leading-6 font-medium text-gray-900">{title}</h3>
@@ -67,7 +62,7 @@ const LocalConfirmDialog = ({ isOpen, onClose, onConfirm, title, message, isLoad
                         </div>
                     </div>
                 </div>
-                <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse rounded-b-lg">
+                <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse rounded-b-xl">
                     <LocalButton variant="danger" onClick={onConfirm} isLoading={isLoading} className="w-full sm:ml-3 sm:w-auto">Confirm</LocalButton>
                     <LocalButton variant="outline" onClick={onClose} className="mt-3 w-full sm:mt-0 sm:w-auto">Cancel</LocalButton>
                 </div>
@@ -97,7 +92,7 @@ const LocalDropdownMenu = ({ options }) => {
     }, [isOpen]);
 
     const MenuContent = () => (
-        <div ref={menuRef} className="fixed z-50 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" style={{ top: `${position.top}px`, left: `${position.left}px` }}>
+        <div ref={menuRef} className="fixed z-50 w-48 origin-top-right bg-white rounded-xl shadow-md ring-1 ring-black ring-opacity-5 focus:outline-none" style={{ top: `${position.top}px`, left: `${position.left}px` }}>
             <div className="py-1">
                 {options.map((option) => (
                     <button key={option.label} onClick={() => { option.onClick(); setIsOpen(false); }} className={`group flex items-center w-full px-4 py-2 text-sm ${option.isDestructive ? 'text-red-700 hover:bg-red-50' : 'text-gray-700 hover:bg-gray-100'}`}>
@@ -109,7 +104,7 @@ const LocalDropdownMenu = ({ options }) => {
         </div>
     );
     return (
-        <div className="relative"><button ref={buttonRef} onClick={toggleMenu} className="p-2 rounded-full hover:bg-gray-100"><FiMoreVertical /></button>{isOpen && createPortal(<MenuContent />, document.body)}</div>
+        <div className="relative"><ShadcnButton ref={buttonRef} variant="ghost" size="icon" onClick={toggleMenu} className="rounded-full hover:bg-gray-100"><MoreVertical /></ShadcnButton>{isOpen && createPortal(<MenuContent />, document.body)}</div>
     );
 };
 
@@ -253,17 +248,17 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, title, instructions, re
 
     return isOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={onClose}>
-            <div className="relative w-full max-w-4xl bg-white rounded-lg shadow-xl flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+            <div className="relative w-full max-w-4xl bg-white rounded-xl shadow-md flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                 <div className="p-4 border-b"><h3 className="text-lg font-semibold text-gray-800">{title}</h3></div>
                 <div className="p-6 flex-grow overflow-y-auto space-y-4">
-                    <div className="flex items-center gap-4"><input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"/>{error && <p className="text-red-600 text-sm font-semibold">{error}</p>}</div>
-                    {parsedData.length > 0 && (<div className="border border-gray-200 rounded-lg max-h-80 overflow-auto"><table className="min-w-full text-xs"><thead className="bg-gray-100 sticky top-0"><tr className="text-left font-semibold text-gray-600">{Object.keys(parsedData[0]).map(h => <th key={h} className="p-2 border-b">{h}</th>)}</tr></thead><tbody>{parsedData.slice(0, 10).map((row, i) => (<tr key={i} className="bg-white border-b">{Object.values(row).map((val, j) => <td key={j} className="p-2 truncate" title={val}>{String(val)}</td>)}</tr>))}</tbody></table>{parsedData.length > 10 && <div className="p-2 text-center text-sm bg-gray-50">...and {parsedData.length - 10} more rows</div>}</div>)}
+                    <div className="flex items-center gap-4"><input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>{error && <p className="text-red-600 text-sm font-semibold">{error}</p>}</div>
+                    {parsedData.length > 0 && (<div className="border border-gray-200 rounded-xl max-h-80 overflow-auto"><table className="min-w-full text-xs"><thead className="bg-gray-100 sticky top-0"><tr className="text-left font-semibold text-gray-600">{Object.keys(parsedData[0]).map(h => <th key={h} className="p-2 border-b">{h}</th>)}</tr></thead><tbody>{parsedData.slice(0, 10).map((row, i) => (<tr key={i} className="bg-white border-b">{Object.values(row).map((val, j) => <td key={j} className="p-2 truncate" title={val}>{String(val)}</td>)}</tr>))}</tbody></table>{parsedData.length > 10 && <div className="p-2 text-center text-sm bg-gray-50">...and {parsedData.length - 10} more rows</div>}</div>)}
                 </div>
                 <div className="bg-gray-50 p-4 flex justify-between items-center border-t">
                     <p className="text-sm text-gray-600">{parsedData.length > 0 ? `${parsedData.length} records detected and ready for import.` : "Please select a file to preview."}</p>
                     <div>
                         <LocalButton variant="outline" className="mr-2" onClick={onClose}>Cancel</LocalButton>
-                        <LocalButton variant="primary" onClick={handleConfirm} isLoading={isLoading} disabled={!file || error || parsedData.length === 0} icon={FiUpload}>Upload {parsedData.length > 0 ? parsedData.length : ''} Entries</LocalButton>
+                        <LocalButton variant="primary" onClick={handleConfirm} isLoading={isLoading} disabled={!file || error || parsedData.length === 0} icon={Upload}>Upload {parsedData.length > 0 ? parsedData.length : ''} Entries</LocalButton>
                     </div>
                 </div>
             </div>
@@ -280,22 +275,23 @@ const RemarksModal = ({ isOpen, onClose, content }) => {
             onClick={onClose}
         >
             <div 
-                className="relative w-full max-w-lg bg-white rounded-lg shadow-xl" 
+                className="relative w-full max-w-lg bg-white rounded-xl shadow-md"
                 onClick={e => e.stopPropagation()}
             >
                 <div className="px-6 py-4 border-b flex justify-between items-center">
                     <h3 className="text-lg font-semibold text-gray-900">Full Remarks</h3>
-                    <button onClick={onClose} className="p-1 rounded-full text-gray-400 hover:bg-gray-200">
-                        <FiX className="h-5 w-5"/>
-                    </button>
+                    <ShadcnButton variant="ghost" size="icon" onClick={onClose} className="rounded-full text-gray-400 hover:bg-gray-200">
+                        <X className="h-5 w-5"/>
+                    </ShadcnButton>
                 </div>
                 <div className="p-6">
                     <p className="text-sm text-gray-700 whitespace-pre-wrap">{content}</p>
                 </div>
-                <div className="bg-gray-50 px-6 py-3 flex justify-end rounded-b-lg">
+                <div className="bg-gray-50 px-6 py-3 flex justify-end rounded-b-xl">
                     <LocalButton variant="outline" onClick={onClose}>Close</LocalButton>
                 </div>
             </div>
+
         </div>
     );
 };
@@ -320,9 +316,9 @@ const EditableCell = ({ value, onSave, isLoading, fieldName, rowId }) => {
                 onBlur={handleSave}
                 disabled={isLoading}
                 placeholder=""
-                className="w-full text-xs p-2 border border-transparent rounded-md bg-transparent focus:bg-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 resize-none h-[38px] leading-tight"
+                className="w-full text-xs p-2 border border-transparent rounded-md bg-transparent focus:bg-white focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 resize-none h-[38px] leading-tight"
             />
-            {isLoading && <FiLoader className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-gray-400" />}
+            {isLoading && <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-gray-400" />}
         </div>
     );
 };
@@ -537,7 +533,7 @@ const MainSheet = () => {
             // --- MODIFICATION END ---
         },
         { key: 'interviewDuration', title: 'Duration' },
-        { key: 'interviewStatus', title: 'Status', minWidth: '150px', render: (row) => { const statusColors = {'Completed': 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200','Scheduled': 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200','InProgress': 'bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-200','Cancelled': 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200' }; return (<select value={row.interviewStatus || ''} onChange={(e) => handleStatusChange(row._id, e.target.value)} disabled={updatingId === row._id} className={`w-full text-xs font-semibold px-2 py-1.5 border rounded-md shadow-sm focus:outline-none focus:ring-1 transition-colors cursor-pointer ${statusColors[row.interviewStatus] || 'bg-gray-100'}`} onClick={(e) => e.stopPropagation()}><option value="" disabled>Select Status</option>{MAIN_SHEET_INTERVIEW_STATUSES.map(status => (<option key={status.value} value={status.value}>{status.label}</option>))}</select>); } },
+        { key: 'interviewStatus', title: 'Status', minWidth: '150px', render: (row) => { const statusColors = {'Completed': 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200','Scheduled': 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200','InProgress': 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200','Cancelled': 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200' }; return (<select value={row.interviewStatus || ''} onChange={(e) => handleStatusChange(row._id, e.target.value)} disabled={updatingId === row._id} className={`w-full text-xs font-semibold px-2 py-1.5 border rounded-md shadow-sm focus:outline-none focus:ring-1 transition-colors cursor-pointer ${statusColors[row.interviewStatus] || 'bg-gray-100'}`} onClick={(e) => e.stopPropagation()}><option value="" disabled>Select Status</option>{MAIN_SHEET_INTERVIEW_STATUSES.map(status => (<option key={status.value} value={status.value}>{status.label}</option>))}</select>); } },
         { key: 'remarks', title: 'Remarks', minWidth: '250px', render: (row) => <EditableCell value={row.remarks} onSave={handleCellSave} fieldName="remarks" rowId={row._id} isLoading={updatingId === row._id} /> },
         { key: 'interviewerName', title: 'Interviewer', minWidth: '180px', render: (row) => (<select value={row.interviewer?._id || ''} onChange={(e) => handleInterviewerChange(row._id, e.target.value)} disabled={updatingId === row._id} className="w-full p-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-slate-400 transition-colors" onClick={(e) => e.stopPropagation()}><option value="">Unassigned</option>{interviewerOptions.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select>) },
         { key: 'interviewerMail', title: "Interviewer Mail", minWidth: '200px', render: (row) => row.interviewer?.user?.email || '' },
@@ -549,13 +545,13 @@ const MainSheet = () => {
             return (
                 <div className="flex items-center overflow-hidden p-2">
                     <span className="truncate" title={remarks}>{remarks.substring(0, charLimit)}...</span>
-                    <button onClick={() => openRemarksModal(remarks)} className="ml-1 text-blue-600 hover:text-blue-800 hover:underline text-xs font-semibold flex-shrink-0">more</button>
+                    <ShadcnButton variant="link" size="sm" onClick={() => openRemarksModal(remarks)} className="ml-1 text-blue-600 hover:text-blue-800 text-xs font-semibold flex-shrink-0 p-0 h-auto">more</ShadcnButton>
                 </div>
             );
         }},
         { key: 'hiringName', title: 'Hiring Name', minWidth: '150px', render: (row) => <EditableHiringName entry={row} options={hiringNamesOptions} onSave={handleCellSave} /> },
         { key: 'techStack', title: 'Tech Stack', minWidth: '150px', render: (row) => <EditableDomainCell entry={row} domainOptions={domainOptions} onSave={handleCellSave} /> },
-        { key: 'actions', title: 'Actions', minWidth: '60px', render: (row) => (<LocalDropdownMenu options={[{ label: 'Edit', icon: FiEdit, onClick: () => navigate(`/admin/main-sheet/edit/${row._id}`) }, { label: 'Delete', icon: FiTrash2, isDestructive: true, onClick: () => handleDeleteRequest(row) },]}/>)}
+        { key: 'actions', title: 'Actions', minWidth: '60px', render: (row) => (<LocalDropdownMenu options={[{ label: 'Edit', icon: Edit, onClick: () => navigate(`/admin/main-sheet/edit/${row._id}`) }, { label: 'Delete', icon: Trash2, isDestructive: true, onClick: () => handleDeleteRequest(row) },]}/>)}
     ], [navigate, handleDeleteRequest, handleStatusChange, handleInterviewerChange, updatingId, interviewerOptions, hiringNamesOptions, handleCellSave, domainOptions, openRemarksModal]);
     
     const mainSheetUploadProps = {
@@ -577,7 +573,7 @@ const MainSheet = () => {
             <div className="bg-white border-b border-gray-200 px-5 py-3 flex-shrink-0">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                     <div className="flex items-center gap-4">
-                        <h1 className="text-lg font-bold text-gray-900">Main Sheet</h1>
+                        <h1 className="text-lg font-semibold text-gray-900">Main Sheet</h1>
                         {pagination.totalItems > 0 && (
                             <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full">{pagination.totalItems} records</span>
                         )}
@@ -588,9 +584,9 @@ const MainSheet = () => {
                         </div>
                         <div className="relative" ref={filterMenuRef}>
                             <LocalButton variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}>
-                                <FiFilter className="h-4 w-4 mr-1.5" />
+                                <Filter className="h-4 w-4 mr-1.5" />
                                 Filter
-                                {isFilterActive && <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-1.5 p-0.5 rounded-full hover:bg-gray-200"><FiX className="h-3 w-3 text-gray-500" /></span>}
+                                {isFilterActive && <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-1.5 p-0.5 rounded-full hover:bg-gray-200"><X className="h-3 w-3 text-gray-500" /></span>}
                             </LocalButton>
                             {isFilterMenuOpen && (
                                 <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 z-20 p-4">
@@ -615,10 +611,10 @@ const MainSheet = () => {
                             )}
                         </div>
                         <div className="h-5 w-px bg-gray-200 hidden sm:block" />
-                        <LocalButton variant="outline" icon={FiRefreshCw} onClick={handleRefreshRecordings} isLoading={isRefreshing}>Reload</LocalButton>
-                        <LocalButton variant="outline" icon={FiDownload} onClick={handleExport} isLoading={isExporting}>Export</LocalButton>
-                        <LocalButton variant="outline" icon={FiUpload} onClick={() => setIsUploadModalOpen(true)}>Import</LocalButton>
-                        <LocalButton variant="primary" icon={FiPlus} onClick={() => navigate('/admin/main-sheet/add')}>Add Entries</LocalButton>
+                        <LocalButton variant="outline" icon={RefreshCw} onClick={handleRefreshRecordings} isLoading={isRefreshing}>Reload</LocalButton>
+                        <LocalButton variant="outline" icon={Download} onClick={handleExport} isLoading={isExporting}>Export</LocalButton>
+                        <LocalButton variant="outline" icon={Upload} onClick={() => setIsUploadModalOpen(true)}>Import</LocalButton>
+                        <LocalButton variant="primary" icon={Plus} onClick={() => navigate('/admin/main-sheet/add')}>Add Entries</LocalButton>
                     </div>
                 </div>
             </div>
@@ -629,7 +625,7 @@ const MainSheet = () => {
                     data={entries}
                     isLoading={loading}
                     emptyMessage="No entries found in the main sheet."
-                    emptyIcon={FiInbox}
+                    emptyIcon={Inbox}
                     onSort={handleSort}
                     sortConfig={sortConfig}
                 />
@@ -650,7 +646,7 @@ const MainSheet = () => {
                             disabled={loading || pagination.currentPage <= 1}
                             className="px-3 py-2"
                         >
-                            <FiChevronLeft className="h-4 w-4"/>
+                            <ChevronLeft className="h-4 w-4"/>
                         </LocalButton>
                         <div className="hidden md:flex space-x-1">
                             {[...Array(Math.min(5, pagination.totalPages))].map((_, i) => {
@@ -685,7 +681,7 @@ const MainSheet = () => {
                             disabled={loading || pagination.currentPage >= pagination.totalPages}
                             className="px-3 py-2"
                         >
-                            <FiChevronRight className="h-4 w-4"/>
+                            <ChevronRight className="h-4 w-4"/>
                         </LocalButton>
                     </div>
                 </div>

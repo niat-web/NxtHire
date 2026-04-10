@@ -1,10 +1,8 @@
 // client/src/pages/public/Guidelines.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  ExclamationCircleIcon, 
-  ArrowLeftIcon,
-} from '@heroicons/react/24/outline';
+import { AlertCircle, ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import GuidelinesQuestionnaireForm from '../../components/forms/GuidelinesQuestionnaireForm';
 import { checkApplicationStatus } from '../../api/applicant.api';
 import { APPLICATION_STATUS } from '../../utils/constants';
@@ -71,23 +69,23 @@ const Guidelines = () => {
           <div className="bg-red-600 p-6">
             <div className="flex justify-center">
               <div className="p-3 rounded-full bg-white bg-opacity-25">
-                <ExclamationCircleIcon className="h-10 w-10 text-white" />
+                <AlertCircle className="h-10 w-10 text-white" />
               </div>
             </div>
           </div>
           
           <div className="p-6 sm:p-8">
-            <h3 className="text-xl font-bold text-gray-900 text-center mb-4">Invalid Link</h3>
+            <h3 className="text-xl font-semibold text-gray-900 text-center mb-4">Invalid Link</h3>
             <p className="text-gray-600 mb-6 text-center">{error}</p>
             
             <div className="flex justify-center">
-              <button
+              <Button
                 onClick={() => navigate('/')}
                 className="flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 shadow-md transition-colors"
               >
-                <ArrowLeftIcon className="mr-2 h-5 w-5" />
+                <ArrowLeft className="mr-2 h-5 w-5" />
                 Back to Home
-              </button>
+              </Button>
             </div>
           </div>
         </div>

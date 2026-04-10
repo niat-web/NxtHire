@@ -1,0 +1,23 @@
+# NxtHire - Robots.txt
+# https://nxthire.vercel.app
+
+User-agent: *
+
+# Allow public pages
+Allow: /
+Allow: /login
+Allow: /applicationform
+Allow: /InterviewerApplication
+
+# Block admin and interviewer dashboards
+Disallow: /admin/
+Disallow: /interviewer/
+Disallow: /create-password
+Disallow: /reset-password
+Disallow: /forgot-password
+
+# Block API endpoints
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://nxthire.vercel.app/sitemap.xml

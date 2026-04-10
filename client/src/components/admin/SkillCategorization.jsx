@@ -1,10 +1,10 @@
 // client/src/components/admin/SkillCategorization.jsx
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
-import { FiCheckCircle, FiCode, FiExternalLink, FiMail, FiPhone, FiSend, FiUser, FiClock, FiStar, FiLinkedin } from 'react-icons/fi';
+import { CheckCircle, Code, ExternalLink, Mail, Phone, Send, User, Clock, Star, Linkedin } from 'lucide-react';
 import Button from '../common/Button';
 import Textarea from '../common/Textarea';
-import Badge from '../common/Badge';
+import { Badge } from '@/components/ui/badge';
 import StatusBadge from '../common/StatusBadge';
 import { processSkillCategorization } from '../../api/admin.api';
 import { useAlert } from '../../hooks/useAlert';
@@ -61,10 +61,10 @@ const SkillCategorization = ({ applicant, skillAssessment, onCategorizeComplete 
           <StatusBadge status={applicant.status} />
         </div>
         <div className="mt-3 flex items-center flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
-          <div className="flex items-center gap-2 hover:text-primary-600"><FiMail className="text-gray-400"/> {applicant.email}</div>
-          <div className="flex items-center gap-2 hover:text-primary-600"><FiPhone className="text-gray-400"/> {applicant.phoneNumber}</div>
+          <div className="flex items-center gap-2 hover:text-primary-600"><Mail className="text-gray-400"/> {applicant.email}</div>
+          <div className="flex items-center gap-2 hover:text-primary-600"><Phone className="text-gray-400"/> {applicant.phoneNumber}</div>
           <a href={applicant.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-800 hover:underline">
-            <FiLinkedin className="text-gray-400"/> View LinkedIn Profile
+            <Linkedin className="text-gray-400"/> View LinkedIn Profile
           </a>
         </div>
       </div>
@@ -74,7 +74,7 @@ const SkillCategorization = ({ applicant, skillAssessment, onCategorizeComplete 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <div className="flex items-center text-sm font-medium text-gray-500">
-              <FiUser className="mr-2" />
+              <User className="mr-2" />
               <span>Current Role</span>
             </div>
             <div className="mt-1 text-lg font-semibold text-gray-900">
@@ -84,7 +84,7 @@ const SkillCategorization = ({ applicant, skillAssessment, onCategorizeComplete 
           
           <div>
             <div className="flex items-center text-sm font-medium text-gray-500">
-              <FiClock className="mr-2" />
+              <Clock className="mr-2" />
               <span>Experience</span>
             </div>
             <div className="mt-1 text-lg font-semibold text-gray-900">
@@ -94,7 +94,7 @@ const SkillCategorization = ({ applicant, skillAssessment, onCategorizeComplete 
           
           <div>
             <div className="flex items-center text-sm font-medium text-gray-500">
-              <FiStar className="mr-2" />
+              <Star className="mr-2" />
               <span>Auto-Suggested Domain</span>
             </div>
             <div className="mt-1 text-lg font-semibold text-indigo-700">
@@ -122,7 +122,7 @@ const SkillCategorization = ({ applicant, skillAssessment, onCategorizeComplete 
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {skill.subSkills.map((subSkill, subIndex) => (
-                    <Badge key={subIndex} variant="gray" size="md">{subSkill}</Badge>
+                    <Badge key={subIndex} variant="gray">{subSkill}</Badge>
                   ))}
                 </div>
               </div>
@@ -145,7 +145,7 @@ const SkillCategorization = ({ applicant, skillAssessment, onCategorizeComplete 
       {/* --- Admin Action Form --- */}
       <div className="mb-10 border-t border-gray-200 pt-8">
         <h3 className="text-xl font-semibold text-gray-800 flex items-center mb-6">
-          <FiCheckCircle className="mr-3 text-primary-600"/>Admin Review & Action
+          <CheckCircle className="mr-3 text-primary-600"/>Admin Review & Action
         </h3>
         
         <div className="space-y-6">
@@ -179,7 +179,7 @@ const SkillCategorization = ({ applicant, skillAssessment, onCategorizeComplete 
             onClick={handleSubmit}
             disabled={isSubmitting || !selectedDomains || selectedDomains.length === 0}
             isLoading={isSubmitting}
-            icon={<FiSend />}
+            icon={<Send />}
             iconPosition="right"
           >
             {isSubmitting ? 'Processing...' : 'Confirm & Send Guidelines'}

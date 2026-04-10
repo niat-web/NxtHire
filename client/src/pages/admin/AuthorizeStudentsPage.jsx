@@ -6,78 +6,21 @@ import { useAlert } from '@/hooks/useAlert';
 import { updatePublicBookingLink } from '@/api/admin.api';
 import { usePublicBookingDetails, useInvalidateAdmin } from '@/hooks/useAdminQueries';
 import {
-  FiUpload,
-  FiTrash2,
-  FiSend,
-  FiArrowLeft,
-  FiCheckCircle,
-  FiAlertTriangle,
-  FiInfo,
-  FiFilter,
-  FiSearch,
-  FiDownload,
-  FiFileText,
-  FiXCircle,
-} from 'react-icons/fi';
-
-// ---------- Reusable Button ----------
-const LocalButton = ({
-  children,
-  onClick,
-  type = 'button',
-  isLoading = false,
-  variant = 'primary',
-  icon: Icon,
-  disabled = false,
-  size = 'md',
-  className = '',
-}) => {
-  const base =
-    'inline-flex items-center justify-center font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]';
-
-  const sizes = {
-    sm: 'text-xs px-3 py-1.5 rounded-lg',
-    md: 'text-sm px-5 py-2.5 rounded-xl',
-    lg: 'text-base px-6 py-3 rounded-xl',
-  };
-
-  const variants = {
-    primary:
-      'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 hover:from-emerald-700 hover:to-emerald-800 border border-transparent',
-    outline:
-      'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 shadow-sm',
-    subtle:
-      'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-transparent',
-    danger:
-      'bg-white text-red-600 border border-red-200 hover:bg-red-50 hover:border-red-300 shadow-sm',
-    ghost:
-      'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900',
-  };
-
-  return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={isLoading || disabled}
-      className={`${base} ${sizes[size]} ${variants[variant]} ${className}`}
-    >
-      {isLoading ? (
-        <>
-          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span>Processing...</span>
-        </>
-      ) : (
-        <>
-          {Icon && <Icon className={`mr-2 ${size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'}`} />}
-          {children}
-        </>
-      )}
-    </button>
-  );
-};
+  Upload,
+  Trash2,
+  Send,
+  ArrowLeft,
+  CheckCircle,
+  AlertTriangle,
+  Info,
+  Filter,
+  Search,
+  Download,
+  FileText,
+  XCircle,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 // ---------- Helpers ----------
 const EMAIL_RE = /\S+@\S+\.\S+/i;
@@ -264,9 +207,9 @@ const AuthorizeStudentsPage = () => {
     const el = dropRef.current;
     if (!el) return;
     const onPrevent = (e) => { e.preventDefault(); e.stopPropagation(); };
-    const onDrop = (e) => { onPrevent(e); const file = e.dataTransfer.files?.[0]; if (file) { handleFileChange({ target: { files: [file] } }); } el.classList.remove('ring-2', 'ring-emerald-500'); };
-    const onDragEnter = (e) => { onPrevent(e); el.classList.add('ring-2', 'ring-emerald-500'); };
-    const onDragLeave = (e) => { onPrevent(e); el.classList.remove('ring-2', 'ring-emerald-500'); };
+    const onDrop = (e) => { onPrevent(e); const file = e.dataTransfer.files?.[0]; if (file) { handleFileChange({ target: { files: [file] } }); } el.classList.remove('ring-2', 'ring-indigo-500'); };
+    const onDragEnter = (e) => { onPrevent(e); el.classList.add('ring-2', 'ring-indigo-500'); };
+    const onDragLeave = (e) => { onPrevent(e); el.classList.remove('ring-2', 'ring-indigo-500'); };
     const onDragOver = onPrevent;
     el.addEventListener('dragenter', onDragEnter); el.addEventListener('dragleave', onDragLeave);
     el.addEventListener('dragover', onDragOver); el.addEventListener('drop', onDrop);
@@ -310,7 +253,7 @@ const AuthorizeStudentsPage = () => {
     return (
       <div className="min-h-screen bg-slate-50 p-8 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 rounded-full border-4 border-emerald-200 border-t-emerald-600 animate-spin" />
+          <div className="h-12 w-12 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
           <p className="text-slate-500 font-medium animate-pulse">Loading booking details...</p>
         </div>
       </div>
@@ -320,24 +263,24 @@ const AuthorizeStudentsPage = () => {
   return (
     <div className="min-h-screen w-full flex flex-col bg-slate-50/50">
       {/* Top Navigation Bar */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-30 px-6 py-4 shadow-sm">
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-30 px-6 py-4 shadow-md">
         <div className="max-w-[1600px] mx-auto w-full flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link
               to="/admin/bookings/student-bookings"
-              className="h-10 w-10 flex items-center justify-center rounded-full bg-slate-50 border border-slate-200 text-slate-600 hover:bg-white hover:text-emerald-600 hover:border-emerald-200 transition-all duration-200 shadow-sm"
+              className="h-10 w-10 flex items-center justify-center rounded-full bg-slate-50 border border-slate-200 text-slate-600 hover:bg-white hover:text-indigo-600 hover:border-indigo-200 transition-all duration-200 shadow-md"
             >
-              <FiArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
-              <h1 className="text-xl font-bold text-slate-900">Authorize Students</h1>
+              <h1 className="text-xl font-semibold text-slate-900">Authorize Students</h1>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-full text-xs font-medium border border-emerald-100">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-xs font-medium border border-indigo-100">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
               </span>
               {bookingDetails?.title || 'Booking Session'}
             </div>
@@ -353,17 +296,17 @@ const AuthorizeStudentsPage = () => {
             <div className="xl:col-span-4 flex flex-col gap-6 h-full overflow-y-auto pb-6">
 
               {/* Paste Data Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden flex flex-col">
                 <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
                   <div className="flex items-center gap-2 font-semibold text-slate-800">
-                    <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
-                      <FiFileText className="h-4 w-4" />
+                    <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
+                      <FileText className="h-4 w-4" />
                     </div>
                     Paste Data
                   </div>
-                  <LocalButton variant="ghost" size="sm" icon={FiDownload} onClick={handleTemplateDownload}>
-                    Template
-                  </LocalButton>
+                  <Button variant="ghost" size="sm" onClick={handleTemplateDownload}>
+                    <Download className="mr-2 h-3.5 w-3.5" /> Template
+                  </Button>
                 </div>
 
                 <div className="p-5 flex flex-col gap-4 flex-1">
@@ -372,29 +315,29 @@ const AuthorizeStudentsPage = () => {
                       value={pastedText}
                       onChange={(e) => processText(e.target.value)}
                       placeholder={`Paste student data here...\n\nSupported Columns:\n${columnsHelp.join(', ')}`}
-                      className="w-full h-full absolute inset-0 p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono text-slate-700 placeholder:text-slate-400 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all resize-none"
+                      className="w-full h-full absolute inset-0 p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono text-slate-700 placeholder:text-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all resize-none"
                       spellCheck={false}
                     />
                   </div>
 
                   <div className="flex items-center justify-between pt-2">
                     <p className="text-xs text-slate-500 flex items-center gap-1.5">
-                      <FiInfo className="text-emerald-500" />
+                      <Info className="text-indigo-500" />
                       Tab or comma separated
                     </p>
-                    <LocalButton variant="subtle" size="sm" icon={FiTrash2} onClick={handleClear} disabled={!pastedText && students.length === 0}>
-                      Clear
-                    </LocalButton>
+                    <Button variant="secondary" size="sm" onClick={handleClear} disabled={!pastedText && students.length === 0}>
+                      <Trash2 className="mr-2 h-3.5 w-3.5" /> Clear
+                    </Button>
                   </div>
                 </div>
               </div>
 
               {/* File Upload Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
                 <div className="p-5 border-b border-slate-100 bg-slate-50/50">
                   <div className="flex items-center gap-2 font-semibold text-slate-800">
                     <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">
-                      <FiUpload className="h-4 w-4" />
+                      <Upload className="h-4 w-4" />
                     </div>
                     Import File
                   </div>
@@ -402,15 +345,15 @@ const AuthorizeStudentsPage = () => {
                 <div className="p-5">
                   <div
                     ref={dropRef}
-                    className="group relative border-2 border-dashed border-slate-300 hover:border-emerald-500 hover:bg-emerald-50/30 rounded-xl p-8 text-center transition-all duration-200 cursor-pointer"
+                    className="group relative border-2 border-dashed border-slate-300 hover:border-indigo-500 hover:bg-indigo-50/30 rounded-xl p-8 text-center transition-all duration-200 cursor-pointer"
                     onClick={() => fileInputRef.current?.click()}
                   >
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv,.xlsx,.xls,.xlsm" className="hidden" />
 
-                    <div className="mb-4 inline-flex items-center justify-center h-12 w-12 rounded-full bg-emerald-50 text-emerald-600 group-hover:scale-110 transition-transform">
-                      <FiUpload className="h-6 w-6" />
+                    <div className="mb-4 inline-flex items-center justify-center h-12 w-12 rounded-full bg-indigo-50 text-indigo-600 group-hover:scale-110 transition-transform">
+                      <Upload className="h-6 w-6" />
                     </div>
-                    <h3 className="text-sm font-medium text-slate-900 mb-1">Click to upload or drag and drop</h3>
+                    <h3 className="text-sm font-semibold text-slate-900 mb-1">Click to upload or drag and drop</h3>
                     <p className="text-xs text-slate-500">CSV, Excel files (max 10MB)</p>
                   </div>
                 </div>
@@ -418,18 +361,18 @@ const AuthorizeStudentsPage = () => {
             </div>
 
             {/* Right Panel: Data Table */}
-            <div className="xl:col-span-8 flex flex-col h-full overflow-hidden bg-white rounded-2xl shadow-sm border border-slate-200">
+            <div className="xl:col-span-8 flex flex-col h-full overflow-hidden bg-white rounded-2xl shadow-md border border-slate-200">
 
               {/* Toolbar */}
               <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
                 <div className="relative flex-1 max-w-md">
-                  <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 h-4 w-4" />
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 h-4 w-4" />
                   <input
                     type="text"
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="Search students..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
                   />
                 </div>
 
@@ -437,7 +380,7 @@ const AuthorizeStudentsPage = () => {
                   <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors select-none">
                     <input
                       type="checkbox"
-                      className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
                       checked={showInvalidOnly}
                       onChange={(e) => setShowInvalidOnly(e.target.checked)}
                     />
@@ -448,17 +391,17 @@ const AuthorizeStudentsPage = () => {
 
               {/* Stats Bar */}
               <div className="px-4 py-3 bg-slate-50/50 border-b border-slate-200 flex items-center gap-4 text-sm overflow-x-auto">
-                <div className="flex items-center gap-2 px-2.5 py-1 rounded-md bg-white border border-slate-200 shadow-sm">
+                <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white border border-slate-200 shadow-md">
                   <div className="h-2 w-2 rounded-full bg-slate-400" />
                   <span className="text-slate-600 font-medium">Total: {students.length}</span>
                 </div>
-                <div className="flex items-center gap-2 px-2.5 py-1 rounded-md bg-green-50 border border-green-100 text-green-700 shadow-sm">
-                  <FiCheckCircle className="h-3.5 w-3.5" />
+                <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-green-50 border border-green-100 text-green-700">
+                  <CheckCircle className="h-3.5 w-3.5" />
                   <span className="font-medium">Valid: {validCount}</span>
                 </div>
                 {invalidCount > 0 && (
-                  <div className="flex items-center gap-2 px-2.5 py-1 rounded-md bg-red-50 border border-red-100 text-red-700 shadow-sm animate-pulse">
-                    <FiAlertTriangle className="h-3.5 w-3.5" />
+                  <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-red-50 border border-red-100 text-red-700 animate-pulse">
+                    <AlertTriangle className="h-3.5 w-3.5" />
                     <span className="font-medium">Invalid: {invalidCount}</span>
                   </div>
                 )}
@@ -469,9 +412,9 @@ const AuthorizeStudentsPage = () => {
                 {filtered.length === 0 ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
                     <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                      <FiSearch className="h-8 w-8 text-slate-300" />
+                      <Search className="h-8 w-8 text-slate-300" />
                     </div>
-                    <h3 className="text-lg font-medium text-slate-900 mb-1">No students found</h3>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-1">No students found</h3>
                     <p className="text-slate-500 max-w-xs mx-auto">
                       {students.length === 0
                         ? "Get started by pasting data or uploading a file."
@@ -496,16 +439,16 @@ const AuthorizeStudentsPage = () => {
                       {filtered.map((s, i) => (
                         <tr
                           key={`${s.email || 'row'}-${i}`}
-                          className={`group transition-colors hover:bg-slate-50 ${!s._isValid ? 'bg-red-50/50 hover:bg-red-50' : ''}`}
+                          className={cn('group transition-colors hover:bg-slate-50', !s._isValid && 'bg-red-50/50 hover:bg-red-50')}
                         >
                           <td className="py-3 px-4 text-center">
                             {s._isValid ? (
                               <div className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-100 text-green-600">
-                                <FiCheckCircle className="h-3.5 w-3.5" />
+                                <CheckCircle className="h-3.5 w-3.5" />
                               </div>
                             ) : (
                               <div className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-red-100 text-red-600" title={s._error}>
-                                <FiAlertTriangle className="h-3.5 w-3.5" />
+                                <AlertTriangle className="h-3.5 w-3.5" />
                               </div>
                             )}
                           </td>
@@ -521,9 +464,9 @@ const AuthorizeStudentsPage = () => {
                                 href={/^https?:\/\//i.test(s.resumeLink) ? s.resumeLink : `https://${s.resumeLink}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 transition-colors font-medium text-xs"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-700 transition-colors font-medium text-xs"
                               >
-                                View <FiFileText className="h-3 w-3" />
+                                View <FileText className="h-3 w-3" />
                               </a>
                             ) : (
                               <span className="text-slate-400 text-xs italic">Missing</span>
@@ -542,25 +485,24 @@ const AuthorizeStudentsPage = () => {
                   Showing {filtered.length} of {students.length} students
                 </div>
                 <div className="flex items-center gap-3">
-                  <LocalButton
-                    variant="danger"
-                    icon={FiTrash2}
+                  <Button
+                    variant="destructive"
                     onClick={handleClear}
                     disabled={students.length === 0}
                   >
-                    Clear All
-                  </LocalButton>
-                  <LocalButton
-                    icon={FiSend}
+                    <Trash2 className="mr-2 h-4 w-4" /> Clear All
+                  </Button>
+                  <Button
                     onClick={handleSave}
                     isLoading={isSaving}
                     disabled={validCount === 0}
-                    variant="primary"
+                    variant="success"
                     size="lg"
-                    className="shadow-xl shadow-emerald-600/20"
+                    className="shadow-md shadow-indigo-600/20"
                   >
+                    {!isSaving && <Send className="mr-2 h-4 w-4" />}
                     {`Authorize & Invite ${validCount} Students`}
-                  </LocalButton>
+                  </Button>
                 </div>
               </div>
             </div>

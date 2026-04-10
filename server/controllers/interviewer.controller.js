@@ -548,6 +548,41 @@ const deleteSkill = asyncHandler(async (req, res) => {
 });
 
 
+// @desc    Get interviewer notification preferences
+// @route   GET /api/interviewer/notification-preferences
+const getNotificationPreferences = asyncHandler(async (req, res) => {
+  const interviewer = await Interviewer.findOne({ user: req.user.id }).select('notificationPreferences');
+  if (!interviewer) { res.status(404); throw new Error('Interviewer not found.'); }
+  res.json({ success: true, data: interviewer.notificationPreferences || {} });
+});
+
+// @desc    Update interviewer notification preferences
+// @route   PUT /api/interviewer/notification-preferences
+const updateNotificationPreferences = asyncHandler(async (req, res) => {
+  const interviewer = await Interviewer.findOne({ user: req.user.id });
+  if (!interviewer) { res.status(404); throw new Error('Interviewer not found.'); }
+
+  if (!interviewer.notificationPreferences) {
+    interviewer.notificationPreferences = {};
+  }
+
+  const allowed = [
+    'emailBookingRequest', 'emailInterviewCancelled', 'emailProbationComplete',
+    'emailWelcome', 'emailPaymentConfirmation', 'emailInvoice', 'emailPaymentReceived',
+    'whatsappWelcome', 'pushBookingRequest',
+  ];
+
+  allowed.forEach(key => {
+    if (req.body[key] !== undefined) {
+      interviewer.notificationPreferences[key] = req.body[key];
+    }
+  });
+
+  interviewer.markModified('notificationPreferences');
+  await interviewer.save();
+  res.json({ success: true, data: interviewer.notificationPreferences });
+});
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -567,7 +602,9 @@ module.exports = {
   getAssignedDomains,
   getEvaluationDataForInterviewer,
   updateEvaluationData,
-  getPaymentHistory, 
+  getPaymentHistory,
   subscribeToPushNotifications,
-  getInterviewerEvaluationSummary
+  getInterviewerEvaluationSummary,
+  getNotificationPreferences,
+  updateNotificationPreferences,
 };

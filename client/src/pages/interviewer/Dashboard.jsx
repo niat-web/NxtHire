@@ -1,76 +1,91 @@
 // client/src/pages/interviewer/Dashboard.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useInterviewerMetrics } from '../../hooks/useInterviewerQueries';
 import { formatCurrency, formatDate } from '../../utils/formatters';
-import { FiCheckCircle, FiDollarSign, FiCalendar, FiXCircle, FiClock, FiGrid, FiArrowRight } from 'react-icons/fi';
+import { CheckCircle, IndianRupee, Calendar, XCircle, Clock, ArrowRight, Loader2, Briefcase, Star, FileText } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '../../hooks/useAuth';
 
-// Status Badge Component
-const StatusBadge = ({ status }) => {
-    const statusConfig = {
-        'Scheduled': { label: 'Scheduled', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-        'InProgress': { label: 'In Progress', color: 'bg-purple-50 text-purple-700 border-purple-200' },
-        'Completed': { label: 'Completed', color: 'bg-green-50 text-green-700 border-green-200' },
-        'Cancelled': { label: 'Cancelled', color: 'bg-red-50 text-red-700 border-red-200' }
-    };
-
-    const config = statusConfig[status] || { label: status, color: 'bg-gray-50 text-gray-700 border-gray-200' };
-
-    return (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold uppercase tracking-wide border ${config.color}`}>
-            {config.label}
-        </span>
-    );
+const fadeIn = {
+  hidden: { opacity: 0, y: 12 },
+  visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.05, duration: 0.35 } }),
 };
 
-// Stat Card Component
-const StatCard = ({ title, value, icon: Icon, link, isLoading, colorClass = "bg-emerald-50 text-emerald-600" }) => (
-    <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-        <div className="flex justify-between items-start">
-            <div>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">{title}</p>
-                {isLoading ? (
-                    <div className="h-8 w-24 bg-gray-100 rounded animate-pulse"></div>
-                ) : (
-                    <h3 className="text-2xl font-bold text-gray-900">{value}</h3>
-                )}
-            </div>
-            <div className={`p-3 rounded-lg ${colorClass} bg-opacity-10 group-hover:scale-110 transition-transform`}>
-                <Icon className={`h-6 w-6 ${colorClass.replace('bg-', 'text-').replace('bg-opacity-10', '')}`} />
-            </div>
+// ─── Small stat card (NxtResume exact pattern) ──────────────────────────────
+const StatCard = ({ title, value, icon: Icon, link, isLoading, color = 'indigo' }) => {
+  const palette = {
+    indigo: 'bg-indigo-50 text-indigo-600',
+    green:  'bg-green-50 text-green-600',
+    red:    'bg-red-50 text-red-600',
+    amber:  'bg-amber-50 text-amber-600',
+    violet: 'bg-violet-50 text-violet-600',
+    sky:    'bg-sky-50 text-sky-600',
+  };
+
+  return (
+    <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-md">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium text-gray-500">{title}</p>
+        <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center', palette[color])}>
+          <Icon size={18} />
         </div>
-        {link && (
-            <div className="mt-4 pt-4 border-t border-gray-50">
-                <Link to={link} className="text-sm font-medium text-emerald-600 hover:text-emerald-800 flex items-center gap-1 group-hover:gap-2 transition-all">
-                    View Details <FiArrowRight className="h-4 w-4" />
-                </Link>
-            </div>
+      </div>
+      <div className="mt-2">
+        {isLoading ? (
+          <Skeleton className="h-8 w-20" />
+        ) : (
+          <p className="text-2xl font-semibold text-gray-900">{value}</p>
         )}
+      </div>
+      {link && (
+        <Link to={link} className="mt-2 inline-flex items-center text-gray-400 hover:text-indigo-600 transition-colors">
+          <ArrowRight size={15} />
+        </Link>
+      )}
     </div>
-);
+  );
+};
 
-// Loading Component
-const Loader = ({ text }) => (
-    <div className="flex flex-col justify-center items-center py-12 h-full">
-        <div className="w-10 h-10 border-4 border-gray-200 border-t-emerald-600 rounded-full animate-spin mb-4"></div>
-        <p className="text-sm font-medium text-gray-500">{text}</p>
-    </div>
-);
+// ─── Status badge ────────────────────────────────────────────────────────────
+const StatusBadge = ({ status }) => {
+  const config = {
+    Scheduled:  { label: 'Scheduled',   variant: 'info' },
+    InProgress: { label: 'In Progress', variant: 'warning' },
+    Completed:  { label: 'Completed',   variant: 'success' },
+    Cancelled:  { label: 'Cancelled',   variant: 'danger' },
+  };
+  const c = config[status] || { label: status, variant: 'gray' };
+  return <Badge variant={c.variant} className="text-xs font-medium">{c.label}</Badge>;
+};
 
-// Empty State Component
-const EmptyState = ({ message }) => (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-        <div className="bg-gray-50 p-4 rounded-full mb-4">
-            <FiClock className="h-8 w-8 text-gray-400" />
-        </div>
-        <h3 className="text-lg font-bold text-gray-900 mb-1">No Upcoming Interviews</h3>
-        <p className="text-sm text-gray-500 max-w-sm">{message}</p>
-    </div>
-);
+// ─── Quick action card ──────────────────────────────────────────────────────
+const QuickAction = ({ title, description, icon: Icon, to, color = 'indigo' }) => {
+  const palette = {
+    indigo: 'bg-indigo-50 text-indigo-600',
+    teal:   'bg-teal-50 text-teal-600',
+    amber:  'bg-amber-50 text-amber-600',
+  };
 
-// Main Dashboard Component
+  return (
+    <Link to={to} className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-md hover:border-indigo-200 group block">
+      <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center mb-3', palette[color])}>
+        <Icon size={18} />
+      </div>
+      <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">{title}</h3>
+      <p className="text-xs text-gray-400 mt-1">{description}</p>
+    </Link>
+  );
+};
+
+// ─── Main Dashboard ──────────────────────────────────────────────────────────
 const Dashboard = () => {
   const { data, isLoading } = useInterviewerMetrics();
+  const { currentUser } = useAuth();
 
   const stats = {
     scheduledCount: data?.scheduledCount ?? 0,
@@ -81,95 +96,92 @@ const Dashboard = () => {
   const upcomingInterviews = data?.upcomingInterviews ?? [];
 
   return (
-    <div className="flex flex-col h-full bg-[#F5F7F9]">
+    <div className="flex flex-col h-full bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
 
-      {/* Main Content Scroll Area */}
-      <div className="flex-1 overflow-y-auto p-6">
-        
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <StatCard
-                title="Scheduled"
-                value={stats.scheduledCount}
-                icon={FiCalendar}
-                link="/interviewer/interview-evaluation"
-                isLoading={isLoading}
-                colorClass="bg-emerald-50 text-emerald-600"
-            />
-            <StatCard
-                title="Completed"
-                value={stats.completedCount}
-                icon={FiCheckCircle}
-                isLoading={isLoading}
-                colorClass="bg-green-50 text-green-600"
-            />
-            <StatCard
-                title="Cancelled"
-                value={stats.cancelledCount}
-                icon={FiXCircle}
-                isLoading={isLoading}
-                colorClass="bg-red-50 text-red-600"
-            />
-            <StatCard
-                title="Earnings"
-                value={formatCurrency(stats.totalEarnings)}
-                icon={FiDollarSign}
-                link="/interviewer/payment-details"
-                isLoading={isLoading}
-                colorClass="bg-amber-50 text-amber-600"
-            />
-        </div>
+        {/* Stat cards — compact grid */}
+        <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" initial="hidden" animate="visible">
+          <motion.div custom={0} variants={fadeIn}>
+            <StatCard title="Scheduled" value={stats.scheduledCount} icon={Calendar} link="/interviewer/interview-evaluation" isLoading={isLoading} color="indigo" />
+          </motion.div>
+          <motion.div custom={1} variants={fadeIn}>
+            <StatCard title="Completed" value={stats.completedCount} icon={CheckCircle} isLoading={isLoading} color="green" />
+          </motion.div>
+          <motion.div custom={2} variants={fadeIn}>
+            <StatCard title="Cancelled" value={stats.cancelledCount} icon={XCircle} isLoading={isLoading} color="red" />
+          </motion.div>
+          <motion.div custom={3} variants={fadeIn}>
+            <StatCard title="Total Earnings" value={formatCurrency(stats.totalEarnings)} icon={IndianRupee} link="/interviewer/payment-details" isLoading={isLoading} color="amber" />
+          </motion.div>
+        </motion.div>
 
-        {/* Upcoming Interviews Section */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col h-[calc(100%-180px)] min-h-[400px]">
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                    <FiCalendar className="text-gray-400" /> Upcoming Interviews
-                </h2>
-                <Link to="/interviewer/interview-evaluation" className="text-sm font-semibold text-emerald-600 hover:text-emerald-800 hover:underline">
-                    View All
-                </Link>
+        {/* Quick Actions */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <h2 className="text-base font-semibold text-gray-900 mb-3">Quick Actions</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <QuickAction title="Set Availability" description="Update your available time slots" icon={Calendar} to="/interviewer/availability" color="indigo" />
+            <QuickAction title="View Evaluations" description="Check domain evaluation sheets" icon={FileText} to="/interviewer/domain-evaluation" color="teal" />
+            <QuickAction title="Update Profile" description="Keep your profile up to date" icon={Star} to="/interviewer/settings" color="amber" />
+          </div>
+        </motion.div>
+
+        {/* Upcoming Interviews table */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+          className="rounded-xl border border-gray-100 bg-white shadow-sm"
+        >
+          <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+            <h3 className="text-sm font-semibold text-gray-900">Upcoming Interviews</h3>
+            <Link to="/interviewer/interview-evaluation" className="text-xs font-medium text-indigo-600 hover:text-indigo-800">View All</Link>
+          </div>
+
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <Loader2 size={22} className="animate-spin text-gray-400 mb-3" />
+              <p className="text-sm text-gray-500">Loading your schedule...</p>
             </div>
-
-            <div className="flex-1 overflow-auto">
-                {isLoading ? (
-                    <Loader text="Loading your schedule..." />
-                ) : upcomingInterviews.length === 0 ? (
-                    <EmptyState message="You don't have any interviews scheduled soon. Check back later or update your availability." />
-                ) : (
-                    <table className="min-w-full text-sm">
-                        <thead className="bg-gray-50 sticky top-0 z-10">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Domain</th>
-                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Candidate</th>
-                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Date</th>
-                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Time</th>
-                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Status</th>
-                                <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-50 bg-white">
-                            {upcomingInterviews.map((interview, index) => (
-                                <tr key={interview._id || index} className="hover:bg-emerald-50/50 transition-colors group">
-                                    <td className="px-6 py-4 font-semibold text-gray-900">{interview.techStack || '-'}</td>
-                                    <td className="px-6 py-4 text-gray-600">{interview.candidateName || '-'}</td>
-                                    <td className="px-6 py-4 text-gray-600">{formatDate(interview.interviewDate)}</td>
-                                    <td className="px-6 py-4 font-mono text-xs text-gray-500">{interview.interviewTime || '-'}</td>
-                                    <td className="px-6 py-4">
-                                        <StatusBadge status={interview.interviewStatus} />
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <Link to={`/interviewer/interview/${interview._id}`} className="text-emerald-600 hover:text-emerald-800 font-semibold text-xs hover:underline">
-                                            Open
-                                        </Link>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
+          ) : upcomingInterviews.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+              <div className="bg-gray-50 p-3 rounded-full mb-3">
+                <Clock className="h-6 w-6 text-gray-400" />
+              </div>
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">No Upcoming Interviews</h3>
+              <p className="text-xs text-gray-500 max-w-sm">Check back later or update your availability.</p>
             </div>
-        </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm">
+                <thead className="bg-gray-50/80">
+                  <tr>
+                    <th className="px-5 py-2.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Domain</th>
+                    <th className="px-5 py-2.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Candidate</th>
+                    <th className="px-5 py-2.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th className="px-5 py-2.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                    <th className="px-5 py-2.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-5 py-2.5 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Meeting</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50 bg-white">
+                  {upcomingInterviews.map((interview, index) => (
+                    <tr key={interview._id || index} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="px-5 py-3 font-medium text-gray-900">{interview.techStack || '-'}</td>
+                      <td className="px-5 py-3 text-gray-600">{interview.candidateName || '-'}</td>
+                      <td className="px-5 py-3 text-gray-600">{formatDate(interview.interviewDate)}</td>
+                      <td className="px-5 py-3 text-gray-500 text-xs">{interview.interviewTime || '-'}</td>
+                      <td className="px-5 py-3"><StatusBadge status={interview.interviewStatus} /></td>
+                      <td className="px-5 py-3 text-right">
+                        {interview.meetingLink ? (
+                          <a href={interview.meetingLink} target="_blank" rel="noopener noreferrer" className="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-600 text-xs font-medium hover:bg-indigo-100">Join</a>
+                        ) : (
+                          <span className="text-xs text-gray-300">No link</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </motion.div>
       </div>
     </div>
   );

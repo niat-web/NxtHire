@@ -3,10 +3,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import Select from 'react-select';
-import { ArrowRight, User, Mail, Phone, Linkedin, Users, MessageSquare } from 'lucide-react';
+import { ArrowRight, User, Mail, Phone, Linkedin, Users, MessageSquare, Loader2 } from 'lucide-react';
 import { submitApplication } from '../../api/applicant.api';
 import { useAlert } from '../../hooks/useAlert';
 import { SOURCING_CHANNELS } from '../../utils/constants';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 const InitialApplicationForm = ({ onSuccess }) => {
   const navigate = useNavigate();
@@ -71,12 +74,9 @@ const InitialApplicationForm = ({ onSuccess }) => {
     dropdownIndicator: (provided) => ({ ...provided, color: '#9ca3af' }),
   };
 
-  const inputBase =
-    'w-full py-2.5 pl-10 pr-4 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm';
-  const inputError = '!border-red-400 !focus:ring-red-500/20 !focus:border-red-400';
   const labelCls = 'block text-sm font-medium text-gray-700 mb-1.5';
   const iconCls =
-    'absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-gray-400 group-focus-within:text-emerald-600 transition-colors';
+    'absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-gray-400 group-focus-within:text-indigo-600 transition-colors';
 
   return (
     <>
@@ -87,11 +87,14 @@ const InitialApplicationForm = ({ onSuccess }) => {
             <label htmlFor="fullName" className={labelCls}>Full Name</label>
             <div className="relative">
               <User className={iconCls} size={17} />
-              <input
+              <Input
                 id="fullName"
                 type="text"
                 placeholder="John Doe"
-                className={`${inputBase} ${errors.fullName ? inputError : ''}`}
+                className={cn(
+                  'pl-10 h-10 rounded-xl',
+                  errors.fullName && 'border-red-400'
+                )}
                 {...register('fullName', { required: 'Full name is required' })}
               />
             </div>
@@ -103,11 +106,14 @@ const InitialApplicationForm = ({ onSuccess }) => {
             <label htmlFor="email" className={labelCls}>Email Address</label>
             <div className="relative">
               <Mail className={iconCls} size={17} />
-              <input
+              <Input
                 id="email"
                 type="email"
                 placeholder="you@example.com"
-                className={`${inputBase} ${errors.email ? inputError : ''}`}
+                className={cn(
+                  'pl-10 h-10 rounded-xl',
+                  errors.email && 'border-red-400'
+                )}
                 {...register('email', {
                   required: 'Email is required',
                   pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Please enter a valid email address' }
@@ -122,11 +128,14 @@ const InitialApplicationForm = ({ onSuccess }) => {
             <label htmlFor="phoneNumber" className={labelCls}>Phone Number</label>
             <div className="relative">
               <Phone className={iconCls} size={17} />
-              <input
+              <Input
                 id="phoneNumber"
                 type="tel"
                 placeholder="9876543210"
-                className={`${inputBase} ${errors.phoneNumber ? inputError : ''}`}
+                className={cn(
+                  'pl-10 h-10 rounded-xl',
+                  errors.phoneNumber && 'border-red-400'
+                )}
                 {...register('phoneNumber', {
                   required: 'Phone number is required',
                   pattern: { value: /^\d{10,15}$/, message: 'Please enter a valid phone number' }
@@ -143,11 +152,11 @@ const InitialApplicationForm = ({ onSuccess }) => {
             </label>
             <div className="relative">
               <Phone className={iconCls} size={17} />
-              <input
+              <Input
                 id="whatsappNumber"
                 type="tel"
                 placeholder="Same as phone"
-                className={inputBase}
+                className="pl-10 h-10 rounded-xl"
                 {...register('whatsappNumber')}
               />
             </div>
@@ -159,11 +168,14 @@ const InitialApplicationForm = ({ onSuccess }) => {
           <label htmlFor="linkedinProfileUrl" className={labelCls}>LinkedIn Profile URL</label>
           <div className="relative">
             <Linkedin className={iconCls} size={17} />
-            <input
+            <Input
               id="linkedinProfileUrl"
               type="url"
               placeholder="https://www.linkedin.com/in/your-profile"
-              className={`${inputBase} ${errors.linkedinProfileUrl ? inputError : ''}`}
+              className={cn(
+                'pl-10 h-10 rounded-xl',
+                errors.linkedinProfileUrl && 'border-red-400'
+              )}
               {...register('linkedinProfileUrl', {
                 required: 'LinkedIn profile URL is required',
                 validate: value => value.includes('linkedin.com/') || 'Please enter a valid LinkedIn profile URL'
@@ -177,7 +189,7 @@ const InitialApplicationForm = ({ onSuccess }) => {
         <div className="group">
           <label htmlFor="sourcingChannel" className={labelCls}>How did you hear about us?</label>
           <div className="relative">
-            <Users className={`${iconCls} z-10`} size={17} />
+            <Users className={cn(iconCls, 'z-10')} size={17} />
             <Controller
               name="sourcingChannel"
               control={control}
@@ -204,12 +216,12 @@ const InitialApplicationForm = ({ onSuccess }) => {
             Additional Comments <span className="text-gray-400 text-xs">(Optional)</span>
           </label>
           <div className="relative">
-            <MessageSquare className={`${iconCls} top-3.5 -translate-y-0`} size={17} />
+            <MessageSquare className={cn(iconCls, 'top-3.5 -translate-y-0')} size={17} />
             <textarea
               id="additionalComments"
               rows={3}
               placeholder="Anything else you'd like to share..."
-              className={`${inputBase} pl-10 resize-none`}
+              className="flex w-full rounded-xl border border-input bg-transparent pl-10 pr-4 py-2.5 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:border-slate-400 resize-none"
               {...register('additionalComments')}
             />
           </div>
@@ -220,7 +232,7 @@ const InitialApplicationForm = ({ onSuccess }) => {
           <input
             id="interestedInJoining"
             type="checkbox"
-            className="mt-0.5 w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500/30 transition-all cursor-pointer"
+            className="mt-0.5 w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500/30 transition-all cursor-pointer"
             {...register('interestedInJoining')}
           />
           <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">
@@ -230,22 +242,24 @@ const InitialApplicationForm = ({ onSuccess }) => {
 
         {/* Submit */}
         <div className="pt-2">
-          <button
+          <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 py-3 px-6 rounded-xl text-white font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-md shadow-emerald-500/15"
+            variant="success"
+            size="lg"
+            className="w-full rounded-xl shadow-md shadow-emerald-500/15 font-semibold"
           >
             {isSubmitting ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                <Loader2 className="animate-spin h-4 w-4 mr-2" />
                 Submitting...
               </>
             ) : (
               <>
-                Submit Application <ArrowRight size={17} />
+                Submit Application <ArrowRight size={17} className="ml-2" />
               </>
             )}
-          </button>
+          </Button>
           <p className="text-center text-gray-400 text-xs mt-3">
             By submitting, you agree to our Terms of Service and Privacy Policy.
           </p>

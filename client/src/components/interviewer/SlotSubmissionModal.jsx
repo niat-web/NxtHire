@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { useAlert } from '@/hooks/useAlert';
-import { useAuth } from '@/hooks/useAuth'; // To get interviewer name
-import { FiPlus, FiTrash2, FiSave, FiX, FiLoader, FiClock, FiUser, FiCalendar, FiAlignLeft } from 'react-icons/fi';
+import { useAuth } from '@/hooks/useAuth';
+import { Plus, Trash2, Save, X, Loader2, Clock, User, Calendar, AlignLeft } from 'lucide-react';
 import { TIME_SLOTS } from '@/utils/constants';
 import { formatDate, formatDateTime } from '@/utils/formatters';
 import { submitTimeSlots } from '@/api/interviewer.api';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 // --- UI COMPONENTS ---
 
@@ -32,7 +34,7 @@ const LocalModal = ({ isOpen, onClose, title, children }) => {
                         className="absolute top-4 right-4 p-2 rounded-full bg-white/80 hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors z-10" 
                         onClick={onClose}
                     >
-                        <FiX className="h-5 w-5" />
+                        <X className="h-5 w-5" />
                     </button>
 
                     {/* Modal Content Body */}
@@ -47,15 +49,15 @@ const LocalModal = ({ isOpen, onClose, title, children }) => {
 
 const SlotRow = ({ register, index, remove, errors, isOneLeft }) => {
     return (
-        <div className="group relative flex items-center gap-3 p-3 mb-3 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-indigo-300 hover:shadow-md transition-all duration-200">
+        <div className="group relative flex items-center gap-3 p-3 mb-3 bg-white border border-slate-200 rounded-xl shadow-md hover:border-indigo-300 hover:shadow-lg transition-all duration-200">
             {/* Number Badge */}
-            <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 text-xs font-bold group-hover:bg-indigo-50 group-hover:text-indigo-600">
+            <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 text-xs font-semibold group-hover:bg-indigo-50 group-hover:text-indigo-600">
                 {index + 1}
             </div>
 
             <div className="flex-1 grid grid-cols-2 gap-4">
                 <div className="relative">
-                    <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1 ml-1">Start</label>
+                    <label className="block text-xs uppercase font-medium text-slate-400 mb-1 ml-1">Start</label>
                     <select 
                         {...register(`slots.${index}.startTime`, { required: true })} 
                         className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5 outline-none transition-colors"
@@ -65,7 +67,7 @@ const SlotRow = ({ register, index, remove, errors, isOneLeft }) => {
                     </select>
                 </div>
                 <div className="relative">
-                    <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1 ml-1">End</label>
+                    <label className="block text-xs uppercase font-medium text-slate-400 mb-1 ml-1">End</label>
                     <select 
                         {...register(`slots.${index}.endTime`, { required: true })} 
                         className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5 outline-none transition-colors"
@@ -77,14 +79,14 @@ const SlotRow = ({ register, index, remove, errors, isOneLeft }) => {
             </div>
 
             {/* Delete Button */}
-            <button 
-                type="button" 
-                onClick={() => remove(index)} 
+            <button
+                type="button"
+                onClick={() => remove(index)}
                 disabled={isOneLeft}
-                className={`p-2 rounded-lg transition-colors mt-4 ${isOneLeft ? 'text-slate-300 cursor-not-allowed' : 'text-slate-400 hover:text-red-500 hover:bg-red-50'}`}
+                className={cn("p-2 rounded-lg transition-colors mt-4", isOneLeft ? "text-slate-300 cursor-not-allowed" : "text-slate-400 hover:text-red-500 hover:bg-red-50")}
                 title="Remove Slot"
             >
-                <FiTrash2 className="h-5 w-5" />
+                <Trash2 className="h-5 w-5" />
             </button>
         </div>
     );
@@ -147,25 +149,25 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
             {/* --- LEFT SIDE PANEL (Fixed Info) --- */}
             <div className="w-1/3 bg-slate-50 border-r border-slate-200 p-8 flex flex-col justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-800 mb-1">Availability Request</h2>
+                    <h2 className="text-2xl font-semibold text-slate-800 mb-1">Availability Request</h2>
                     <p className="text-sm text-slate-500 mb-8">Review details and provide your slots.</p>
 
                     {/* Interviewer Info */}
-                    <div className="flex items-center gap-4 mb-8 p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
-                        <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg">
+                    <div className="flex items-center gap-4 mb-8 p-5 bg-white rounded-xl border border-slate-100 shadow-md">
+                        <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-semibold text-lg">
                             {currentUser?.firstName?.[0]}
                         </div>
                         <div>
-                            <p className="text-xs text-slate-400 uppercase font-bold">Interviewer</p>
+                            <p className="text-xs text-slate-400 uppercase font-medium">Interviewer</p>
                             <p className="font-semibold text-slate-800">{currentUser?.firstName} {currentUser?.lastName}</p>
                         </div>
                     </div>
 
                     {/* Date Visualization */}
                     <div className="mb-6">
-                        <p className="text-xs text-slate-400 uppercase font-bold mb-3">Interview Date</p>
-                        <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200 text-center w-full max-w-[200px]">
-                            <div className="bg-indigo-600 text-white py-2 font-bold uppercase tracking-widest text-sm">
+                        <p className="text-xs text-slate-400 uppercase font-medium mb-3">Interview Date</p>
+                        <div className="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-200 text-center w-full max-w-[200px]">
+                            <div className="bg-indigo-600 text-white py-2 font-semibold uppercase tracking-widest text-sm">
                                 {monthName}
                             </div>
                             <div className="py-4">
@@ -179,7 +181,7 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
                 {/* Footer Info (Last Submitted) */}
                 {isUpdateMode && request.submittedAt && (
                      <div className="flex items-start gap-2 p-3 bg-green-50 border border-green-100 rounded-lg text-xs text-green-800">
-                        <FiClock className="mt-0.5 flex-shrink-0" />
+                        <Clock className="mt-0.5 flex-shrink-0" />
                         <span>
                             Last submitted on:<br/>
                             <strong>{formatDateTime(request.submittedAt)}</strong>
@@ -193,17 +195,18 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
                 {/* Scrollable Area */}
                 <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <FiClock className="text-indigo-500" />
+                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                            <Clock className="text-indigo-500" />
                             Available Time Slots
                         </h3>
-                        <button 
+                        <Button
                             type="button"
+                            variant="outline"
                             onClick={() => append({ startTime: '', endTime: '' })}
-                            className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 text-sm font-semibold rounded-lg hover:bg-indigo-100 transition-colors"
+                            className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-200"
                         >
-                            <FiPlus /> Add Slot
-                        </button>
+                            <Plus className="mr-2 h-4 w-4" /> Add Slot
+                        </Button>
                     </div>
 
                     <form id="slot-form" onSubmit={handleSubmit(onSubmit)} className="space-y-2">
@@ -218,8 +221,8 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
                         ))}
 
                         <div className="mt-8 pt-6 border-t border-slate-100">
-                            <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-                                <FiAlignLeft className="text-slate-400"/> 
+                            <label className="block text-sm font-medium text-slate-700 mb-3 flex items-center gap-2">
+                                <AlignLeft className="text-slate-400"/> 
                                 Additional Remarks <span className="text-slate-400 font-normal">(Optional)</span>
                             </label>
                             <textarea
@@ -234,30 +237,24 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
 
                 {/* Fixed Footer Actions */}
                 <div className="p-6 border-t border-slate-100 bg-white flex justify-end gap-4 z-10">
-                    <button 
-                        type="button" 
+                    <Button
+                        type="button"
+                        variant="ghost"
                         onClick={onClose}
                         disabled={isSubmitting}
-                        className="px-6 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors"
+                        className="rounded-xl"
                     >
                         Cancel
-                    </button>
-                    <button 
+                    </Button>
+                    <Button
                         type="submit"
                         form="slot-form"
-                        disabled={isSubmitting}
-                        className="flex items-center gap-2 px-8 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-lg shadow-indigo-200 hover:shadow-indigo-300 transform active:scale-95 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                        isLoading={isSubmitting}
+                        className="rounded-xl bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-200 hover:shadow-indigo-300 px-8"
                     >
-                        {isSubmitting ? (
-                            <>
-                                <FiLoader className="animate-spin" /> Saving...
-                            </>
-                        ) : (
-                            <>
-                                <FiSave /> {isUpdateMode ? 'Update Slots' : 'Confirm Slots'}
-                            </>
-                        )}
-                    </button>
+                        {!isSubmitting && <Save className="mr-2 h-4 w-4" />}
+                        {isSubmitting ? 'Saving...' : (isUpdateMode ? 'Update Slots' : 'Confirm Slots')}
+                    </Button>
                 </div>
             </div>
         </LocalModal>

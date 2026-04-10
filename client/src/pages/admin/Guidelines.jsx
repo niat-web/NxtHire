@@ -1,7 +1,7 @@
 // client/src/pages/admin/Guidelines.jsx
 import React, { useState, useEffect, useMemo, Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import { FiEye, FiSearch, FiRefreshCw, FiCheck, FiX, FiCheckCircle, FiXCircle, FiMoreVertical } from 'react-icons/fi';
+import { Eye, Search, RefreshCw, Check, X, CheckCircle, XCircle, MoreVertical } from 'lucide-react';
 import Card from '../../components/common/Card';
 import { Menu, Transition } from '@headlessui/react';
 import Button from '../../components/common/Button';
@@ -155,22 +155,22 @@ const Guidelines = () => {
                         <div>
                             <Menu.Button className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-transparent text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
                                 <span className="sr-only">Open options</span>
-                                <FiMoreVertical className="h-5 w-5" aria-hidden="true" />
+                                <MoreVertical className="h-5 w-5" aria-hidden="true" />
                             </Menu.Button>
                         </div>
                         <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="transform opacity-0 scale-95" enterTo="transform opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="transform opacity-100 scale-100" leaveTo="transform opacity-0 scale-95">
-                            <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-xl bg-white shadow-md ring-1 ring-black ring-opacity-5 focus:outline-none">
                                 <div className="py-1">
                                     <Menu.Item>
-                                        {({ active }) => (<button onClick={() => openDetailsModal(row)} className={classNames(active ? 'bg-gray-100' : '', 'group flex items-center px-4 py-2 text-sm text-gray-700 w-full text-left')}><FiEye className="mr-3 h-5 w-5 text-gray-400" />Scores</button>)}
+                                        {({ active }) => (<button onClick={() => openDetailsModal(row)} className={classNames(active ? 'bg-gray-100' : '', 'group flex items-center px-4 py-2 text-sm text-gray-700 w-full text-left')}><Eye className="mr-3 h-5 w-5 text-gray-400" />Scores</button>)}
                                     </Menu.Item>
                                     {isActionable && (
                                         <>
                                             <Menu.Item disabled={isProcessing}>
-                                                {({ active, disabled }) => (<button onClick={() => openConfirmation(row._id, 'approve')} disabled={disabled} className={classNames(active ? 'bg-gray-100' : '', disabled ? 'opacity-50' : '', 'group flex items-center px-4 py-2 text-sm text-gray-700 w-full text-left')}><FiCheckCircle className="mr-3 h-5 w-5 text-green-400" />Approve & Onboard</button>)}
+                                                {({ active, disabled }) => (<button onClick={() => openConfirmation(row._id, 'approve')} disabled={disabled} className={classNames(active ? 'bg-gray-100' : '', disabled ? 'opacity-50' : '', 'group flex items-center px-4 py-2 text-sm text-gray-700 w-full text-left')}><CheckCircle className="mr-3 h-5 w-5 text-green-400" />Approve & Onboard</button>)}
                                             </Menu.Item>
                                             <Menu.Item disabled={isProcessing}>
-                                                {({ active, disabled }) => (<button onClick={() => openConfirmation(row._id, 'reject')} disabled={disabled} className={classNames(active ? 'bg-red-50' : '', disabled ? 'opacity-50' : '', 'group flex items-center px-4 py-2 text-sm text-red-700 w-full text-left')}><FiXCircle className="mr-3 h-5 w-5 text-red-400" />Reject</button>)}
+                                                {({ active, disabled }) => (<button onClick={() => openConfirmation(row._id, 'reject')} disabled={disabled} className={classNames(active ? 'bg-red-50' : '', disabled ? 'opacity-50' : '', 'group flex items-center px-4 py-2 text-sm text-red-700 w-full text-left')}><XCircle className="mr-3 h-5 w-5 text-red-400" />Reject</button>)}
                                             </Menu.Item>
                                         </>
                                     )}
@@ -229,7 +229,7 @@ const Guidelines = () => {
                 message={`Are you sure you want to ${confirmState.action} this submission? This action cannot be undone.`}
                 confirmText={confirmState.action === 'approve' ? 'Approve & Onboard' : 'Confirm Rejection'}
                 confirmVariant={confirmState.action === 'approve' ? 'primary' : 'danger'}
-                icon={confirmState.action === 'approve' ? <FiCheck className="h-6 w-6 text-green-600"/> : <FiX className="h-6 w-6 text-red-600"/>}
+                icon={confirmState.action === 'approve' ? <Check className="h-6 w-6 text-green-600"/> : <X className="h-6 w-6 text-red-600"/>}
                 isLoading={processingIds.has(confirmState.id)}
             />
 
@@ -248,10 +248,10 @@ const Guidelines = () => {
                       <p className="text-sm text-gray-500">{detailsModal.data.applicant.email}</p>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-4 text-center p-4 bg-gray-50 rounded-lg border">
+                    <div className="grid grid-cols-3 gap-4 text-center p-5 bg-gray-50 rounded-xl border">
                       <div>
                         <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Score</p>
-                        <p className="text-2xl font-bold text-gray-800">{detailsModal.data.score}%</p>
+                        <p className="text-2xl font-semibold text-gray-800">{detailsModal.data.score}%</p>
                       </div>
                       <div>
                         <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Result</p>
@@ -261,13 +261,13 @@ const Guidelines = () => {
                       </div>
                       <div>
                         <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Completion Time</p>
-                        <p className="text-2xl font-bold text-gray-800">{detailsModal.data.completionTime}s</p>
+                        <p className="text-2xl font-semibold text-gray-800">{detailsModal.data.completionTime}s</p>
                       </div>
                     </div>
 
                     <div>
                       <h4 className="font-semibold text-gray-800 mb-2">Answers:</h4>
-                      <div className="border border-gray-200 rounded-lg overflow-hidden max-h-80 overflow-y-auto">
+                      <div className="border border-gray-200 rounded-xl overflow-hidden max-h-80 overflow-y-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                           <thead className="bg-gray-100 sticky top-0">
                             <tr>
@@ -284,8 +284,8 @@ const Guidelines = () => {
                                 <td className="px-4 py-3 whitespace-nowrap text-sm">
                                   <div className="flex justify-center">
                                     {answer.isCorrect ? 
-                                        <FiCheckCircle className="h-5 w-5 text-green-500" /> : 
-                                        <FiXCircle className="h-5 w-5 text-red-500" />}
+                                        <CheckCircle className="h-5 w-5 text-green-500" /> : 
+                                        <XCircle className="h-5 w-5 text-red-500" />}
                                   </div>
                                 </td>
                               </tr>

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import SEO from '../../components/common/SEO';
 import {
   ArrowRight,
   Users,
@@ -17,6 +18,8 @@ import {
   Sparkles,
   Quote,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -27,7 +30,7 @@ const fadeUp = {
   }),
 };
 
-// ─── Hero ────────────────────────────────────────────────────────────────────
+// --- Hero ---
 const Hero = ({ onApply }) => (
   <section className="relative bg-white overflow-hidden">
     {/* subtle background pattern */}
@@ -38,15 +41,15 @@ const Hero = ({ onApply }) => (
 
     <div className="relative max-w-7xl mx-auto px-6 pt-32 pb-20 lg:pt-40 lg:pb-28">
       <div className="grid lg:grid-cols-2 gap-16 items-center">
-        {/* Left — copy */}
+        {/* Left -- copy */}
         <motion.div initial="hidden" animate="visible" variants={fadeUp}>
-          <span className="inline-block px-4 py-1.5 mb-6 text-sm font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-full">
+          <span className="inline-block px-4 py-1.5 mb-6 text-sm font-semibold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-full">
             Now Accepting Applications
           </span>
 
           <h1 className="text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight tracking-tight">
             Conduct Interviews.{' '}
-            <span className="text-emerald-600">Earn Well.</span>{' '}
+            <span className="text-indigo-600">Earn Well.</span>{' '}
             <span className="text-teal-600">Grow Together.</span>
           </h1>
 
@@ -55,18 +58,24 @@ const Hero = ({ onApply }) => (
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
-            <button
+            <Button
               onClick={onApply}
-              className="inline-flex items-center gap-2 px-7 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-emerald-600/20"
+              variant="success"
+              size="lg"
+              className="px-7 py-3.5 h-auto rounded-xl font-semibold shadow-md shadow-indigo-600/20"
             >
               Apply Now <ArrowRight size={18} />
-            </button>
-            <a
-              href="#how-it-works"
-              className="inline-flex items-center gap-2 px-7 py-3.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors"
+            </Button>
+            <Button
+              variant="secondary"
+              size="lg"
+              className="px-7 py-3.5 h-auto rounded-xl font-semibold"
+              asChild
             >
-              How It Works <ChevronRight size={18} />
-            </a>
+              <a href="#how-it-works">
+                How It Works <ChevronRight size={18} />
+              </a>
+            </Button>
           </div>
 
           {/* trust strip */}
@@ -82,7 +91,7 @@ const Hero = ({ onApply }) => (
           </div>
         </motion.div>
 
-        {/* Right — stat cards */}
+        {/* Right -- stat cards */}
         <motion.div
           className="grid grid-cols-2 gap-4"
           initial="hidden"
@@ -98,19 +107,20 @@ const Hero = ({ onApply }) => (
               key={i}
               custom={i}
               variants={fadeUp}
-              className={`p-6 rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow`}
+              className="p-6 rounded-2xl border border-gray-100 bg-white shadow-md hover:shadow-md transition-shadow"
             >
               <div
-                className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4
-                  ${card.color === 'orange' ? 'bg-emerald-50 text-emerald-600' : ''}
-                  ${card.color === 'teal' ? 'bg-teal-50 text-teal-500' : ''}
-                  ${card.color === 'blue' ? 'bg-emerald-50 text-emerald-500' : ''}
-                  ${card.color === 'violet' ? 'bg-violet-50 text-violet-500' : ''}
-                `}
+                className={cn(
+                  'w-11 h-11 rounded-xl flex items-center justify-center mb-4',
+                  card.color === 'orange' && 'bg-indigo-50 text-indigo-600',
+                  card.color === 'teal' && 'bg-teal-50 text-teal-500',
+                  card.color === 'blue' && 'bg-indigo-50 text-indigo-500',
+                  card.color === 'violet' && 'bg-violet-50 text-violet-500',
+                )}
               >
                 <card.icon size={22} />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{card.value}</p>
+              <p className="text-2xl font-semibold text-gray-900">{card.value}</p>
               <p className="text-sm text-gray-400 mt-1">{card.label}</p>
             </motion.div>
           ))}
@@ -120,7 +130,7 @@ const Hero = ({ onApply }) => (
   </section>
 );
 
-// ─── How It Works ────────────────────────────────────────────────────────────
+// --- How It Works ---
 const HowItWorks = () => {
   const steps = [
     {
@@ -191,12 +201,12 @@ const HowItWorks = () => {
               )}
 
               <div className="relative z-10 mx-auto w-16 h-16 rounded-2xl bg-white shadow-md border border-gray-100 flex items-center justify-center mb-5">
-                <step.icon size={26} className="text-emerald-600" />
+                <step.icon size={26} className="text-indigo-600" />
               </div>
-              <span className="text-xs font-bold text-emerald-500 tracking-widest uppercase">
+              <span className="text-xs font-semibold text-indigo-500 tracking-widest uppercase">
                 Step {step.num}
               </span>
-              <h3 className="mt-2 text-xl font-bold text-gray-900">{step.title}</h3>
+              <h3 className="mt-2 text-xl font-semibold text-gray-900">{step.title}</h3>
               <p className="mt-2 text-gray-400 text-sm leading-relaxed">{step.desc}</p>
             </motion.div>
           ))}
@@ -206,7 +216,7 @@ const HowItWorks = () => {
   );
 };
 
-// ─── Benefits ────────────────────────────────────────────────────────────────
+// --- Benefits ---
 const Benefits = () => {
   const items = [
     {
@@ -248,12 +258,12 @@ const Benefits = () => {
   ];
 
   const colorMap = {
-    orange: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+    orange: 'bg-indigo-50 text-indigo-600 border-indigo-100',
     teal: 'bg-teal-50 text-teal-500 border-teal-100',
-    blue: 'bg-emerald-50 text-emerald-500 border-emerald-100',
+    blue: 'bg-indigo-50 text-indigo-500 border-indigo-100',
     violet: 'bg-violet-50 text-violet-500 border-violet-100',
     amber: 'bg-amber-50 text-amber-500 border-amber-100',
-    emerald: 'bg-emerald-50 text-emerald-500 border-emerald-100',
+    emerald: 'bg-indigo-50 text-indigo-500 border-indigo-100',
   };
 
   return (
@@ -285,7 +295,7 @@ const Benefits = () => {
           {items.map((item, idx) => (
             <motion.div
               key={idx}
-              className="group p-7 rounded-2xl border border-gray-100 hover:border-gray-200 bg-white hover:shadow-lg transition-all"
+              className="group p-7 rounded-2xl border border-gray-100 hover:border-gray-200 bg-white hover:shadow-md transition-all"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
@@ -293,11 +303,11 @@ const Benefits = () => {
               variants={fadeUp}
             >
               <div
-                className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 border ${colorMap[item.color]}`}
+                className={cn('w-12 h-12 rounded-xl flex items-center justify-center mb-5 border', colorMap[item.color])}
               >
                 <item.icon size={22} />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">{item.title}</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
               <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
             </motion.div>
           ))}
@@ -307,7 +317,7 @@ const Benefits = () => {
   );
 };
 
-// ─── Testimonials ────────────────────────────────────────────────────────────
+// --- Testimonials ---
 const Testimonials = () => {
   const reviews = [
     {
@@ -359,14 +369,14 @@ const Testimonials = () => {
           {reviews.map((r, idx) => (
             <motion.div
               key={idx}
-              className="relative bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
+              className="relative bg-white rounded-2xl p-8 border border-gray-100 shadow-md hover:shadow-md transition-shadow"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               custom={idx}
               variants={fadeUp}
             >
-              <Quote size={28} className="text-emerald-100 mb-4" />
+              <Quote size={28} className="text-indigo-100 mb-4" />
 
               <p className="text-gray-600 leading-relaxed mb-6">"{r.text}"</p>
 
@@ -377,7 +387,7 @@ const Testimonials = () => {
               </div>
 
               <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
-                <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 font-bold flex items-center justify-center text-sm">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 font-semibold flex items-center justify-center text-sm">
                   {r.name.split(' ').map(n => n[0]).join('')}
                 </div>
                 <div>
@@ -393,9 +403,9 @@ const Testimonials = () => {
   );
 };
 
-// ─── CTA ─────────────────────────────────────────────────────────────────────
+// --- CTA ---
 const CTA = ({ onApply }) => (
-  <section className="py-24 bg-gradient-to-br from-emerald-600 to-emerald-700 relative overflow-hidden">
+  <section className="py-24 bg-gradient-to-br from-indigo-600 to-indigo-700 relative overflow-hidden">
     <div className="absolute inset-0 opacity-10">
       <div
         className="absolute inset-0"
@@ -413,24 +423,26 @@ const CTA = ({ onApply }) => (
         viewport={{ once: true }}
         variants={fadeUp}
       >
-        <Sparkles className="mx-auto mb-6 text-emerald-200" size={36} />
+        <Sparkles className="mx-auto mb-6 text-indigo-200" size={36} />
 
         <h2 className="text-4xl lg:text-5xl font-extrabold text-white leading-tight">
           Ready to Start Earning?
         </h2>
 
-        <p className="mt-5 text-emerald-100 text-lg max-w-xl mx-auto">
+        <p className="mt-5 text-indigo-100 text-lg max-w-xl mx-auto">
           Join 100+ tech experts who are already earning while shaping the future of technology. It takes less than 5 minutes to apply.
         </p>
 
-        <button
+        <Button
           onClick={onApply}
-          className="mt-8 inline-flex items-center gap-2 px-8 py-4 bg-white text-emerald-600 font-bold rounded-xl hover:bg-emerald-50 transition-colors shadow-lg"
+          variant="outline"
+          size="lg"
+          className="mt-8 px-8 py-4 h-auto bg-white text-indigo-600 font-semibold rounded-xl hover:bg-indigo-50 border-white shadow-md"
         >
           Apply Now — It's Free <ArrowRight size={18} />
-        </button>
+        </Button>
 
-        <div className="mt-8 flex flex-wrap justify-center gap-6 text-emerald-100 text-sm">
+        <div className="mt-8 flex flex-wrap justify-center gap-6 text-indigo-100 text-sm">
           <span className="flex items-center gap-1.5">
             <CheckCircle size={16} /> No upfront costs
           </span>
@@ -446,13 +458,18 @@ const CTA = ({ onApply }) => (
   </section>
 );
 
-// ─── Main ────────────────────────────────────────────────────────────────────
+// --- Main ---
 const Home = () => {
   const navigate = useNavigate();
   const handleApply = () => navigate('/applicationform');
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO
+        title="Home"
+        description="Join NxtWave's interviewer community. Conduct interviews, earn ₹1,000+ per interview, and grow together on your own schedule."
+        path="/"
+      />
       <Hero onApply={handleApply} />
       <HowItWorks />
       <Benefits />

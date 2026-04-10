@@ -483,6 +483,13 @@ const deleteCustomEmailTemplate = asyncHandler(async (req, res) => {
 // @route   POST /api/admin/custom-email/send
 // @access  Private/Admin
 const sendBulkCustomEmail = asyncHandler(async (req, res) => {
+    // Check notification toggle
+    const { isNotificationEnabled } = require('./notificationSettings.controller');
+    const enabled = await isNotificationEnabled('emailCustomBulkEmail');
+    if (!enabled) {
+        return res.status(200).json({ success: true, message: 'Custom bulk email is currently disabled by admin.', sent: 0, failed: 0 });
+    }
+
     const { templateId, recipients } = req.body;
 
     if (!templateId || !recipients || !Array.isArray(recipients) || recipients.length === 0) {

@@ -11,7 +11,68 @@ const {
 const {
   sendPasswordResetEmail
 } = require('../services/email.service');
+const { OAuth2Client } = require('google-auth-library');
 const { logEvent, logError } = require('../middleware/logger.middleware');
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// @desc    Login with Google
+// @route   POST /api/auth/google
+// @access  Public
+const googleLogin = asyncHandler(async (req, res) => {
+  const { credential } = req.body;
+
+  if (!credential) {
+    res.status(400);
+    throw new Error('Google credential is required.');
+  }
+
+  // Verify Google token
+  let payload;
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    payload = ticket.getPayload();
+  } catch (err) {
+    res.status(401);
+    throw new Error('Invalid Google token.');
+  }
+
+  const { email, given_name, family_name } = payload;
+
+  // Find existing user by email
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    res.status(401);
+    throw new Error('No account found with this email. Please contact your administrator.');
+  }
+
+  if (!user.isActive) {
+    res.status(401);
+    throw new Error('Your account is inactive. Please contact support.');
+  }
+
+  // Update last login
+  user.lastLogin = Date.now();
+  await user.save();
+
+  logEvent('google_login', { userId: user._id, email: user.email, role: user.role });
+
+  res.json({
+    success: true,
+    token: user.getSignedJwtToken(),
+    user: {
+      id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+    },
+  });
+});
 
 // @desc    Login user
 // @route   POST /api/auth/login
@@ -277,6 +338,7 @@ const resetPasswordHandler = asyncHandler(async (req, res) => {
   
   module.exports = {
     login,
+    googleLogin,
     getMe,
     updateProfile,
     createPassword,

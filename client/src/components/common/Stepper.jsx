@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiCheck } from 'react-icons/fi';
+import { Check } from 'lucide-react';
 
 const Stepper = ({ steps, currentStep }) => {
   return (
@@ -14,7 +14,7 @@ const Stepper = ({ steps, currentStep }) => {
                   <div className="h-1 w-full bg-primary-600" />
                 </div>
                 <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-primary-600">
-                  <FiCheck className="h-6 w-6 text-white" aria-hidden="true" />
+                  <Check className="h-6 w-6 text-white" aria-hidden="true" />
                 </div>
                 <span className="absolute -bottom-8 w-max text-sm font-semibold text-primary-600">{step.name}</span>
               </>

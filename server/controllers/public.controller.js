@@ -216,8 +216,9 @@ const bookSlot = asyncHandler(async (req, res) => {
 const getPaymentConfirmationDetails = asyncHandler(async (req, res) => {
     const { token } = req.query;
     if (!token) { res.status(400); throw new Error('Confirmation token is required.'); }
-    
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    let decoded;
+    try { decoded = jwt.verify(token, process.env.JWT_SECRET); } catch (err) { res.status(400); throw new Error('Invalid or expired token.'); }
     const confirmation = await PaymentConfirmation.findById(decoded.id).populate({
         path: 'interviewer',
         populate: { path: 'user', select: 'firstName lastName' }
@@ -246,7 +247,8 @@ const submitPaymentConfirmation = asyncHandler(async (req, res) => {
     const { token, status, remarks } = req.body;
     if (!token) { res.status(400); throw new Error('Confirmation token is missing.'); }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    let decoded;
+    try { decoded = jwt.verify(token, process.env.JWT_SECRET); } catch (err) { res.status(400); throw new Error('Invalid or expired token.'); }
 
     const updatedConfirmation = await PaymentConfirmation.findOneAndUpdate(
         {
@@ -284,8 +286,9 @@ const submitPaymentConfirmation = asyncHandler(async (req, res) => {
 const getPaymentReceivedDetails = asyncHandler(async (req, res) => {
     const { token } = req.query;
     if (!token) { res.status(400); throw new Error('Token is required.'); }
-    
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    let decoded;
+    try { decoded = jwt.verify(token, process.env.JWT_SECRET); } catch (err) { res.status(400); throw new Error('Invalid or expired token.'); }
     if (decoded.purpose !== 'payment_received') {
         res.status(401); throw new Error('Invalid token purpose.');
     }
@@ -315,8 +318,9 @@ const getPaymentReceivedDetails = asyncHandler(async (req, res) => {
 const submitPaymentReceived = asyncHandler(async (req, res) => {
     const { token, status, remarks } = req.body;
     if (!token) { res.status(400); throw new Error('Token is missing.'); }
-    
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    let decoded;
+    try { decoded = jwt.verify(token, process.env.JWT_SECRET); } catch (err) { res.status(400); throw new Error('Invalid or expired token.'); }
     if (decoded.purpose !== 'payment_received') {
         res.status(401); throw new Error('Invalid token purpose.');
     }

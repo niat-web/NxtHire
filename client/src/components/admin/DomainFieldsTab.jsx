@@ -1,35 +1,32 @@
 // client/src/components/admin/DomainFieldsTab.jsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
-import { 
-    FiPlus, FiTrash2, FiSave, FiEdit, FiEye, FiAlertCircle, FiChevronDown, FiChevronUp, 
-    FiClipboard, FiCopy, FiX, FiSearch, FiType 
-} from 'react-icons/fi';
+import {
+    Plus, Trash2, Save, Edit, Eye, AlertCircle, ChevronDown, ChevronUp,
+    Clipboard, Copy, X, Search, Type
+} from 'lucide-react';
 import { getEvaluationSheet, updateEvaluationSheet, getAllEvaluationParameters } from '@/api/admin.api';
 import { useAlert } from '@/hooks/useAlert';
 import Select from 'react-select';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 // --- STYLED UI COMPONENTS ---
 
-const LocalButton = ({ children, onClick, type = 'button', isLoading = false, icon: Icon, variant = 'primary', size='md', className = '', disabled = false }) => {
-    const base = "inline-flex items-center justify-center font-bold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-1 active:scale-[0.98]";
-    const sizes = { sm: 'text-xs px-3 py-1.5', md: 'text-sm px-4 py-2.5' };
-    const variants = {
-        primary: 'bg-gray-900 text-white hover:bg-black border border-transparent shadow-sm focus:ring-gray-900',
-        secondary: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200',
-        success: 'bg-green-600 text-white hover:bg-green-700 border-transparent shadow-sm focus:ring-green-500',
-        outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-gray-500',
-    };
+import { Button } from '@/components/ui/button';
+
+const LocalButton = ({ children, onClick, type = 'button', isLoading = false, icon: Icon, variant = 'primary', size = 'md', className = '', disabled = false, title = '' }) => {
+    const variantMap = { primary: 'default', secondary: 'secondary', success: 'success', outline: 'outline', danger: 'destructive', ghost: 'ghost' };
+    const sizeMap = { sm: 'sm', md: 'default', lg: 'lg' };
     return (
-        <button type={type} onClick={onClick} disabled={isLoading || disabled} className={`${base} ${sizes[size]} ${variants[variant]} ${className}`}>
-            {isLoading ? <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" /> : (Icon && <Icon className="h-4 w-4" />)}
+        <Button type={type} onClick={onClick} isLoading={isLoading} disabled={disabled} variant={variantMap[variant] || 'default'} size={sizeMap[size] || 'default'} className={className} title={title}>
+            {Icon && <Icon className="h-4 w-4" />}
             {children && <span className={Icon ? 'ml-2' : ''}>{children}</span>}
-        </button>
+        </Button>
     );
 };
 
-const Card = ({ children, className = '' }) => (<div className={`bg-white rounded-xl border border-gray-200 shadow-sm ${className}`}>{children}</div>);
+const LocalCard = ({ children, className = '' }) => (<div className={cn('bg-white rounded-xl border border-gray-200 shadow-md', className)}>{children}</div>);
 
 // --- MODALS (Import and Bulk Add) ---
 
@@ -73,13 +70,13 @@ const ImportModal = ({ isOpen, onClose, onImportOptions, onImportAllOptions, onI
                         onClick={e => e.stopPropagation()}
                     >
                         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-xl">
-                            <h3 className="text-lg font-bold text-gray-900">Import Evaluation Parameter</h3>
-                            <button type="button" onClick={onClose} className="p-2 rounded-lg text-gray-400 hover:bg-gray-200"><FiX /></button>
+                            <h3 className="text-lg font-semibold text-gray-900">Import Evaluation Parameter</h3>
+                            <button type="button" onClick={onClose} className="p-2 rounded-lg text-gray-400 hover:bg-gray-200"><X /></button>
                         </div>
 
                         <div className="p-4 border-b">
                             <div className="relative">
-                                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                 <input 
                                     type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                                     placeholder="Search parameters..."
@@ -94,7 +91,7 @@ const ImportModal = ({ isOpen, onClose, onImportOptions, onImportAllOptions, onI
                                     {filteredDomains.map(domain => (
                                         <li key={domain.domainName}>
                                             <button type="button" onClick={() => { setSelectedDomain(domain); setSelectedParameter(null); }}
-                                                className={`w-full text-left px-3 py-2 text-sm rounded-md font-medium transition-colors ${selectedDomain?.domainName === domain.domainName ? 'bg-emerald-50 text-emerald-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                                                className={cn('w-full text-left px-3 py-2 text-sm rounded-lg font-medium transition-colors', selectedDomain?.domainName === domain.domainName ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100')}
                                             >
                                                 {domain.domainName}
                                             </button>
@@ -107,12 +104,13 @@ const ImportModal = ({ isOpen, onClose, onImportOptions, onImportAllOptions, onI
                                     <div className="flex-1 p-4 overflow-y-auto custom-scrollbar">
                                         {selectedDomain.categories.map(category => (
                                             <div key={category.categoryName} className="mb-4">
-                                                <h4 className="text-xs uppercase font-bold text-gray-500 px-3 py-1">{category.categoryName}</h4>
+                                                <h4 className="text-xs uppercase font-semibold text-gray-500 px-3 py-1">{category.categoryName}</h4>
                                                 <ul className="space-y-1">
                                                     {category.parameters.map(param => (
                                                         <li key={param.parameterName}>
-                                                            <div className="group flex justify-between items-center rounded-md bg-white border border-gray-200 hover:border-emerald-300 transition-all">
+                                                            <div className="group flex justify-between items-center rounded-lg bg-white border border-gray-200 hover:border-indigo-300 transition-all">
                                                                 <button type="button" onClick={() => setSelectedParameter({ ...param, categoryName: category.categoryName })} className="flex-grow text-left px-3 py-2 text-sm font-medium text-gray-800">
+
                                                                     {param.parameterName}
                                                                 </button>
                                                                 <div className="flex gap-1 pr-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -161,15 +159,15 @@ const BulkAddOptionsModal = ({ isOpen, onClose, onAdd }) => {
                         className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl flex flex-col" onClick={e => e.stopPropagation()}
                     >
                         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-xl">
-                            <h3 className="text-lg font-bold text-gray-900">Paste from Spreadsheet</h3>
-                            <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-200 text-gray-500"><FiX className="h-5 w-5"/></button>
+                            <h3 className="text-lg font-semibold text-gray-900">Paste from Spreadsheet</h3>
+                            <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-200 text-gray-500"><X className="h-5 w-5"/></button>
                         </div>
                         <div className="p-6">
                             <p className="text-xs text-gray-500 list-disc list-inside mb-4 space-y-1">
                                 <li>Paste cells copied from a spreadsheet.</li>
                                 <li>First column is the <strong>Label</strong>, second is the <strong>Value</strong>.</li>
                             </p>
-                            <textarea value={pastedText} onChange={(e) => setPastedText(e.target.value)} placeholder={"Paste here...\nExcellent\t5\nGood\t4"} className="w-full h-40 p-2 border border-gray-300 rounded-md font-mono text-sm" autoFocus />
+                            <textarea value={pastedText} onChange={(e) => setPastedText(e.target.value)} placeholder={"Paste here...\nExcellent\t5\nGood\t4"} className="w-full h-40 p-2 border border-gray-300 rounded-lg font-mono text-sm" autoFocus />
                         </div>
                         <div className="px-6 py-4 bg-gray-50 flex justify-end gap-3 border-t border-gray-100 rounded-b-xl">
                             <LocalButton variant="outline" onClick={onClose}>Cancel</LocalButton>
@@ -184,13 +182,13 @@ const BulkAddOptionsModal = ({ isOpen, onClose, onAdd }) => {
 
 const PreviewComponent = ({ sheetData }) => {
     const { columnGroups = [] } = sheetData;
-    if (!columnGroups || columnGroups.length === 0) return (<Card className="p-8 text-center"><FiAlertCircle className="mx-auto h-10 w-10 text-gray-300 mb-4" /><h3 className="font-medium text-gray-700">No Parameters Configured</h3><p className="text-sm text-gray-500">Add categories and parameters in Edit mode to see a preview.</p></Card>);
+    if (!columnGroups || columnGroups.length === 0) return (<LocalCard className="p-8 text-center"><AlertCircle className="mx-auto h-10 w-10 text-gray-300 mb-4" /><h3 className="font-medium text-gray-700">No Parameters Configured</h3><p className="text-sm text-gray-500">Add categories and parameters in Edit mode to see a preview.</p></LocalCard>);
     return (
-        <div className="bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden">
+        <div className="bg-white border border-gray-200 shadow-md rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="min-w-full text-sm border-collapse">
                     <thead>
-                        <tr>{columnGroups.map((group, groupIndex) => (<th key={groupIndex} colSpan={group.columns?.length || 1} className="p-2 border-r border-b border-gray-200 text-center font-bold bg-gray-100">{group.title}</th>))}</tr>
+                        <tr>{columnGroups.map((group, groupIndex) => (<th key={groupIndex} colSpan={group.columns?.length || 1} className="p-2 border-r border-b border-gray-200 text-center font-semibold bg-gray-100">{group.title}</th>))}</tr>
                         <tr>{columnGroups.map((group, groupIndex) => group.columns?.map((column, colIndex) => (<th key={`${groupIndex}-${colIndex}`} className="p-2.5 border border-gray-200 text-center font-semibold bg-gray-50 whitespace-nowrap">{column.header}</th>)))}</tr>
                     </thead>
                     <tbody>
@@ -224,14 +222,14 @@ const OptionsArray = ({ groupIndex, colIndex, control, register, onBulkAddClick,
                     <div key={opt.id} className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded">
                         <input {...register(`columnGroups.${groupIndex}.columns.${colIndex}.options.${optIndex}.label`)} placeholder="Label" className="w-full p-1.5 text-xs border border-gray-200 rounded" />
                         <input {...register(`columnGroups.${groupIndex}.columns.${colIndex}.options.${optIndex}.value`)} placeholder="Value" className="w-1/2 p-1.5 text-xs border border-gray-200 rounded" />
-                        <button type="button" className="text-red-400 hover:text-red-600 p-1" onClick={() => removeOption(optIndex)}><FiTrash2 className="h-3.5 w-3.5" /></button>
+                        <button type="button" className="text-red-400 hover:text-red-600 p-1" onClick={() => removeOption(optIndex)}><Trash2 className="h-3.5 w-3.5" /></button>
                     </div>
                 ))}
             </div>
             <div className="flex gap-2">
-                <LocalButton type="button" variant="outline" size="sm" icon={FiPlus} onClick={() => appendOption({label: '', value: ''})} className="flex-grow !font-medium" />
-                <LocalButton type="button" variant="outline" size="sm" icon={FiCopy} onClick={onImportClick} title="Import" />
-                <LocalButton type="button" variant="outline" size="sm" icon={FiClipboard} onClick={onBulkAddClick} title="Bulk Paste" />
+                <LocalButton type="button" variant="outline" size="sm" icon={Plus} onClick={() => appendOption({label: '', value: ''})} className="flex-grow !font-medium" />
+                <LocalButton type="button" variant="outline" size="sm" icon={Copy} onClick={onImportClick} title="Import" />
+                <LocalButton type="button" variant="outline" size="sm" icon={Clipboard} onClick={onBulkAddClick} title="Bulk Paste" />
             </div>
         </div>
     );
@@ -242,17 +240,17 @@ const ColumnGroup = ({ groupIndex, control, register, removeGroup, onBulkAddClic
     const [collapsed, setCollapsed] = useState(false);
     const titleError = errors?.columnGroups?.[groupIndex]?.title;
     return (
-        <Card>
-            <div className={`p-3 border-b border-gray-100 ${titleError ? 'bg-red-50' : 'bg-white'}`}>
+        <LocalCard>
+            <div className={cn('p-3 border-b border-gray-100', titleError ? 'bg-red-50' : 'bg-white')}>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 flex-1">
-                        <button type="button" className="text-gray-400 hover:bg-gray-100 p-1 rounded-sm" onClick={() => setCollapsed(!collapsed)}>{collapsed ? <FiChevronDown /> : <FiChevronUp />}</button>
-                        <input {...register(`columnGroups.${groupIndex}.title`, { required: 'Required' })} className={`text-base font-bold border-none p-1 bg-transparent w-full focus:ring-1 rounded-sm ${titleError ? 'focus:ring-red-300 ring-1 ring-red-300' : 'focus:ring-gray-300'}`} placeholder="Enter Category Title" />
+                        <button type="button" className="text-gray-400 hover:bg-gray-100 p-1 rounded-sm" onClick={() => setCollapsed(!collapsed)}>{collapsed ? <ChevronDown /> : <ChevronUp />}</button>
+                        <input {...register(`columnGroups.${groupIndex}.title`, { required: 'Required' })} className={cn('text-base font-semibold border-none p-1 bg-transparent w-full focus:ring-1 rounded-sm', titleError ? 'focus:ring-red-300 ring-1 ring-red-300' : 'focus:ring-gray-300')} placeholder="Enter Category Title" />
                     </div>
                     <div className="flex items-center gap-2">
-                        <LocalButton type="button" variant="secondary" size="sm" icon={FiType} onClick={() => { appendColumn({ header: '', options: [], type: 'text' }); setCollapsed(false); }} title="Add Text Field" />
-                        <LocalButton type="button" variant="secondary" size="sm" icon={FiPlus} onClick={() => { appendColumn({ header: '', options: [], type: 'select' }); setCollapsed(false); }} title="Add Dropdown" />
-                        <button type="button" className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg" onClick={() => removeGroup(groupIndex)}><FiTrash2 /></button>
+                        <LocalButton type="button" variant="secondary" size="sm" icon={Type} onClick={() => { appendColumn({ header: '', options: [], type: 'text' }); setCollapsed(false); }} title="Add Text Field" />
+                        <LocalButton type="button" variant="secondary" size="sm" icon={Plus} onClick={() => { appendColumn({ header: '', options: [], type: 'select' }); setCollapsed(false); }} title="Add Dropdown" />
+                        <button type="button" className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg" onClick={() => removeGroup(groupIndex)}><Trash2 /></button>
                     </div>
                 </div>
                 {titleError && <p className="text-xs text-red-600 mt-1 pl-10">{titleError.message}</p>}
@@ -263,13 +261,13 @@ const ColumnGroup = ({ groupIndex, control, register, removeGroup, onBulkAddClic
                         {columnFields.map((field, colIndex) => {
                             const fieldType = watch(`columnGroups.${groupIndex}.columns.${colIndex}.type`, 'select');
                             return (
-                                <div key={field.id} className="p-3 border rounded-lg bg-white shadow-sm space-y-3 w-72 flex-shrink-0">
+                                <div key={field.id} className="p-3 border rounded-xl bg-white shadow-md space-y-3 w-72 flex-shrink-0">
                                     <div className="flex justify-between items-start">
                                         <input {...register(`columnGroups.${groupIndex}.columns.${colIndex}.header`)} className="font-semibold text-sm border-none p-1 bg-transparent flex-1 -ml-1 focus:ring-1 focus:ring-gray-300 rounded-sm" placeholder="Parameter Name" />
-                                        <button type="button" className="text-gray-300 hover:text-red-500 p-1" onClick={() => removeColumn(colIndex)}><FiTrash2 className="h-4 w-4" /></button>
+                                        <button type="button" className="text-gray-300 hover:text-red-500 p-1" onClick={() => removeColumn(colIndex)}><Trash2 className="h-4 w-4" /></button>
                                     </div>
                                     {fieldType === 'text' ? (
-                                        <div className="text-center py-6 text-gray-400 text-sm bg-gray-50 rounded-md border">Text Input Field</div>
+                                        <div className="text-center py-6 text-gray-400 text-sm bg-gray-50 rounded-lg border">Text Input Field</div>
                                     ) : (
                                         <OptionsArray groupIndex={groupIndex} colIndex={colIndex} control={control} register={register} onBulkAddClick={() => onBulkAddClick(groupIndex, colIndex)} onImportClick={() => onImportClick(groupIndex, colIndex)} />
                                     )}
@@ -280,7 +278,7 @@ const ColumnGroup = ({ groupIndex, control, register, removeGroup, onBulkAddClic
                     </div>
                 </div>
             )}
-        </Card>
+        </LocalCard>
     );
 };
 
@@ -288,10 +286,10 @@ const EditorComponent = ({ control, register, groupFields, removeGroup, appendGr
     <div className="space-y-4">
         {groupFields.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-xl border border-dashed border-gray-300">
-                <FiAlertCircle className="mx-auto h-10 w-10 text-gray-300 mb-3" />
+                <AlertCircle className="mx-auto h-10 w-10 text-gray-300 mb-3" />
                 <h3 className="font-medium text-gray-700">No Categories Yet</h3>
                 <p className="text-sm text-gray-500 mb-4">Start by adding your first evaluation category.</p>
-                <LocalButton type="button" icon={FiPlus} variant="secondary" onClick={() => appendGroup({ title: '', columns: [] })}>Create First Category</LocalButton>
+                <LocalButton type="button" icon={Plus} variant="secondary" onClick={() => appendGroup({ title: '', columns: [] })}>Create First Category</LocalButton>
             </div>
         ) : (
             groupFields.map((group, groupIndex) => (
@@ -392,13 +390,13 @@ const DomainFieldsTab = ({ domains, selectedDomain, setSelectedDomain }) => {
                     {selectedDomain && (
                         <div className="flex items-center gap-2">
                              <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
-                                <button type="button" onClick={() => setMode('edit')} className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-1 ${mode === 'edit' ? 'bg-white shadow-sm' : 'text-gray-500'}`}><FiEdit /> Edit</button>
-                                <button type="button" onClick={() => setMode('preview')} className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-1 ${mode === 'preview' ? 'bg-white shadow-sm' : 'text-gray-500'}`}><FiEye /> Preview</button>
+                                <button type="button" onClick={() => setMode('edit')} className={cn('px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1', mode === 'edit' ? 'bg-white shadow-md' : 'text-gray-500')}><Edit /> Edit</button>
+                                <button type="button" onClick={() => setMode('preview')} className={cn('px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1', mode === 'preview' ? 'bg-white shadow-md' : 'text-gray-500')}><Eye /> Preview</button>
                             </div>
                             {mode === 'edit' && (
                                 <>
-                                   <LocalButton type="button" icon={FiPlus} variant="outline" size="sm" onClick={() => appendGroup({ title: '', columns: [] })}>Add Category</LocalButton>
-                                   <LocalButton type="submit" icon={isSubmitting ? null : FiSave} isLoading={isSubmitting} variant="primary" size="sm" disabled={groupFields.length === 0}>Save Sheet</LocalButton>
+                                   <LocalButton type="button" icon={Plus} variant="outline" size="sm" onClick={() => appendGroup({ title: '', columns: [] })}>Add Category</LocalButton>
+                                   <LocalButton type="submit" icon={isSubmitting ? null : Save} isLoading={isSubmitting} variant="primary" size="sm" disabled={groupFields.length === 0}>Save Sheet</LocalButton>
                                 </>
                             )}
                         </div>
@@ -415,7 +413,7 @@ const DomainFieldsTab = ({ domains, selectedDomain, setSelectedDomain }) => {
                     )
                 ) : (
                     <div className="text-center py-16 bg-white rounded-xl border border-dashed border-gray-300">
-                        <FiAlertCircle className="mx-auto h-10 w-10 text-gray-300 mb-3" />
+                        <AlertCircle className="mx-auto h-10 w-10 text-gray-300 mb-3" />
                         <h3 className="font-medium text-gray-700">Select a Domain</h3>
                         <p className="text-sm text-gray-500">Choose a domain to start configuring its evaluation sheet.</p>
                     </div>

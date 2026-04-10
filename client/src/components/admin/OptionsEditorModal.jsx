@@ -4,7 +4,7 @@ import { useFieldArray } from 'react-hook-form';
 import Modal from '@/components/common/Modal';
 import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
-import { FiPlus, FiTrash2 } from 'react-icons/fi';
+import { Plus, Trash2 } from 'lucide-react';
 
 const OptionsEditorModal = ({ isOpen, onClose, path, control, register }) => {
     const { fields, append, remove } = useFieldArray({
@@ -26,24 +26,24 @@ const OptionsEditorModal = ({ isOpen, onClose, path, control, register }) => {
                             <input
                                 {...register(`${path}.${index}.label`)}
                                 placeholder="e.g., Confident & Fluent"
-                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                className="w-full p-2 border border-gray-300 rounded-lg text-sm"
                             />
                         </div>
                         <div className="col-span-5">
                              <input
                                 {...register(`${path}.${index}.value`)}
                                 placeholder="e.g., 5"
-                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                className="w-full p-2 border border-gray-300 rounded-lg text-sm"
                             />
                         </div>
                         <div className="col-span-1">
                              <Button type="button" variant="outline" className="!p-2" onClick={() => remove(index)}>
-                                <FiTrash2 className="text-red-500" />
+                                <Trash2 className="text-red-500" />
                             </Button>
                         </div>
                     </div>
                 ))}
-                 <Button type="button" variant="outline" icon={<FiPlus/>} className="mt-4" onClick={() => append({ label: '', value: '' })}>
+                 <Button type="button" variant="outline" icon={<Plus/>} className="mt-4" onClick={() => append({ label: '', value: '' })}>
                     Add Option
                  </Button>
             </div>

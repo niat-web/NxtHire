@@ -1,6 +1,10 @@
 // client/src/api/interviewer.api.js
 import api from './axios';
 
+// --- Notification Preferences ---
+export const getNotificationPreferences = () => api.get('/api/interviewer/notification-preferences');
+export const updateNotificationPreferences = (data) => api.put('/api/interviewer/notification-preferences', data);
+
 // --- NEW FUNCTION for Push Notifications ---
 export const subscribePush = (subscription) => {
     return api.post('/api/interviewer/subscribe', subscription);

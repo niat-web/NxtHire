@@ -123,6 +123,10 @@ export const deleteUser = (id) => {
     return api.delete(`/api/admin/users/${id}`);
 };
 
+// --- Notification Settings ---
+export const getNotificationSettings = () => api.get('/api/admin/notification-settings');
+export const updateNotificationSettings = (data) => api.put('/api/admin/notification-settings', data);
+
 // --- Stats & Reports ---
 export const getDashboardStats = (params) => {
     return api.get('/api/admin/stats/dashboard', { params });

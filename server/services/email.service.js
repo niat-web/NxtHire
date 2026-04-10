@@ -32,6 +32,26 @@ const getTemplate = async (templateName) => {
   }
 };
 
+// Template-to-setting key mapping for notification toggle checks
+const TEMPLATE_SETTING_MAP = {
+  'applicationConfirmation': 'emailApplicationConfirmation',
+  'skillAssessmentInvitation': 'emailSkillAssessmentInvitation',
+  'profileRejection': 'emailProfileRejection',
+  'guidelinesInvitation': 'emailGuidelinesInvitation',
+  'accountCreation': 'emailAccountCreation',
+  'newApplicantNotification': 'emailNewApplicantNotification',
+  'bookingRequestNotification': 'emailBookingRequestNotification',
+  'probationComplete': 'emailProbationComplete',
+  'newInterviewerWelcome': 'emailNewInterviewerWelcome',
+  'paymentConfirmation': 'emailPaymentConfirmation',
+  'invoiceMail': 'emailInvoiceMail',
+  'paymentReceivedConfirmation': 'emailPaymentReceivedConfirmation',
+  'interviewCancelled': 'emailInterviewCancelled',
+  'studentBookingInvitation': 'emailStudentBookingInvitation',
+  'studentBookingReminder': 'emailStudentBookingReminder',
+  'passwordReset': 'emailPasswordReset',
+};
+
 // Send email and track in database - NOW USING BREVO API
 const sendEmail = async (options) => {
   try {
@@ -48,6 +68,20 @@ const sendEmail = async (options) => {
       isAutomated = true,
       metadata = {}
     } = options;
+
+    // Check notification toggle (skip if disabled)
+    if (templateName && TEMPLATE_SETTING_MAP[templateName]) {
+      try {
+        const { isNotificationEnabled } = require('../controllers/notificationSettings.controller');
+        const enabled = await isNotificationEnabled(TEMPLATE_SETTING_MAP[templateName]);
+        if (!enabled) {
+          logEvent('email_skipped_disabled', { templateName, recipientEmail });
+          return { skipped: true, reason: 'Notification disabled by admin' };
+        }
+      } catch (e) {
+        // If settings check fails, proceed with sending (fail-open)
+      }
+    }
 
     let htmlContent;
     if (htmlBody) {

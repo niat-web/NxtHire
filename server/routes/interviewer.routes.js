@@ -21,8 +21,10 @@ const {
   getEvaluationDataForInterviewer,
   updateEvaluationData,
   getPaymentHistory,
-  subscribeToPushNotifications, // NEW
-  getInterviewerEvaluationSummary // NEW
+  subscribeToPushNotifications,
+  getInterviewerEvaluationSummary,
+  getNotificationPreferences,
+  updateNotificationPreferences
   // --- MODIFICATION END ---
 } = require('../controllers/interviewer.controller');
 const { protect, interviewerOnly } = require('../middleware/auth.middleware');
@@ -74,5 +76,10 @@ router.route('/skills/:skillId')
     .delete(deleteSkill);
 
 router.get('/metrics', getMetrics);
+
+// Notification preferences
+router.route('/notification-preferences')
+  .get(getNotificationPreferences)
+  .put(updateNotificationPreferences);
 
 module.exports = router;

@@ -3,6 +3,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const colors = require('colors');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
 const path = require('path');
 const { errorHandler, notFound } = require('./middleware/error.middleware');
@@ -14,12 +16,20 @@ dotenv.config();
 // Initialize Express
 const app = express();
 
+// Security headers
+app.use(helmet({ contentSecurityPolicy: false }));
+
 // Body parser
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Enable CORS
-app.use(cors());
+// Enable CORS - whitelist client URL
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production'
+    ? process.env.CLIENT_URL
+    : ['http://localhost:3000', 'http://localhost:5173', process.env.CLIENT_URL].filter(Boolean),
+  credentials: true,
+}));
 
 // Request logging
 if (process.env.NODE_ENV === 'development') {

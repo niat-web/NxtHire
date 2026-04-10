@@ -49,6 +49,13 @@ const sendPushNotification = async (subscription, payload) => {
  */
 const sendNotificationToInterviewer = async (interviewerId, payload) => {
   try {
+    // Check notification toggle
+    try {
+      const { isNotificationEnabled } = require('../controllers/notificationSettings.controller');
+      const enabled = await isNotificationEnabled('pushBookingRequest');
+      if (!enabled) return;
+    } catch (e) { /* fail-open */ }
+
     if (!pushNotificationsEnabled) {
       logEvent('push_skipped_not_configured', { interviewerId });
       return;

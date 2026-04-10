@@ -8,12 +8,15 @@ import {
   eachDayOfInterval, isToday, isSameDay, getDay, isPast, isFuture
 } from 'date-fns';
 import {
-  FiChevronLeft, FiChevronRight, FiVideo, FiUser, FiFileText, FiClock,
-  FiX, FiCheckCircle, FiChevronDown, FiCalendar, FiRefreshCw,
-  FiExternalLink, FiMapPin
-} from 'react-icons/fi';
+  ChevronLeft, ChevronRight, Video, User, FileText, Clock,
+  X, CheckCircle, ChevronDown, Calendar, RefreshCw,
+  ExternalLink, MapPin
+} from 'lucide-react';
 import { Dialog, Transition, Listbox } from '@headlessui/react';
 import { MAIN_SHEET_INTERVIEW_STATUSES } from '../../utils/constants';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 // ─── STATUS CONFIG ───────────────────────────────────────────────────────────
 const STATUS_CONFIG = {
@@ -81,25 +84,25 @@ const InterviewDetailsModal = ({ isOpen, onClose, interview, onStatusChange }) =
 
                 {/* Header */}
                 <div className="relative bg-gradient-to-r from-slate-800 to-slate-900 px-6 py-5 text-white">
-                  <button onClick={onClose} className="absolute top-4 right-4 p-1 rounded-full hover:bg-white/10 transition-colors">
-                    <FiX size={18} />
-                  </button>
+                  <Button variant="ghost" size="icon" onClick={onClose} className="absolute top-4 right-4 p-1 rounded-full hover:bg-white/10 text-white">
+                    <X size={18} />
+                  </Button>
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-white/15 flex items-center justify-center text-lg font-bold">
+                    <div className="w-12 h-12 rounded-full bg-white/15 flex items-center justify-center text-lg font-semibold">
                       {getInitials(interview.candidateName)}
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold">{interview.candidateName}</h3>
+                      <h3 className="text-lg font-semibold">{interview.candidateName}</h3>
                       <p className="text-sm text-white/70 font-mono">{interview.interviewId}</p>
                     </div>
                   </div>
                   <div className="mt-3 flex gap-2">
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${config.bg} ${config.text}`}>
+                    <Badge className={cn("text-xs font-medium", config.bg, config.text)}>
                       {config.label}
-                    </span>
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/15 text-white">
+                    </Badge>
+                    <Badge variant="outline" className="bg-white/15 text-white border-white/20 text-xs">
                       {interview.techStack}
-                    </span>
+                    </Badge>
                   </div>
                 </div>
 
@@ -108,8 +111,8 @@ const InterviewDetailsModal = ({ isOpen, onClose, interview, onStatusChange }) =
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-gray-50 rounded-xl p-4">
                       <div className="flex items-center gap-2 text-gray-400 mb-2">
-                        <FiCalendar size={14} />
-                        <span className="text-xs font-bold uppercase tracking-wide">Date</span>
+                        <Calendar size={14} />
+                        <span className="text-xs font-medium uppercase tracking-wide">Date</span>
                       </div>
                       <p className="text-sm font-semibold text-gray-900">
                         {formatDateFns(new Date(interview.interviewDate), 'MMM do, yyyy')}
@@ -117,8 +120,8 @@ const InterviewDetailsModal = ({ isOpen, onClose, interview, onStatusChange }) =
                     </div>
                     <div className="bg-gray-50 rounded-xl p-4">
                       <div className="flex items-center gap-2 text-gray-400 mb-2">
-                        <FiClock size={14} />
-                        <span className="text-xs font-bold uppercase tracking-wide">Time</span>
+                        <Clock size={14} />
+                        <span className="text-xs font-medium uppercase tracking-wide">Time</span>
                       </div>
                       <p className="text-sm font-semibold text-gray-900">
                         {formatDisplayTime(startStr)} - {formatDisplayTime(endStr)}
@@ -132,8 +135,8 @@ const InterviewDetailsModal = ({ isOpen, onClose, interview, onStatusChange }) =
                   {interview.mailId && (
                     <div className="bg-gray-50 rounded-xl p-4">
                       <div className="flex items-center gap-2 text-gray-400 mb-2">
-                        <FiUser size={14} />
-                        <span className="text-xs font-bold uppercase tracking-wide">Contact</span>
+                        <User size={14} />
+                        <span className="text-xs font-medium uppercase tracking-wide">Contact</span>
                       </div>
                       <p className="text-sm text-gray-700">{interview.mailId}</p>
                     </div>
@@ -141,44 +144,43 @@ const InterviewDetailsModal = ({ isOpen, onClose, interview, onStatusChange }) =
 
                   {interview.meetingLink && (
                     <a href={interview.meetingLink} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 bg-emerald-50 rounded-xl border border-emerald-100 hover:bg-emerald-100 transition-colors group">
+                      className="flex items-center justify-between p-4 bg-indigo-50 rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-colors group">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                          <FiVideo size={18} className="text-emerald-600" />
+                        <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                          <Video size={18} className="text-indigo-600" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-emerald-800">Join Meeting</p>
-                          <p className="text-xs text-emerald-600 truncate max-w-[250px]">{interview.meetingLink}</p>
+                          <p className="text-sm font-semibold text-indigo-800">Join Meeting</p>
+                          <p className="text-xs text-indigo-600 truncate max-w-[250px]">{interview.meetingLink}</p>
                         </div>
                       </div>
-                      <FiExternalLink size={16} className="text-emerald-400 group-hover:text-emerald-600 transition-colors" />
+                      <ExternalLink size={16} className="text-indigo-400 group-hover:text-indigo-600 transition-colors" />
                     </a>
                   )}
 
                   {/* Status Update */}
                   <div className="pt-3 border-t border-gray-100">
-                    <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Update Status</label>
+                    <label className="block text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">Update Status</label>
                     <div className="relative">
                       <select value={status} onChange={(e) => setStatus(e.target.value)}
-                        className="w-full pl-3 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none appearance-none cursor-pointer">
+                        className="w-full pl-3 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none appearance-none cursor-pointer">
                         {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => (
                           <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
                       </select>
-                      <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                     </div>
                   </div>
                 </div>
 
                 {/* Footer */}
                 <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-100">
-                  <button onClick={onClose} className="px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+                  <Button variant="outline" onClick={onClose} className="rounded-xl">
                     Cancel
-                  </button>
-                  <button onClick={() => { if (status !== interview.interviewStatus) onStatusChange(interview._id, status); }}
-                    className="px-5 py-2 text-sm font-semibold text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 transition-colors shadow-sm">
+                  </Button>
+                  <Button variant="success" onClick={() => { if (status !== interview.interviewStatus) onStatusChange(interview._id, status); }} className="rounded-xl">
                     Save Changes
-                  </button>
+                  </Button>
                 </div>
               </Dialog.Panel>
             </Transition.Child>
@@ -196,13 +198,13 @@ const AgendaCard = ({ interview, onClick }) => {
 
   return (
     <button onClick={() => onClick(interview)}
-      className="w-full text-left p-3.5 rounded-xl border border-gray-100 hover:border-emerald-200 hover:shadow-md bg-white transition-all group">
+      className="w-full text-left p-3.5 rounded-xl border border-gray-100 hover:border-indigo-200 hover:shadow-md bg-white transition-all group">
       <div className="flex items-start gap-3">
-        <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${config.bg} ${config.text}`}>
+        <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-semibold shrink-0 ${config.bg} ${config.text}`}>
           {getInitials(interview.candidateName)}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-emerald-700 transition-colors">
+          <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-indigo-700 transition-colors">
             {interview.candidateName}
           </p>
           <div className="flex items-center gap-2 mt-1">
@@ -214,8 +216,8 @@ const AgendaCard = ({ interview, onClick }) => {
         <span className={`shrink-0 w-2 h-2 rounded-full mt-2 ${config.dot}`} title={config.label} />
       </div>
       {interview.meetingLink && (
-        <div className="mt-2.5 flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
-          <FiVideo size={12} />
+        <div className="mt-2.5 flex items-center gap-1.5 text-xs text-indigo-600 font-medium">
+          <Video size={12} />
           <span>Meeting link available</span>
         </div>
       )}
@@ -228,7 +230,7 @@ const StatPill = ({ label, count, dotColor }) => (
   <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border border-gray-100 text-xs">
     <span className={`w-2 h-2 rounded-full ${dotColor}`} />
     <span className="text-gray-500 font-medium">{label}</span>
-    <span className="font-bold text-gray-900">{count}</span>
+    <span className="font-semibold text-gray-900">{count}</span>
   </div>
 );
 
@@ -236,22 +238,22 @@ const StatPill = ({ label, count, dotColor }) => (
 const FilterListbox = ({ value, onChange, options, label, icon: Icon }) => (
   <Listbox value={value} onChange={onChange} multiple>
     <div className="relative">
-      <Listbox.Button className="relative cursor-pointer rounded-xl bg-white py-2 pl-9 pr-8 text-left border border-gray-200 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all text-sm font-medium text-gray-700 min-w-[140px]">
+      <Listbox.Button className="relative cursor-pointer rounded-xl bg-white py-2 pl-9 pr-8 text-left border border-gray-200 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm font-medium text-gray-700 min-w-[140px]">
         <span className="absolute inset-y-0 left-0 flex items-center pl-2.5 text-gray-400"><Icon size={15} /></span>
         <span className="block truncate">
           {value.length > 0 ? `${value.length} selected` : label}
         </span>
-        <span className="absolute inset-y-0 right-0 flex items-center pr-2"><FiChevronDown size={14} className="text-gray-400" /></span>
+        <span className="absolute inset-y-0 right-0 flex items-center pr-2"><ChevronDown size={14} className="text-gray-400" /></span>
       </Listbox.Button>
       <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
         <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-sm shadow-xl ring-1 ring-black/5 z-50 focus:outline-none">
           {options.map((opt) => (
             <Listbox.Option key={opt.value} value={opt.value}
-              className={({ active }) => `relative cursor-pointer select-none py-2.5 pl-9 pr-4 ${active ? 'bg-emerald-50 text-emerald-900' : 'text-gray-600'}`}>
+              className={({ active }) => cn("relative cursor-pointer select-none py-2.5 pl-9 pr-4", active ? "bg-indigo-50 text-indigo-900" : "text-gray-600")}>
               {({ selected }) => (
                 <>
-                  <span className={`block truncate ${selected ? 'font-bold text-gray-900' : ''}`}>{opt.label}</span>
-                  {selected && <FiCheckCircle className="absolute left-2.5 top-1/2 -translate-y-1/2 text-emerald-600" size={14} />}
+                  <span className={cn("block truncate", selected && "font-semibold text-gray-900")}>{opt.label}</span>
+                  {selected && <CheckCircle className="absolute left-2.5 top-1/2 -translate-y-1/2 text-indigo-600" size={14} />}
                 </>
               )}
             </Listbox.Option>
@@ -273,18 +275,18 @@ const CalendarGrid = ({ weekDays, scheduledInterviews, onEventClick }) => {
 
         {/* Header Corner */}
         <div className="sticky top-0 left-0 bg-gray-50 z-30 border-b border-r border-gray-200 flex items-center justify-center rounded-tl-2xl">
-          <FiClock size={14} className="text-gray-300" />
+          <Clock size={14} className="text-gray-300" />
         </div>
 
         {/* Day Headers */}
         {weekDays.map((day, i) => {
           const isCurrent = isToday(day);
           return (
-            <div key={day.toString()} className={`sticky top-0 text-center border-b border-r border-gray-100 z-20 flex flex-col justify-center py-2 ${isCurrent ? 'bg-emerald-50/60' : 'bg-gray-50/80'} backdrop-blur-sm ${i === 6 ? 'rounded-tr-2xl' : ''}`}>
-              <span className={`text-[10px] font-bold uppercase tracking-widest ${isCurrent ? 'text-emerald-600' : 'text-gray-400'}`}>
+            <div key={day.toString()} className={cn("sticky top-0 text-center border-b border-r border-gray-100 z-20 flex flex-col justify-center py-2 backdrop-blur-sm", isCurrent ? "bg-indigo-50/60" : "bg-gray-50/80", i === 6 && "rounded-tr-2xl")}>
+              <span className={cn("text-xs font-medium uppercase tracking-widest", isCurrent ? "text-indigo-600" : "text-gray-400")}>
                 {formatDateFns(day, 'EEE')}
               </span>
-              <div className={`mx-auto w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold mt-0.5 transition-colors ${isCurrent ? 'bg-emerald-600 text-white' : 'text-gray-800'}`}>
+              <div className={cn("mx-auto w-7 h-7 flex items-center justify-center rounded-full text-xs font-semibold mt-0.5 transition-colors", isCurrent ? "bg-indigo-600 text-white" : "text-gray-800")}>
                 {formatDateFns(day, 'd')}
               </div>
             </div>
@@ -294,13 +296,13 @@ const CalendarGrid = ({ weekDays, scheduledInterviews, onEventClick }) => {
         {/* Grid Body */}
         {hours.map((hour, hourIndex) => (
           <React.Fragment key={hour}>
-            <div className="text-right pr-2 pt-1.5 text-[10px] font-semibold text-gray-400 border-r border-gray-100 bg-white sticky left-0 z-10"
+            <div className="text-right pr-2 pt-1.5 text-xs font-medium text-gray-400 border-r border-gray-100 bg-white sticky left-0 z-10"
               style={{ gridRow: hourIndex + 2 }}>
               {formatDateFns(new Date(0, 0, 0, hour), 'h a')}
             </div>
             {weekDays.map((day, dayIndex) => (
               <div key={dayIndex}
-                className={`border-b border-r border-gray-50 relative transition-colors ${isToday(day) ? 'bg-emerald-50/20' : 'hover:bg-gray-50/50'}`}
+                className={cn("border-b border-r border-gray-50 relative transition-colors", isToday(day) ? "bg-indigo-50/20" : "hover:bg-gray-50/50")}
                 style={{ gridRow: hourIndex + 2, gridColumn: dayIndex + 2 }}>
                 <div className="absolute top-1/2 w-full border-t border-dashed border-gray-100/60" />
               </div>
@@ -317,9 +319,9 @@ const CalendarGrid = ({ weekDays, scheduledInterviews, onEventClick }) => {
               <button onClick={() => onEventClick(interview)}
                 className={`absolute inset-x-0.5 rounded-lg border-l-[3px] ${config.border} ${config.bg} hover:shadow-lg transition-all overflow-hidden text-left px-2 py-1.5 z-10 group`}
                 style={{ top: `${position.top}px`, height: `${Math.max(position.height, 28)}px` }}>
-                <p className={`text-[11px] font-bold truncate ${config.text}`}>{interview.candidateName}</p>
+                <p className={`text-xs font-semibold truncate ${config.text}`}>{interview.candidateName}</p>
                 {position.height > 35 && (
-                  <p className={`text-[9px] truncate mt-0.5 opacity-75 ${config.text}`}>
+                  <p className={`text-xs truncate mt-0.5 opacity-75 ${config.text}`}>
                     {formatDisplayTime(startStr)} · {interview.techStack}
                   </p>
                 )}
@@ -335,15 +337,14 @@ const CalendarGrid = ({ weekDays, scheduledInterviews, onEventClick }) => {
 // ─── EMPTY STATE ────────────────────────────────────────────────────────────
 const EmptyState = ({ onRefresh }) => (
   <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl border border-dashed border-gray-200 p-10 text-center">
-    <div className="w-20 h-20 bg-emerald-50 rounded-2xl flex items-center justify-center mb-5">
-      <FiCalendar size={32} className="text-emerald-300" />
+    <div className="w-20 h-20 bg-indigo-50 rounded-2xl flex items-center justify-center mb-5">
+      <Calendar size={32} className="text-indigo-300" />
     </div>
-    <h3 className="text-lg font-bold text-gray-900 mb-1.5">No Interviews This Week</h3>
+    <h3 className="text-lg font-semibold text-gray-900 mb-1.5">No Interviews This Week</h3>
     <p className="text-sm text-gray-500 max-w-xs mb-6">There are no interviews scheduled for this week matching your current filters.</p>
-    <button onClick={onRefresh}
-      className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm">
-      <FiRefreshCw size={14} /> Refresh
-    </button>
+    <Button onClick={onRefresh} variant="success" className="rounded-xl">
+      <RefreshCw size={14} className="mr-2" /> Refresh
+    </Button>
   </div>
 );
 
@@ -437,7 +438,7 @@ const InterviewEvaluation = () => {
   if (loading) {
     return (
       <div className="flex flex-col h-full items-center justify-center bg-[#F5F7F9]">
-        <div className="w-10 h-10 border-4 border-gray-200 border-t-emerald-500 rounded-full animate-spin mb-4" />
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-indigo-500 rounded-full animate-spin mb-4" />
         <span className="text-sm font-semibold text-gray-500">Loading Schedule...</span>
       </div>
     );
@@ -453,22 +454,22 @@ const InterviewEvaluation = () => {
           {/* Left: Title + Week Nav */}
           <div className="flex items-center gap-4">
             <div>
-              <h1 className="text-lg font-bold text-gray-900">Schedule</h1>
+              <h1 className="text-lg font-semibold text-gray-900">Schedule</h1>
               <p className="text-xs text-gray-500 mt-0.5">
                 {formatDateFns(weekDays[0], 'MMM d')} – {formatDateFns(weekDays[6], 'MMM d, yyyy')}
               </p>
             </div>
             <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
-              <button onClick={() => setCurrentWeekStart(s => subDays(s, 7))} className="p-1.5 rounded-md hover:bg-white hover:shadow-sm text-gray-500 hover:text-gray-900 transition-all">
-                <FiChevronLeft size={14} />
-              </button>
-              <button onClick={() => setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}
-                className="px-2.5 py-1 text-xs font-bold text-gray-600 hover:text-gray-900 transition-colors">
+              <Button variant="ghost" size="icon" onClick={() => setCurrentWeekStart(s => subDays(s, 7))} className="p-1.5 rounded-lg hover:bg-white hover:shadow-md text-gray-500 hover:text-gray-900">
+                <ChevronLeft size={14} />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}
+                className="px-2.5 py-1 text-xs font-medium text-gray-600 hover:text-gray-900">
                 Today
-              </button>
-              <button onClick={() => setCurrentWeekStart(s => addDays(s, 7))} className="p-1.5 rounded-md hover:bg-white hover:shadow-sm text-gray-500 hover:text-gray-900 transition-all">
-                <FiChevronRight size={14} />
-              </button>
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => setCurrentWeekStart(s => addDays(s, 7))} className="p-1.5 rounded-lg hover:bg-white hover:shadow-md text-gray-500 hover:text-gray-900">
+                <ChevronRight size={14} />
+              </Button>
             </div>
           </div>
 
@@ -479,11 +480,11 @@ const InterviewEvaluation = () => {
               <StatPill label="Completed" count={weekStats.Completed} dotColor="bg-green-500" />
               <StatPill label="Cancelled" count={weekStats.Cancelled} dotColor="bg-red-500" />
             </div>
-            <FilterListbox label="All Domains" icon={FiMapPin} value={filters.domain} options={domains.map(d => ({ value: d, label: d }))} onChange={(v) => setFilters(p => ({ ...p, domain: v }))} />
-            <FilterListbox label="All Statuses" icon={FiCheckCircle} value={filters.status} options={MAIN_SHEET_INTERVIEW_STATUSES} onChange={(v) => setFilters(p => ({ ...p, status: v }))} />
-            <button onClick={() => refetch()} className="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50 transition-all" title="Refresh">
-              <FiRefreshCw size={15} />
-            </button>
+            <FilterListbox label="All Domains" icon={MapPin} value={filters.domain} options={domains.map(d => ({ value: d, label: d }))} onChange={(v) => setFilters(p => ({ ...p, domain: v }))} />
+            <FilterListbox label="All Statuses" icon={CheckCircle} value={filters.status} options={MAIN_SHEET_INTERVIEW_STATUSES} onChange={(v) => setFilters(p => ({ ...p, status: v }))} />
+            <Button variant="outline" size="icon" onClick={() => refetch()} className="p-2 rounded-xl text-gray-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50" title="Refresh">
+              <RefreshCw size={15} />
+            </Button>
           </div>
         </div>
       </div>
@@ -505,8 +506,8 @@ const InterviewEvaluation = () => {
           <div className="bg-white rounded-2xl border border-gray-200 flex flex-col h-full overflow-hidden">
             <div className="px-4 py-3.5 border-b border-gray-100">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-gray-900">Today's Agenda</h3>
-                <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                <h3 className="text-sm font-semibold text-gray-900">Today's Agenda</h3>
+                <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
                   {todayAgenda.length}
                 </span>
               </div>
@@ -520,10 +521,10 @@ const InterviewEvaluation = () => {
               ) : (
                 <div className="flex flex-col items-center justify-center py-10 text-center">
                   <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center mb-3">
-                    <FiCalendar size={20} className="text-gray-300" />
+                    <Calendar size={20} className="text-gray-300" />
                   </div>
                   <p className="text-xs font-semibold text-gray-500">No interviews today</p>
-                  <p className="text-[11px] text-gray-400 mt-1">Enjoy your free day!</p>
+                  <p className="text-xs text-gray-400 mt-1">Enjoy your free day!</p>
                 </div>
               )}
             </div>
@@ -532,7 +533,7 @@ const InterviewEvaluation = () => {
       </div>
 
       {/* ─── LEGEND ─────────────────────────────────────────────────────── */}
-      <div className="bg-white border-t border-gray-100 px-5 py-2 flex-shrink-0 flex items-center gap-5 text-[11px] text-gray-400">
+      <div className="bg-white border-t border-gray-100 px-5 py-2 flex-shrink-0 flex items-center gap-5 text-xs text-gray-400">
         {Object.entries(STATUS_CONFIG).filter(([k]) => k !== 'default').map(([key, c]) => (
           <div key={key} className="flex items-center gap-1.5">
             <span className={`w-2 h-2 rounded-full ${c.dot}`} />

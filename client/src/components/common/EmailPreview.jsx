@@ -1,7 +1,7 @@
 // client/src/components/common/EmailPreview.jsx
 import React from 'react';
 import DOMPurify from 'dompurify';
-import { FiUser } from 'react-icons/fi';
+import { User } from 'lucide-react';
 
 const EmailPreview = ({ from, subject, body }) => {
     // Sanitize the HTML body to prevent XSS attacks
@@ -15,7 +15,7 @@ const EmailPreview = ({ from, subject, body }) => {
                 <div className="flex items-center text-sm">
                     <div className="flex-shrink-0 mr-3">
                         <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-emerald-500">
-                            <FiUser className="h-5 w-5 text-white" />
+                            <User className="h-5 w-5 text-white" />
                         </span>
                     </div>
                     <div className="min-w-0 flex-1">

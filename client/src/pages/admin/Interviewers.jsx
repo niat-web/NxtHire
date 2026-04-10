@@ -3,11 +3,11 @@ import React, { useEffect, useState, useMemo, useRef, Fragment } from 'react';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import {
-    FiUser, FiSearch, FiEdit, FiTrash2, FiPlus, FiUpload, FiCheckCircle,
-    FiAlertTriangle, FiLoader, FiX, FiChevronLeft, FiChevronRight, 
-    FiUsers, FiChevronDown, FiEye, FiPhone, FiMessageCircle, FiBriefcase, FiCreditCard,
-    FiSend, FiRefreshCw
-} from 'react-icons/fi';
+    User, Search, Edit, Trash2, Plus, Upload, CheckCircle,
+    AlertTriangle, Loader2, X, ChevronLeft, ChevronRight, 
+    Users, ChevronDown, Eye, Phone, MessageCircle, Briefcase, CreditCard,
+    Send, RefreshCw
+} from 'lucide-react';
 import { Dialog, Transition } from '@headlessui/react';
 
 // Common Components Imports
@@ -23,37 +23,18 @@ import { formatDateTime } from '../../utils/formatters';
 import { useAlert } from '../../hooks/useAlert';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import InterviewerFormModal from './InterviewerFormModal';
+import { Button as ShadcnButton } from '@/components/ui/button';
 
 // --- Styled Components ---
 
 const LocalButton = ({ children, onClick, type = 'button', isLoading = false, variant = 'primary', icon: Icon, disabled = false, size = 'md', className = '', title = '' }) => {
-    const base = 'inline-flex items-center justify-center font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] whitespace-nowrap focus:outline-none';
-    
-    const sizes = {
-        xs: 'text-xs px-2 py-1 rounded',
-        sm: 'text-xs px-3 py-2 rounded-lg',
-        md: 'text-sm px-5 py-2.5 rounded-lg',
-        icon: 'p-2 rounded-lg',
-    };
-
-    const variants = {
-        primary: 'bg-gray-900 text-white hover:bg-black border border-transparent shadow-sm', 
-        accent: 'bg-[#FFD130] text-gray-900 hover:bg-[#FFC400] border border-[#FFD130] shadow-sm', 
-        outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50', 
-        danger: 'bg-white text-red-600 border border-red-200 hover:bg-red-50',
-        text: 'bg-transparent text-gray-500 hover:text-gray-900 px-0',
-        icon: 'bg-transparent text-gray-500 hover:text-indigo-600 hover:bg-indigo-50'
-    };
-
+    const variantMap = { primary: 'default', accent: 'default', outline: 'outline', danger: 'destructive', text: 'link', icon: 'ghost', ghost: 'ghost' };
+    const sizeMap = { xs: 'xs', sm: 'sm', md: 'default', lg: 'lg', icon: 'icon' };
     return (
-        <button type={type} onClick={onClick} disabled={isLoading || disabled} className={`${base} ${sizes[size]} ${variants[variant]} ${className}`} title={title}>
-            {isLoading ? <FiLoader className="animate-spin h-4 w-4" /> : (
-                <>
-                    {Icon && <Icon className={`${children ? 'mr-2' : ''} ${size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'}`} />}
-                    {children}
-                </>
-            )}
-        </button>
+        <ShadcnButton type={type} onClick={onClick} isLoading={isLoading} disabled={disabled} variant={variantMap[variant] || 'default'} size={sizeMap[size] || 'default'} className={className} title={title}>
+            {Icon && <Icon className={`${children ? 'mr-2' : ''} ${size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'}`} />}
+            {children}
+        </ShadcnButton>
     );
 };
 
@@ -69,7 +50,7 @@ const CustomSelect = ({ value, onChange, options, placeholder }) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
         </select>
-        <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
     </div>
 );
 
@@ -106,35 +87,35 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
                 <div className="fixed inset-0 overflow-y-auto">
                     <div className="flex min-h-full items-center justify-center p-4 text-center">
                         <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
-                            <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all flex flex-col max-h-[90vh]">
+                            <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-md transition-all flex flex-col max-h-[90vh]">
                                 {/* Header */}
                                 <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                                     <div className="flex items-center gap-4">
-                                        <div className="h-12 w-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg font-bold">
+                                        <div className="h-12 w-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-lg font-semibold">
                                             {data.user?.firstName?.[0]}{data.user?.lastName?.[0]}
                                         </div>
                                         <div>
-                                            <Dialog.Title as="h3" className="text-lg font-bold text-gray-900 leading-tight">
+                                            <Dialog.Title as="h3" className="text-lg font-semibold text-gray-900 leading-tight">
                                                 {data.user?.firstName} {data.user?.lastName}
                                             </Dialog.Title>
                                             <p className="text-sm text-gray-500">{data.jobTitle} • <span className={`font-semibold ${data.status === 'Active' ? 'text-green-600' : 'text-amber-600'}`}>{data.status}</span></p>
                                         </div>
                                     </div>
-                                    <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200 transition-colors"><FiX className="h-5 w-5 text-gray-500" /></button>
+                                    <ShadcnButton variant="ghost" size="icon" onClick={onClose} className="rounded-full"><X className="h-5 w-5 text-gray-500" /></ShadcnButton>
                                 </div>
 
                                 {/* Scrollable Content */}
                                 <div className="p-6 overflow-y-auto custom-scrollbar">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {/* Contact Info */}
-                                        <div className="col-span-1 md:col-span-2"><h4 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-2"><FiUser /> Contact Information</h4></div>
+                                        <div className="col-span-1 md:col-span-2"><h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2"><User /> Contact Information</h4></div>
                                         <DetailItem label="Email Address" value={data.user?.email} />
                                         <DetailItem label="Phone Number" value={data.user?.phoneNumber} />
                                         <DetailItem label="WhatsApp" value={data.user?.whatsappNumber} />
                                         <DetailItem label="Onboarded Date" value={data.onboardingDate ? formatDateTime(data.onboardingDate) : 'N/A'} />
 
                                         {/* Professional Info */}
-                                        <div className="col-span-1 md:col-span-2 mt-2"><h4 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-2"><FiBriefcase /> Professional Details</h4></div>
+                                        <div className="col-span-1 md:col-span-2 mt-2"><h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2"><Briefcase /> Professional Details</h4></div>
                                         <DetailItem label="Current Employer" value={data.currentEmployer} />
                                         <DetailItem label="Total Experience" value={`${data.yearsOfExperience} Years`} />
                                         <DetailItem label="Company Type" value={data.companyType} />
@@ -144,7 +125,7 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
                                         <DetailItem label="Interviews Completed" value={data.metrics?.interviewsCompleted || 0} />
 
                                         {/* Banking Info */}
-                                        <div className="col-span-1 md:col-span-2 mt-2"><h4 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-2"><FiCreditCard /> Bank Details</h4></div>
+                                        <div className="col-span-1 md:col-span-2 mt-2"><h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2"><CreditCard /> Bank Details</h4></div>
                                         <DetailItem label="Bank Name" value={data.bankDetails?.bankName} />
                                         <DetailItem label="Account Name" value={data.bankDetails?.accountName} />
                                         <DetailItem label="Account Number" value={data.bankDetails?.accountNumber} />
@@ -161,7 +142,7 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
                                             size="sm" 
                                             onClick={() => handleAction(onSendWelcome, 'welcome')}
                                             isLoading={loadingAction === 'welcome'}
-                                            icon={data.welcomeEmailSentAt ? FiRefreshCw : FiSend}
+                                            icon={data.welcomeEmailSentAt ? RefreshCw : Send}
                                             className={data.welcomeEmailSentAt ? "text-green-600 border-green-200 bg-green-50 hover:bg-green-100" : ""}
                                         >
                                             {data.welcomeEmailSentAt ? "Resend Welcome Mail" : "Send Welcome Mail"}
@@ -174,7 +155,7 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
                                                 size="sm"
                                                 onClick={() => handleAction(onSendProbation, 'probation')}
                                                 isLoading={loadingAction === 'probation'}
-                                                icon={data.probationEmailSentAt ? FiRefreshCw : FiSend}
+                                                icon={data.probationEmailSentAt ? RefreshCw : Send}
                                                 className={data.probationEmailSentAt ? "text-green-600 border-green-200 bg-green-50 hover:bg-green-100" : ""}
                                             >
                                                 {data.probationEmailSentAt ? "Resend Probation Mail" : "Send Probation Mail"}
@@ -188,7 +169,7 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
                                                 size="sm"
                                                 onClick={() => handleAction(onMarkProbation, 'mark')}
                                                 isLoading={loadingAction === 'mark'}
-                                                icon={FiCheckCircle}
+                                                icon={CheckCircle}
                                             >
                                                 Mark Probation Sent
                                             </LocalButton>
@@ -235,8 +216,8 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, isLoading }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={onClose}>
-            <div className="w-full max-w-lg bg-white rounded-xl shadow-2xl p-6" onClick={e => e.stopPropagation()}>
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Bulk Import Interviewers</h3>
+            <div className="w-full max-w-lg bg-white rounded-xl shadow-md p-6" onClick={e => e.stopPropagation()}>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Bulk Import Interviewers</h3>
                 <div className="space-y-4">
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-100 file:text-gray-700 cursor-pointer border border-gray-200 rounded-lg p-2" />
                     {error && <p className="text-red-600 text-sm">{error}</p>}
@@ -379,12 +360,12 @@ const Interviewers = () => {
             minWidth: '200px',
             render: (r) => (
                 <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-xs border border-gray-200">
+                    <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-semibold text-xs border border-gray-200">
                         {r.user.firstName?.[0]}{r.user.lastName?.[0]}
                     </div>
                     <div className="flex flex-col">
                         <span className="font-semibold text-gray-900 text-sm">{r.user.firstName} {r.user.lastName}</span>
-                        <span className="text-[10px] text-gray-500">{r.jobTitle || 'N/A'}</span>
+                        <span className="text-xs text-gray-500">{r.jobTitle || 'N/A'}</span>
                     </div>
                 </div>
             ) 
@@ -399,13 +380,13 @@ const Interviewers = () => {
             key: 'user.phoneNumber', 
             title: 'Mobile No', 
             minWidth: '140px', 
-            render: (r) => <div className="flex items-center gap-2 text-gray-600 text-sm"><FiPhone className="text-gray-400 w-3 h-3" /> {r.user.phoneNumber}</div> 
+            render: (r) => <div className="flex items-center gap-2 text-gray-600 text-sm"><Phone className="text-gray-400 w-3 h-3" /> {r.user.phoneNumber}</div> 
         },
         { 
             key: 'user.whatsappNumber', 
             title: 'WhatsApp', 
             minWidth: '140px', 
-            render: (r) => <div className="flex items-center gap-2 text-gray-600 text-sm"><FiMessageCircle className="text-green-500 w-3 h-3" /> {r.user.whatsappNumber || '-'}</div> 
+            render: (r) => <div className="flex items-center gap-2 text-gray-600 text-sm"><MessageCircle className="text-green-500 w-3 h-3" /> {r.user.whatsappNumber || '-'}</div> 
         },
         { 
             key: 'yearsOfExperience', 
@@ -432,7 +413,7 @@ const Interviewers = () => {
                     >
                         {Object.values(INTERVIEWER_STATUS).map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
-                    <FiChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 opacity-50 pointer-events-none" />
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 opacity-50 pointer-events-none" />
                 </div>
             ) 
         },
@@ -441,13 +422,15 @@ const Interviewers = () => {
             title: '',
             minWidth: '60px',
             render: (r) => (
-                <button
+                <ShadcnButton
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setModalState({ type: 'view', data: r })}
-                    className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                    className="h-7 w-7 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50"
                     title="View Details"
                 >
-                    <FiEye className="w-4 h-4" />
-                </button>
+                    <Eye className="w-4 h-4" />
+                </ShadcnButton>
             )
         }
     ], [interviewers, selectedRows, updatingId]);
@@ -460,7 +443,7 @@ const Interviewers = () => {
                 <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
                     <div className="flex flex-wrap items-center gap-2 flex-1">
                         <div className="relative w-full sm:w-56">
-                            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                             <input
                                 type="text"
                                 value={filters.search}
@@ -482,7 +465,7 @@ const Interviewers = () => {
                             placeholder="All Domains"
                         />
                         {(filters.search || filters.status || filters.domain) && (
-                            <button onClick={resetFilters} className="text-xs text-gray-500 hover:text-gray-900 font-medium px-2">Clear</button>
+                            <ShadcnButton variant="ghost" size="sm" onClick={resetFilters} className="text-xs text-gray-500 hover:text-gray-900 font-medium px-2">Clear</ShadcnButton>
                         )}
                     </div>
 
@@ -491,17 +474,17 @@ const Interviewers = () => {
                             <div className="flex items-center gap-2 bg-slate-800 text-white px-3 py-1.5 rounded-lg shadow mr-1">
                                 <span className="text-xs font-semibold">{selectedRows.length} selected</span>
                                 {selectedRows.length === 1 && (
-                                    <button onClick={() => setModalState({ type: 'edit', data: interviewers.find(i => i._id === selectedRows[0]) })} className="p-1 hover:bg-slate-700 rounded" title="Edit">
-                                        <FiEdit className="w-3.5 h-3.5" />
-                                    </button>
+                                    <ShadcnButton variant="ghost" size="icon" onClick={() => setModalState({ type: 'edit', data: interviewers.find(i => i._id === selectedRows[0]) })} className="h-7 w-7 hover:bg-slate-700 text-white" title="Edit">
+                                        <Edit className="w-3.5 h-3.5" />
+                                    </ShadcnButton>
                                 )}
-                                <button onClick={() => setDeleteDialog({ isOpen: true, ids: selectedRows, isBulk: true })} className="p-1 hover:bg-slate-700 rounded" title="Delete">
-                                    <FiTrash2 className="w-3.5 h-3.5" />
-                                </button>
+                                <ShadcnButton variant="ghost" size="icon" onClick={() => setDeleteDialog({ isOpen: true, ids: selectedRows, isBulk: true })} className="h-7 w-7 hover:bg-slate-700 text-white" title="Delete">
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                </ShadcnButton>
                             </div>
                         )}
-                        <LocalButton variant="outline" icon={FiUpload} onClick={() => setIsUploadModalOpen(true)}>Import</LocalButton>
-                        <LocalButton variant="primary" icon={FiPlus} onClick={() => setModalState({ type: 'add', data: null })}>Add Interviewer</LocalButton>
+                        <LocalButton variant="outline" icon={Upload} onClick={() => setIsUploadModalOpen(true)}>Import</LocalButton>
+                        <LocalButton variant="primary" icon={Plus} onClick={() => setModalState({ type: 'add', data: null })}>Add Interviewer</LocalButton>
                     </div>
                 </div>
             </div>
@@ -526,14 +509,14 @@ const Interviewers = () => {
                             Page <b className="text-gray-900">{currentPage}</b> of {totalPages} ({totalDocs} total)
                         </p>
                         <div className="flex items-center gap-1.5">
-                            <button onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage === 1}
-                                className="p-1.5 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-                                <FiChevronLeft className="w-4 h-4" />
-                            </button>
-                            <button onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage === totalPages}
-                                className="p-1.5 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-                                <FiChevronRight className="w-4 h-4" />
-                            </button>
+                            <ShadcnButton variant="outline" size="icon" onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage === 1}
+                                className="h-8 w-8 disabled:opacity-30">
+                                <ChevronLeft className="w-4 h-4" />
+                            </ShadcnButton>
+                            <ShadcnButton variant="outline" size="icon" onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage === totalPages}
+                                className="h-8 w-8 disabled:opacity-30">
+                                <ChevronRight className="w-4 h-4" />
+                            </ShadcnButton>
                         </div>
                     </div>
                 )}

@@ -1,7 +1,7 @@
 // client/src/pages/admin/LinkedInReviewPage.jsx
 
 import React, { useEffect, useState, useCallback, useMemo, Fragment } from 'react';
-import { FiRefreshCw, FiExternalLink, FiCheck, FiX, FiEye, FiMoreVertical } from 'react-icons/fi';
+import { RefreshCw, ExternalLink, Check, X, Eye, MoreVertical } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import { Menu, Transition } from '@headlessui/react';
@@ -98,7 +98,7 @@ const LinkedInReviewPage = () => {
   const applicantColumns = useMemo(() => [
     { key: 'fullName', title: 'Applicant', render: (row) => row.fullName },
     { key: 'email', title: 'Contact', render: (row) => row.email },
-    { key: 'linkedinProfileUrl', title: 'LinkedIn Profile', render: (row) => <a href={row.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline flex items-center">View <FiExternalLink className="ml-1"/></a>},
+    { key: 'linkedinProfileUrl', title: 'LinkedIn Profile', render: (row) => <a href={row.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline flex items-center">View <ExternalLink className="ml-1"/></a>},
     { key: 'status', title: 'Status', render: (row) => <StatusBadge status={row.status} /> },
     { key: 'updatedAt', title: 'Last Action', render: (row) => formatDate(row.updatedAt)},
     {
@@ -114,7 +114,7 @@ const LinkedInReviewPage = () => {
                 // If already reviewed, just show a link to the profile
                 return (
                     <Link to={`/admin/applicants/${row._id}`} className="text-primary-600 hover:underline text-sm flex items-center">
-                        <FiEye className="mr-1" />
+                        <Eye className="mr-1" />
                         View Details
                     </Link>
                 );
@@ -128,14 +128,14 @@ const LinkedInReviewPage = () => {
                         className="!px-2 !py-1 text-xs"
                         onClick={() => handleReviewDecision(row._id, 'approve')}
                     >
-                        <FiCheck className="mr-1 h-3 w-3" /> Approve
+                        <Check className="mr-1 h-3 w-3" /> Approve
                     </Button>
                     <Button
                         variant="danger"
                         className="!px-2 !py-1 text-xs"
                         onClick={() => handleReviewDecision(row._id, 'reject')}
                     >
-                        <FiX className="mr-1 h-3 w-3" /> Reject
+                        <X className="mr-1 h-3 w-3" /> Reject
                     </Button>
                     
                 </div>
@@ -147,7 +147,7 @@ const LinkedInReviewPage = () => {
   return (
     <div className="space-y-6">
       <Card>
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 border-b border-gray-200">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-5 border-b border-gray-200">
           <div className="w-full md:w-1/3">
             <SearchInput 
               value={searchTerm} 

@@ -5,6 +5,9 @@ import { useForm } from 'react-hook-form';
 import { useAuth } from '../../hooks/useAuth';
 import { useAlert } from '../../hooks/useAlert';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -39,10 +42,7 @@ const LoginForm = () => {
     }
   };
 
-  const inputBase =
-    'block w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all';
-  const iconCls =
-    'absolute left-3 top-1/2 -translate-y-1/2 text-gray-400';
+  const iconCls = 'absolute left-3 top-1/2 -translate-y-1/2 text-gray-400';
 
   return (
     <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
@@ -53,12 +53,15 @@ const LoginForm = () => {
         </label>
         <div className="relative">
           <Mail size={17} className={iconCls} />
-          <input
+          <Input
             id="email"
             type="email"
             autoComplete="email"
             placeholder="you@example.com"
-            className={`${inputBase} ${errors.email ? 'border-red-400' : 'border-gray-200'}`}
+            className={cn(
+              'pl-10 h-10 rounded-xl',
+              errors.email ? 'border-red-400' : 'border-gray-200'
+            )}
             {...register('email', {
               required: 'Email is required',
               pattern: {
@@ -80,21 +83,26 @@ const LoginForm = () => {
         </label>
         <div className="relative">
           <Lock size={17} className={iconCls} />
-          <input
+          <Input
             id="password"
             type={showPassword ? 'text' : 'password'}
             autoComplete="current-password"
             placeholder="Enter your password"
-            className={`${inputBase} pr-10 ${errors.password ? 'border-red-400' : 'border-gray-200'}`}
+            className={cn(
+              'pl-10 pr-10 h-10 rounded-xl',
+              errors.password ? 'border-red-400' : 'border-gray-200'
+            )}
             {...register('password', { required: 'Password is required' })}
           />
-          <button
+          <Button
             type="button"
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+            variant="ghost"
+            size="icon"
+            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-gray-400 hover:text-gray-600"
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
-          </button>
+          </Button>
         </div>
         {errors.password && (
           <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>
@@ -107,37 +115,37 @@ const LoginForm = () => {
           <input
             id="remember_me"
             type="checkbox"
-            className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500/30 cursor-pointer"
+            className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500/30 cursor-pointer"
           />
           <span className="text-sm text-gray-600">Remember me</span>
         </label>
         <Link
           to="/forgot-password"
-          className="text-sm text-emerald-600 hover:text-emerald-600 font-medium transition-colors"
+          className="text-sm text-indigo-600 hover:text-indigo-600 font-medium transition-colors"
         >
           Forgot password?
         </Link>
       </div>
 
       {/* Submit */}
-      <button
+      <Button
         type="submit"
         disabled={isSubmitting}
-        className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors ${
-          isSubmitting ? 'opacity-60 cursor-not-allowed' : ''
-        }`}
+        variant="success"
+        className="w-full rounded-xl"
+        size="lg"
       >
         {isSubmitting ? (
           <>
-            <Loader2 size={17} className="animate-spin" />
+            <Loader2 size={17} className="animate-spin mr-2" />
             Signing in...
           </>
         ) : (
           <>
-            Sign In <ArrowRight size={17} />
+            Sign In <ArrowRight size={17} className="ml-2" />
           </>
         )}
-      </button>
+      </Button>
     </form>
   );
 };

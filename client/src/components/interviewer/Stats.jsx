@@ -1,9 +1,10 @@
 // client/src/components/interviewer/Stats.jsx
 import React from 'react';
-import { FiCheck, FiStar, FiCalendar, FiDollarSign } from 'react-icons/fi';
+import { Check, Star, Calendar, DollarSign } from 'lucide-react';
 import DashboardStat from '../common/DashboardStat';
 import ProgressBar from '../common/ProgressBar';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
+import { cn } from '@/lib/utils';
 
 const Stats = ({ metrics = {}, status = '', paymentTier = '', profileCompleteness = 0 }) => {
   return (
@@ -13,25 +14,25 @@ const Stats = ({ metrics = {}, status = '', paymentTier = '', profileCompletenes
         <DashboardStat
           title="Interviews Completed"
           value={(metrics.interviewsCompleted || 0).toString()}
-          icon={<FiCheck className="h-6 w-6 text-primary-600" />}
+          icon={<Check className="h-6 w-6 text-primary-600" />}
         />
         
         <DashboardStat
           title="Average Rating"
           value={((metrics.averageRating || 0).toFixed(1)) + ' / 5.0'}
-          icon={<FiStar className="h-6 w-6 text-primary-600" />}
+          icon={<Star className="h-6 w-6 text-primary-600" />}
         />
         
         <DashboardStat
           title="Completion Rate"
           value={formatPercentage(metrics.completionRate || 0)}
-          icon={<FiCalendar className="h-6 w-6 text-primary-600" />}
+          icon={<Calendar className="h-6 w-6 text-primary-600" />}
         />
         
         <DashboardStat
           title="Total Earnings"
           value={formatCurrency(metrics.totalEarnings || 0)}
-          icon={<FiDollarSign className="h-6 w-6 text-primary-600" />}
+          icon={<DollarSign className="h-6 w-6 text-primary-600" />}
         />
       </div>
       
@@ -59,10 +60,11 @@ const Stats = ({ metrics = {}, status = '', paymentTier = '', profileCompletenes
           <div>
             <div className="flex justify-between items-center mb-2">
               <h3 className="font-medium text-gray-700">Account Status</h3>
-              <span className={`text-sm font-medium ${
-                status === 'Active' ? 'text-green-600' : 
+              <span className={cn(
+                "text-sm font-medium",
+                status === 'Active' ? 'text-green-600' :
                 status === 'On Probation' ? 'text-yellow-600' : 'text-gray-500'
-              }`}>
+              )}>
                 {status}
               </span>
             </div>

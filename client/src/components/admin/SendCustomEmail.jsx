@@ -5,20 +5,17 @@ import { useForm, Controller } from 'react-hook-form';
 import DOMPurify from 'dompurify';
 import { sendBulkCustomEmail } from '@/api/admin.api';
 import { useAlert } from '@/hooks/useAlert';
-import { FiMail, FiUsers, FiFile, FiCheckCircle, FiLoader, FiSend } from 'react-icons/fi';
+import { Mail, Users, File, CheckCircle, Loader2, Send } from 'lucide-react';
 
-// Styled Button Component
+import { Button } from '@/components/ui/button';
+
 const LocalButton = ({ children, onClick, type = 'button', isLoading = false, icon: Icon, variant = 'primary', className = '', disabled = false }) => {
-    const base = "inline-flex items-center justify-center font-bold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-1 active:scale-[0.98] text-sm px-4 py-2.5";
-    const variants = {
-        primary: 'bg-gray-900 text-white hover:bg-black border border-transparent shadow-sm focus:ring-gray-900',
-        secondary: 'bg-[#FFD130] text-gray-900 hover:bg-[#FFC400] border border-[#FFD130] shadow-sm',
-    };
+    const variantMap = { primary: 'default', secondary: 'secondary', outline: 'outline', danger: 'destructive', ghost: 'ghost' };
     return (
-        <button type={type} onClick={onClick} disabled={isLoading || disabled} className={`${base} ${variants[variant]} ${className}`}>
-            {isLoading ? <div className="animate-spin mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full"></div> : (Icon && <Icon className={`h-4 w-4 ${children ? 'mr-2' : ''}`} />)}
-            {isLoading ? "Sending..." : children}
-        </button>
+        <Button type={type} onClick={onClick} isLoading={isLoading} disabled={disabled} variant={variantMap[variant] || 'default'} className={className}>
+            {Icon && <Icon className={`h-4 w-4 ${children ? 'mr-2' : ''}`} />}
+            {children}
+        </Button>
     );
 };
 
@@ -49,11 +46,11 @@ const FileInput = ({ onFileParsed, requiredColumns }) => {
 
     return (
         <div>
-            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">Recipients CSV/XLSX</label>
+            <label className="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-1.5">Recipients CSV/XLSX</label>
             <div className="flex items-center gap-4">
                 <label
                     htmlFor="file-upload"
-                    className="relative cursor-pointer bg-white rounded-lg font-medium text-slate-700 hover:text-slate-900 border border-gray-300 px-4 py-2 transition-colors hover:bg-gray-50 shadow-sm"
+                    className="relative cursor-pointer bg-white rounded-lg font-medium text-slate-700 hover:text-slate-900 border border-gray-300 px-4 py-2 transition-colors hover:bg-gray-50 shadow-md"
                 >
                     <span>Choose File</span>
                     <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleFileChange} accept=".csv, .xlsx" />
@@ -63,7 +60,7 @@ const FileInput = ({ onFileParsed, requiredColumns }) => {
                 </div>
                 {recipientCount > 0 && (
                     <div className="flex items-center gap-2 text-sm font-medium text-green-600">
-                        <FiCheckCircle />
+                        <CheckCircle />
                         <span>{recipientCount} recipient{recipientCount > 1 ? 's' : ''} loaded.</span>
                     </div>
                 )}
@@ -121,7 +118,7 @@ const SendCustomEmail = ({ templates }) => {
     };
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full overflow-hidden">
+        <div className="bg-white rounded-xl shadow-md border border-gray-200 flex flex-col h-full overflow-hidden">
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
 
                 {/* --- MIDDLE SCROLLABLE AREA --- */}
@@ -129,12 +126,12 @@ const SendCustomEmail = ({ templates }) => {
                     {/* Controls */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                         <div>
-                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">Select Template</label>
+                            <label className="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-1.5">Select Template</label>
                             <Controller
                                 name="template"
                                 control={control}
                                 render={({ field }) => (
-                                    <select {...field} className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium focus:ring-1 focus:ring-gray-900 focus:border-gray-900 cursor-pointer shadow-sm transition-all">
+                                    <select {...field} className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium focus:ring-1 focus:ring-gray-900 focus:border-gray-900 cursor-pointer shadow-md transition-all">
                                         <option value="">Select a template...</option>
                                         {templates.map(t => <option key={t._id} value={t._id}>{t.name}</option>)}
                                     </select>
@@ -148,16 +145,16 @@ const SendCustomEmail = ({ templates }) => {
                     {/* Live Preview */}
                     {selectedTemplate && recipients.length > 0 && (
                         <div>
-                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Live Preview (From First Row of Data)</label>
+                            <label className="block text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Live Preview (From First Row of Data)</label>
                             
                             {/* Gmail-style Preview */}
-                            <div className="border border-gray-200 rounded-lg shadow-md bg-white">
+                            <div className="border border-gray-200 rounded-xl shadow-md bg-white">
                                 <div className="px-6 py-4 border-b border-gray-100">
-                                    <h2 className="text-xl font-bold text-gray-800">{previewContent.subject}</h2>
+                                    <h2 className="text-xl font-semibold text-gray-800">{previewContent.subject}</h2>
                                 </div>
                                 <div className="p-6">
                                     <div className="flex items-center gap-4 mb-6">
-                                        <div className="h-10 w-10 bg-slate-700 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                        <div className="h-10 w-10 bg-slate-700 rounded-full flex items-center justify-center text-white font-semibold text-lg">
                                             N
                                         </div>
                                         <div>
@@ -182,7 +179,7 @@ const SendCustomEmail = ({ templates }) => {
                         type="submit" 
                         isLoading={isSending} 
                         disabled={isSending || recipients.length === 0 || !selectedTemplate}
-                        icon={FiSend}
+                        icon={Send}
                         variant="primary"
                     >
                         Send to {recipients.length} Recipient{recipients.length !== 1 ? 's' : ''}

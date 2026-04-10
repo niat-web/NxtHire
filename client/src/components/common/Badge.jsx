@@ -1,42 +1,48 @@
 // client/src/components/common/Badge.jsx
 import React from 'react';
+import { Badge as UiBadge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
-const Badge = ({ 
-  children, 
-  variant = 'primary', 
-  size = 'md', 
+// Map old variant names to new ui/badge variants
+const variantMap = {
+  primary: 'purple',
+  secondary: 'secondary',
+  success: 'success',
+  danger: 'danger',
+  warning: 'warning',
+  info: 'info',
+  gray: 'gray',
+};
+
+const Badge = ({
+  children,
+  variant = 'primary',
+  size = 'md',
   rounded = false,
   className = '',
-  ...props 
+  ...props
 }) => {
-  // Variant classes
-  const variantClasses = {
-    primary: 'bg-primary-100 text-primary-800',
-    secondary: 'bg-secondary-100 text-secondary-800',
-    success: 'bg-green-100 text-green-800',
-    danger: 'bg-red-100 text-red-800',
-    warning: 'bg-yellow-100 text-yellow-800',
-    info: 'bg-emerald-100 text-emerald-800',
-    gray: 'bg-gray-100 text-gray-800',
-  };
+  const mappedVariant = variantMap[variant] || 'default';
 
-  // Size classes
+  // Size classes to preserve backward compatibility
   const sizeClasses = {
     sm: 'px-2 py-0.5 text-xs',
     md: 'px-2.5 py-0.5 text-sm',
     lg: 'px-3 py-1 text-base',
   };
 
-  // Border radius classes
-  const roundedClass = rounded ? 'rounded-full' : 'rounded';
-
   return (
-    <span
-      className={`inline-flex items-center font-medium ${variantClasses[variant]} ${sizeClasses[size]} ${roundedClass} ${className}`}
+    <UiBadge
+      variant={mappedVariant}
+      className={cn(
+        sizeClasses[size],
+        !rounded && 'rounded',
+        className
+      )}
       {...props}
     >
       {children}
-    </span>
+    </UiBadge>
   );
 };
 

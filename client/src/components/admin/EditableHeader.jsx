@@ -1,7 +1,7 @@
 // client/src/components/admin/EditableHeader.jsx
 import React, { useState } from 'react';
 import { useController } from 'react-hook-form';
-import { FiXCircle } from 'react-icons/fi';
+import { XCircle } from 'lucide-react';
 
 const EditableHeader = ({ name, register, control, remove }) => {
     const { field } = useController({ name, control });
@@ -11,7 +11,7 @@ const EditableHeader = ({ name, register, control, remove }) => {
         return (
             <input
                 {...field}
-                className="w-full p-1 text-sm font-medium border border-emerald-500 rounded focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full p-1 text-sm font-medium border border-emerald-500 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 onBlur={() => {
                     field.onBlur();
                     setIsEditing(false);
@@ -36,7 +36,7 @@ const EditableHeader = ({ name, register, control, remove }) => {
                 className="absolute top-0 right-0 p-0.5 rounded-full bg-red-100 text-red-500 opacity-0 group-hover:opacity-100 hover:bg-red-200 transition-opacity"
                 title="Remove"
             >
-                <FiXCircle size={14} />
+                <XCircle size={14} />
             </button>
         </div>
     );

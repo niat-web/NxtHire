@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import DomainsTab from '@/components/admin/DomainsTab';
 import DomainFieldsTab from '@/components/admin/DomainFieldsTab';
 import { useDomains } from '@/hooks/useAdminQueries';
-import { FiGrid, FiSettings } from 'react-icons/fi';
+import { Grid, Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const DomainManagement = () => {
     const { data: domains = [], isLoading: loading, refetch: fetchDomains } = useDomains();
@@ -23,28 +24,29 @@ const DomainManagement = () => {
             <div className="flex h-full items-center justify-center bg-[#F5F7F9]">
                 <div className="flex flex-col items-center">
                     <div className="w-10 h-10 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin mb-4"></div>
-                    <span className="text-sm font-medium text-gray-500">Loading Evaluation Setup...</span>
+                    <span className="text-base font-medium text-gray-500">Loading Evaluation Setup...</span>
                 </div>
             </div>
         );
     }
 
     const NavBtn = ({ id, label, icon: Icon }) => (
-        <button 
-            onClick={() => setActiveTab(id)} 
-            className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg transition-all ${activeTab === id ? 'bg-gray-900 text-white shadow-md' : 'text-gray-600 hover:bg-gray-200'}`}
+        <Button
+            onClick={() => setActiveTab(id)}
+            variant={activeTab === id ? 'default' : 'ghost'}
+            className={`flex items-center gap-2 font-medium ${activeTab === id ? 'bg-gray-900 text-white hover:bg-black shadow-md' : 'text-gray-600 hover:bg-gray-200'}`}
         >
             <Icon className="h-4 w-4" /> {label}
-        </button>
+        </Button>
     );
 
     return (
         <div className="h-full w-full flex flex-col bg-[#F5F7F9]">
-             <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0 flex justify-between items-center z-10 shadow-sm">
-                <h1 className="text-xl font-bold text-gray-900"></h1>
+             <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0 flex justify-between items-center z-10 shadow-md">
+                <h1 className="text-xl font-semibold text-gray-900"></h1>
                 <div className="flex bg-gray-100 p-1 rounded-xl gap-1">
-                    <NavBtn id="domains" label="Domains" icon={FiGrid} />
-                    <NavBtn id="fields" label="Domain Fields" icon={FiSettings} />
+                    <NavBtn id="domains" label="Domains" icon={Grid} />
+                    <NavBtn id="fields" label="Domain Fields" icon={Settings} />
                 </div>
              </div>
              

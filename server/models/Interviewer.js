@@ -163,6 +163,17 @@ const InterviewerSchema = new mongoose.Schema({
     min: 0,
     max: 100
   },
+  notificationPreferences: {
+    emailBookingRequest: { type: Boolean, default: true },
+    emailInterviewCancelled: { type: Boolean, default: true },
+    emailProbationComplete: { type: Boolean, default: true },
+    emailWelcome: { type: Boolean, default: true },
+    emailPaymentConfirmation: { type: Boolean, default: true },
+    emailInvoice: { type: Boolean, default: true },
+    emailPaymentReceived: { type: Boolean, default: true },
+    whatsappWelcome: { type: Boolean, default: true },
+    pushBookingRequest: { type: Boolean, default: true },
+  },
   createdAt: {
     type: Date,
     default: Date.now

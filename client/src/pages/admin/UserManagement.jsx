@@ -1,9 +1,9 @@
 // client/src/pages/admin/UserManagement.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  FiEdit, FiPlus, FiTrash2, FiChevronLeft, FiChevronRight,
-  FiSearch, FiChevronDown, FiLoader, FiShield, FiUser
-} from 'react-icons/fi';
+  Edit, Plus, Trash2, ChevronLeft, ChevronRight,
+  Search, ChevronDown, Loader2, Shield, User
+} from 'lucide-react';
 import { deleteUser, updateUser } from '../../api/admin.api';
 import { useUsers, useInvalidateAdmin } from '../../hooks/useAdminQueries';
 import { formatDateTime } from '../../utils/formatters';
@@ -12,6 +12,7 @@ import { useAlert } from '../../hooks/useAlert';
 import UserFormModal from './UserFormModal';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Table from '../../components/common/Table';
+import { Button } from '@/components/ui/button';
 
 const UserManagement = () => {
     const { showSuccess, showError } = useAlert();
@@ -91,7 +92,7 @@ const UserManagement = () => {
             key: 'name', title: 'User', minWidth: '240px', sortable: true,
             render: (row) => (
                 <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[11px] border ${getAvatarColor(row._id)}`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-xs border ${getAvatarColor(row._id)}`}>
                         {getInitials(row.firstName, row.lastName)}
                     </div>
                     <div>
@@ -127,14 +128,14 @@ const UserManagement = () => {
             key: 'actions', title: '', minWidth: '80px',
             render: (row) => (
                 <div className="flex items-center gap-0.5">
-                    <button onClick={() => setModalState({ type: 'edit', data: row })}
-                        className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="Edit">
-                        <FiEdit className="w-3.5 h-3.5" />
-                    </button>
-                    <button onClick={() => setDeleteDialog({ isOpen: true, user: row })}
-                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
-                        <FiTrash2 className="w-3.5 h-3.5" />
-                    </button>
+                    <Button variant="ghost" size="icon" onClick={() => setModalState({ type: 'edit', data: row })}
+                        className="h-7 w-7 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50" title="Edit">
+                        <Edit className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => setDeleteDialog({ isOpen: true, user: row })}
+                        className="h-7 w-7 text-gray-400 hover:text-red-600 hover:bg-red-50" title="Delete">
+                        <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
                 </div>
             ),
         },
@@ -152,36 +153,35 @@ const UserManagement = () => {
             <div className="bg-white border-b border-gray-200 px-6 py-4 shrink-0">
                 <div className="flex items-center justify-between mb-4">
                     <div>
-                        <h1 className="text-lg font-bold text-gray-900">User Management</h1>
+                        <h1 className="text-lg font-semibold text-gray-900">User Management</h1>
                         <p className="text-xs text-gray-400 mt-0.5">{pagination.totalItems} {activeTab === 'admin' ? 'administrators' : 'interviewers'}</p>
                     </div>
-                    <button onClick={() => setModalState({ type: 'add', data: null })}
-                        className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-black text-white text-sm font-semibold rounded-lg transition-colors">
-                        <FiPlus className="w-4 h-4" /> Add User
-                    </button>
+                    <Button onClick={() => setModalState({ type: 'add', data: null })} className="gap-2">
+                        <Plus className="w-4 h-4" /> Add User
+                    </Button>
                 </div>
 
                 {/* Tabs + Search */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex bg-gray-100 rounded-lg p-0.5">
                         <button onClick={() => setActiveTab('admin')}
-                            className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md transition-all ${
+                            className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                                 activeTab === 'admin' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
                             }`}>
-                            <FiShield className="w-4 h-4" />
+                            <Shield className="w-4 h-4" />
                             Admins
                         </button>
                         <button onClick={() => setActiveTab('interviewer')}
-                            className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md transition-all ${
+                            className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                                 activeTab === 'interviewer' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
                             }`}>
-                            <FiUser className="w-4 h-4" />
+                            <User className="w-4 h-4" />
                             Interviewers
                         </button>
                     </div>
 
                     <div className="relative w-full sm:w-72">
-                        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                         <input type="text" value={search} onChange={e => setSearch(e.target.value)}
                             placeholder="Search by name or email..."
                             className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all" />
@@ -209,17 +209,17 @@ const UserManagement = () => {
                             Showing {((pagination.currentPage - 1) * itemsPerPage) + 1}–{Math.min(pagination.currentPage * itemsPerPage, pagination.totalItems)} of {pagination.totalItems}
                         </p>
                         <div className="flex items-center gap-1.5">
-                            <button onClick={() => setPage(p => p - 1)} disabled={pagination.currentPage === 1}
-                                className="p-1.5 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-                                <FiChevronLeft className="w-4 h-4" />
-                            </button>
+                            <Button variant="outline" size="icon" onClick={() => setPage(p => p - 1)} disabled={pagination.currentPage === 1}
+                                className="h-8 w-8 disabled:opacity-30">
+                                <ChevronLeft className="w-4 h-4" />
+                            </Button>
                             <span className="text-xs font-medium text-gray-600 px-2">
                                 Page <b className="text-gray-900">{pagination.currentPage}</b> of {pagination.totalPages}
                             </span>
-                            <button onClick={() => setPage(p => p + 1)} disabled={pagination.currentPage === pagination.totalPages}
-                                className="p-1.5 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-                                <FiChevronRight className="w-4 h-4" />
-                            </button>
+                            <Button variant="outline" size="icon" onClick={() => setPage(p => p + 1)} disabled={pagination.currentPage === pagination.totalPages}
+                                className="h-8 w-8 disabled:opacity-30">
+                                <ChevronRight className="w-4 h-4" />
+                            </Button>
                         </div>
                     </div>
                 )}

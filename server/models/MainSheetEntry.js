@@ -51,4 +51,11 @@ const MainSheetEntrySchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+// Performance indexes for common queries
+MainSheetEntrySchema.index({ interviewDate: -1 });
+MainSheetEntrySchema.index({ interviewStatus: 1 });
+MainSheetEntrySchema.index({ interviewer: 1 });
+MainSheetEntrySchema.index({ techStack: 1 });
+MainSheetEntrySchema.index({ interviewDate: -1, interviewStatus: 1 });
+
 module.exports = mongoose.model('MainSheetEntry', MainSheetEntrySchema);

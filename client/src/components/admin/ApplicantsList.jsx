@@ -1,7 +1,7 @@
 // client/src/components/admin/ApplicantsList.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FiEye, FiFilter, FiSearch, FiRefreshCw } from 'react-icons/fi';
+import { Eye, Filter, Search, RefreshCw } from 'lucide-react';
 import Table from '../common/Table';
 import Button from '../common/Button';
 import SearchInput from '../common/SearchInput';
@@ -145,7 +145,7 @@ const ApplicantsList = () => {
           to={`/admin/applicants/${row._id}`}
           className="text-primary-600 hover:text-primary-800"
         >
-          <FiEye className="h-5 w-5" />
+          <Eye className="h-5 w-5" />
         </Link>
       )
     }
@@ -180,7 +180,7 @@ const ApplicantsList = () => {
           
           <Button
             variant="outline"
-            icon={<FiRefreshCw />}
+            icon={<RefreshCw />}
             iconPosition="left"
             onClick={() => fetchApplicants(1)}
           >

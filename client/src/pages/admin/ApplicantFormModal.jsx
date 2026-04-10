@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiX } from 'react-icons/fi';
+import { X } from 'lucide-react';
 import Input from '../../components/common/Input';
 import Select from '../../components/common/Select';
 import Button from '../../components/common/Button';
@@ -76,7 +76,7 @@ const ApplicantFormModal = ({ isOpen, onClose, onSuccess, applicantData }) => {
                         <div className="flex justify-between items-center p-4 border-b border-gray-200 flex-shrink-0">
                             <h2 className="text-xl font-semibold text-gray-800">{isEditMode ? 'Edit Applicant' : 'Add New Applicant'}</h2>
                             <button onClick={onClose} className="p-2 rounded-full text-gray-500 hover:bg-gray-100 transition-colors">
-                                <FiX className="h-6 w-6" />
+                                <X className="h-6 w-6" />
                             </button>
                         </div>
 

@@ -1,9 +1,10 @@
 // client/src/components/forms/GuidelinesQuestionnaireForm.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiSend, FiClock, FiCheck, FiArrowRight, FiArrowLeft, FiCheckCircle } from 'react-icons/fi';
+import { Send, Clock, Check, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
 import { submitGuidelines } from '../../api/applicant.api';
 import { useAlert } from '../../hooks/useAlert';
+import { Button } from '@/components/ui/button';
 
 const questions = [
   { id: 1, question: "Why is it important to review the candidate's resume before the interview?", options: ["To understand the candidate's personal interests", "To understand the candidate's skill set and background", "To decide if the candidate should be disqualified", "To prepare for casual conversation topics"] },
@@ -78,16 +79,16 @@ const GuidelinesQuestionnaireForm = () => {
       {/* ─── Top Bar ─────────────────────────────────────────────── */}
       <div className="bg-white border-b border-gray-200 px-5 py-3 flex items-center justify-between shrink-0 z-10">
         <div>
-          <h1 className="text-base font-bold text-gray-900">Interview Guidelines Assessment</h1>
+          <h1 className="text-base font-semibold text-gray-900">Interview Guidelines Assessment</h1>
           <p className="text-xs text-gray-400 mt-0.5">{answeredCount}/{questions.length} answered</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-sm">
-            <FiClock className="text-gray-400" size={15} />
-            <span className="font-mono font-bold text-gray-700 bg-gray-100 px-2 py-0.5 rounded text-xs">{formatTime(elapsedTime)}</span>
+            <Clock className="text-gray-400" size={15} />
+            <span className="font-mono font-semibold text-gray-700 bg-gray-100 px-2 py-0.5 rounded text-xs">{formatTime(elapsedTime)}</span>
           </div>
           <div className="hidden sm:block text-xs font-medium text-gray-500">
-            <span className="font-bold text-gray-800">{currentQuestion + 1}</span> / {questions.length}
+            <span className="font-semibold text-gray-800">{currentQuestion + 1}</span> / {questions.length}
           </div>
         </div>
       </div>
@@ -103,7 +104,7 @@ const GuidelinesQuestionnaireForm = () => {
         {/* Left: Question Navigator */}
         <div className="hidden lg:flex flex-col w-64 bg-white border-r border-gray-200 shrink-0">
           <div className="p-4 border-b border-gray-100">
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">Questions</p>
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Questions</p>
           </div>
           <div className="flex-1 overflow-y-auto p-4">
             <div className="grid grid-cols-5 gap-2">
@@ -112,16 +113,16 @@ const GuidelinesQuestionnaireForm = () => {
                 const isAnswered = answers[i] !== '';
                 return (
                   <button key={i} onClick={() => setCurrentQuestion(i)}
-                    className={`w-9 h-9 rounded-lg text-xs font-bold flex items-center justify-center transition-all relative ${
+                    className={`w-9 h-9 rounded-lg text-xs font-semibold flex items-center justify-center transition-all relative ${
                       isActive
-                        ? 'bg-slate-900 text-white shadow-md'
+                        ? 'bg-indigo-600 text-white shadow-md'
                         : isAnswered
                           ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
                           : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                     }`}>
                     {i + 1}
                     {isAnswered && !isActive && (
-                      <FiCheck className="absolute -top-1 -right-1 w-3.5 h-3.5 text-emerald-600 bg-white rounded-full p-px" />
+                      <Check className="absolute -top-1 -right-1 w-3.5 h-3.5 text-indigo-600 bg-white rounded-full p-px" />
                     )}
                   </button>
                 );
@@ -131,12 +132,12 @@ const GuidelinesQuestionnaireForm = () => {
           <div className="p-4 border-t border-gray-100">
             <div className="flex justify-between text-xs mb-1.5">
               <span className="text-gray-400">Progress</span>
-              <span className="font-bold text-gray-700">{progress}%</span>
+              <span className="font-semibold text-gray-700">{progress}%</span>
             </div>
             <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
               <div className={`h-full rounded-full transition-all ${progress === 100 ? 'bg-emerald-500' : 'bg-indigo-500'}`} style={{ width: `${progress}%` }} />
             </div>
-            <div className="flex items-center gap-4 mt-3 text-[10px] text-gray-400">
+            <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
               <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-emerald-100 rounded border border-emerald-200" /> Answered</div>
               <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-gray-100 rounded border border-gray-200" /> Unanswered</div>
             </div>
@@ -150,14 +151,14 @@ const GuidelinesQuestionnaireForm = () => {
 
               {/* Question Number Badge */}
               <div className="flex items-center gap-3 mb-6">
-                <span className="w-8 h-8 bg-slate-900 text-white rounded-lg flex items-center justify-center text-xs font-bold">
+                <span className="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center text-xs font-semibold">
                   {currentQuestion + 1}
                 </span>
                 <span className="text-xs text-gray-400 font-medium">of {questions.length} questions</span>
               </div>
 
               {/* Question Text */}
-              <h2 className="text-lg font-bold text-gray-900 leading-relaxed mb-8">
+              <h2 className="text-lg font-semibold text-gray-900 leading-relaxed mb-8">
                 {q.question}
               </h2>
 
@@ -173,10 +174,10 @@ const GuidelinesQuestionnaireForm = () => {
                           ? 'border-slate-900 bg-slate-50'
                           : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                       }`}>
-                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold shrink-0 transition-colors ${
-                        isSelected ? 'bg-slate-900 text-white' : 'bg-gray-100 text-gray-500'
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-semibold shrink-0 transition-colors ${
+                        isSelected ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-500'
                       }`}>
-                        {isSelected ? <FiCheck size={16} /> : letter}
+                        {isSelected ? <Check size={16} /> : letter}
                       </div>
                       <span className={`text-sm leading-relaxed ${isSelected ? 'text-gray-900 font-medium' : 'text-gray-700'}`}>
                         {option}
@@ -190,11 +191,11 @@ const GuidelinesQuestionnaireForm = () => {
 
           {/* Footer Navigation */}
           <div className="bg-white border-t border-gray-200 px-5 lg:px-10 py-4 flex items-center justify-between shrink-0">
-            <button type="button" onClick={() => setCurrentQuestion(c => Math.max(0, c - 1))}
+            <Button type="button" variant="outline" onClick={() => setCurrentQuestion(c => Math.max(0, c - 1))}
               disabled={currentQuestion === 0}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-              <FiArrowLeft size={15} /> Previous
-            </button>
+              className="flex items-center gap-2 rounded-lg">
+              <ArrowLeft size={15} /> Previous
+            </Button>
 
             {/* Mobile: question dots */}
             <div className="flex lg:hidden items-center gap-1">
@@ -207,20 +208,20 @@ const GuidelinesQuestionnaireForm = () => {
             </div>
 
             {isLastQuestion ? (
-              <button type="button" onClick={handleSubmit}
+              <Button type="button" variant="default" onClick={handleSubmit}
                 disabled={answeredCount !== questions.length || isSubmitting}
-                className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm">
+                className="flex items-center gap-2 rounded-lg shadow-md">
                 {isSubmitting ? (
                   <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Submitting...</>
                 ) : (
-                  <><FiSend size={15} /> Submit Assessment</>
+                  <><Send size={15} /> Submit Assessment</>
                 )}
-              </button>
+              </Button>
             ) : (
-              <button type="button" onClick={() => setCurrentQuestion(c => Math.min(questions.length - 1, c + 1))}
-                className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-slate-900 rounded-lg hover:bg-black transition-colors">
-                Next <FiArrowRight size={15} />
-              </button>
+              <Button type="button" variant="default" onClick={() => setCurrentQuestion(c => Math.min(questions.length - 1, c + 1))}
+                className="flex items-center gap-2 rounded-lg">
+                Next <ArrowRight size={15} />
+              </Button>
             )}
           </div>
         </div>

@@ -4,25 +4,27 @@ import { useForm, Controller } from 'react-hook-form';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import {
-    FiSave, FiUser, FiDollarSign, FiKey, FiEye, FiEyeOff, FiBriefcase,
-    FiLock, FiEdit, FiTrash2, FiPlus, FiPhone, FiMail, FiCheckCircle,
-    FiAlertTriangle, FiX, FiLayers, FiShield, FiCalendar, FiMapPin
-} from 'react-icons/fi';
+    Save, User, DollarSign, KeyRound, Eye, EyeOff, Briefcase,
+    Lock, Edit, Trash2, Plus, Phone, Mail, CheckCircle,
+    AlertTriangle, X, Layers, Shield, Calendar, MapPin
+} from 'lucide-react';
 import { updateProfile, updateBankDetails, addExperience, updateExperience, deleteExperience, addSkill, updateSkill, deleteSkill } from '../../api/interviewer.api';
 import { useAuth } from '../../hooks/useAuth';
 import { useAlert } from '../../hooks/useAlert';
 import { formatDate } from '../../utils/formatters';
-import Badge from '../../components/common/Badge';
 import { useInterviewerProfile, useInvalidateInterviewer } from '../../hooks/useInterviewerQueries';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 // --- STYLED UI COMPONENTS ---
 
 const SectionCard = ({ title, icon: Icon, children, footer, className = '' }) => (
-    <div className={`bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col overflow-hidden ${className}`}>
+    <div className={cn("bg-white rounded-xl shadow-md border border-gray-100 flex flex-col overflow-hidden", className)}>
         {title && (
             <div className="px-6 py-4 border-b border-gray-100 flex items-center bg-gray-50/50">
                 {Icon && <Icon className="h-5 w-5 mr-3 text-gray-500" />}
-                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">{title}</h3>
+                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">{title}</h3>
             </div>
         )}
         <div className="p-6 flex-grow">{children}</div>
@@ -36,16 +38,17 @@ const SectionCard = ({ title, icon: Icon, children, footer, className = '' }) =>
 
 const InputField = React.forwardRef(({ label, name, error, register, ...props }, ref) => (
     <div className="w-full">
-        <label htmlFor={name} className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">{label}</label>
-        <input 
-            id={name} 
-            {...register} 
-            {...props} 
-            className={`w-full px-3 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-1 transition-colors ${
-                error 
-                ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-                : 'border-gray-200 focus:ring-gray-900 focus:border-gray-900'
-            }`} 
+        <label htmlFor={name} className="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-1.5">{label}</label>
+        <input
+            id={name}
+            {...register}
+            {...props}
+            className={cn(
+                "w-full px-3 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-1 transition-colors",
+                error
+                    ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                    : "border-gray-200 focus:ring-gray-900 focus:border-gray-900"
+            )}
         />
         {error && <p className="mt-1.5 text-xs text-red-600 font-medium">{error.message}</p>}
     </div>
@@ -54,16 +57,17 @@ InputField.displayName = 'InputField';
 
 const SelectField = React.forwardRef(({ label, name, error, register, options, ...props }, ref) => (
     <div className="w-full">
-        <label htmlFor={name} className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">{label}</label>
-        <select 
-            id={name} 
-            {...register} 
-            {...props} 
-            className={`w-full px-3 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-1 transition-colors appearance-none ${
-                error 
-                ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-                : 'border-gray-200 focus:ring-gray-900 focus:border-gray-900'
-            }`}
+        <label htmlFor={name} className="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-1.5">{label}</label>
+        <select
+            id={name}
+            {...register}
+            {...props}
+            className={cn(
+                "w-full px-3 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-1 transition-colors appearance-none",
+                error
+                    ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                    : "border-gray-200 focus:ring-gray-900 focus:border-gray-900"
+            )}
         >
             {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
         </select>
@@ -76,23 +80,24 @@ const PasswordInputField = ({ label, name, error, register }) => {
     const [show, setShow] = useState(false);
     return (
         <div className="w-full">
-            <label htmlFor={name} className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">{label}</label>
+            <label htmlFor={name} className="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-1.5">{label}</label>
             <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FiKey className="h-5 w-5 text-gray-400" />
+                    <KeyRound className="h-5 w-5 text-gray-400" />
                 </div>
-                <input 
-                    id={name} 
-                    type={show ? 'text' : 'password'} 
-                    {...register} 
-                    className={`w-full pl-10 pr-10 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-1 transition-colors ${
-                        error 
-                        ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-                        : 'border-gray-200 focus:ring-gray-900 focus:border-gray-900'
-                    }`} 
+                <input
+                    id={name}
+                    type={show ? 'text' : 'password'}
+                    {...register}
+                    className={cn(
+                        "w-full pl-10 pr-10 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-1 transition-colors",
+                        error
+                            ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                            : "border-gray-200 focus:ring-gray-900 focus:border-gray-900"
+                    )}
                 />
                 <button type="button" onClick={() => setShow(!show)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors">
-                    {show ? <FiEyeOff className="h-5 w-5"/> : <FiEye className="h-5 w-5"/>}
+                    {show ? <EyeOff className="h-5 w-5"/> : <Eye className="h-5 w-5"/>}
                 </button>
             </div>
             {error && <p className="mt-1.5 text-xs text-red-600 font-medium">{error.message}</p>}
@@ -100,27 +105,6 @@ const PasswordInputField = ({ label, name, error, register }) => {
     );
 };
 
-const LocalButton = ({ children, onClick, type = 'button', isLoading = false, icon: Icon, variant = 'primary', className = '' }) => {
-    const base = 'inline-flex items-center justify-center px-4 py-2 text-sm font-bold rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98]';
-    const variants = {
-        primary: 'bg-gray-900 text-white hover:bg-black focus:ring-gray-900',
-        secondary: 'bg-[#FFD130] text-gray-900 hover:bg-[#FFC400] border border-[#FFD130]',
-        danger: 'bg-white text-red-600 border border-red-200 hover:bg-red-50 focus:ring-red-500',
-        outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-gray-500'
-    };
-    
-    return (
-        <button type={type} onClick={onClick} disabled={isLoading} className={`${base} ${variants[variant]} ${className}`}>
-            {isLoading ? (
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                </svg>
-            ) : (Icon && <Icon className="mr-2 h-4 w-4" />)}
-            {children}
-        </button>
-    );
-};
 
 const LocalLoader = () => (
     <div className="flex flex-col justify-center items-center py-20 h-full">
@@ -157,8 +141,8 @@ const ExperienceModal = ({ isOpen, onClose, onSave, experience, isLoading }) => 
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm" onClick={onClose}>
             <div className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                 <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-xl">
-                    <h3 className="text-lg font-bold text-gray-900">{experience ? 'Edit Experience' : 'Add Experience'}</h3>
-                    <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-200 text-gray-500"><FiX className="h-5 w-5"/></button>
+                    <h3 className="text-lg font-semibold text-gray-900">{experience ? 'Edit Experience' : 'Add Experience'}</h3>
+                    <Button variant="ghost" size="icon" onClick={onClose} className="p-2 rounded-lg hover:bg-gray-200 text-gray-500"><X className="h-5 w-5"/></Button>
                 </div>
                 <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-grow overflow-hidden">
                     <div className="p-6 space-y-5 overflow-y-auto custom-scrollbar">
@@ -168,12 +152,12 @@ const ExperienceModal = ({ isOpen, onClose, onSave, experience, isLoading }) => 
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
-                                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">Start Date</label>
+                                <label className="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-1.5">Start Date</label>
                                 <Controller name="startDate" control={control} rules={{ required: "Required" }} render={({ field }) => <DatePicker {...field} selected={field.value} onChange={date => field.onChange(date)} className={datePickerClass} dateFormat="MM/yyyy" showMonthYearPicker placeholderText="Select Date" />} />
                                 {errors.startDate && <p className="mt-1.5 text-xs text-red-600">{errors.startDate.message}</p>}
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">End Date</label>
+                                <label className="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-1.5">End Date</label>
                                 <Controller name="endDate" control={control} render={({ field }) => <DatePicker {...field} selected={field.value} onChange={date => field.onChange(date)} className={datePickerClass} dateFormat="MM/yyyy" showMonthYearPicker disabled={isPresent} placeholderText={isPresent ? "Present" : "Select Date"} />} />
                             </div>
                         </div>
@@ -184,8 +168,8 @@ const ExperienceModal = ({ isOpen, onClose, onSave, experience, isLoading }) => 
                         <InputField label="Skills (comma-separated)" name="skills" register={{...register('skills')}} placeholder="React, Node.js, Python..." />
                     </div>
                     <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-2 rounded-b-xl">
-                        <LocalButton variant="outline" onClick={onClose}>Cancel</LocalButton>
-                        <LocalButton type="submit" isLoading={isLoading} icon={FiSave} variant="primary">Save Experience</LocalButton>
+                        <Button variant="outline" onClick={onClose}>Cancel</Button>
+                        <Button type="submit" isLoading={isLoading} variant="default"><Save className="mr-2 h-4 w-4" />Save Experience</Button>
                     </div>
                 </form>
             </div>
@@ -205,8 +189,8 @@ const SkillModal = ({ isOpen, onClose, onSave, skill, isLoading }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm" onClick={onClose}>
             <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl flex flex-col" onClick={e => e.stopPropagation()}>
                 <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-xl">
-                    <h3 className="text-lg font-bold text-gray-900">{skill ? 'Edit Skill' : 'Add Skill'}</h3>
-                    <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-200 text-gray-500"><FiX className="h-5 w-5"/></button>
+                    <h3 className="text-lg font-semibold text-gray-900">{skill ? 'Edit Skill' : 'Add Skill'}</h3>
+                    <Button variant="ghost" size="icon" onClick={onClose} className="p-2 rounded-lg hover:bg-gray-200 text-gray-500"><X className="h-5 w-5"/></Button>
                 </div>
                 <form onSubmit={handleSubmit(onSave)} className="flex flex-col">
                     <div className="p-6 space-y-5">
@@ -214,8 +198,8 @@ const SkillModal = ({ isOpen, onClose, onSave, skill, isLoading }) => {
                         <SelectField label="Proficiency Level" name="proficiencyLevel" register={{...register('proficiencyLevel', { required: 'Required' })}} options={levels} error={errors.proficiencyLevel} />
                     </div>
                     <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-2 rounded-b-xl">
-                        <LocalButton variant="outline" onClick={onClose}>Cancel</LocalButton>
-                        <LocalButton type="submit" isLoading={isLoading} icon={FiSave} variant="primary">Save Skill</LocalButton>
+                        <Button variant="outline" onClick={onClose}>Cancel</Button>
+                        <Button type="submit" isLoading={isLoading} variant="default"><Save className="mr-2 h-4 w-4" />Save Skill</Button>
                     </div>
                 </form>
             </div>
@@ -228,14 +212,14 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, itemType, isLoading })
         <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="p-6 flex flex-col items-center text-center">
                 <div className="h-12 w-12 rounded-full bg-red-50 flex items-center justify-center mb-4 border border-red-100">
-                    <FiAlertTriangle className="h-6 w-6 text-red-600"/>
+                    <AlertTriangle className="h-6 w-6 text-red-600"/>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900">Delete {itemType}</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Delete {itemType}</h3>
                 <p className="mt-2 text-sm text-gray-500">Are you sure you want to delete this {itemType.toLowerCase()}? This action cannot be undone.</p>
             </div>
             <div className="bg-gray-50 px-6 py-4 flex justify-center gap-3 border-t border-gray-100">
-                <LocalButton variant="outline" onClick={onClose}>Cancel</LocalButton>
-                <LocalButton variant="danger" onClick={onConfirm} isLoading={isLoading}>Delete</LocalButton>
+                <Button variant="outline" onClick={onClose}>Cancel</Button>
+                <Button variant="destructive" onClick={onConfirm} isLoading={isLoading} className="bg-white text-red-600 border border-red-200 hover:bg-red-50">Delete</Button>
             </div>
         </div>
     </div>
@@ -381,13 +365,17 @@ const Profile = () => {
   if (loading) return <LocalLoader />;
 
   const tabs = [
-    { id: 'Experience', label: 'Experience', icon: FiBriefcase },
-    { id: 'Skills', label: 'Skills', icon: FiLayers },
-    { id: 'Profile Details', label: 'Profile Details', icon: FiUser },
-    { id: 'Security', label: 'Security', icon: FiShield }
+    { id: 'Experience', label: 'Experience', icon: Briefcase },
+    { id: 'Skills', label: 'Skills', icon: Layers },
+    { id: 'Profile Details', label: 'Profile Details', icon: User },
+    { id: 'Security', label: 'Security', icon: Shield }
   ];
 
-  const statusColor = profile?.status === 'Active' ? 'bg-emerald-500' : profile?.status === 'On Probation' ? 'bg-amber-500' : 'bg-gray-400';
+  const statusColor = cn(
+    profile?.status === 'Active' && 'bg-emerald-500',
+    profile?.status === 'On Probation' && 'bg-amber-500',
+    profile?.status !== 'Active' && profile?.status !== 'On Probation' && 'bg-gray-400'
+  );
 
   return (
     <div className="flex h-full bg-[#F5F7F9] overflow-hidden">
@@ -397,40 +385,38 @@ const Profile = () => {
             {/* Avatar & Info */}
             <div className="p-6 text-center border-b border-gray-100">
                 <div className="relative inline-block">
-                    <div className="h-20 w-20 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white text-2xl font-bold mx-auto shadow-lg">
+                    <div className="h-20 w-20 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white text-2xl font-semibold mx-auto shadow-lg">
                         {currentUser?.firstName?.charAt(0)}
                     </div>
                     <span className={`absolute bottom-1 right-1 w-4 h-4 ${statusColor} rounded-full border-2 border-white`} title={profile?.status} />
                 </div>
-                <h2 className="text-base font-bold text-gray-900 mt-3">{currentUser?.firstName} {currentUser?.lastName}</h2>
+                <h2 className="text-base font-semibold text-gray-900 mt-3">{currentUser?.firstName} {currentUser?.lastName}</h2>
                 <p className="text-xs text-gray-500 mt-0.5">{profile?.jobTitle || 'No Title'} at {profile?.currentEmployer || '—'}</p>
-                <span className={`inline-block mt-2 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide rounded-full ${
-                    profile?.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                }`}>
+                <Badge variant={profile?.status === 'Active' ? 'success' : 'warning'} className="mt-2 text-xs font-medium uppercase tracking-wide">
                     {profile?.status}
-                </span>
+                </Badge>
             </div>
 
             {/* Quick Info */}
             <div className="px-5 py-4 space-y-3 border-b border-gray-100">
                 <div className="flex items-center gap-3 text-sm">
-                    <FiMail className="w-4 h-4 text-gray-400 shrink-0" />
+                    <Mail className="w-4 h-4 text-gray-400 shrink-0" />
                     <span className="text-gray-600 truncate text-xs">{currentUser?.email}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                    <FiPhone className="w-4 h-4 text-gray-400 shrink-0" />
+                    <Phone className="w-4 h-4 text-gray-400 shrink-0" />
                     <span className="text-gray-600 text-xs">{currentUser?.phoneNumber || '—'}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                    <FiBriefcase className="w-4 h-4 text-gray-400 shrink-0" />
+                    <Briefcase className="w-4 h-4 text-gray-400 shrink-0" />
                     <span className="text-gray-600 text-xs">{profile?.yearsOfExperience || 0} years experience</span>
                 </div>
                 {profile?.domains?.length > 0 && (
                     <div className="flex items-start gap-3 text-sm">
-                        <FiMapPin className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
+                        <MapPin className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
                         <div className="flex flex-wrap gap-1">
                             {profile.domains.map((d, i) => (
-                                <span key={i} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] rounded font-medium">{d}</span>
+                                <Badge key={i} variant="gray" className="text-xs">{d}</Badge>
                             ))}
                         </div>
                     </div>
@@ -443,12 +429,13 @@ const Profile = () => {
                     const Icon = tab.icon;
                     return (
                         <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-2.5 w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                            className={cn(
+                                "flex items-center gap-2.5 w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-colors",
                                 activeTab === tab.id
-                                    ? 'bg-slate-900 text-white'
-                                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                            }`}>
-                            <Icon className={`w-4 h-4 ${activeTab === tab.id ? 'text-white' : 'text-gray-400'}`} />
+                                    ? "bg-indigo-600 text-white"
+                                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                            )}>
+                            <Icon className={cn("w-4 h-4", activeTab === tab.id ? "text-white" : "text-gray-400")} />
                             {tab.label}
                         </button>
                     );
@@ -459,11 +446,11 @@ const Profile = () => {
             {profile?.profileCompleteness !== undefined && (
                 <div className="p-4 border-t border-gray-100">
                     <div className="flex justify-between items-center mb-1.5">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Profile</span>
-                        <span className="text-[10px] font-bold text-gray-600">{Math.round(profile.profileCompleteness)}%</span>
+                        <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Profile</span>
+                        <span className="text-xs font-medium text-gray-600">{Math.round(profile.profileCompleteness)}%</span>
                     </div>
                     <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div className={`h-full rounded-full transition-all ${profile.profileCompleteness === 100 ? 'bg-emerald-500' : 'bg-indigo-500'}`}
+                        <div className={cn("h-full rounded-full transition-all", profile.profileCompleteness === 100 ? "bg-emerald-500" : "bg-indigo-500")}
                             style={{ width: `${profile.profileCompleteness}%` }} />
                     </div>
                 </div>
@@ -475,20 +462,21 @@ const Profile = () => {
             {/* Mobile header (visible only on sm) */}
             <div className="lg:hidden bg-white border-b border-gray-200 p-4">
                 <div className="flex items-center gap-3 mb-4">
-                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white text-lg font-bold">
+                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white text-lg font-semibold">
                         {currentUser?.firstName?.charAt(0)}
                     </div>
                     <div>
-                        <h2 className="text-base font-bold text-gray-900">{currentUser?.firstName} {currentUser?.lastName}</h2>
+                        <h2 className="text-base font-semibold text-gray-900">{currentUser?.firstName} {currentUser?.lastName}</h2>
                         <p className="text-xs text-gray-500">{profile?.jobTitle} at {profile?.currentEmployer}</p>
                     </div>
                 </div>
                 <div className="flex gap-1 overflow-x-auto no-scrollbar">
                     {tabs.map(tab => (
                         <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors ${
-                                activeTab === tab.id ? 'bg-slate-900 text-white' : 'bg-gray-100 text-gray-600'
-                            }`}>
+                            className={cn(
+                                "px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors",
+                                activeTab === tab.id ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600"
+                            )}>
                             {tab.label}
                         </button>
                     ))}
@@ -502,50 +490,50 @@ const Profile = () => {
                 {activeTab === 'Experience' && (
                     <div className="space-y-6">
                         <div className="flex justify-between items-center">
-                             <h2 className="text-lg font-bold text-gray-900">Work Experience</h2>
-                             <LocalButton variant="secondary" icon={FiPlus} onClick={() => { setEditingExperience(null); setIsExperienceModalOpen(true); }}>Add Experience</LocalButton>
+                             <h2 className="text-lg font-semibold text-gray-900">Work Experience</h2>
+                             <Button variant="secondary" onClick={() => { setEditingExperience(null); setIsExperienceModalOpen(true); }} className="bg-[#FFD130] text-gray-900 hover:bg-[#FFC400] border border-[#FFD130]"><Plus className="mr-2 h-4 w-4" />Add Experience</Button>
                         </div>
                         
                         {/* Current Role Card */}
                         {profile?.jobTitle && profile?.currentEmployer && (
                              <div className="bg-emerald-50 rounded-xl p-6 border border-emerald-100 flex justify-between items-center">
                                 <div>
-                                    <h3 className="text-sm font-bold text-emerald-900 uppercase tracking-wide mb-1">Current Role</h3>
-                                    <div className="text-lg font-bold text-gray-900">{profile.jobTitle}</div>
+                                    <h3 className="text-sm font-medium text-emerald-900 uppercase tracking-wide mb-1">Current Role</h3>
+                                    <div className="text-lg font-semibold text-gray-900">{profile.jobTitle}</div>
                                     <div className="text-gray-600 font-medium">{profile.currentEmployer} • {profile.yearsOfExperience} Years Exp.</div>
                                 </div>
                                 <div className="p-3 bg-emerald-100 rounded-full text-emerald-600">
-                                    <FiBriefcase className="h-6 w-6" />
+                                    <Briefcase className="h-6 w-6" />
                                 </div>
                              </div>
                         )}
 
                         {profile?.experiences?.length === 0 ? (
                             <div className="text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
-                                <FiBriefcase className="h-10 w-10 text-gray-300 mx-auto mb-3" />
+                                <Briefcase className="h-10 w-10 text-gray-300 mx-auto mb-3" />
                                 <p className="text-gray-500">No past experience added yet.</p>
                             </div>
                         ) : (
                             <div className="space-y-4">
                                 {profile?.experiences?.map(exp => (
-                                    <div key={exp._id} className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                                    <div key={exp._id} className="bg-white rounded-xl p-6 border border-gray-100 shadow-md hover:shadow-md transition-shadow">
                                         <div className="flex justify-between items-start mb-2">
                                             <div>
-                                                <h3 className="text-lg font-bold text-gray-900">{exp.title}</h3>
+                                                <h3 className="text-lg font-semibold text-gray-900">{exp.title}</h3>
                                                 <p className="text-gray-600 font-medium">{exp.company}</p>
                                             </div>
                                             <div className="flex gap-2">
-                                                <button onClick={() => { setEditingExperience(exp); setIsExperienceModalOpen(true); }} className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><FiEdit className="h-4 w-4"/></button>
-                                                <button onClick={() => handleDeleteRequest(exp, 'Experience')} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><FiTrash2 className="h-4 w-4"/></button>
+                                                <Button variant="ghost" size="icon" onClick={() => { setEditingExperience(exp); setIsExperienceModalOpen(true); }} className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"><Edit className="h-4 w-4"/></Button>
+                                                <Button variant="ghost" size="icon" onClick={() => handleDeleteRequest(exp, 'Experience')} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><Trash2 className="h-4 w-4"/></Button>
                                             </div>
                                         </div>
                                         <p className="text-sm text-gray-500 flex items-center mb-4">
-                                            <FiCalendar className="mr-2 h-4 w-4" />
+                                            <Calendar className="mr-2 h-4 w-4" />
                                             {formatDate(exp.startDate)} - {exp.isPresent ? <span className="text-green-600 font-semibold ml-1">Present</span> : (exp.endDate ? formatDate(exp.endDate) : 'N/A')}
                                         </p>
                                         {exp.skills && exp.skills.length > 0 && (
                                             <div className="flex flex-wrap gap-2 mt-3">
-                                                {exp.skills.map((skill, idx) => <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md font-medium border border-gray-200">{skill}</span>)}
+                                                {exp.skills.map((skill, idx) => <Badge key={idx} variant="gray">{skill}</Badge>)}
                                             </div>
                                         )}
                                     </div>
@@ -559,32 +547,34 @@ const Profile = () => {
                 {activeTab === 'Skills' && (
                     <div className="space-y-6">
                         <div className="flex justify-between items-center">
-                            <h2 className="text-lg font-bold text-gray-900">Technical Skills</h2>
-                            <LocalButton variant="secondary" icon={FiPlus} onClick={() => { setEditingSkill(null); setIsSkillModalOpen(true); }}>Add Skill</LocalButton>
+                            <h2 className="text-lg font-semibold text-gray-900">Technical Skills</h2>
+                            <Button variant="secondary" onClick={() => { setEditingSkill(null); setIsSkillModalOpen(true); }} className="bg-[#FFD130] text-gray-900 hover:bg-[#FFC400] border border-[#FFD130]"><Plus className="mr-2 h-4 w-4" />Add Skill</Button>
                         </div>
                         {profile?.skills?.length === 0 ? (
                             <div className="text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
-                                <FiLayers className="h-10 w-10 text-gray-300 mx-auto mb-3" />
+                                <Layers className="h-10 w-10 text-gray-300 mx-auto mb-3" />
                                 <p className="text-gray-500">No skills added yet.</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {profile?.skills?.map(skill => (
-                                    <div key={skill._id} className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center group hover:border-slate-300 transition-colors">
+                                    <div key={skill._id} className="bg-white p-5 rounded-xl border border-gray-100 shadow-md flex justify-between items-center group hover:border-slate-300 transition-colors">
                                         <div>
-                                            <h4 className="font-bold text-gray-900">{skill.skill}</h4>
-                                            <span className={`inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded ${
-                                                skill.proficiencyLevel === 'Expert' ? 'bg-purple-50 text-purple-700' :
-                                                skill.proficiencyLevel === 'Advanced' ? 'bg-emerald-50 text-emerald-700' :
-                                                skill.proficiencyLevel === 'Intermediate' ? 'bg-sky-50 text-sky-700' :
-                                                'bg-gray-100 text-gray-600'
-                                            }`}>
+                                            <h4 className="font-semibold text-gray-900">{skill.skill}</h4>
+                                            <Badge
+                                                variant={
+                                                    skill.proficiencyLevel === 'Expert' ? 'purple' :
+                                                    skill.proficiencyLevel === 'Advanced' ? 'success' :
+                                                    skill.proficiencyLevel === 'Intermediate' ? 'info' : 'gray'
+                                                }
+                                                className="mt-1"
+                                            >
                                                 {skill.proficiencyLevel}
-                                            </span>
+                                            </Badge>
                                         </div>
                                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button onClick={() => { setEditingSkill(skill); setIsSkillModalOpen(true); }} className="p-1.5 text-gray-400 hover:text-indigo-600 rounded"><FiEdit /></button>
-                                            <button onClick={() => handleDeleteRequest(skill, 'Skill')} className="p-1.5 text-gray-400 hover:text-red-600 rounded"><FiTrash2 /></button>
+                                            <Button variant="ghost" size="icon" onClick={() => { setEditingSkill(skill); setIsSkillModalOpen(true); }} className="p-1.5 text-gray-400 hover:text-indigo-600 rounded-lg"><Edit /></Button>
+                                            <Button variant="ghost" size="icon" onClick={() => handleDeleteRequest(skill, 'Skill')} className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg"><Trash2 /></Button>
                                         </div>
                                     </div>
                                 ))}
@@ -597,14 +587,14 @@ const Profile = () => {
                 {activeTab === 'Profile Details' && (
                     <div className="space-y-6">
                         <form onSubmit={handleSubmitBasic(onSubmitBasicInfo)}>
-                            <SectionCard title="Personal Information" icon={FiUser} footer={<LocalButton type="submit" isLoading={submittingSection === 'basic'} icon={FiSave} variant="primary">Save Changes</LocalButton>}>
+                            <SectionCard title="Personal Information" icon={User} footer={<Button type="submit" isLoading={submittingSection === 'basic'} variant="default"><Save className="mr-2 h-4 w-4" />Save Changes</Button>}>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <InputField label="First Name" name="firstName" register={{...registerBasic('firstName', { required: 'Required' })}} error={errorsBasic.firstName} />
                                     <InputField label="Last Name" name="lastName" register={{...registerBasic('lastName', { required: 'Required' })}} error={errorsBasic.lastName} />
                                     <InputField label="Phone Number" name="phoneNumber" register={{...registerBasic('phoneNumber', { required: 'Required' })}} error={errorsBasic.phoneNumber} />
                                     <InputField label="WhatsApp Number" name="whatsappNumber" register={{...registerBasic('whatsappNumber')}} error={errorsBasic.whatsappNumber} />
                                     <div className="md:col-span-2 pt-4 mt-2 border-t border-gray-100">
-                                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Professional Overview</h4>
+                                        <h4 className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-4">Professional Overview</h4>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <InputField label="Current Employer" name="currentEmployer" register={{...registerBasic('currentEmployer', { required: 'Required' })}} error={errorsBasic.currentEmployer}/>
                                             <InputField label="Job Title" name="jobTitle" register={{...registerBasic('jobTitle', { required: 'Required' })}} error={errorsBasic.jobTitle} />
@@ -617,7 +607,7 @@ const Profile = () => {
                         </form>
 
                         <form onSubmit={handleSubmitBank(onSubmitBankDetails)}>
-                            <SectionCard title="Bank Details" icon={FiDollarSign} footer={<LocalButton type="submit" isLoading={submittingSection === 'bank'} icon={FiSave} variant="primary">Update Bank Info</LocalButton>}>
+                            <SectionCard title="Bank Details" icon={DollarSign} footer={<Button type="submit" isLoading={submittingSection === 'bank'} variant="default"><Save className="mr-2 h-4 w-4" />Update Bank Info</Button>}>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <InputField label="Account Holder" name="accountName" register={{...registerBank('accountName', { required: 'Required' })}} error={errorsBank.accountName} />
                                     <InputField label="Bank Name" name="bankName" register={{...registerBank('bankName', { required: 'Required' })}} error={errorsBank.bankName} />
@@ -632,10 +622,10 @@ const Profile = () => {
                 {/* --- SECURITY TAB --- */}
                 {activeTab === 'Security' && (
                      <form onSubmit={handleSubmitPassword(onSubmitPasswordChange)}>
-                        <SectionCard title="Security Settings" icon={FiLock} footer={<LocalButton type="submit" isLoading={submittingSection === 'password'} icon={FiSave} variant="primary">Update Password</LocalButton>}>
+                        <SectionCard title="Security Settings" icon={Lock} footer={<Button type="submit" isLoading={submittingSection === 'password'} variant="default"><Save className="mr-2 h-4 w-4" />Update Password</Button>}>
                            <div className="max-w-lg space-y-5">
                                 <div className="p-4 bg-yellow-50 text-yellow-800 text-sm rounded-lg border border-yellow-100 flex items-start">
-                                    <FiAlertTriangle className="h-5 w-5 mr-2 flex-shrink-0" />
+                                    <AlertTriangle className="h-5 w-5 mr-2 flex-shrink-0" />
                                     <p>Ensure your new password is at least 8 characters long and includes a mix of letters, numbers, and symbols.</p>
                                 </div>
                                 <PasswordInputField label="Current Password" name="currentPassword" register={{...registerPassword('currentPassword', { required: 'Required' })}} error={errorsPassword.currentPassword} />

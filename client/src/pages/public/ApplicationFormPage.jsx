@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import SEO from '../../components/common/SEO';
 import InitialApplicationForm from '../../components/forms/InitialApplicationForm';
 import {
   CheckCircle, ArrowLeft,
@@ -17,6 +18,7 @@ const benefits = [
 const ApplicationFormPage = () => {
   return (
     <div className="h-screen bg-gray-50 flex flex-col lg:flex-row overflow-hidden">
+      <SEO title="Apply as Interviewer" description="Apply to become a freelance interviewer at NxtWave. Fill out the application form to get started." path="/applicationform" />
 
           {/* ─── LEFT: Branding Panel ──────────────────────────────────────── */}
           <motion.div
@@ -27,15 +29,15 @@ const ApplicationFormPage = () => {
           >
             <div>
               {/* Back link */}
-              <Link to="/" className="inline-flex items-center gap-2 text-xs text-slate-400 hover:text-emerald-400 transition-colors font-medium mb-8">
+              <Link to="/" className="inline-flex items-center gap-2 text-xs text-slate-400 hover:text-indigo-400 transition-colors font-medium mb-8">
                 <ArrowLeft size={14} /> Back to Home
               </Link>
 
 
 
               {/* Heading */}
-              <h2 className="text-2xl lg:text-3xl font-bold leading-tight mb-3">
-                Become a <span className="text-emerald-400">Tech Interviewer</span>
+              <h2 className="text-2xl lg:text-3xl font-semibold leading-tight mb-3">
+                Become a <span className="text-indigo-400">Tech Interviewer</span>
               </h2>
               <p className="text-slate-400 text-sm leading-relaxed mb-8">
                 Join our community of industry professionals conducting mock interviews and shaping the careers of aspiring developers.
@@ -51,8 +53,8 @@ const ApplicationFormPage = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 + i * 0.08 }}
                   >
-                    <div className="w-9 h-9 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
-                      <item.icon size={17} className="text-emerald-400" />
+                    <div className="w-9 h-9 rounded-lg bg-indigo-500/15 flex items-center justify-center shrink-0">
+                      <item.icon size={17} className="text-indigo-400" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-white">{item.title}</p>
@@ -72,8 +74,8 @@ const ApplicationFormPage = () => {
                   { num: '₹1000', label: 'Per Interview' },
                 ].map((stat, i) => (
                   <div key={i} className="text-center">
-                    <p className="text-lg font-bold text-emerald-400">{stat.num}</p>
-                    <p className="text-[10px] text-slate-500 uppercase tracking-wide font-medium">{stat.label}</p>
+                    <p className="text-lg font-semibold text-indigo-400">{stat.num}</p>
+                    <p className="text-xs text-slate-500 uppercase tracking-wide font-medium">{stat.label}</p>
                   </div>
                 ))}
               </div>
@@ -91,7 +93,7 @@ const ApplicationFormPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.15 }}
               >
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">
                   Interviewer Application
                 </h1>
                 <p className="mt-1.5 text-sm text-gray-500">
@@ -101,7 +103,7 @@ const ApplicationFormPage = () => {
 
               {/* Form Card */}
               <motion.div
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-8"
+                className="bg-white rounded-2xl border border-gray-100 shadow-md p-5 sm:p-8"
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.2 }}

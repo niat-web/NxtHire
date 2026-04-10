@@ -65,6 +65,7 @@ const {
   manualBookSlot,
   manualAddBookingSlot,
 } = require('../controllers/admin.controller');
+const { getNotificationSettings, updateNotificationSettings } = require('../controllers/notificationSettings.controller');
 const { protect, adminOnly } = require('../middleware/auth.middleware');
 const { validate, schemas } = require('../middleware/validator.middleware');
 
@@ -85,6 +86,9 @@ router.route('/custom-email-templates/:id')
     
 router.post('/custom-email/send', sendBulkCustomEmail);
 
+
+// --- Notification Settings ---
+router.route('/notification-settings').get(getNotificationSettings).put(updateNotificationSettings);
 
 // --- Dashboard & Reporting ---
 router.get('/stats/dashboard', getDashboardStats);

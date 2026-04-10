@@ -1,52 +1,7 @@
-// // client/src/pages/public/SkillAssessmentSuccess.jsx
-// import React from 'react';
-// import { Link } from 'react-router-dom';
-// import { FiCheckCircle, FiHome } from 'react-icons/fi';
-// import Card from '../../components/common/Card';
-// import Button from '../../components/common/Button';
-
-// const SkillAssessmentSuccess = () => {
-  
-//   return (
-//     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-//         <div className="max-w-lg mx-auto px-4 py-12">
-//             <Card>
-//                 <div className="text-center p-6">
-//                     <div className="flex justify-center mb-4">
-//                         <FiCheckCircle className="h-20 w-20 text-green-500" />
-//                     </div>
-                    
-//                     <h2 className="text-2xl font-bold text-gray-900 mb-4">Thank You!</h2>
-                    
-//                     <p className="text-gray-600 mb-6 leading-relaxed">
-//                         Thank you for completing the registration form and expressing your interest in becoming an interviewer with NxtWave. Your expertise is valuable to us, and we look forward to the possibility of working together.
-//                     </p>
-                    
-//                     <p className="text-gray-600 mb-8">
-//                         Our team will review your complete profile and get back to you with the next steps. Please keep an eye on your email.
-//                     </p>
-                    
-//                     <Button
-//                         to="/"
-//                         variant="primary"
-//                         icon={<FiHome />}
-//                         iconPosition="left"
-//                     >
-//                         Back to Home
-//                     </Button>
-//                 </div>
-//             </Card>
-//         </div>
-//     </div>
-//   );
-// };
-
-// export default SkillAssessmentSuccess;
-
-
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle, Home, Sparkles, Star } from 'lucide-react';
+import { CheckCircle, Home, Sparkles } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const SkillAssessmentSuccess = () => {
   return (
@@ -63,7 +18,7 @@ const SkillAssessmentSuccess = () => {
           {/* Success Icon */}
           <div className="text-center mb-4">
             <div className="inline-flex items-center justify-center relative">
-              <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-3 rounded-full shadow-lg">
+              <div className="bg-gradient-to-r from-green-500 to-indigo-500 p-3 rounded-full shadow-md">
                 <CheckCircle className="h-8 w-8 text-white" />
               </div>
               <div className="absolute -top-1 -right-1 text-yellow-400">
@@ -74,7 +29,7 @@ const SkillAssessmentSuccess = () => {
 
           {/* Header */}
           <div className="text-center mb-4">
-            <h1 className="text-2xl font-bold mb-2 bg-gradient-to-r from-slate-800 to-emerald-700 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-semibold mb-2 bg-gradient-to-r from-slate-800 to-indigo-700 bg-clip-text text-transparent">
               Thank You!
             </h1>
           </div>
@@ -83,15 +38,15 @@ const SkillAssessmentSuccess = () => {
           <div className="space-y-4 mb-6">
             <div className="bg-gradient-to-r from-slate-50 to-emerald-50 rounded-xl p-4 border border-slate-200/50">
               <p className="text-slate-700 text-sm leading-relaxed">
-                Thank you for completing the registration form and expressing your interest in becoming an 
-                <span className="font-semibold text-emerald-700 mx-1">interviewer with NxtWave</span>. 
+                Thank you for completing the registration form and expressing your interest in becoming an
+                <span className="font-semibold text-indigo-700 mx-1">interviewer with NxtWave</span>.
                 Your expertise is valuable to us.
               </p>
             </div>
 
             <div className="bg-gradient-to-r from-emerald-50 to-emerald-50 rounded-xl p-4 border border-emerald-200/50">
               <p className="text-slate-700 text-sm leading-relaxed">
-                Our team will review your complete profile and get back to you with the next steps. 
+                Our team will review your complete profile and get back to you with the next steps.
                 Please keep an eye on your email.
               </p>
             </div>
@@ -99,13 +54,12 @@ const SkillAssessmentSuccess = () => {
 
           {/* CTA Button */}
           <div className="text-center">
-            <Link
-              to="/"
-              className="group inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-            >
-              <Home className="h-4 w-4 group-hover:rotate-12 transition-transform duration-300" />
-              <span>Back to Home</span>
-            </Link>
+            <Button asChild variant="success" className="rounded-xl px-6 h-12 shadow-md font-semibold">
+              <Link to="/">
+                <Home className="h-4 w-4 mr-2" />
+                Back to Home
+              </Link>
+            </Button>
           </div>
 
           {/* Decorative dots */}

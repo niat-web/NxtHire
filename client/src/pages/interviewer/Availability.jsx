@@ -1,19 +1,21 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Loader from '@/components/common/Loader';
-import Button from '@/components/common/Button';
 import EmptyState from '@/components/common/EmptyState';
 import Modal from '@/components/common/Modal';
 import Textarea from '@/components/common/Textarea';
 import { declineBookingRequest } from '@/api/interviewer.api';
 import { useAlert } from '@/hooks/useAlert';
-import { FiCalendar, FiClock, FiCheckCircle, FiXCircle, FiInbox, FiLock, FiAlertCircle } from 'react-icons/fi';
+import { Calendar, Clock, CheckCircle, XCircle, Inbox, Lock, AlertCircle } from 'lucide-react';
 import { formatDate } from '@/utils/formatters';
 import { useForm } from 'react-hook-form';
-import { subDays, startOfDay } from 'date-fns'; // Import date helpers
+import { subDays, startOfDay } from 'date-fns';
 import { useBookingRequests, useInvalidateInterviewer } from '@/hooks/useInterviewerQueries';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 
-// --- IMPORT THE UPDATED MODAL ---
 import SlotSubmissionModal from '../../components/interviewer/SlotSubmissionModal'; 
 
 const DeclineModal = ({ isOpen, onClose, onSubmit, request }) => {
@@ -38,7 +40,7 @@ const DeclineModal = ({ isOpen, onClose, onSubmit, request }) => {
                     <Button variant="outline" type="button" onClick={onClose} disabled={isSubmitting}>
                         Cancel
                     </Button>
-                    <Button variant="danger" type="submit" isLoading={isSubmitting}>
+                    <Button variant="destructive" type="submit" isLoading={isSubmitting}>
                         Confirm Not Interested
                     </Button>
                 </div>
@@ -113,7 +115,7 @@ const Availability = () => {
   const getStatusBadge = (req, isExpired, canEdit) => {
       // 1. Closed by Admin
       if (req.bookingStatus === 'Closed') {
-          return <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gray-100 text-gray-600 border border-gray-200"><FiLock className="mr-2" /> Request Closed</div>;
+          return <Badge variant="gray" className="px-4 py-2 text-sm"><Lock className="mr-2 h-4 w-4" /> Request Closed</Badge>;
       }
       
       switch(req.status) {
@@ -121,32 +123,33 @@ const Availability = () => {
               if (canEdit) {
                   // Case A: Submitted & Within Edit Window (Yesterday, Today, Future) -> Clickable Button
                   return (
-                    <button 
-                        onClick={() => handleProvideAvailability(req)} 
-                        className="group inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-green-100 text-green-700 hover:bg-green-200 hover:border-green-300 transition-all border border-green-200 shadow-sm"
+                    <Button
+                        onClick={() => handleProvideAvailability(req)}
+                        variant="success"
+                        className="group rounded-full shadow-md"
                         title="Click to view or edit submitted slots"
                     >
-                        <FiCheckCircle className="mr-2 group-hover:scale-110 transition-transform" /> Slots Submitted
-                        <span className="ml-2 text-[10px] bg-white/50 text-green-800 px-1.5 py-0.5 rounded border border-green-300/50 font-semibold group-hover:bg-white">Edit</span>
-                    </button>
+                        <CheckCircle className="mr-2 group-hover:scale-110 transition-transform" /> Slots Submitted
+                        <span className="ml-2 text-xs bg-white/50 text-green-800 px-1.5 py-0.5 rounded border border-green-300/50 font-semibold group-hover:bg-white">Edit</span>
+                    </Button>
                   );
               } else {
                   // Case B: Submitted & Too Old (Before Yesterday) -> Static Badge
                   return (
                     <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-green-50 text-green-600 border border-green-100 opacity-80 cursor-default">
-                        <FiCheckCircle className="mr-2" /> Submitted (Locked)
+                        <CheckCircle className="mr-2" /> Submitted (Locked)
                     </div>
                   );
               }
 
           case 'Not Available':
-               return <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-red-50 text-red-700 border border-red-100"><FiXCircle className="mr-2" /> Not Available</div>;
-          
+               return <Badge variant="danger" className="px-4 py-2 text-sm"><XCircle className="mr-2 h-4 w-4" /> Not Available</Badge>;
+
           default: // 'Pending'
                if (isExpired) {
-                   return <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gray-100 text-gray-500 border border-gray-200"><FiAlertCircle className="mr-2"/> Expired</div>;
+                   return <Badge variant="gray" className="px-4 py-2 text-sm"><AlertCircle className="mr-2 h-4 w-4"/> Expired</Badge>;
                }
-               return <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-yellow-50 text-yellow-700 border border-yellow-100"><FiClock className="mr-2"/> Awaiting Availability</div>;
+               return <Badge variant="warning" className="px-4 py-2 text-sm"><Clock className="mr-2 h-4 w-4"/> Awaiting Availability</Badge>;
       }
   }
 
@@ -179,17 +182,20 @@ const Availability = () => {
             const isActionable = req.status === 'Pending' && req.bookingStatus === 'Open' && !isExpired;
 
             return (
-              <div 
-                  key={req.bookingId} 
-                  className={`bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-200 hover:shadow-md ${!isActionable && !canEdit ? 'bg-slate-50/50' : ''}`}
+              <Card
+                  key={req.bookingId}
+                  className={cn(
+                      "p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-200 hover:shadow-md",
+                      !isActionable && !canEdit && "bg-slate-50/50"
+                  )}
               >
                   <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${isActionable ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-100 text-slate-400'}`}>
-                          <FiCalendar className="w-6 h-6" />
+                      <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0", isActionable ? "bg-indigo-50 text-indigo-600" : "bg-slate-100 text-slate-400")}>
+                          <Calendar className="w-6 h-6" />
                       </div>
                       <div>
-                          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Request for</p>
-                          <p className={`text-lg font-bold ${isActionable || canEdit ? 'text-slate-800' : 'text-slate-500'}`}>
+                          <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-0.5">Request for</p>
+                          <p className={cn("text-lg font-semibold", isActionable || canEdit ? "text-slate-800" : "text-slate-500")}>
                               {formatDate(req.bookingDate)}
                           </p>
                       </div>
@@ -201,14 +207,13 @@ const Availability = () => {
                              <Button
                                   variant="outline"
                                   onClick={() => handleOpenDeclineModal(req)}
-                                  className="!text-red-600 !border-red-200 hover:!bg-red-50 hover:!border-red-300"
+                                  className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
                               >
                                   Not Interested
                               </Button>
                               <Button
-                                  variant="primary"
+                                  variant="default"
                                   onClick={() => handleProvideAvailability(req)}
-                                  className="!shadow-sm"
                               >
                                   Provide Availability
                               </Button>
@@ -217,7 +222,7 @@ const Availability = () => {
                         getStatusBadge(req, isExpired, canEdit)
                       )}
                   </div>
-              </div>
+              </Card>
             );
           })}
         </div>
@@ -225,7 +230,7 @@ const Availability = () => {
         <EmptyState
           title="All Caught Up!"
           description="You have no new availability requests from the admin at this time."
-          icon={<FiInbox className="h-16 w-16 text-gray-300" />}
+          icon={<Inbox className="h-16 w-16 text-gray-300" />}
         />
       )}
       

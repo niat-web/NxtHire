@@ -1,7 +1,7 @@
-// client/src/components/common/Footer.jsx
 import { Link } from 'react-router-dom';
 import { Mail, MapPin, Phone, ArrowRight } from 'lucide-react';
 import logoSrc from '/logo.svg';
+import { Separator } from '@/components/ui/separator';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -34,7 +34,7 @@ const Footer = () => {
             </p>
 
             <div className="space-y-2.5 text-sm text-gray-500">
-              <a href="mailto:interviewercommunity@nxtwave.in" className="flex items-center gap-3 hover:text-emerald-600 transition-colors">
+              <a href="mailto:interviewercommunity@nxtwave.in" className="flex items-center gap-3 hover:text-indigo-600 transition-colors">
                 <Mail size={16} className="text-gray-400" />
                 interviewercommunity@nxtwave.in
               </a>
@@ -59,7 +59,7 @@ const Footer = () => {
                 <li key={link.name}>
                   <Link
                     to={link.path}
-                    className="text-sm text-gray-500 hover:text-emerald-600 transition-colors inline-flex items-center gap-1.5 group"
+                    className="text-sm text-gray-500 hover:text-indigo-600 transition-colors inline-flex items-center gap-1.5 group"
                   >
                     <ArrowRight size={14} className="opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all" />
                     {link.name}
@@ -79,7 +79,7 @@ const Footer = () => {
                 <li key={link.name}>
                   <Link
                     to={link.path}
-                    className="text-sm text-gray-500 hover:text-emerald-600 transition-colors inline-flex items-center gap-1.5 group"
+                    className="text-sm text-gray-500 hover:text-indigo-600 transition-colors inline-flex items-center gap-1.5 group"
                   >
                     <ArrowRight size={14} className="opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all" />
                     {link.name}
@@ -92,15 +92,14 @@ const Footer = () => {
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-gray-400">
-            &copy; {currentYear} NxtWave. All rights reserved.
-          </p>
-          <p className="text-xs text-gray-400">
-            Built with care for the interviewer community.
-          </p>
-        </div>
+      <Separator className="bg-gray-100" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p className="text-xs text-gray-400">
+          &copy; {currentYear} NxtWave. All rights reserved.
+        </p>
+        <p className="text-xs text-gray-400">
+          Built with care for the interviewer community.
+        </p>
       </div>
     </footer>
   );

@@ -1,6 +1,6 @@
 // client/src/components/common/DropdownMenu.jsx
 import { Menu, Portal } from '@headlessui/react';
-import { FiMoreVertical } from 'react-icons/fi';
+import { MoreVertical } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useFloating, flip, shift, offset, autoUpdate } from '@floating-ui/react';
 
@@ -28,7 +28,7 @@ const DropdownMenu = ({ options }) => {
           className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-transparent text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
         >
           <span className="sr-only">Open options</span>
-          <FiMoreVertical className="h-5 w-5" aria-hidden="true" />
+          <MoreVertical className="h-5 w-5" aria-hidden="true" />
         </Menu.Button>
       </div>
       
@@ -38,7 +38,7 @@ const DropdownMenu = ({ options }) => {
         <Menu.Items
           ref={refs.setFloating}
           style={floatingStyles}
-          className="z-50 w-48 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+          className="z-50 w-48 rounded-xl bg-white shadow-md ring-1 ring-black ring-opacity-5 focus:outline-none"
         >
           <div className="py-1">
             {options.map((option) => (

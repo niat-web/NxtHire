@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { FiArrowLeft, FiSave } from 'react-icons/fi';
+import { ArrowLeft, Save } from 'lucide-react';
 import { useAlert } from '../../hooks/useAlert';
 import { createInterviewBooking, updateInterviewBooking } from '../../api/admin.api';
 import { useInterviewBookingDetails, useInvalidateAdmin } from '../../hooks/useAdminQueries';
 import BookingForm from '../../components/admin/BookingForm';
 import Loader from '../../components/common/Loader';
+import { Button } from '@/components/ui/button';
 
 const NewInterviewBooking = () => {
     const { id } = useParams();
@@ -59,24 +60,24 @@ const NewInterviewBooking = () => {
     return (
         <div className="h-full w-full flex flex-col bg-white overflow-hidden">
             {/* Header */}
-            <div className="p-4 border-b border-gray-200 flex justify-between items-center flex-shrink-0">
+            <div className="p-5 border-b border-gray-200 flex justify-between items-center flex-shrink-0">
                 <div>
                     <Link to="/admin/bookings/interviewer-bookings" className="text-m text-gray-600 hover:text-gray-900 flex items-center mb-1">
-                        <FiArrowLeft className="mr-2" /> Back to Bookings
+                        <ArrowLeft className="mr-2" /> Back to Bookings
                     </Link>
-                    <h1 className="text-xl font-bold text-gray-800">
+                    <h1 className="text-xl font-semibold text-gray-800">
                         {isEditMode ? '' : ''}
                     </h1>
                 </div>
-                <button
+                <Button
                     type="submit"
-                    form="booking-form" // This links the button to the form inside BookingForm component
-                    disabled={isSubmitting}
-                    className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-60 bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500"
+                    form="booking-form"
+                    variant="success"
+                    isLoading={isSubmitting}
                 >
-                    {isSubmitting ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" /> : <FiSave className="h-4 w-4 mr-2" />}
+                    {!isSubmitting && <Save className="h-4 w-4 mr-2" />}
                     {isSubmitting ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Create & Notify')}
-                </button>
+                </Button>
             </div>
 
             {/* Form Area */}

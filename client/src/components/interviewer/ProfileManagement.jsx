@@ -1,14 +1,15 @@
 // client/src/components/interviewer/ProfileManagement.jsx
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { FiSave, FiUser, FiDollarSign } from 'react-icons/fi';
+import { Save, User, DollarSign } from 'lucide-react';
 import Card from '../common/Card';
 import Button from '../common/Button';
 import Input from '../common/Input';
-import Badge from '../common/Badge';
 import { updateProfile, updateBankDetails } from '../../api/interviewer.api';
 import { useAuth } from '../../hooks/useAuth';
 import { useAlert } from '../../hooks/useAlert';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 const ProfileManagement = ({ initialData = {} }) => {
   const { currentUser, updateProfile: updateAuthProfile } = useAuth();
@@ -91,7 +92,7 @@ const ProfileManagement = ({ initialData = {} }) => {
         <Card 
           title={
             <div className="flex items-center">
-              <FiUser className="mr-2 text-primary-600" />
+              <User className="mr-2 text-primary-600" />
               <span>Basic Information</span>
             </div>
           }
@@ -101,7 +102,7 @@ const ProfileManagement = ({ initialData = {} }) => {
                 type="submit"
                 variant="primary"
                 disabled={isSubmitting}
-                icon={<FiSave />}
+                icon={<Save />}
                 iconPosition="left"
               >
                 {isSubmitting ? 'Saving...' : 'Save Changes'}
@@ -149,7 +150,7 @@ const ProfileManagement = ({ initialData = {} }) => {
               <div className="flex flex-wrap gap-2 mb-2">
                 <span className="text-sm font-medium text-gray-700">Domain(s):</span>
                 {initialData.domains?.map((domain) => (
-                  <Badge key={domain} variant="primary" size="sm">{domain}</Badge>
+                  <Badge key={domain} variant="info">{domain}</Badge>
                 ))}
               </div>
               <p className="text-xs text-gray-500">
@@ -179,7 +180,7 @@ const ProfileManagement = ({ initialData = {} }) => {
         <Card 
           title={
             <div className="flex items-center">
-              <FiDollarSign className="mr-2 text-primary-600" />
+              <DollarSign className="mr-2 text-primary-600" />
               <span>Payment Information</span>
             </div>
           }
@@ -189,7 +190,7 @@ const ProfileManagement = ({ initialData = {} }) => {
                 type="submit"
                 variant="primary"
                 disabled={isSubmitting}
-                icon={<FiSave />}
+                icon={<Save />}
                 iconPosition="left"
               >
                 {isSubmitting ? 'Saving...' : 'Save Changes'}

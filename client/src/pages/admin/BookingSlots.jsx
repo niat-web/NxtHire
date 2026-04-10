@@ -8,11 +8,11 @@ import { createPublicBookingLink, resetBookingSubmission } from '@/api/admin.api
 import { useBookingSlots, useInterviewers, useInvalidateAdmin } from '@/hooks/useAdminQueries';
 import { useAlert } from '@/hooks/useAlert';
 import { formatDate, formatTime, formatDateTime } from '@/utils/formatters';
-// --- MODIFICATION: Add Plus icon ---
 import { Search, Calendar, Link, Loader2, Trash2, Check, Plus } from 'lucide-react';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
-// --- MODIFICATION: Import the new modal ---
 import ManualSlotFormModal from './ManualSlotFormModal';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 const BookingSlots = () => {
     const { showSuccess, showError } = useAlert();
@@ -24,9 +24,7 @@ const BookingSlots = () => {
     const [isCreatingLink, setIsCreatingLink] = useState(false);
     const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, bookingId: null, submissionId: null });
 
-    // --- ADDITIONS START ---
     const [isModalOpen, setIsModalOpen] = useState(false);
-    // --- ADDITIONS END ---
 
     // Debounce search input to avoid excessive API calls
     useEffect(() => {
@@ -59,7 +57,6 @@ const BookingSlots = () => {
 
     const { invalidateBookingSlots } = useInvalidateAdmin();
     
-    // ... (keep handleDeleteRequest, handleDeleteConfirm, handleSlotSelection, handleSelectAllForRow, handleCreatePublicLink functions as they are)
     const handleDeleteRequest = (bookingId, submissionId) => {
         setDeleteDialog({ isOpen: true, bookingId, submissionId });
     };
@@ -176,31 +173,23 @@ const BookingSlots = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        {/* --- ADDITION: Manual Add Button --- */}
-                        <button
-                            onClick={() => setIsModalOpen(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-sm font-semibold rounded-lg transition-all"
-                        >
-                            <Plus size={16} />
+                        <Button variant="outline" onClick={() => setIsModalOpen(true)}>
+                            <Plus size={16} className="mr-2" />
                             Manual Add Slot
-                        </button>
+                        </Button>
 
-                        <button
+                        <Button
                             onClick={handleCreatePublicLink}
-                            disabled={selectedSlotsCount === 0 || isCreatingLink}
-                            className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-black disabled:bg-slate-300 text-white text-sm font-semibold rounded-lg transition-all whitespace-nowrap"
+                            disabled={selectedSlotsCount === 0}
+                            isLoading={isCreatingLink}
                         >
-                            {isCreatingLink ? (
-                                <><Loader2 className="animate-spin" size={16} /> Creating...</>
-                            ) : (
-                                <><Link size={16} /> Create Link {selectedSlotsCount > 0 && `(${selectedSlotsCount})`}</>
-                            )}
-                        </button>
+                            {!isCreatingLink && <Link size={16} className="mr-2" />}
+                            {isCreatingLink ? 'Creating...' : <>Create Link {selectedSlotsCount > 0 && `(${selectedSlotsCount})`}</>}
+                        </Button>
                     </div>
                 </div>
             </div>
 
-            {/* ... (rest of the component JSX, table, etc. remains the same) ... */}
             <div className="flex-1 overflow-auto px-6 py-4">
                 {loading ? (
                     <div className="flex items-center justify-center h-64">
@@ -211,7 +200,7 @@ const BookingSlots = () => {
                         No slots found. {searchFilter || dateFilter ? "Try adjusting your filters." : ""}
                     </div>
                 ) : (
-                    <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+                    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
                         <table className="w-full text-sm">
                             <thead className="bg-slate-50 border-b border-slate-200">
                                 <tr>
@@ -243,18 +232,18 @@ const BookingSlots = () => {
                                                     {row.timeSlots.map((slot, idx) => {
                                                         const isSelected = entry?.slots.some( s => s.startTime === slot.startTime && s.endTime === slot.endTime );
                                                         return (
-                                                            <button key={idx} onClick={() => handleSlotSelection(row, slot)} className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${ isSelected ? "bg-indigo-100 text-indigo-700 border border-indigo-300" : "bg-slate-100 text-slate-600 hover:bg-slate-200" }`} >
+                                                            <Button key={idx} variant={isSelected ? 'outline' : 'secondary'} size="xs" onClick={() => handleSlotSelection(row, slot)} className={cn(isSelected && 'bg-indigo-100 text-indigo-700 border-indigo-300')}>
                                                                 {isSelected && <Check size={12} className="inline mr-1" />}
                                                                 {formatTime(slot.startTime)}-{formatTime(slot.endTime)}
-                                                            </button>
+                                                            </Button>
                                                         );
                                                     })}
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <button onClick={() => handleDeleteRequest(row.bookingId, row.submissionId)} className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors" >
+                                                <Button variant="ghost" size="icon" onClick={() => handleDeleteRequest(row.bookingId, row.submissionId)} className="text-red-600 hover:bg-red-50">
                                                     <Trash2 size={16} />
-                                                </button>
+                                                </Button>
                                             </td>
                                         </tr>
                                     );
@@ -274,7 +263,6 @@ const BookingSlots = () => {
                 confirmVariant="danger"
             />
             
-            {/* --- ADDITION: Render the modal --- */}
             <ManualSlotFormModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}

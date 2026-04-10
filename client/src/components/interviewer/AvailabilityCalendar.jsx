@@ -1,6 +1,6 @@
 // client/src/components/interviewer/AvailabilityCalendar.jsx
 import React, { useState, useEffect } from 'react';
-import { FiCalendar, FiClock, FiPlus, FiTrash2, FiSave } from 'react-icons/fi';
+import { Calendar, Clock, Plus, Trash2, Save } from 'lucide-react';
 import Card from '../common/Card';
 import Button from '../common/Button';
 import Select from '../common/Select';
@@ -8,6 +8,7 @@ import Input from '../common/Input';
 import { getAvailability, setAvailability } from '../../api/interviewer.api';
 import { useAlert } from '../../hooks/useAlert';
 import { DAYS_OF_WEEK, TIME_SLOTS } from '../../utils/constants';
+import { cn } from '@/lib/utils';
 
 const AvailabilityCalendar = () => {
   const { showSuccess, showError } = useAlert();
@@ -227,7 +228,7 @@ const AvailabilityCalendar = () => {
               variant="primary"
               onClick={handleSaveAvailability}
               disabled={saving}
-              icon={<FiSave />}
+              icon={<Save />}
               iconPosition="left"
             >
               {saving ? 'Saving...' : 'Save Availability'}
@@ -240,24 +241,26 @@ const AvailabilityCalendar = () => {
             <nav className="-mb-px flex space-x-8">
               <button
                 onClick={() => setActiveTab(0)}
-                className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                className={cn(
+                  "whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm",
                   activeTab === 0
-                    ? 'border-primary-500 text-primary-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                    ? "border-primary-500 text-primary-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                )}
               >
-                <FiCalendar className="inline-block mr-2" />
+                <Calendar className="inline-block mr-2" />
                 Weekly Schedule
               </button>
               <button
                 onClick={() => setActiveTab(1)}
-                className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                className={cn(
+                  "whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm",
                   activeTab === 1
-                    ? 'border-primary-500 text-primary-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                    ? "border-primary-500 text-primary-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                )}
               >
-                <FiClock className="inline-block mr-2" />
+                <Clock className="inline-block mr-2" />
                 Specific Dates
               </button>
             </nav>
@@ -277,7 +280,7 @@ const AvailabilityCalendar = () => {
                     <Button
                       variant="outline"
                       onClick={addRecurringSlot}
-                      icon={<FiPlus />}
+                      icon={<Plus />}
                       iconPosition="left"
                     >
                       Add Weekly Slot
@@ -286,13 +289,13 @@ const AvailabilityCalendar = () => {
                 ) : (
                   <div className="space-y-4">
                     {availability.recurringSlots.map((slot, index) => (
-                      <div key={index} className="p-4 border border-gray-200 rounded-lg">
+                      <div key={index} className="p-5 border border-gray-200 rounded-xl">
                         <div className="flex justify-between items-center mb-4">
                           <h4 className="text-md font-medium text-gray-900">Weekly Slot {index + 1}</h4>
                           <Button
                             variant="ghost"
                             onClick={() => removeRecurringSlot(index)}
-                            icon={<FiTrash2 className="text-red-500" />}
+                            icon={<Trash2 className="text-red-500" />}
                             className="text-red-500 hover:text-red-600"
                           >
                             Remove
@@ -334,7 +337,7 @@ const AvailabilityCalendar = () => {
                       <Button
                         variant="outline"
                         onClick={addRecurringSlot}
-                        icon={<FiPlus />}
+                        icon={<Plus />}
                         iconPosition="left"
                       >
                         Add Another Weekly Slot
@@ -356,7 +359,7 @@ const AvailabilityCalendar = () => {
                     <Button
                       variant="outline"
                       onClick={addSpecificSlot}
-                      icon={<FiPlus />}
+                      icon={<Plus />}
                       iconPosition="left"
                     >
                       Add Specific Date
@@ -365,13 +368,13 @@ const AvailabilityCalendar = () => {
                 ) : (
                   <div className="space-y-4">
                     {availability.specificSlots.map((slot, index) => (
-                      <div key={index} className="p-4 border border-gray-200 rounded-lg">
+                      <div key={index} className="p-5 border border-gray-200 rounded-xl">
                         <div className="flex justify-between items-center mb-4">
                           <h4 className="text-md font-medium text-gray-900">Specific Date Slot {index + 1}</h4>
                           <Button
                             variant="ghost"
                             onClick={() => removeSpecificSlot(index)}
-                            icon={<FiTrash2 className="text-red-500" />}
+                            icon={<Trash2 className="text-red-500" />}
                             className="text-red-500 hover:text-red-600"
                           >
                             Remove
@@ -412,7 +415,7 @@ const AvailabilityCalendar = () => {
                       <Button
                         variant="outline"
                         onClick={addSpecificSlot}
-                        icon={<FiPlus />}
+                        icon={<Plus />}
                         iconPosition="left"
                       >
                         Add Another Specific Date
