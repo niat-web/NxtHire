@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Loader from '@/components/common/Loader';
 import {
   Mail, MessageCircle, Bell, Loader2, Video,
   Users, UserCheck, Briefcase, Shield, Send, CreditCard, FileText,
@@ -113,7 +114,7 @@ const NotificationsPage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <Loader2 size={24} className="animate-spin text-indigo-500" />
+        <Loader size="lg" />
       </div>
     );
   }

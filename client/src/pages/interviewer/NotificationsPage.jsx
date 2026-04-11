@@ -7,6 +7,7 @@ import {
 import { getNotificationPreferences, updateNotificationPreferences } from '@/api/interviewer.api';
 import { useAlert } from '@/hooks/useAlert';
 import { cn } from '@/lib/utils';
+import Loader from '@/components/common/Loader';
 
 // Toggle
 const Toggle = ({ enabled, onChange, disabled }) => (
@@ -73,7 +74,7 @@ const InterviewerNotificationsPage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={24} className="animate-spin text-indigo-500" />
+        <Loader size="lg" />
       </div>
     );
   }

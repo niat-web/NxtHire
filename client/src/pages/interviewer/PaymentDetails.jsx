@@ -5,12 +5,13 @@ import { useAlert } from '@/hooks/useAlert';
 import { startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear, format } from 'date-fns';
 import {
   Clock, Calendar, IndianRupee, Briefcase, TrendingUp,
-  ArrowUpRight, Loader2, ChevronRight, FileText,
+  ArrowUpRight, ChevronRight, FileText,
 } from 'lucide-react';
 import { usePaymentHistory } from '@/hooks/useInterviewerQueries';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import Loader from '@/components/common/Loader';
 
 const fadeUp = { hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0, transition: { duration: 0.35 } } };
 
@@ -171,9 +172,8 @@ const PaymentDetails = () => {
           </div>
 
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-16">
-              <Loader2 size={22} className="animate-spin text-indigo-500 mb-3" />
-              <p className="text-sm text-gray-500">Loading payments...</p>
+            <div className="flex items-center justify-center py-16">
+              <Loader size="lg" />
             </div>
           ) : paymentData.breakdown.length > 0 ? (
             <div className="divide-y divide-gray-50">

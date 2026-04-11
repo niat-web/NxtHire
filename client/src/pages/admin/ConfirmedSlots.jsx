@@ -18,6 +18,7 @@ import {
 import { useAlert } from '@/hooks/useAlert';
 import { formatDate, formatTime, formatDateTime } from '@/utils/formatters';
 import { Button } from '@/components/ui/button';
+import Loader from '@/components/common/Loader';
 
 // --- SELF-CONTAINED UI COMPONENTS ---
 
@@ -35,9 +36,8 @@ const LocalSearchInput = ({ value, onChange, placeholder }) => (
 );
 
 const LocalLoader = () => (
-    <div className="flex justify-center items-center py-20 text-center text-gray-500">
-        <div className="w-8 h-8 border-4 border-gray-200 border-t-indigo-500 rounded-full animate-spin"></div>
-        <span className="ml-4">Loading data...</span>
+    <div className="flex justify-center items-center py-20">
+        <Loader size="lg" />
     </div>
 );
 

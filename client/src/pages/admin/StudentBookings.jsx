@@ -10,6 +10,7 @@ import { usePublicBookings, useInvalidateAdmin } from '@/hooks/useAdminQueries';
 import { useAlert } from '@/hooks/useAlert';
 import { formatDateTime } from '@/utils/formatters';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
+import Loader from '@/components/common/Loader';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -68,7 +69,7 @@ const StudentBookings = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <div className="w-8 h-8 border-4 border-gray-200 border-t-indigo-600 rounded-full animate-spin" />
+                <Loader size="lg" />
             </div>
         );
     }

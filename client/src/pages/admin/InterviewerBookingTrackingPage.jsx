@@ -1,8 +1,9 @@
 // client/src/pages/admin/InterviewerBookingTrackingPage.jsx
 import React, { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import Card from '@/components/common/Card';
+import Loader from '@/components/common/Loader';
 import Table from '@/components/common/Table';
 import { useInterviewBookingDetails } from '@/hooks/useAdminQueries';
 import { useAlert } from '@/hooks/useAlert';
@@ -31,7 +32,7 @@ const InterviewerBookingTrackingPage = () => {
     ], []);
 
     if (loading) {
-        return <div className="flex justify-center p-10"><Loader2 className="animate-spin h-8 w-8 text-primary-600"/></div>;
+        return <div className="flex justify-center p-10"><Loader size="lg" /></div>;
     }
 
     return (

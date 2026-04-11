@@ -18,6 +18,7 @@ import { formatCurrency, formatDateTime } from '../../utils/formatters';
 import Badge from '../../components/common/Badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import Loader from '@/components/common/Loader';
 
 // ─── REUSABLE UI ────────────────────────────────────────────────────────────
 
@@ -83,7 +84,7 @@ const StatCard = ({ label, value, icon: Icon, color = 'indigo' }) => {
 // ─── SHARED TABLE ────────────────────────────────────────────────────────────
 
 const DataTable = ({ cols, rows, loading, error, empty, page, totalPages, totalItems, onPage, onRowClick }) => {
-    if (loading) return <div className="flex-1 flex items-center justify-center"><Loader2 className="w-6 h-6 text-indigo-500 animate-spin" /></div>;
+    if (loading) return <div className="flex-1 flex items-center justify-center"><Loader size="lg" /></div>;
     if (error) return <div className="flex-1 flex flex-col items-center justify-center text-center py-16"><AlertTriangle className="w-8 h-8 text-red-300 mb-2" /><p className="text-sm text-gray-500">{error}</p></div>;
     if (!rows.length) return (
         <div className="flex-1 flex flex-col items-center justify-center text-center py-16">

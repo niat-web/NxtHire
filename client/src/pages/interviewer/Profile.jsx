@@ -16,6 +16,7 @@ import { useInterviewerProfile, useInvalidateInterviewer } from '../../hooks/use
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import Loader from '@/components/common/Loader';
 
 // --- STYLED UI COMPONENTS ---
 
@@ -108,7 +109,7 @@ const PasswordInputField = ({ label, name, error, register }) => {
 
 const LocalLoader = () => (
     <div className="flex flex-col justify-center items-center py-20 h-full">
-        <div className="w-10 h-10 border-4 border-gray-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+        <Loader size="lg" />
         <span className="text-sm font-medium text-gray-500">Loading Profile...</span>
     </div>
 );

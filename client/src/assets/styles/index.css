@@ -46,6 +46,14 @@
   .blinking-count {
     animation: blink-fade 1.8s ease-in-out infinite;
   }
+
+  @keyframes dot-bounce {
+    0%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-12px); }
+  }
+  .dot-bounce {
+    animation: dot-bounce 1.2s ease-in-out infinite;
+  }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 

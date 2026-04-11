@@ -17,6 +17,7 @@ import { useAuth } from '../../hooks/useAuth';
 import AnalyticsDashboard from '../../components/admin/AnalyticsDashboard';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import Loader from '@/components/common/Loader';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -243,10 +244,7 @@ const Dashboard = () => {
   if (loading && !stats.totalApplicants) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <Loader2 size={32} className="animate-spin text-indigo-500 mx-auto mb-3" />
-          <p className="text-sm text-gray-500">Loading dashboard…</p>
-        </div>
+        <Loader size="xl" />
       </div>
     );
   }

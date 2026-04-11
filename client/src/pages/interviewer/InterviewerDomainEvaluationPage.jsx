@@ -22,6 +22,7 @@ import { MAIN_SHEET_INTERVIEW_STATUSES } from '../../utils/constants';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import Loader from '@/components/common/Loader';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
@@ -397,7 +398,7 @@ const InterviewerDomainEvaluationPage = () => {
                     // Summary View
                     <div className="flex-1 overflow-auto bg-white">
                         {loading ? (
-                            <div className="flex h-full items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-gray-300" /></div>
+                            <div className="flex h-full items-center justify-center"><Loader size="lg" /></div>
                         ) : (
                             <table className="min-w-full text-sm">
                                 <thead className="bg-gradient-to-r from-indigo-50 to-blue-50 sticky top-0 z-10">
@@ -440,7 +441,7 @@ const InterviewerDomainEvaluationPage = () => {
                     // Detail View (Full Width Table)
                     <div className="flex-1 overflow-auto custom-scrollbar bg-white">
                         {loading ? (
-                            <div className="flex h-full items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-gray-300" /></div>
+                            <div className="flex h-full items-center justify-center"><Loader size="lg" /></div>
                         ) : (
                             <table className="min-w-full text-sm border-separate border-spacing-0">
                                 {/* Fixed Table Header */}

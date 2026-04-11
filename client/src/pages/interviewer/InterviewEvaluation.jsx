@@ -17,6 +17,7 @@ import { MAIN_SHEET_INTERVIEW_STATUSES } from '../../utils/constants';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import Loader from '@/components/common/Loader';
 
 // ─── STATUS CONFIG ───────────────────────────────────────────────────────────
 const STATUS_CONFIG = {
@@ -374,9 +375,8 @@ const InterviewEvaluation = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-full items-center justify-center bg-gray-50">
-        <div className="w-8 h-8 border-4 border-gray-200 border-t-indigo-600 rounded-full animate-spin mb-4" />
-        <span className="text-sm font-medium text-gray-500">Loading schedule...</span>
+      <div className="flex items-center justify-center h-full bg-gray-50">
+        <Loader size="lg" />
       </div>
     );
   }

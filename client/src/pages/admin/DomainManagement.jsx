@@ -1,10 +1,11 @@
 // client/src/pages/admin/DomainManagement.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import DomainsTab from '@/components/admin/DomainsTab';
 import DomainFieldsTab from '@/components/admin/DomainFieldsTab';
 import { useDomains } from '@/hooks/useAdminQueries';
 import { Grid, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Loader from '@/components/common/Loader';
 
 const DomainManagement = () => {
     const { data: domains = [], isLoading: loading, refetch: fetchDomains } = useDomains();
@@ -22,10 +23,7 @@ const DomainManagement = () => {
     if (loading) {
         return (
             <div className="flex h-full items-center justify-center bg-gray-50">
-                <div className="flex flex-col items-center">
-                    <div className="w-10 h-10 border-4 border-gray-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-                    <span className="text-base font-medium text-gray-500">Loading Evaluation Setup...</span>
-                </div>
+                <Loader size="lg" />
             </div>
         );
     }

@@ -114,6 +114,42 @@ const LocalDropdownMenu = ({ options }) => {
     );
 };
 
+const ActionsMenu = ({ onAddEntries, onReload, onExport, onImport, isRefreshing, isExporting }) => {
+    const [open, setOpen] = useState(false);
+    const ref = useRef(null);
+    useEffect(() => {
+        const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+        if (open) document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, [open]);
+
+    const items = [
+        { label: 'Add Entries', icon: Plus, onClick: () => { onAddEntries(); setOpen(false); } },
+        { label: isRefreshing ? 'Reloading...' : 'Reload', icon: RefreshCw, onClick: () => { onReload(); setOpen(false); }, disabled: isRefreshing },
+        { label: isExporting ? 'Exporting...' : 'Export', icon: Download, onClick: () => { onExport(); setOpen(false); }, disabled: isExporting },
+        { label: 'Import', icon: Upload, onClick: () => { onImport(); setOpen(false); } },
+    ];
+
+    return (
+        <div className="relative" ref={ref}>
+            <ShadcnButton variant="outline" size="icon" onClick={() => setOpen(!open)} className="h-9 w-9 rounded-lg">
+                <MoreVertical className="h-4 w-4" />
+            </ShadcnButton>
+            {open && (
+                <div className="absolute top-full right-0 mt-1.5 w-44 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-[60]">
+                    {items.map((item, i) => (
+                        <button key={item.label} onClick={item.onClick} disabled={item.disabled}
+                            className={`flex items-center gap-2.5 w-full px-3.5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 disabled:opacity-40 transition-colors ${i === 0 ? 'text-indigo-600 hover:bg-indigo-50' : ''}`}>
+                            <item.icon className="h-4 w-4" />
+                            {item.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
 const LocalEmptyState = ({ message, icon: Icon }) => (
     <div className="text-center py-20 text-gray-500"><Icon className="mx-auto h-10 w-10 text-gray-400 mb-2" /><h3 className="font-semibold text-gray-700">No Data Found</h3><p className="text-sm">{message}</p></div>
 );
@@ -591,7 +627,7 @@ const MainSheet = () => {
                             <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">{pagination.totalItems} records</span>
                         )}
                     </div>
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-2">
                         <div className="w-56">
                             <LocalSearchInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search..." />
                         </div>
@@ -625,19 +661,15 @@ const MainSheet = () => {
                                 </div>
                             )}
                         </div>
-                        <div className="h-5 w-px bg-gray-200 hidden sm:block" />
-                        <ShadcnButton variant="outline" size="sm" onClick={handleRefreshRecordings} isLoading={isRefreshing} className="rounded-lg">
-                            <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Reload
-                        </ShadcnButton>
-                        <ShadcnButton variant="outline" size="sm" onClick={handleExport} isLoading={isExporting} className="rounded-lg">
-                            <Download className="h-3.5 w-3.5 mr-1.5" /> Export
-                        </ShadcnButton>
-                        <ShadcnButton variant="outline" size="sm" onClick={() => setIsUploadModalOpen(true)} className="rounded-lg">
-                            <Upload className="h-3.5 w-3.5 mr-1.5" /> Import
-                        </ShadcnButton>
-                        <ShadcnButton size="sm" onClick={() => navigate('/admin/main-sheet/add')} className="rounded-lg">
-                            <Plus className="h-3.5 w-3.5 mr-1.5" /> Add Entries
-                        </ShadcnButton>
+                        {/* Actions dropdown */}
+                        <ActionsMenu
+                            onAddEntries={() => navigate('/admin/main-sheet/add')}
+                            onReload={handleRefreshRecordings}
+                            onExport={handleExport}
+                            onImport={() => setIsUploadModalOpen(true)}
+                            isRefreshing={isRefreshing}
+                            isExporting={isExporting}
+                        />
                     </div>
                 </div>
             </div>

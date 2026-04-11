@@ -1,7 +1,8 @@
 // client/src/components/admin/AnalyticsDashboard.jsx
 import React, { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Calendar, BarChart3, Inbox, Loader2 } from 'lucide-react';
+import { Calendar, BarChart3, Inbox } from 'lucide-react';
+import Loader from '../common/Loader';
 import DatePicker from 'react-datepicker';
 import StatusBadge from '../common/StatusBadge';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -134,7 +135,7 @@ const AnalyticsDashboard = () => {
 
       {loading ? (
         <div className="flex items-center justify-center min-h-[280px]">
-          <Loader2 size={22} className="animate-spin text-indigo-500" />
+          <Loader size="lg" />
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

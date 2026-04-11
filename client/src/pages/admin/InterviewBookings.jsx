@@ -11,6 +11,7 @@ import {
     Inbox, Users, BarChart3
 } from 'lucide-react';
 import DropdownMenu from '@/components/common/DropdownMenu';
+import Loader from '@/components/common/Loader';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -137,9 +138,8 @@ const InterviewBookings = () => {
             {/* Content */}
             <div className="flex-1 overflow-y-auto">
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center h-64">
-                        <div className="w-8 h-8 border-4 border-gray-200 border-t-indigo-600 rounded-full animate-spin mb-3" />
-                        <p className="text-sm text-gray-500">Loading requests...</p>
+                    <div className="flex items-center justify-center h-64">
+                        <Loader size="lg" />
                     </div>
                 ) : filteredBookings.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20">

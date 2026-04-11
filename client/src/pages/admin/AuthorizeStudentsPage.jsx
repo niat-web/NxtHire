@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import Loader from '@/components/common/Loader';
 
 // ---------- Helpers ----------
 const EMAIL_RE = /\S+@\S+\.\S+/i;
@@ -251,11 +252,8 @@ const AuthorizeStudentsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
-          <p className="text-gray-500 font-medium animate-pulse">Loading booking details...</p>
-        </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader size="lg" />
       </div>
     );
   }

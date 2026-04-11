@@ -7,6 +7,7 @@ import { formatCurrency, formatDate } from '../../utils/formatters';
 import { CheckCircle, IndianRupee, Calendar, XCircle, Clock, ArrowRight, Loader2, Briefcase, Star, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import Loader from '@/components/common/Loader';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '../../hooks/useAuth';
@@ -135,9 +136,8 @@ const Dashboard = () => {
           </div>
 
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 size={22} className="animate-spin text-gray-400 mb-3" />
-              <p className="text-sm text-gray-500">Loading your schedule...</p>
+            <div className="flex items-center justify-center py-12">
+              <Loader size="md" />
             </div>
           ) : upcomingInterviews.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 px-4 text-center">

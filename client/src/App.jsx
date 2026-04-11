@@ -59,6 +59,7 @@ import InterviewerSettingsPage from '@/pages/interviewer/SettingsPage';
 
 
 // Route Protection Components
+import Loader from './components/common/Loader';
 import AdminRoutes from './router/AdminRoutes';
 import InterviewerRoutes from './router/InterviewerRoutes';
 
@@ -67,8 +68,8 @@ function App() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <Loader size="xl" />
       </div>
     );
   }

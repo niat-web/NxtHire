@@ -8,7 +8,8 @@ import { createPublicBookingLink, resetBookingSubmission } from '@/api/admin.api
 import { useBookingSlots, useInterviewers, useInvalidateAdmin } from '@/hooks/useAdminQueries';
 import { useAlert } from '@/hooks/useAlert';
 import { formatDate, formatTime, formatDateTime } from '@/utils/formatters';
-import { Search, Calendar, Link, Loader2, Trash2, Check, Plus } from 'lucide-react';
+import { Search, Calendar, Link, Trash2, Check, Plus } from 'lucide-react';
+import Loader from '@/components/common/Loader';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import ManualSlotFormModal from './ManualSlotFormModal';
 import { cn } from '@/lib/utils';
@@ -193,7 +194,7 @@ const BookingSlots = () => {
             <div className="flex-1 overflow-auto px-6 py-4">
                 {loading ? (
                     <div className="flex items-center justify-center h-64">
-                        <div className="w-10 h-10 border-4 border-gray-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                        <Loader size="lg" />
                     </div>
                 ) : slots.length === 0 ? (
                     <div className="text-center py-16 text-gray-500">

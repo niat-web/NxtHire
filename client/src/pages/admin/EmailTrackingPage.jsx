@@ -9,13 +9,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-
-const Loader = ({ text }) => (
-    <div className="flex flex-col items-center justify-center py-20 text-gray-500">
-        <div className="w-8 h-8 border-4 border-gray-200 border-t-indigo-500 rounded-full animate-spin"></div>
-        <p className="mt-4">{text}</p>
-    </div>
-);
+import Loader from '@/components/common/Loader';
 
 const Table = ({ columns, data, isLoading, emptyMessage, emptyIcon: EmptyIcon }) => (
     <div className="w-full overflow-x-auto">
@@ -24,7 +18,7 @@ const Table = ({ columns, data, isLoading, emptyMessage, emptyIcon: EmptyIcon })
                 <tr>{columns.map(col => <th key={col.key} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{col.title}</th>)}</tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-                {isLoading ? ( <tr><td colSpan={columns.length}><Loader text="Loading data..." /></td></tr>
+                {isLoading ? ( <tr><td colSpan={columns.length}><div className="py-20 flex justify-center"><Loader size="lg" /></div></td></tr>
                 ) : data.length === 0 ? ( <tr><td colSpan={columns.length}><div className="text-center py-16 text-gray-500"><EmptyIcon className="mx-auto h-12 w-12 text-gray-400" /><h3 className="mt-2 text-sm font-medium text-gray-900">No Data</h3><p className="mt-1 text-sm text-gray-500">{emptyMessage}</p></div></td></tr>
                 ) : (
                     data.map((row, index) => (
@@ -164,7 +158,7 @@ const EmailTrackingPage = () => {
         { key: 'status', title: 'Status', render: (row) => <StatusBadge status={row.status} /> },
     ], []);
 
-    if (loading) return <div className="p-6"><Loader text="Loading Tracking Details..." /></div>;
+    if (loading) return <div className="p-6"><div className="flex justify-center py-20"><Loader size="lg" /></div></div>;
     
     if (!bookingDetails) return (
         <div className="p-6 text-center text-gray-600">Error loading booking data.</div>

@@ -8,6 +8,7 @@ import AvailabilityForm from '../../components/interviewer/AvailabilityForm';
 import { useBookingRequests, useInvalidateInterviewer } from '../../hooks/useInterviewerQueries';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import Loader from '@/components/common/Loader';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -60,18 +61,7 @@ const ProvideAvailabilityPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-indigo-50 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-sm p-8 max-w-md w-full mx-4">
-          <div className="text-center">
-            <div className="relative">
-              <div className="w-16 h-16 mx-auto mb-6 relative">
-                <div className="absolute inset-0 rounded-full border-4 border-indigo-100"></div>
-                <div className="absolute inset-0 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin"></div>
-              </div>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Loading Interview Details</h3>
-            <p className="text-gray-600">Please wait while we fetch the booking information...</p>
-          </div>
-        </div>
+        <Loader size="xl" />
       </div>
     );
   }

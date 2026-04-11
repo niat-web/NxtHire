@@ -17,6 +17,7 @@ import { useAlert } from '../../hooks/useAlert';
 import { formatDate, formatTime } from '../../utils/formatters';
 import { MAIN_SHEET_INTERVIEW_STATUSES } from '../../utils/constants';
 import { Button } from '@/components/ui/button';
+import Loader from '@/components/common/Loader';
 
 // --- Styled Components ---
 
@@ -319,7 +320,7 @@ const AdminDomainEvaluationPage = () => {
                     // Summary View
                     <div className="flex-1 overflow-auto bg-white">
                         {loading ? (
-                            <div className="flex h-full items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-indigo-500" /></div>
+                            <div className="flex h-full items-center justify-center"><Loader size="lg" /></div>
                         ) : (
                             <table className="min-w-full text-sm">
                                 <thead className="bg-gradient-to-r from-indigo-50 to-blue-50 sticky top-0 z-10">
@@ -358,7 +359,7 @@ const AdminDomainEvaluationPage = () => {
                     // Detail View (Complex Table) - Full Width/Height
                     <div className="flex-1 overflow-auto custom-scrollbar bg-white">
                         {loading ? (
-                            <div className="flex h-full items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-indigo-500" /></div>
+                            <div className="flex h-full items-center justify-center"><Loader size="lg" /></div>
                         ) : evaluationData.interviews.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-full text-gray-400">
                                 <List className="h-12 w-12 mb-3 opacity-20" />
