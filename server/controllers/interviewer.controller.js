@@ -9,6 +9,7 @@ const MainSheetEntry = require('../models/MainSheetEntry');
 const EvaluationSheet = require('../models/EvaluationSheet');
 const Domain = require('../models/Domain');
 const { logEvent, logError } = require('../middleware/logger.middleware');
+const { pushNotification } = require('../services/notification.service');
 
 // @desc    Subscribe to push notifications
 // @route   POST /api/interviewer/subscribe
@@ -443,7 +444,16 @@ const submitTimeSlots = asyncHandler(async (req, res) => {
         bookingId: booking._id,
         interviewerId: interviewer._id,
     });
-    
+
+    // Push real-time notification to admin
+    const interviewerName = `${req.user.firstName} ${req.user.lastName}`.trim();
+    pushNotification({
+        type: 'interviewer_submitted_slots',
+        title: 'Availability Submitted',
+        message: `${interviewerName} submitted ${slots.length} time slot${slots.length !== 1 ? 's' : ''}`,
+        data: { bookingId: booking._id, interviewerId: interviewer._id },
+    }).catch(() => {});
+
     res.json({ success: true, message: 'Time slots submitted successfully.' });
 });
 

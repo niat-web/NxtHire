@@ -7,6 +7,7 @@ import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { AuthProvider } from './contexts/AuthContext.jsx'
 import { AlertProvider } from './contexts/AlertContext.jsx'
+import { SocketProvider } from './contexts/SocketContext'
 import './assets/styles/index.css'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -39,8 +40,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Router>
               <AlertProvider>
                 <AuthProvider>
-                  <App />
-                  <ToastContainer position="top-right" autoClose={2000} />
+                  <SocketProvider>
+                    <App />
+                    <ToastContainer position="top-right" autoClose={2000} />
+                  </SocketProvider>
                 </AuthProvider>
               </AlertProvider>
             </Router>

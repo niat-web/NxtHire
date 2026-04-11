@@ -90,6 +90,12 @@ router.post('/custom-email/send', sendBulkCustomEmail);
 // --- Notification Settings ---
 router.route('/notification-settings').get(getNotificationSettings).put(updateNotificationSettings);
 
+// --- Live Notifications (bell) ---
+const { getNotifications, markAsRead, markAllAsRead } = require('../controllers/notification.controller');
+router.get('/notifications/live', getNotifications);
+router.put('/notifications/live/:id/read', markAsRead);
+router.put('/notifications/live/read-all', markAllAsRead);
+
 // --- Dashboard & Reporting ---
 router.get('/stats/dashboard', getDashboardStats);
 router.get('/stats/analytics', getDashboardAnalytics);

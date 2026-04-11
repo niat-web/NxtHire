@@ -4,6 +4,7 @@ const connectDB = require('./config/db');
 const colors = require('colors');
 const { initializeAutomationJobs } = require('./services/automation.service');
 const { createInitialAdmin } = require('./services/auth.service');
+const { initSocket } = require('./config/socket');
 
 // Set up unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
@@ -29,6 +30,10 @@ const startServer = async () => {
     const server = app.listen(PORT, () => {
       console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold);
     });
+
+    // Initialize Socket.io
+    initSocket(server);
+    console.log('Socket.io initialized'.cyan);
 
     // Handle graceful shutdown
     process.on('SIGTERM', () => {

@@ -20,6 +20,7 @@ const PayoutSheet = require('../models/PayoutSheet');
 const CustomEmailTemplate = require('../models/CustomEmailTemplate');
 const { APPLICATION_STATUS, INTERVIEWER_STATUS, EMAIL_TEMPLATES, DOMAINS } = require("../config/constants");
 const { sendEmail, sendAccountCreationEmail, sendNewInterviewerWelcomeEmail, sendStudentBookingInvitationEmail } = require('../services/email.service');
+const { pushNotification } = require('../services/notification.service');
 const { sendNotificationToInterviewer } = require('../services/push.service');
 const { sendWelcomeWhatsApp } = require('../services/whatsapp.service');
 const { logEvent } = require('../middleware/logger.middleware');
@@ -2614,6 +2615,14 @@ const generateMeetLink = asyncHandler(async (req, res) => {
         await session.commitTransaction();
 
         logEvent('main_sheet_meetlink_synced', { studentBookingId: booking._id, interviewId: booking.interviewId, adminId: req.user._id });
+
+        // Push real-time notification
+        pushNotification({
+            type: 'meet_link_generated',
+            title: 'Meet Link Created',
+            message: `Meet link generated for ${booking.studentName || 'student'}`,
+            data: { bookingId: booking._id, meetLink: googleEvent.hangoutLink },
+        }).catch(() => {});
 
         // Send meet link notification emails to student and interviewer
         const formatTime12h = (t) => {

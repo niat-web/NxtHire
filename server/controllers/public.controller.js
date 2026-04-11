@@ -200,6 +200,17 @@ const bookSlot = asyncHandler(async (req, res) => {
         await session.commitTransaction();
         session.endSession();
 
+        // Push real-time notification to admin
+        try {
+            const { pushNotification } = require('../services/notification.service');
+            pushNotification({
+                type: 'student_booked_slot',
+                title: 'Student Booked Slot',
+                message: `${studentName} booked an interview slot`,
+                data: { bookingId: newStudentBooking._id, studentName, studentEmail },
+            }).catch(() => {});
+        } catch {}
+
         res.status(201).json({ success: true, message: "Your interview slot has been confirmed!", data: newStudentBooking });
 
     } catch (error) {
