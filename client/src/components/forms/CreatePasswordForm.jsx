@@ -43,7 +43,7 @@ const CreatePasswordForm = () => {
 
   const passwordStrength = checkPasswordStrength(passwordValue);
   const strengthLabels = ['Very Weak', 'Weak', 'Okay', 'Good', 'Strong'];
-  const strengthColors = ['bg-red-500', 'bg-indigo-600', 'bg-yellow-500', 'bg-lime-500', 'bg-green-500'];
+  const strengthColors = ['bg-red-500', 'bg-blue-600', 'bg-yellow-500', 'bg-lime-500', 'bg-green-500'];
 
   const onSubmit = async (data) => {
     if (!token) {
@@ -106,7 +106,7 @@ const CreatePasswordForm = () => {
                     <span className="text-xs font-medium text-slate-600">Password Strength</span>
                     <span className={cn(
                       'text-xs font-semibold',
-                      ['text-red-600', 'text-indigo-600', 'text-yellow-600', 'text-lime-600', 'text-green-600'][passwordStrength]
+                      ['text-red-600', 'text-blue-600', 'text-yellow-600', 'text-lime-600', 'text-green-600'][passwordStrength]
                     )}>
                         {strengthLabels[passwordStrength]}
                     </span>

@@ -30,7 +30,7 @@ const AccordionItem = ({ tech, register, setValue, watch, isOpen, onToggle }) =>
       <button type="button" onClick={onToggle}
         className="flex justify-between items-center w-full px-5 py-4 text-left">
         <div className="flex items-center gap-3">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold ${selectedCount > 0 ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-500'}`}>
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold ${selectedCount > 0 ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'}`}>
             {selectedCount > 0 ? <Check size={14} /> : tech.name.charAt(0)}
           </div>
           <div>
@@ -154,7 +154,7 @@ const SkillAssessment = () => {
           <h2 className="text-lg font-semibold text-gray-900 mb-2">Access Denied</h2>
           <p className="text-sm text-gray-500 mb-6">{error}</p>
           <Button onClick={() => navigate('/')}
-            className="px-5 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-black transition-colors">
+            className="px-5 h-10 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-black transition-colors">
             Return Home
           </Button>
         </div>
@@ -170,7 +170,7 @@ const SkillAssessment = () => {
     <div className="h-screen flex bg-gray-50 overflow-hidden">
 
       {/* ─── Left Sidebar ──────────────────────────────────────────── */}
-      <div className="hidden lg:flex flex-col w-80 bg-indigo-600 text-white shrink-0">
+      <div className="hidden lg:flex flex-col w-80 bg-blue-600 text-white shrink-0">
         <div className="p-6 border-b border-slate-800">
           <h1 className="text-base font-semibold">Skill Assessment</h1>
           <p className="text-xs text-slate-400 mt-1">Complete both steps to submit</p>
@@ -186,8 +186,8 @@ const SkillAssessment = () => {
               <button key={s.num} onClick={() => s.num === 1 && setStep(1)}
                 className={`w-full flex items-start gap-3 p-4 rounded-xl text-left transition-colors ${step === s.num ? 'bg-slate-800' : 'hover:bg-slate-800/50'}`}>
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm font-semibold ${
-                  step > s.num ? 'bg-indigo-500 text-white' :
-                  step === s.num ? 'bg-indigo-500 text-white' :
+                  step > s.num ? 'bg-blue-500 text-white' :
+                  step === s.num ? 'bg-blue-500 text-white' :
                   'bg-slate-700 text-slate-400'
                 }`}>
                   {step > s.num ? <Check size={14} /> : s.num}
@@ -208,7 +208,7 @@ const SkillAssessment = () => {
             <span className="text-slate-300 font-semibold">{step}/2</span>
           </div>
           <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
-            <div className="h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${step * 50}%` }} />
+            <div className="h-full bg-blue-500 rounded-full transition-all" style={{ width: `${step * 50}%` }} />
           </div>
         </div>
       </div>
@@ -219,7 +219,7 @@ const SkillAssessment = () => {
         <div className="lg:hidden bg-white border-b border-gray-200 px-5 py-3 flex items-center justify-between sticky top-0 z-10 shrink-0">
           <h1 className="text-sm font-semibold text-gray-900">Skill Assessment</h1>
           <div className="flex items-center gap-2">
-            <span className={`px-2 py-0.5 text-xs font-semibold rounded ${step === 1 ? 'bg-indigo-100 text-indigo-700' : 'bg-indigo-100 text-indigo-700'}`}>
+            <span className={`px-2 py-0.5 text-xs font-semibold rounded ${step === 1 ? 'bg-blue-100 text-blue-700' : 'bg-blue-100 text-blue-700'}`}>
               Step {step}/2
             </span>
           </div>
@@ -290,7 +290,7 @@ const SkillAssessment = () => {
 
                 <div className="mt-8 flex justify-end">
                   <Button type="button" onClick={handleNext}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-black transition-colors">
+                    className="flex items-center gap-2 px-6 h-10 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-black transition-colors">
                     Next <ArrowRight size={15} />
                   </Button>
                 </div>
@@ -306,7 +306,7 @@ const SkillAssessment = () => {
                     <p className="text-sm text-gray-500 mt-1">Select the technologies you're proficient in</p>
                   </div>
                   {totalSelected > 0 && (
-                    <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-full shrink-0">
+                    <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full shrink-0">
                       {totalSelected} skills selected
                     </span>
                   )}
@@ -333,11 +333,11 @@ const SkillAssessment = () => {
 
                 <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center shrink-0">
                   <Button type="button" variant="outline" onClick={() => setStep(1)}
-                    className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    className="flex items-center gap-2 px-5 h-10 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
                     <ArrowLeft size={15} /> Previous
                   </Button>
                   <Button type="submit" disabled={isSubmitting}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-black disabled:opacity-50 transition-colors">
+                    className="flex items-center gap-2 px-6 h-10 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-black disabled:opacity-50 transition-colors">
                     {isSubmitting ? (
                       <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Submitting...</>
                     ) : (

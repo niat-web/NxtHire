@@ -48,7 +48,7 @@ const InputField = React.forwardRef(({ label, name, error, register, ...props },
                 "w-full px-3 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-1 transition-colors",
                 error
                     ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                    : "border-gray-200 focus:ring-indigo-500 focus:border-indigo-500"
+                    : "border-gray-200 focus:ring-blue-500 focus:border-blue-500"
             )}
         />
         {error && <p className="mt-1.5 text-xs text-red-600 font-medium">{error.message}</p>}
@@ -67,7 +67,7 @@ const SelectField = React.forwardRef(({ label, name, error, register, options, .
                 "w-full px-3 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-1 transition-colors appearance-none",
                 error
                     ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                    : "border-gray-200 focus:ring-indigo-500 focus:border-indigo-500"
+                    : "border-gray-200 focus:ring-blue-500 focus:border-blue-500"
             )}
         >
             {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
@@ -94,7 +94,7 @@ const PasswordInputField = ({ label, name, error, register }) => {
                         "w-full pl-10 pr-10 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-1 transition-colors",
                         error
                             ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                            : "border-gray-200 focus:ring-indigo-500 focus:border-indigo-500"
+                            : "border-gray-200 focus:ring-blue-500 focus:border-blue-500"
                     )}
                 />
                 <button type="button" onClick={() => setShow(!show)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors">
@@ -369,7 +369,6 @@ const Profile = () => {
     { id: 'Experience', label: 'Experience', icon: Briefcase },
     { id: 'Skills', label: 'Skills', icon: Layers },
     { id: 'Profile Details', label: 'Profile Details', icon: User },
-    { id: 'Security', label: 'Security', icon: Shield }
   ];
 
   const statusColor = cn(
@@ -386,7 +385,7 @@ const Profile = () => {
             {/* Avatar & Info */}
             <div className="p-6 text-center border-b border-gray-100">
                 <div className="relative inline-block">
-                    <div className="h-20 w-20 rounded-full bg-gradient-to-br from-indigo-600 to-indigo-700 flex items-center justify-center text-white text-2xl font-semibold mx-auto shadow-lg">
+                    <div className="h-20 w-20 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-semibold mx-auto shadow-lg">
                         {currentUser?.firstName?.charAt(0)}
                     </div>
                     <span className={`absolute bottom-1 right-1 w-4 h-4 ${statusColor} rounded-full border-2 border-white`} title={profile?.status} />
@@ -433,7 +432,7 @@ const Profile = () => {
                             className={cn(
                                 "flex items-center gap-2.5 w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-colors",
                                 activeTab === tab.id
-                                    ? "bg-indigo-600 text-white"
+                                    ? "bg-blue-600 text-white"
                                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                             )}>
                             <Icon className={cn("w-4 h-4", activeTab === tab.id ? "text-white" : "text-gray-400")} />
@@ -451,7 +450,7 @@ const Profile = () => {
                         <span className="text-xs font-medium text-gray-600">{Math.round(profile.profileCompleteness)}%</span>
                     </div>
                     <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div className={cn("h-full rounded-full transition-all", profile.profileCompleteness === 100 ? "bg-emerald-500" : "bg-indigo-500")}
+                        <div className={cn("h-full rounded-full transition-all", profile.profileCompleteness === 100 ? "bg-emerald-500" : "bg-blue-500")}
                             style={{ width: `${profile.profileCompleteness}%` }} />
                     </div>
                 </div>
@@ -463,7 +462,7 @@ const Profile = () => {
             {/* Mobile header (visible only on sm) */}
             <div className="lg:hidden bg-white border-b border-gray-200 p-4">
                 <div className="flex items-center gap-3 mb-4">
-                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-600 to-indigo-700 flex items-center justify-center text-white text-lg font-semibold">
+                    <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center text-white text-lg font-semibold">
                         {currentUser?.firstName?.charAt(0)}
                     </div>
                     <div>
@@ -475,8 +474,8 @@ const Profile = () => {
                     {tabs.map(tab => (
                         <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                             className={cn(
-                                "px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors",
-                                activeTab === tab.id ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600"
+                                "px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors",
+                                activeTab === tab.id ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600"
                             )}>
                             {tab.label}
                         </button>
@@ -524,7 +523,7 @@ const Profile = () => {
                                                 <p className="text-gray-600 font-medium">{exp.company}</p>
                                             </div>
                                             <div className="flex gap-2">
-                                                <Button variant="ghost" size="icon" onClick={() => { setEditingExperience(exp); setIsExperienceModalOpen(true); }} className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"><Edit className="h-4 w-4"/></Button>
+                                                <Button variant="ghost" size="icon" onClick={() => { setEditingExperience(exp); setIsExperienceModalOpen(true); }} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><Edit className="h-4 w-4"/></Button>
                                                 <Button variant="ghost" size="icon" onClick={() => handleDeleteRequest(exp, 'Experience')} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><Trash2 className="h-4 w-4"/></Button>
                                             </div>
                                         </div>
@@ -574,7 +573,7 @@ const Profile = () => {
                                             </Badge>
                                         </div>
                                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Button variant="ghost" size="icon" onClick={() => { setEditingSkill(skill); setIsSkillModalOpen(true); }} className="p-1.5 text-gray-400 hover:text-indigo-600 rounded-lg"><Edit /></Button>
+                                            <Button variant="ghost" size="icon" onClick={() => { setEditingSkill(skill); setIsSkillModalOpen(true); }} className="p-1.5 text-gray-400 hover:text-blue-600 rounded-lg"><Edit /></Button>
                                             <Button variant="ghost" size="icon" onClick={() => handleDeleteRequest(skill, 'Skill')} className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg"><Trash2 /></Button>
                                         </div>
                                     </div>

@@ -76,6 +76,15 @@ export const usePaymentHistory = (params, options) =>
     ...options,
   });
 
+export const useNotificationPreferences = (options) =>
+  useQuery({
+    queryKey: interviewerKeys.notificationPreferences(),
+    queryFn: () => interviewerApi.getNotificationPreferences(),
+    select,
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+
 export const useInvalidateInterviewer = () => {
   const queryClient = useQueryClient();
   return {
@@ -85,5 +94,6 @@ export const useInvalidateInterviewer = () => {
     invalidateInterviews: () => queryClient.invalidateQueries({ queryKey: interviewerKeys.assignedInterviews() }),
     invalidateBookings: () => queryClient.invalidateQueries({ queryKey: interviewerKeys.bookingRequests() }),
     invalidateEvaluation: () => queryClient.invalidateQueries({ queryKey: [...interviewerKeys.all, 'evaluation-data'] }),
+    invalidateNotificationPreferences: () => queryClient.invalidateQueries({ queryKey: interviewerKeys.notificationPreferences() }),
   };
 };

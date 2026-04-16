@@ -38,10 +38,10 @@ const AvailabilityForm = ({ onSubmit, bookingDate, isSubmitting }) => {
             ...provided,
             minHeight: '42px',
             backgroundColor: 'white',
-            borderColor: hasError ? '#ef4444' : (state.isFocused ? '#6366f1' : '#d1d5db'),
-            boxShadow: state.isFocused ? '0 0 0 1px #6366f1' : 'none',
+            borderColor: hasError ? '#ef4444' : (state.isFocused ? '#2563eb' : '#d1d5db'),
+            boxShadow: state.isFocused ? '0 0 0 1px #2563eb' : 'none',
             '&:hover': {
-                borderColor: hasError ? '#ef4444' : '#a5b4fc',
+                borderColor: hasError ? '#ef4444' : '#93c5fd',
             },
         }),
         menu: (provided) => ({
@@ -123,7 +123,7 @@ const AvailabilityForm = ({ onSubmit, bookingDate, isSubmitting }) => {
                             type="button"
                             variant="outline"
                             onClick={() => append({ startTime: null, endTime: null })}
-                            className="w-full border-2 border-dashed border-slate-300 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-500"
+                            className="w-full border-2 border-dashed border-slate-300 text-blue-600 hover:bg-blue-50 hover:border-blue-500"
                         >
                             <Plus className="w-4 h-4 mr-2" />
                             Add Another Slot
@@ -139,7 +139,7 @@ const AvailabilityForm = ({ onSubmit, bookingDate, isSubmitting }) => {
                         placeholder="Add any notes for the admin regarding your availability..."
                         rows="4"
                         {...register('remarks')}
-                        className="w-full px-4 py-3 border border-slate-300 rounded-lg shadow-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-lg shadow-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     />
                 </div>
             </div>

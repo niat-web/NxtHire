@@ -60,7 +60,7 @@ export const SocketProvider = ({ children }) => {
         setNotifications(json.data.notifications);
         setUnreadCount(json.data.unreadCount);
       }
-    } catch {}
+    } catch (err) { console.error('Failed to fetch notifications:', err.message); }
   }, [currentUser]);
 
   useEffect(() => {
@@ -76,7 +76,7 @@ export const SocketProvider = ({ children }) => {
       );
       setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
       setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch {}
+    } catch (err) { console.error('Failed to mark notification read:', err.message); }
   }, []);
 
   const markAllAsRead = useCallback(async () => {

@@ -17,6 +17,8 @@ const Counter = require('../models/Counter');
 const PaymentConfirmation = require('../models/PaymentConfirmation');
 const jwt = require('jsonwebtoken');
 const PayoutSheet = require('../models/PayoutSheet');
+const Availability = require('../models/Availability');
+const Communication = require('../models/Communication');
 const CustomEmailTemplate = require('../models/CustomEmailTemplate');
 const { APPLICATION_STATUS, INTERVIEWER_STATUS, EMAIL_TEMPLATES, DOMAINS } = require("../config/constants");
 const { sendEmail, sendAccountCreationEmail, sendNewInterviewerWelcomeEmail, sendStudentBookingInvitationEmail } = require('../services/email.service');
@@ -84,12 +86,13 @@ const bulkUploadMainSheetEntries = asyncHandler(async (req, res) => {
 
     const results = { created: 0, errors: [] };
     const bulkOps = [];
+    const emailsInImport = new Set();
 
     for (const [index, entry] of entries.entries()) {
         const {
             candidateName,
             mailId,
-            interviewDate, // <-- Destructure the date field
+            interviewDate,
             interviewerName,
             'Interviewer Name': interviewerNameAlt1,
             Interviewer: interviewerNameAlt2,
@@ -98,8 +101,15 @@ const bulkUploadMainSheetEntries = asyncHandler(async (req, res) => {
 
         if (!candidateName || !mailId) {
             results.errors.push({ row: index + 2, message: 'Missing required fields: candidateName or mailId' });
-            continue; // Skip this entry
+            continue;
         }
+
+        const normalizedEmail = String(mailId).trim().toLowerCase();
+        if (emailsInImport.has(normalizedEmail)) {
+            results.errors.push({ row: index + 2, message: `Duplicate email in import file: ${mailId}` });
+            continue;
+        }
+        emailsInImport.add(normalizedEmail);
 
         const providedInterviewerName = interviewerName || interviewerNameAlt1 || interviewerNameAlt2;
         const interviewerId = findInterviewerId(providedInterviewerName);
@@ -520,10 +530,12 @@ const sendBulkCustomEmail = asyncHandler(async (req, res) => {
             let finalSubject = template.subject;
             let finalBody = template.body;
 
+            const escapeHtml = (str) => String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
             for (const key in recipientData) {
                 const placeholder = new RegExp(`{{\\s*${key}\\s*}}`, 'gi');
+                const safeValue = escapeHtml(recipientData[key]);
                 finalSubject = finalSubject.replace(placeholder, recipientData[key] || '');
-                finalBody = finalBody.replace(placeholder, recipientData[key] || '');
+                finalBody = finalBody.replace(placeholder, safeValue);
             }
             
             await sendEmail({
@@ -691,7 +703,11 @@ const refreshRecordingLinks = asyncHandler(async (req, res) => {
 });
 
 const getEvaluationDataForAdmin = asyncHandler(async (req, res) => {
-    const { domain, search, interviewStatus, interviewDate } = req.query;
+    const { search, interviewStatus, interviewDate } = req.query;
+    // Prefer path param (RESTful) but fall back to query param for compatibility
+    const domain = req.params.domainName
+        ? decodeURIComponent(req.params.domainName)
+        : req.query.domain;
     if (!domain) {
         return res.json({ success: true, data: { evaluationSheet: null, interviews: [] } });
     }
@@ -728,9 +744,10 @@ const getEvaluationDataForAdmin = asyncHandler(async (req, res) => {
         ];
     }
     
+    const maxLimit = Math.min(parseInt(req.query.limit) || 500, 500);
     const interviews = await MainSheetEntry.find(query)
         .sort({ interviewDate: -1 })
-        .limit(1000); 
+        .limit(maxLimit);
 
     res.json({ success: true, data: { evaluationSheet, interviews } });
 });
@@ -1516,46 +1533,72 @@ const getInterviewerDetails = asyncHandler(async (req, res) => {
 });
 
 const createInterviewer = asyncHandler(async (req, res) => {
-    const { email, password, firstName, lastName, phoneNumber, whatsappNumber, ...interviewerData } = req.body;
-    
+    const { email, firstName, lastName, phoneNumber, whatsappNumber, ...interviewerData } = req.body;
+
     const userExists = await User.findOne({ email });
     if (userExists) {
         res.status(400);
         throw new Error('User with this email already exists.');
     }
 
-    const applicant = await Applicant.create({
-        fullName: lastName ? `${firstName} ${lastName}`.trim() : firstName,
-        email,
-        phoneNumber,
-        whatsappNumber: whatsappNumber || phoneNumber,
-        linkedinProfileUrl: 'https://linkedin.com/in/placeholder-admin-created',
-        sourcingChannel: 'Other',
-        status: APPLICATION_STATUS.ONBOARDED
-    });
-
+    // Create user without a password — interviewer will set it via email link
     const newUser = await User.create({
         email,
-        password,
         firstName,
         lastName,
         phoneNumber,
         whatsappNumber,
-        role: 'interviewer'
+        role: 'interviewer',
+        isActive: true,
     });
-    
+
+    // Generate a 24-hour setup token (same flow as createUser for admins)
+    const resetToken = newUser.getResetPasswordToken();
+    newUser.passwordResetExpires = Date.now() + 24 * 60 * 60 * 1000;
+    await newUser.save({ validateBeforeSave: false });
+
+    // Internal interviewers have no applicant record — source flag differentiates them
     const newInterviewer = await Interviewer.create({
         ...interviewerData,
         user: newUser._id,
-        applicant: applicant._id,
+        source: 'Internal',
     });
-    
+
+    // Fire-and-log account setup email
+    const setupLink = `${process.env.CLIENT_URL}/create-password?token=${resetToken}`;
+    try {
+        await sendEmail({
+            recipient: newUser._id,
+            recipientModel: 'User',
+            recipientEmail: newUser.email,
+            templateName: 'accountCreation',
+            subject: 'Welcome to NxtHire — Set Your Password',
+            templateData: {
+                firstName: newUser.firstName,
+                lastName: newUser.lastName,
+                setupLink,
+                expiryHours: 24,
+            },
+            relatedTo: 'Account Creation',
+            sentBy: req.user._id,
+            isAutomated: false,
+            metadata: { userId: newUser._id, interviewerId: newInterviewer._id },
+        });
+    } catch (emailErr) {
+        console.error('Failed to send interviewer setup email:', emailErr.message);
+    }
+
     logEvent('interviewer_created_by_admin', {
         interviewerId: newInterviewer._id,
-        adminId: req.user._id
+        adminId: req.user._id,
+        source: 'Internal',
     });
-    
-    res.status(201).json({ success: true, data: newInterviewer });
+
+    res.status(201).json({
+        success: true,
+        data: newInterviewer,
+        message: 'Interviewer created. Setup email sent.',
+    });
 });
 
 const updateInterviewer = asyncHandler(async (req, res) => {
@@ -1586,9 +1629,17 @@ const updateInterviewer = asyncHandler(async (req, res) => {
 const deleteInterviewer = asyncHandler(async (req, res) => {
     const interviewer = await Interviewer.findById(req.params.id);
     if (!interviewer) { res.status(404); throw new Error('Interviewer not found'); }
-    await User.findByIdAndDelete(interviewer.user);
+    await Promise.all([
+        User.findByIdAndDelete(interviewer.user),
+        MainSheetEntry.updateMany({ interviewer: interviewer._id }, { $unset: { interviewer: 1 } }),
+        PayoutSheet.deleteMany({ interviewer: interviewer._id }),
+        Availability.deleteMany({ interviewer: interviewer._id }),
+        Communication.deleteMany({ recipient: interviewer.user, recipientModel: 'User' }),
+        PaymentConfirmation.deleteMany({ interviewer: interviewer._id }),
+    ]);
     await interviewer.deleteOne();
-    res.json({ success: true, message: 'Interviewer and associated user deleted.' });
+    logEvent('interviewer_deleted', { interviewerId: req.params.id, adminId: req.user._id });
+    res.json({ success: true, message: 'Interviewer and all associated records deleted.' });
 });
 
 const bulkDeleteInterviewers = asyncHandler(async (req, res) => {
@@ -1608,7 +1659,12 @@ const bulkDeleteInterviewers = asyncHandler(async (req, res) => {
 
     const [interviewerResult, userResult] = await Promise.all([
         Interviewer.deleteMany({ _id: { $in: ids } }),
-        User.deleteMany({ _id: { $in: userIdsToDelete } })
+        User.deleteMany({ _id: { $in: userIdsToDelete } }),
+        MainSheetEntry.updateMany({ interviewer: { $in: ids } }, { $unset: { interviewer: 1 } }),
+        PayoutSheet.deleteMany({ interviewer: { $in: ids } }),
+        Availability.deleteMany({ interviewer: { $in: ids } }),
+        Communication.deleteMany({ recipient: { $in: userIdsToDelete }, recipientModel: 'User' }),
+        PaymentConfirmation.deleteMany({ interviewer: { $in: ids } }),
     ]);
 
     logEvent('interviewers_bulk_deleted', {

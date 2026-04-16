@@ -14,9 +14,9 @@ const hiringNavItems = [
 
 // Memoized sidebar — only re-renders when counts change, NOT on route change
 const HiringSidebar = memo(({ counts }) => (
-  <aside className="w-56 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col">
-    <div className="px-5 py-4 border-b border-gray-100">
-      <h2 className="text-base font-semibold text-gray-900">Interviewer Hiring</h2>
+  <aside className="w-56 flex-shrink-0 bg-[#f0f4fa] border-r border-slate-200/80 flex flex-col">
+    <div className="px-5 py-4 border-b border-slate-200/60">
+      <h2 className="text-base font-semibold text-slate-900">Interviewer Hiring</h2>
     </div>
     <nav className="flex-1 p-3 space-y-0.5">
       {hiringNavItems.map(item => {
@@ -29,8 +29,8 @@ const HiringSidebar = memo(({ counts }) => (
               cn(
                 'flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200',
                 isActive
-                  ? 'bg-indigo-600 text-white shadow'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-white text-blue-700 shadow-sm border border-slate-200/60'
+                  : 'text-slate-600 hover:bg-white/70 hover:text-slate-900'
               )
             }
           >
@@ -60,7 +60,7 @@ const HiringLayout = () => {
   return (
     <div className="flex h-full w-full overflow-hidden">
       <HiringSidebar counts={counts} />
-      <main className="flex-1 overflow-y-auto bg-gray-50">
+      <main className="flex-1 overflow-y-auto bg-[#f5f7fb]">
         <Outlet />
       </main>
     </div>

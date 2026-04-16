@@ -157,7 +157,7 @@ const BookingSlots = () => {
                                 value={searchFilter}
                                 onChange={(e) => setSearchFilter(e.target.value)}
                                 placeholder="Search by name or email..."
-                                className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-gray-400"
+                                className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-gray-400"
                             />
                         </div>
 
@@ -168,7 +168,7 @@ const BookingSlots = () => {
                                 onChange={(date) => setDateFilter(date)}
                                 isClearable
                                 placeholderText="Filter by date"
-                                className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-gray-400"
+                                className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-gray-400"
                             />
                         </div>
                     </div>
@@ -203,7 +203,7 @@ const BookingSlots = () => {
                 ) : (
                     <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
                         <table className="w-full text-sm">
-                            <thead className="bg-gradient-to-r from-indigo-50 to-blue-50">
+                            <thead className="bg-blue-50">
                                 <tr>
                                     <th className="text-left px-4 py-3 w-8">
                                         <input type="checkbox"
@@ -217,7 +217,7 @@ const BookingSlots = () => {
                                                     setSelectedSlots({});
                                                 }
                                             }}
-                                            className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500/20"
+                                            className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500/20"
                                         />
                                     </th>
                                     <th className="text-left px-4 py-3 font-semibold text-gray-600 uppercase text-xs tracking-wider">Interviewer</th>
@@ -234,7 +234,7 @@ const BookingSlots = () => {
                                     return (
                                         <tr key={row.submissionId} className="hover:bg-gray-50 transition-colors">
                                             <td className="px-4 py-3">
-                                                <input type="checkbox" checked={isAllSelected || false} onChange={() => handleSelectAllForRow(row)} className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500/20" />
+                                                <input type="checkbox" checked={isAllSelected || false} onChange={() => handleSelectAllForRow(row)} className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500/20" />
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="font-medium text-gray-800">{row.fullName}</div>
@@ -247,7 +247,7 @@ const BookingSlots = () => {
                                                     {row.timeSlots.map((slot, idx) => {
                                                         const isSelected = entry?.slots.some( s => s.startTime === slot.startTime && s.endTime === slot.endTime );
                                                         return (
-                                                            <Button key={idx} variant={isSelected ? 'outline' : 'secondary'} size="xs" onClick={() => handleSlotSelection(row, slot)} className={cn(isSelected && 'bg-indigo-100 text-indigo-700 border-indigo-300')}>
+                                                            <Button key={idx} variant={isSelected ? 'outline' : 'secondary'} size="xs" onClick={() => handleSlotSelection(row, slot)} className={cn(isSelected && 'bg-blue-100 text-blue-700 border-blue-300')}>
                                                                 {isSelected && <Check size={12} className="inline mr-1" />}
                                                                 {formatTime(slot.startTime)}-{formatTime(slot.endTime)}
                                                             </Button>

@@ -25,7 +25,7 @@ const LocalModal = ({ isOpen, onClose, title, children }) => {
             {/* Modal Container */}
             <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
                 <div 
-                    className="relative w-full max-w-4xl h-[600px] bg-white shadow-2xl rounded-2xl flex flex-col overflow-hidden animate-slideUp"
+                    className="relative w-full max-w-4xl h-[600px] bg-white shadow-xl rounded-xl flex flex-col overflow-hidden animate-slideUp"
                     onClick={(e) => e.stopPropagation()} 
                 >
                     {/* Header - Absolute top right close button for clean look */}
@@ -49,9 +49,9 @@ const LocalModal = ({ isOpen, onClose, title, children }) => {
 
 const SlotRow = ({ register, index, remove, errors, isOneLeft }) => {
     return (
-        <div className="group relative flex items-center gap-3 p-3 mb-3 bg-white border border-slate-200 rounded-xl shadow-md hover:border-indigo-300 hover:shadow-lg transition-all duration-200">
+        <div className="group relative flex items-center gap-3 p-3 mb-3 bg-white border border-slate-200 rounded-xl shadow-md hover:border-blue-300 hover:shadow-lg transition-all duration-200">
             {/* Number Badge */}
-            <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 text-xs font-semibold group-hover:bg-indigo-50 group-hover:text-indigo-600">
+            <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 text-xs font-semibold group-hover:bg-blue-50 group-hover:text-blue-600">
                 {index + 1}
             </div>
 
@@ -60,7 +60,7 @@ const SlotRow = ({ register, index, remove, errors, isOneLeft }) => {
                     <label className="block text-xs uppercase font-medium text-slate-400 mb-1 ml-1">Start</label>
                     <select 
                         {...register(`slots.${index}.startTime`, { required: true })} 
-                        className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5 outline-none transition-colors"
+                        className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 outline-none transition-colors"
                     >
                         <option value="" disabled>Select time</option>
                         {TIME_SLOTS.map(slot => <option key={slot.value} value={slot.value}>{slot.label}</option>)}
@@ -70,7 +70,7 @@ const SlotRow = ({ register, index, remove, errors, isOneLeft }) => {
                     <label className="block text-xs uppercase font-medium text-slate-400 mb-1 ml-1">End</label>
                     <select 
                         {...register(`slots.${index}.endTime`, { required: true })} 
-                        className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5 outline-none transition-colors"
+                        className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 outline-none transition-colors"
                     >
                         <option value="" disabled>Select time</option>
                         {TIME_SLOTS.map(slot => <option key={slot.value} value={slot.value}>{slot.label}</option>)}
@@ -154,7 +154,7 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
 
                     {/* Interviewer Info */}
                     <div className="flex items-center gap-4 mb-8 p-5 bg-white rounded-xl border border-slate-100 shadow-md">
-                        <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-semibold text-lg">
+                        <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-lg">
                             {currentUser?.firstName?.[0]}
                         </div>
                         <div>
@@ -166,8 +166,8 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
                     {/* Date Visualization */}
                     <div className="mb-6">
                         <p className="text-xs text-slate-400 uppercase font-medium mb-3">Interview Date</p>
-                        <div className="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-200 text-center w-full max-w-[200px]">
-                            <div className="bg-indigo-600 text-white py-2 font-semibold uppercase tracking-widest text-sm">
+                        <div className="bg-white rounded-xl overflow-hidden shadow-md border border-slate-200 text-center w-full max-w-[200px]">
+                            <div className="bg-blue-600 text-white py-2 font-semibold uppercase tracking-widest text-sm">
                                 {monthName}
                             </div>
                             <div className="py-4">
@@ -196,14 +196,14 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
                 <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
                     <div className="flex items-center justify-between mb-6">
                         <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                            <Clock className="text-indigo-500" />
+                            <Clock className="text-blue-500" />
                             Available Time Slots
                         </h3>
                         <Button
                             type="button"
                             variant="outline"
                             onClick={() => append({ startTime: '', endTime: '' })}
-                            className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-200"
+                            className="bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200"
                         >
                             <Plus className="mr-2 h-4 w-4" /> Add Slot
                         </Button>
@@ -229,7 +229,7 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
                                 {...register('remarks')}
                                 rows="3"
                                 placeholder="Any specific notes regarding your availability..."
-                                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:bg-white transition-all resize-none"
+                                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white transition-all resize-none"
                             />
                         </div>
                     </form>
@@ -250,7 +250,7 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
                         type="submit"
                         form="slot-form"
                         isLoading={isSubmitting}
-                        className="rounded-xl bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-200 hover:shadow-indigo-300 px-8"
+                        className="rounded-xl bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200 hover:shadow-blue-300 px-8"
                     >
                         {!isSubmitting && <Save className="mr-2 h-4 w-4" />}
                         {isSubmitting ? 'Saving...' : (isUpdateMode ? 'Update Slots' : 'Confirm Slots')}

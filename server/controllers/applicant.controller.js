@@ -10,6 +10,7 @@ const { registerUser } = require('../services/auth.service');
 const { sendEmail, sendAccountCreationEmail } = require('../services/email.service');
 const { sendWelcomeWhatsApp } = require('../services/whatsapp.service');
 const { logEvent, logError } = require('../middleware/logger.middleware');
+const { pushNotification } = require('../services/notification.service');
 const crypto = require('crypto');
 
 // @desc    Submit initial application
@@ -100,6 +101,14 @@ const submitApplication = asyncHandler(async (req, res) => {
     email: applicant.email
   });
 
+  // Push real-time notification to admin
+  pushNotification({
+    type: 'new_applicant',
+    title: 'New Applicant',
+    message: `${fullName} submitted an application`,
+    data: { applicantId: applicant._id.toString(), fullName, email, source: sourcingChannel || 'Direct' },
+  }).catch(() => {});
+
   res.status(201).json({
     success: true,
     data: {
@@ -155,6 +164,14 @@ const submitSkillAssessment = asyncHandler(async (req, res) => {
     skillAssessmentId: skillAssessment._id,
     domain: skillAssessment.autoCategorizedDomain
   });
+
+  // Push real-time notification to admin
+  pushNotification({
+    type: 'skill_assessment_submitted',
+    title: 'Skills Assessment Submitted',
+    message: `${applicant.fullName} completed their skills assessment`,
+    data: { applicantId: applicant._id.toString(), fullName: applicant.fullName, domain: skillAssessment.autoCategorizedDomain, jobTitle },
+  }).catch(() => {});
 
   res.status(201).json({
     success: true,
@@ -219,7 +236,15 @@ const submitGuidelines = asyncHandler(async (req, res) => {
       score,
       passed
     });
-  
+
+    // Push real-time notification to admin
+    pushNotification({
+      type: 'guidelines_submitted',
+      title: 'Guidelines Submitted',
+      message: `${applicant.fullName} completed guidelines — Score: ${score}% (${passed ? 'Passed' : 'Failed'})`,
+      data: { applicantId: applicant._id.toString(), fullName: applicant.fullName, score, passed },
+    }).catch(() => {});
+
     res.json({
       success: true,
       message: 'Guidelines submitted successfully. Your submission is now under review.'

@@ -5,18 +5,18 @@ import CreatePasswordForm from '../../components/forms/CreatePasswordForm';
 
 const CreatePassword = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-emerald-50 to-emerald-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-slate-50 to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
       {/* Background grid pattern */}
       <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10"></div>
 
       {/* The main content card */}
-      <Card className="w-full max-w-md rounded-2xl shadow-2xl border-slate-200/50 relative overflow-hidden">
+      <Card className="w-full max-w-md rounded-xl shadow-xl border-slate-200/50 relative overflow-hidden">
         {/* Decorative gradient overlay inside the card */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/5 via-indigo-600/5 to-indigo-600/5 -z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-blue-600/5 to-blue-600/5 -z-10"></div>
 
         <CardContent className="p-8 sm:p-10">
           <div className="text-center mb-8">
-              <h1 className="text-3xl font-extrabold bg-gradient-to-r from-slate-800 via-indigo-800 to-indigo-800 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-extrabold bg-gradient-to-r from-slate-800 via-blue-800 to-blue-800 bg-clip-text text-transparent">
                 Set Your Password
               </h1>
               <p className="mt-2 text-slate-600">

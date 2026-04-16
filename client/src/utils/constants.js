@@ -32,7 +32,7 @@ export const DOMAINS = [
   { value: 'DA', label: 'DA' },
   { value: 'QA', label: 'QA' },
   { value: 'DSA', label: 'DSA' },
-  { value: 'Other', label: 'Other' }
+  { value: 'OTHER', label: 'Other' }
 ];
 
 // Payment tier constants

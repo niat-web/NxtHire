@@ -15,7 +15,7 @@ const badgeVariants = cva(
         warning: 'border-amber-200 bg-amber-100 text-amber-700',
         danger: 'border-red-200 bg-red-100 text-red-700',
         info: 'border-sky-200 bg-sky-100 text-sky-700',
-        purple: 'border-indigo-200 bg-indigo-100 text-indigo-700',
+        purple: 'border-blue-200 bg-blue-100 text-blue-700',
         gray: 'border-gray-200 bg-gray-100 text-gray-600',
       },
     },

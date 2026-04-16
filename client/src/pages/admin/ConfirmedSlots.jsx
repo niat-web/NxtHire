@@ -6,15 +6,12 @@ import { Users, Video, Search, Filter, X, CheckCircle, Clock, ChevronLeft, Chevr
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import {
-    getStudentPipeline,
     updateStudentBooking,
-    getUniqueHostEmails,
     generateGoogleMeetLink,
-    getDomains,
-    getPublicBookings,
     manualBookStudentSlot,
     getPublicBookingDetails
 } from '@/api/admin.api';
+import { useStudentPipeline, useHostEmails, useDomains, usePublicBookings, useInvalidateAdmin } from '@/hooks/useAdminQueries';
 import { useAlert } from '@/hooks/useAlert';
 import { formatDate, formatTime, formatDateTime } from '@/utils/formatters';
 import { Button } from '@/components/ui/button';
@@ -30,7 +27,7 @@ const LocalSearchInput = ({ value, onChange, placeholder }) => (
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-gray-400 text-sm transition-all"
+            className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-gray-400 text-sm transition-all"
         />
     </div>
 );
@@ -51,10 +48,10 @@ const LocalEmptyState = ({ message, icon: Icon }) => (
 
 const LocalTable = ({ columns, data, isLoading, emptyMessage, emptyIcon }) => (
     <table className="min-w-full bg-white divide-y divide-gray-200">
-        <thead className="bg-gradient-to-r from-indigo-50 to-blue-50">
+        <thead>
             <tr>
                 {columns.map(col => (
-                    <th key={col.key} scope="col" className="px-4 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style={{ minWidth: col.minWidth }}>
+                    <th key={col.key} scope="col" className="sticky top-0 px-4 py-2.5 text-left text-[10px] font-bold text-slate-500 uppercase tracking-[0.1em] border-b border-slate-200 bg-slate-50 z-10" style={{ minWidth: col.minWidth }}>
                         {col.title}
                     </th>
                 ))}
@@ -149,7 +146,7 @@ const EditableInputCell = ({ booking, fieldKey, value, onSave, placeholder = "Ed
             setCurrentValue(originalValue);
         } finally { setIsLoading(false); }
     };
-    return (<input type="text" value={currentValue} onChange={(e) => setCurrentValue(e.target.value)} onBlur={handleSave} disabled={isLoading} placeholder={placeholder} className="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm disabled:bg-gray-100" />);
+    return (<input type="text" value={currentValue} onChange={(e) => setCurrentValue(e.target.value)} onBlur={handleSave} disabled={isLoading} placeholder={placeholder} className="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm disabled:bg-gray-100" />);
 };
 
 const MeetLinkCell = ({ booking, onLinkGenerated }) => {
@@ -260,48 +257,48 @@ const ManualBookingControls = ({ row, onBooking, publicBookingDetails, onIntervi
 const ConfirmedSlotsView = () => {
     const { showError, showSuccess } = useAlert();
     const [activeTab, setActiveTab] = useState('confirmed');
-    const [loading, setLoading] = useState(true);
-    const [studentBookings, setStudentBookings] = useState([]);
-    const [hostEmails, setHostEmails] = useState([]);
-    const [domainsList, setDomainsList] = useState([]);
+    // TanStack Query — cached & persisted, shows instantly on revisit
+    const { data: rawPipelineData, isLoading: pipelineLoading } = useStudentPipeline({ staleTime: 30 * 1000 });
+    const { data: hostEmailsData } = useHostEmails();
+    const { data: domainsData } = useDomains();
+    const { data: publicBookingsData } = usePublicBookings();
+    const { invalidateStudentPipeline } = useInvalidateAdmin();
+
+    const loading = pipelineLoading;
+    const hostEmails = hostEmailsData || [];
+    const domainsList = domainsData || [];
     const [searchTerm, setSearchTerm] = useState('');
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
     const [tempFilters, setTempFilters] = useState({ date: null, domain: '', publicId: '', invitedOnDate: null });
     const [activeFilters, setActiveFilters] = useState({ date: null, domain: '', publicId: '', invitedOnDate: null });
-    const [publicBookingOptions, setPublicBookingOptions] = useState([]);
-    const [publicBookingCreationDates, setPublicBookingCreationDates] = useState({});
     const filterMenuRef = useRef(null);
     const [publicBookingDetailsCache, setPublicBookingDetailsCache] = useState({});
     const [confirmedPagination, setConfirmedPagination] = useState({ currentPage: 1, itemsPerPage: 15 });
     const [pendingPagination, setPendingPagination] = useState({ currentPage: 1, itemsPerPage: 15 });
     const [bookingDetailsLoading, setBookingDetailsLoading] = useState(false);
 
-    const fetchInitialData = useCallback(async () => {
-        setLoading(true);
-        try {
-            const [pipelineRes, emailsRes, domainsRes, publicBookingsRes] = await Promise.all([ getStudentPipeline(), getUniqueHostEmails(), getDomains(), getPublicBookings() ]);
-            const domainsWithTitles = new Map(domainsRes.data.data.map(d => [d.name, d.eventTitle]));
-            
-            const pipelineWithTitles = (pipelineRes.data.data || []).map(p => {
-                if (p.isPending && !p.eventTitle) {
-                    const domainEventTitle = domainsWithTitles.get(p.domain);
-                    p.eventTitle = domainEventTitle ? `${domainEventTitle} || ${p.studentName}` : `${p.domain || 'Interview'} || ${p.studentName}`;
-                }
-                return p;
-            });
-            setStudentBookings(pipelineWithTitles);
-            
-            setHostEmails(emailsRes.data.data);
-            setDomainsList(domainsRes.data.data);
-            const publicBookings = publicBookingsRes.data.data || [];
-            const options = publicBookings.map(b => ({ value: b.publicId, label: `ID: ${b.publicId} (Created: ${formatDate(b.createdAt)})`}));
-            setPublicBookingOptions(options);
-            const creationDateMap = publicBookings.reduce((acc, b) => { acc[b.publicId] = b.createdAt; return acc; }, {});
-            setPublicBookingCreationDates(creationDateMap);
-        } catch (err) { showError("Failed to load student pipeline or filter data."); } finally { setLoading(false); }
-    }, [showError]);
-    
-    useEffect(() => { fetchInitialData(); }, [fetchInitialData]);
+    // Derive processed data from TanStack Query results
+    const studentBookings = useMemo(() => {
+        if (!rawPipelineData || !domainsData) return [];
+        const domainsWithTitles = new Map(domainsData.map(d => [d.name, d.eventTitle]));
+        return (rawPipelineData || []).map(p => {
+            if (p.isPending && !p.eventTitle) {
+                const domainEventTitle = domainsWithTitles.get(p.domain);
+                p.eventTitle = domainEventTitle ? `${domainEventTitle} || ${p.studentName}` : `${p.domain || 'Interview'} || ${p.studentName}`;
+            }
+            return p;
+        });
+    }, [rawPipelineData, domainsData]);
+
+    const publicBookingOptions = useMemo(() => {
+        if (!publicBookingsData) return [];
+        return publicBookingsData.map(b => ({ value: b.publicId, label: `ID: ${b.publicId} (Created: ${formatDate(b.createdAt)})` }));
+    }, [publicBookingsData]);
+
+    const publicBookingCreationDates = useMemo(() => {
+        if (!publicBookingsData) return {};
+        return publicBookingsData.reduce((acc, b) => { acc[b.publicId] = b.createdAt; return acc; }, {});
+    }, [publicBookingsData]);
     
     const { confirmedBookings, pendingInvitations } = useMemo(() => {
         let data = [...studentBookings];
@@ -339,7 +336,7 @@ const ConfirmedSlotsView = () => {
             };
             await manualBookStudentSlot(student.studentEmail, payload);
             showSuccess('Slot booked manually!');
-            fetchInitialData(); // Refetch data to move the row from pending to confirmed
+            invalidateStudentPipeline(); // Refetch data to move the row from pending to confirmed
         } catch(err) {
             showError(err?.response?.data?.message || 'Manual booking failed.');
             throw err; // Re-throw the error so the child component's catch block works
@@ -378,7 +375,7 @@ const ConfirmedSlotsView = () => {
         { key: 'bookingDate', title: 'Interview Date', render: row => formatDate(row.bookingDate) },
         { key: 'slot', title: 'Time Slot', render: row => row.bookedSlot ? `${formatTime(row.bookedSlot.startTime)} - ${formatTime(row.bookedSlot.endTime)}` : '' },
         { key: 'domain', title: 'Domain', minWidth: '150px', render: (row) => <EditableDomainCell booking={row} domainOptions={domainOptions} onSave={handleCellSave} /> },
-        { key: 'meet', title: 'Meet Link', render: (row) => row.meetLink ? <a href={row.meetLink} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Join</a> : <MeetLinkCell booking={row} onLinkGenerated={handleCellSave} /> },
+        { key: 'meet', title: 'Meet Link', render: (row) => row.meetLink ? <a href={row.meetLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Join</a> : <MeetLinkCell booking={row} onLinkGenerated={handleCellSave} /> },
         { key: 'hostEmail', title: 'Host Email', minWidth: '250px', render: (row) => <EditableHostEmail booking={row} hostEmails={hostEmails} onSave={handleCellSave} /> },
         { key: 'eventTitle', title: 'Event Title', minWidth: "250px", render: row => <EditableInputCell booking={row} fieldKey="eventTitle" value={row.eventTitle} onSave={handleCellSave} placeholder={`${row.domain} || ${row.studentName}`} /> },
         { key: 'createdAt', title: 'Submitted Time', render: (row) => formatDateTime(row.createdAt) },
@@ -393,13 +390,13 @@ const ConfirmedSlotsView = () => {
         { key: 'hostEmail', title: 'Host Email', minWidth: '250px', render: row => <EditableHostEmail booking={row} hostEmails={hostEmails} onSave={handleCellSave} /> },
         { key: 'eventTitle', title: 'Event Title', minWidth: '250px', render: row => <EditableInputCell booking={row} fieldKey="eventTitle" value={row.eventTitle} onSave={handleCellSave} placeholder={row.eventTitle} /> },
         { key: 'interviewerEmail', title: 'Interviewer Email', minWidth: '200px', render: row => row.interviewerEmail || '' },
-        { key: 'meet', title: 'Meet Link', minWidth: '120px', render: row => (row.meetLink ? <a href={row.meetLink} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Link</a> : null) },
+        { key: 'meet', title: 'Meet Link', minWidth: '120px', render: row => (row.meetLink ? <a href={row.meetLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Link</a> : null) },
         { key: 'hiringName', title: 'Hiring Name', minWidth: '150px', render: row => row.hiringName },
         { key: 'mobileNumber', title: 'Mobile', render: row => row.mobileNumber || '' },
         { key: 'interviewId', title: 'Int ID', minWidth: '120px', render: row => row.interviewId },
         { key: 'userId', title: 'User ID' },
-        { key: 'resumeLink', title: 'Resume', render: (row) => row.resumeLink ? <a href={row.resumeLink} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Link</a> : 'N/A' },
-        { key: 'publicLink', title: 'Public Link', render: (row) => row.publicBookingId ? (<a href={`/book/${row.publicBookingId}`} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline font-mono text-xs">{row.publicBookingId}</a>) : ('N/A') },
+        { key: 'resumeLink', title: 'Resume', render: (row) => row.resumeLink ? <a href={row.resumeLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Link</a> : 'N/A' },
+        { key: 'publicLink', title: 'Public Link', render: (row) => row.publicBookingId ? (<a href={`/book/${row.publicBookingId}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{row.publicBookingId}</a>) : ('N/A') },
     ], [publicBookingDetailsCache, handleCellSave, handleManualBooking, hostEmails]);
 
     return (
@@ -423,16 +420,16 @@ const ConfirmedSlotsView = () => {
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">Interview Date</label>
-                                            <DatePicker selected={tempFilters.date} onChange={(date) => setTempFilters(prev => ({ ...prev, date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
+                                            <DatePicker selected={tempFilters.date} onChange={(date) => setTempFilters(prev => ({ ...prev, date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">Invited On Date</label>
-                                            <DatePicker selected={tempFilters.invitedOnDate} onChange={(date) => setTempFilters(prev => ({ ...prev, invitedOnDate: date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
+                                            <DatePicker selected={tempFilters.invitedOnDate} onChange={(date) => setTempFilters(prev => ({ ...prev, invitedOnDate: date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
                                         </div>
                                     </div>
                                     <div>
                                         <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">Domain</label>
-                                        <select value={tempFilters.domain} onChange={(e) => setTempFilters(prev => ({...prev, domain: e.target.value}))} className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-sm bg-white">
+                                        <select value={tempFilters.domain} onChange={(e) => setTempFilters(prev => ({...prev, domain: e.target.value}))} className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm bg-white">
                                             {domainOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                         </select>
                                     </div>
@@ -453,8 +450,8 @@ const ConfirmedSlotsView = () => {
                 {/* Tabs */}
                 <div className="px-6">
                     <nav className="-mb-px flex space-x-6">
-                        <button onClick={() => setActiveTab('confirmed')} className={`whitespace-nowrap py-3 border-b-2 text-sm font-medium transition-colors ${activeTab === 'confirmed' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
-                            Confirmed <span className={`ml-1.5 py-0.5 px-2 rounded-full text-[10px] font-bold ${activeTab === 'confirmed' ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-500'}`}>{confirmedBookings.length}</span>
+                        <button onClick={() => setActiveTab('confirmed')} className={`whitespace-nowrap py-3 border-b-2 text-sm font-medium transition-colors ${activeTab === 'confirmed' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+                            Confirmed <span className={`ml-1.5 py-0.5 px-2 rounded-full text-[10px] font-bold ${activeTab === 'confirmed' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-500'}`}>{confirmedBookings.length}</span>
                         </button>
                         <button onClick={() => setActiveTab('pending')} className={`whitespace-nowrap py-3 border-b-2 text-sm font-medium transition-colors ${activeTab === 'pending' ? 'border-amber-500 text-amber-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
                             Pending <span className={`ml-1.5 py-0.5 px-2 rounded-full text-[10px] font-bold ${activeTab === 'pending' ? 'bg-amber-100 text-amber-600' : 'bg-gray-100 text-gray-500'}`}>{pendingInvitations.length}</span>

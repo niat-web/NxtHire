@@ -30,13 +30,13 @@ class ErrorBoundary extends React.Component {
             <div className="flex items-center justify-center gap-3">
               <button
                 onClick={() => window.location.reload()}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-black transition-colors"
+                className="inline-flex items-center gap-2 px-4 h-10 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-black transition-colors"
               >
                 <RefreshCw className="w-4 h-4" /> Refresh Page
               </button>
               <button
                 onClick={() => { this.setState({ hasError: false }); window.location.href = '/'; }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 text-sm font-medium border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                className="inline-flex items-center gap-2 px-4 h-10 bg-white text-gray-700 text-sm font-medium border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
               >
                 <Home className="w-4 h-4" /> Go Home
               </button>

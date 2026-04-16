@@ -46,6 +46,7 @@ router.put('/assigned-interviews/:id/status', updateAssignedInterviewStatus);
 router.get('/assigned-domains', getAssignedDomains);
 router.get('/evaluation-summary', getInterviewerEvaluationSummary);
 router.get('/evaluation-data', getEvaluationDataForInterviewer);
+router.get('/evaluation-data/domain/:domainName', getEvaluationDataForInterviewer);
 router.put('/evaluation-data/:id', updateEvaluationData);
 // --- MODIFICATION END ---
 

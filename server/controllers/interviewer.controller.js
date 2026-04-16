@@ -158,8 +158,12 @@ const getAssignedDomains = asyncHandler(async (req, res) => {
 });
 
 const getEvaluationDataForInterviewer = asyncHandler(async (req, res) => {
-    const { domain, search, interviewStatus, interviewDate } = req.query;
-    
+    const { search, interviewStatus, interviewDate } = req.query;
+    // Prefer path param (RESTful) but fall back to query param for compatibility
+    const domain = req.params.domainName
+        ? decodeURIComponent(req.params.domainName)
+        : req.query.domain;
+
     if (!domain) {
         return res.json({ success: true, data: { evaluationSheet: null, interviews: [] } });
     }
@@ -206,9 +210,10 @@ const getEvaluationDataForInterviewer = asyncHandler(async (req, res) => {
         ];
     }
     
+    const maxLimit = Math.min(parseInt(req.query.limit) || 500, 500);
     const interviews = await MainSheetEntry.find(query)
         .sort({ interviewDate: -1 })
-        .limit(1000);
+        .limit(maxLimit);
 
     res.json({ success: true, data: { evaluationSheet, interviews } });
 });

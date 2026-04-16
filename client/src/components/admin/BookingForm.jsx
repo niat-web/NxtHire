@@ -6,9 +6,16 @@ import { Calendar, Search, Check, X, Users, Filter } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { getInterviewers } from '@/api/admin.api';
 import { useAlert } from '@/hooks/useAlert';
-import StatusBadge from '@/components/common/StatusBadge';
 import { Badge } from '@/components/ui/badge';
 import { INTERVIEWER_STATUS, DOMAINS } from '@/utils/constants';
+
+const getStatusBadgeClass = (status) => {
+  const s = (status || '').toLowerCase();
+  if (['active', 'approved', 'completed', 'confirmed', 'onboarded'].includes(s)) return 'bg-emerald-50 text-emerald-700';
+  if (['on probation', 'pending', 'under review', 'scheduled'].includes(s)) return 'bg-amber-50 text-amber-700';
+  if (['inactive', 'suspended', 'rejected', 'cancelled', 'failed'].includes(s)) return 'bg-red-50 text-red-700';
+  return 'bg-slate-100 text-slate-600';
+};
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -19,7 +26,7 @@ const FilterSelect = ({ options, value, onChange, placeholder, icon: Icon }) => 
         <select
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full pl-8 pr-2 py-1.5 border border-gray-300 rounded-lg shadow-md text-xs bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 appearance-none"
+            className="w-full pl-8 pr-2 py-1.5 border border-gray-300 rounded-lg shadow-md text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 appearance-none"
         >
             <option value="">{placeholder}</option>
             {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
@@ -43,10 +50,10 @@ const AvailableInterviewerListItem = React.memo(({ interviewer, isSelected, onSe
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: 10 }}
         transition={{ duration: 0.2 }}
-        className={cn('flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all duration-200 border-2', isSelected ? 'bg-indigo-50 border-indigo-400 shadow-md' : 'border-transparent hover:bg-gray-100')}
+        className={cn('flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all duration-200 border-2', isSelected ? 'bg-blue-50 border-blue-400 shadow-md' : 'border-transparent hover:bg-gray-100')}
         onClick={onSelect}
     >
-        <div className={cn('w-5 h-5 rounded-md border-2 flex-shrink-0 flex items-center justify-center transition-all duration-200', isSelected ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-gray-300')}>
+        <div className={cn('w-5 h-5 rounded-md border-2 flex-shrink-0 flex items-center justify-center transition-all duration-200', isSelected ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-300')}>
             {isSelected && <Check className="w-3 h-3 text-white" />}
         </div>
         <div className="grid grid-cols-12 gap-x-3 flex-grow items-center">
@@ -54,7 +61,7 @@ const AvailableInterviewerListItem = React.memo(({ interviewer, isSelected, onSe
                 <p className="font-medium text-gray-800 text-sm truncate" title={interviewer.label}>{interviewer.label}</p>
                 <p className="text-xs text-gray-500 truncate" title={interviewer.email}>{interviewer.email}</p>
             </div>
-            <div className="col-span-3"><StatusBadge status={interviewer.status} /></div>
+            <div className="col-span-3"><span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${getStatusBadgeClass(interviewer.status)}`}>{interviewer.status}</span></div>
             <div className="col-span-4 flex flex-wrap gap-1">
                 {interviewer.domains.map((domain, index) => <Badge key={index} variant="gray">{domain}</Badge>)}
             </div>
@@ -110,7 +117,7 @@ const AvailableInterviewerList = ({ interviewers, loading, selected, onSelection
     };
 
     return (
-        <div className="flex flex-col h-full bg-white border border-gray-200/80 rounded-2xl shadow-md p-5">
+        <div className="flex flex-col h-full bg-white border border-gray-200 rounded-xl shadow-md p-5">
             {/* Header with Search and Filters */}
             <div className="flex-shrink-0 mb-3 space-y-3">
                 <h4 className="text-md font-semibold text-gray-800">Available Interviewers ({filteredInterviewers.length})</h4>
@@ -128,7 +135,7 @@ const AvailableInterviewerList = ({ interviewers, loading, selected, onSelection
             <div className="flex items-center justify-between px-2 py-2 border-b border-t border-gray-200 flex-shrink-0">
                 <div className="flex items-center gap-4">
                     <div className="flex items-center">
-                        <input type="checkbox" id="select-all" className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer" checked={selected.length === filteredInterviewers.length && filteredInterviewers.length > 0} onChange={handleSelectAll} disabled={loading || filteredInterviewers.length === 0} />
+                        <input type="checkbox" id="select-all" className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer" checked={selected.length === filteredInterviewers.length && filteredInterviewers.length > 0} onChange={handleSelectAll} disabled={loading || filteredInterviewers.length === 0} />
                         <label htmlFor="select-all" className="ml-3 text-sm font-medium text-gray-700 cursor-pointer">Select All</label>
                     </div>
                     {selected.length > 0 && (
@@ -201,7 +208,7 @@ const BookingForm = ({ onSubmit, initialData = null }) => {
 
                 {/* Left Panel */}
                 <div className="flex flex-col space-y-6 min-h-0">
-                    <div className="flex-shrink-0 bg-white border border-gray-200/80 rounded-2xl shadow-md p-5">
+                    <div className="flex-shrink-0 bg-white border border-gray-200 rounded-xl shadow-md p-5">
                         <label className="block text-md font-semibold text-gray-800 mb-2">1. Select Interview Date</label>
                         <div className="relative"><Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 z-10" />
                             <Controller name="bookingDate" control={control} rules={{ required: 'Please select a date' }}
@@ -211,7 +218,7 @@ const BookingForm = ({ onSubmit, initialData = null }) => {
                         </div>
                         {errors.bookingDate && <p className="mt-1.5 text-sm text-red-600">{errors.bookingDate.message}</p>}
                     </div>
-                    <div className="flex-grow flex flex-col bg-white border border-gray-200/80 rounded-2xl shadow-md p-5 min-h-0">
+                    <div className="flex-grow flex flex-col bg-white border border-gray-200 rounded-xl shadow-md p-5 min-h-0">
                         <h4 className="text-md font-semibold text-gray-800 flex-shrink-0 mb-3">Selected Interviewers ({selectedInterviewers.length})</h4>
                         <div className="flex-grow overflow-y-auto pr-2 -mr-2">
                             {selectedInterviewers.length > 0 ? (

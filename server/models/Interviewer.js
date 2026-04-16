@@ -43,7 +43,13 @@ const InterviewerSchema = new mongoose.Schema({
   applicant: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Applicant',
-    required: true
+    required: false
+  },
+  source: {
+    type: String,
+    enum: ['Internal', 'External'],
+    default: 'External',
+    index: true,
   },
   currentEmployer: {
     type: String,

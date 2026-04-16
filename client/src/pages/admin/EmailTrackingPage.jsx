@@ -14,7 +14,7 @@ import Loader from '@/components/common/Loader';
 const Table = ({ columns, data, isLoading, emptyMessage, emptyIcon: EmptyIcon }) => (
     <div className="w-full overflow-x-auto">
         <table className="min-w-full bg-white divide-y divide-gray-200">
-            <thead className="bg-gradient-to-r from-indigo-50 to-blue-50">
+            <thead className="bg-blue-50">
                 <tr>{columns.map(col => <th key={col.key} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{col.title}</th>)}</tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -169,7 +169,7 @@ const EmailTrackingPage = () => {
             {/* New Header */}
             <div className="flex-shrink-0 p-4 border-b border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <Link to="/admin/bookings/student-bookings" className="text-sm text-indigo-600 hover:text-indigo-800 flex items-center mb-1">
+                    <Link to="/admin/bookings/student-bookings" className="text-sm text-blue-600 hover:text-blue-800 flex items-center mb-1">
                         <ArrowLeft className="mr-1.5 h-4 w-4"/> Back to Manage Links
                     </Link>
                 </div>
@@ -180,7 +180,7 @@ const EmailTrackingPage = () => {
             
             {/* New Stats Cards */}
             <div className="flex-shrink-0 grid grid-cols-1 sm:grid-cols-3 gap-6 p-5 bg-gray-50 border-b border-gray-200">
-                <StatCard title="Total Invited" value={totalInvited} icon={Users} color="text-indigo-500" />
+                <StatCard title="Total Invited" value={totalInvited} icon={Users} color="text-blue-500" />
                 <StatCard title="Slots Booked" value={totalBooked} icon={CheckCircle} color="text-green-500" />
                 <StatCard title="Pending" value={totalPending} icon={Clock} color="text-yellow-500" />
             </div>

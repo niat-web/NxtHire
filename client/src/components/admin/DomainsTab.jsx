@@ -24,7 +24,7 @@ const LocalModal = ({ isOpen, onClose, title, children }) => {
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm" onClick={onClose}>
-            <div className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="relative w-full max-w-lg bg-white rounded-xl shadow-xl" onClick={e => e.stopPropagation()}>
                 <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-xl">
                     <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
                     <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-200 text-gray-500"><X className="h-5 w-5"/></button>
@@ -162,14 +162,14 @@ const DomainsTab = ({ domains, onUpdate, onDomainClick }) => {
                                 <td className="px-6 py-4 text-gray-600">{domain.eventTitle}</td>
                                 <td className="px-6 py-4">
                                     {domain.interviewHelpDoc ? (
-                                        <a href={domain.interviewHelpDoc} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-indigo-600 hover:underline font-medium text-xs">
+                                        <a href={domain.interviewHelpDoc} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline font-medium text-xs">
                                             <Link2 /> View Link
                                         </a>
                                     ) : <span className="text-gray-400 text-xs">-</span>}
                                 </td>
                                 <td className="px-6 py-4 text-center">
                                     <div className="flex items-center justify-center gap-2">
-                                        <button onClick={() => onDomainClick(domain)} className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg" title="Configure Fields"><Settings /></button>
+                                        <button onClick={() => onDomainClick(domain)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg" title="Configure Fields"><Settings /></button>
                                         <button onClick={() => openModal(domain)} className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg" title="Edit Domain"><Edit /></button>
                                         <button onClick={() => setDeleteDialog({ isOpen: true, id: domain._id })} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg" title="Delete Domain"><Trash2 /></button>
                                     </div>

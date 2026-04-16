@@ -1,7 +1,6 @@
 // client/src/components/common/Table.jsx
 import React from 'react';
 import { ChevronLeft, ChevronRight, ChevronsUp, ChevronsDown, Minus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import Loader from './Loader';
 import EmptyState from './EmptyState';
@@ -49,17 +48,17 @@ const Table = ({
   return (
     <div className="flow-root">
         <div className="align-middle inline-block min-w-full">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gradient-to-r from-indigo-50 to-blue-50">
+          <table className="min-w-full">
+            <thead>
               <tr>
                 {columns.map((column) => (
                   <th
                     key={column.key}
                     scope="col"
                     className={cn(
-                      'sticky top-0 px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap',
-                      column.isSticky ? 'left-0 z-20 bg-gradient-to-r from-indigo-50 to-blue-50 border-r border-indigo-100' : 'z-10 bg-gradient-to-r from-indigo-50 to-blue-50',
-                      column.sortable && 'cursor-pointer hover:text-gray-900'
+                      'sticky top-0 px-5 py-3.5 text-left text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em] whitespace-nowrap border-b border-slate-200 bg-slate-50/90 backdrop-blur-sm',
+                      column.isSticky ? 'left-0 z-20' : 'z-10',
+                      column.sortable && 'cursor-pointer hover:text-slate-900'
                     )}
                     style={{ minWidth: column.minWidth }}
                     onClick={() => column.sortable && onSort && onSort(column.key)}
@@ -73,7 +72,7 @@ const Table = ({
               </tr>
             </thead>
             {isLoading && customLoader ? customLoader : (
-              <tbody className="bg-white divide-y divide-gray-100">
+              <tbody className="bg-white divide-y divide-slate-100">
                 {isLoading ? (
                   <tr>
                     <td colSpan={columns.length} className="py-24">
@@ -88,13 +87,13 @@ const Table = ({
                   </tr>
                 ) : (
                   data.map((row, rowIndex) => (
-                    <tr key={row._id || rowIndex} className="hover:bg-gray-50/80 transition-colors duration-150 group">
+                    <tr key={row._id || `row-${rowIndex}`} className="hover:bg-slate-50/70 transition-colors duration-150 group">
                       {columns.map((column) => (
                         <td
-                          key={`${column.key}-${rowIndex}`}
+                          key={`${column.key}-${row._id || rowIndex}`}
                           className={cn(
-                            'px-4 py-2.5 whitespace-nowrap text-sm text-gray-700 align-middle',
-                            column.isSticky && 'sticky left-0 z-[1] border-r border-gray-100 bg-white group-hover:bg-gray-50/80'
+                            'px-5 py-3 whitespace-nowrap text-sm text-slate-700 align-middle',
+                            column.isSticky && 'sticky left-0 z-[1] bg-white group-hover:bg-slate-50/70'
                           )}
                         >
                            {column.render ? column.render(row, rowIndex) : (row[column.key] !== null && row[column.key] !== undefined ? row[column.key].toString() : '')}
@@ -109,28 +108,25 @@ const Table = ({
         </div>
 
       {pagination && pagination.totalItems > 10 && (
-          <nav className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
-              <div className="flex-1 flex justify-between sm:hidden">
-                  <Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={pagination.currentPage === 1}>Previous</Button>
-                  <Button variant="outline" size="sm" onClick={handleNextPage} disabled={pagination.currentPage === pagination.totalPages}>Next</Button>
-              </div>
-              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">
-                    Showing <span className="font-medium text-gray-900">{showingFrom}</span> to <span className="font-medium text-gray-900">{showingTo}</span> of{' '}
-                    <span className="font-medium text-gray-900">{pagination.totalItems}</span> results
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={pagination.currentPage === 1}>
-                      <ChevronLeft className="h-4 w-4 mr-1" />
-                      Previous
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={handleNextPage} disabled={pagination.currentPage >= pagination.totalPages}>
-                      Next
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </Button>
-                </div>
+          <nav className="flex items-center justify-between border-t border-slate-200/80 bg-white px-6 py-3">
+              <p className="text-xs text-slate-500 font-medium">
+                Showing <span className="font-bold text-slate-900">{showingFrom}</span>–<span className="font-bold text-slate-900">{showingTo}</span> of <span className="font-bold text-slate-900">{pagination.totalItems}</span>
+              </p>
+              <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={handlePreviousPage}
+                    disabled={pagination.currentPage === 1}
+                    className="h-9 w-9 rounded-lg flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={handleNextPage}
+                    disabled={pagination.currentPage >= pagination.totalPages}
+                    className="h-9 w-9 rounded-lg flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
               </div>
           </nav>
       )}

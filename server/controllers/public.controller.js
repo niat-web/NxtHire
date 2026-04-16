@@ -200,7 +200,7 @@ const bookSlot = asyncHandler(async (req, res) => {
         await session.commitTransaction();
         session.endSession();
 
-        // Push real-time notification to admin
+        // Push real-time notification to admin (non-blocking)
         try {
             const { pushNotification } = require('../services/notification.service');
             pushNotification({
@@ -208,8 +208,8 @@ const bookSlot = asyncHandler(async (req, res) => {
                 title: 'Student Booked Slot',
                 message: `${studentName} booked an interview slot`,
                 data: { bookingId: newStudentBooking._id, studentName, studentEmail },
-            }).catch(() => {});
-        } catch {}
+            }).catch(err => console.error('Push notification failed:', err.message));
+        } catch (err) { console.error('Notification setup failed:', err.message); }
 
         res.status(201).json({ success: true, message: "Your interview slot has been confirmed!", data: newStudentBooking });
 
@@ -238,7 +238,9 @@ const getPaymentConfirmationDetails = asyncHandler(async (req, res) => {
     if (!confirmation || confirmation.tokenExpires < new Date()) {
         res.status(400); throw new Error('This confirmation link is invalid or has expired.');
     }
-    
+
+    const isAlreadyActioned = confirmation.status !== 'Email Sent' && confirmation.status !== 'Pending';
+
     res.json({
         success: true,
         data: {
@@ -246,7 +248,8 @@ const getPaymentConfirmationDetails = asyncHandler(async (req, res) => {
             monthYear: confirmation.monthYear,
             interviewCount: confirmation.interviewCount,
             totalAmount: confirmation.totalAmount,
-            status: confirmation.status
+            status: confirmation.status,
+            isAlreadyActioned,
         }
     });
 });

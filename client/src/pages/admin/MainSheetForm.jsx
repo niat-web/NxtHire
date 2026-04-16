@@ -11,21 +11,21 @@ import { MAIN_SHEET_INTERVIEW_STATUSES } from '@/utils/constants';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 const LocalInput = React.forwardRef(({ className, ...props }, ref) => (
-    <input ref={ref} {...props} className={cn('w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm disabled:bg-gray-100', className)} />
+    <input ref={ref} {...props} className={cn('w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm disabled:bg-gray-100', className)} />
 ));
 const LocalSelect = React.forwardRef(({ options, placeholder, className, ...props }, ref) => (
-    <select ref={ref} {...props} className={cn('w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm', className)}>
+    <select ref={ref} {...props} className={cn('w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm', className)}>
         {placeholder && <option value="">{placeholder}</option>}
         {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
     </select>
 ));
 const LocalTextarea = React.forwardRef(({ className, ...props }, ref) => (
-    <textarea ref={ref} {...props} className={cn('w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm', className)} />
+    <textarea ref={ref} {...props} className={cn('w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm', className)} />
 ));
 const LocalLoader = ({ text }) => (
      <div className="flex h-full w-full items-center justify-center">
         <div className="text-center">
-             <svg className="animate-spin h-8 w-8 text-indigo-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+             <svg className="animate-spin h-8 w-8 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
              </svg>

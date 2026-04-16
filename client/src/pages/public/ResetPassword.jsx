@@ -13,7 +13,7 @@ const ResetPassword = () => {
   if (!token) {
     return (
       <div className="min-h-screen w-full bg-gray-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 p-8 text-center">
+        <div className="w-full max-w-md bg-white rounded-xl shadow-xl border border-gray-100 p-8 text-center">
           <div className="mx-auto w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mb-4 border border-red-100">
             <AlertTriangle className="h-7 w-7 text-red-600" />
           </div>
@@ -52,7 +52,7 @@ const ResetPassword = () => {
       </div>
 
       <div className="w-full max-w-[440px]">
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 sm:p-10">
+        <div className="bg-white rounded-xl shadow-xl border border-gray-100 p-8 sm:p-10">
             <div className="mb-8">
                 <h1 className="text-2xl font-semibold text-gray-900 mb-2">
                     Reset Password

@@ -35,7 +35,7 @@ const SettingsSidebar = memo(({ activeTab, onTabClick }) => (
             className={cn(
               'flex items-center gap-2.5 w-full px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-150',
               isActive
-                ? 'bg-indigo-600 text-white'
+                ? 'bg-blue-600 text-white'
                 : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
             )}
           >

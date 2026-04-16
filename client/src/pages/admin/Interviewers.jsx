@@ -1,17 +1,16 @@
 // client/src/pages/admin/Interviewers.jsx
 import React, { useEffect, useState, useMemo, useRef, Fragment } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import {
     User, Search, Edit, Trash2, Plus, Upload, CheckCircle,
-    AlertTriangle, Loader2, X, ChevronLeft, ChevronRight, 
+    AlertTriangle, Loader2, X, ChevronLeft, ChevronRight,
     Users, ChevronDown, Eye, Phone, MessageCircle, Briefcase, CreditCard,
     Send, RefreshCw
 } from 'lucide-react';
 import { Dialog, Transition } from '@headlessui/react';
 
-// Common Components Imports
-import Table from '../../components/common/Table';
 import {
     updateInterviewer, bulkUploadInterviewers, bulkDeleteInterviewers,
     sendWelcomeEmail, sendProbationEmail, markProbationAsSent
@@ -23,42 +22,12 @@ import { formatDateTime } from '../../utils/formatters';
 import { useAlert } from '../../hooks/useAlert';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import InterviewerFormModal from './InterviewerFormModal';
-import { Button as ShadcnButton } from '@/components/ui/button';
-
-// --- Styled Components ---
-
-const LocalButton = ({ children, onClick, type = 'button', isLoading = false, variant = 'primary', icon: Icon, disabled = false, size = 'md', className = '', title = '' }) => {
-    const variantMap = { primary: 'default', accent: 'default', outline: 'outline', danger: 'destructive', text: 'link', icon: 'ghost', ghost: 'ghost' };
-    const sizeMap = { xs: 'xs', sm: 'sm', md: 'default', lg: 'lg', icon: 'icon' };
-    return (
-        <ShadcnButton type={type} onClick={onClick} isLoading={isLoading} disabled={disabled} variant={variantMap[variant] || 'default'} size={sizeMap[size] || 'default'} className={className} title={title}>
-            {Icon && <Icon className={`${children ? 'mr-2' : ''} ${size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'}`} />}
-            {children}
-        </ShadcnButton>
-    );
-};
-
-const CustomSelect = ({ value, onChange, options, placeholder }) => (
-    <div className="relative">
-        <select
-            value={value}
-            onChange={onChange}
-            className="appearance-none bg-white border border-gray-200 text-gray-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-gray-400 block py-2 pl-3 pr-8 cursor-pointer hover:border-gray-300 transition-colors"
-        >
-            <option value="">{placeholder}</option>
-            {options.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-        </select>
-        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-    </div>
-);
 
 // --- View Details Modal ---
 const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbation, onMarkProbation }) => {
     if (!data) return null;
 
-    const [loadingAction, setLoadingAction] = useState(null); // 'welcome', 'probation', 'mark'
+    const [loadingAction, setLoadingAction] = useState(null);
 
     const handleAction = async (actionFn, actionType) => {
         setLoadingAction(actionType);
@@ -67,11 +36,11 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
     };
 
     const DetailItem = ({ label, value, icon: Icon }) => (
-        <div className="flex flex-col gap-1 p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
+        <div className="flex flex-col gap-1 p-3 bg-slate-50 rounded-lg border border-slate-100">
+            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
                 {Icon && <Icon className="w-3 h-3" />} {label}
             </span>
-            <span className="text-sm font-medium text-gray-900 break-words">{value || <span className="text-gray-400 italic">N/A</span>}</span>
+            <span className="text-sm font-medium text-slate-900 break-words">{value || <span className="text-slate-400 italic">N/A</span>}</span>
         </div>
     );
 
@@ -89,33 +58,31 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
                         <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
                             <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-xl bg-white text-left align-middle shadow-lg transition-all flex flex-col max-h-[90vh]">
                                 {/* Header */}
-                                <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                                <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
                                     <div className="flex items-center gap-4">
-                                        <div className="h-12 w-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-lg font-semibold">
+                                        <div className="h-12 w-12 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-lg font-semibold border border-blue-100">
                                             {data.user?.firstName?.[0]}{data.user?.lastName?.[0]}
                                         </div>
                                         <div>
-                                            <Dialog.Title as="h3" className="text-lg font-semibold text-gray-900 leading-tight">
+                                            <Dialog.Title as="h3" className="text-lg font-semibold text-slate-900 leading-tight">
                                                 {data.user?.firstName} {data.user?.lastName}
                                             </Dialog.Title>
-                                            <p className="text-sm text-gray-500">{data.jobTitle} • <span className={`font-semibold ${data.status === 'Active' ? 'text-green-600' : 'text-amber-600'}`}>{data.status}</span></p>
+                                            <p className="text-sm text-slate-500">{data.jobTitle} · <span className={`font-semibold ${data.status === 'Active' ? 'text-emerald-600' : 'text-amber-600'}`}>{data.status}</span></p>
                                         </div>
                                     </div>
-                                    <ShadcnButton variant="ghost" size="icon" onClick={onClose} className="rounded-full"><X className="h-5 w-5 text-gray-500" /></ShadcnButton>
+                                    <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition-colors"><X className="h-5 w-5" /></button>
                                 </div>
 
                                 {/* Scrollable Content */}
                                 <div className="p-6 overflow-y-auto custom-scrollbar">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {/* Contact Info */}
-                                        <div className="col-span-1 md:col-span-2"><h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2"><User /> Contact Information</h4></div>
+                                        <div className="col-span-1 md:col-span-2"><h4 className="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2"><User size={14} /> Contact Information</h4></div>
                                         <DetailItem label="Email Address" value={data.user?.email} />
                                         <DetailItem label="Phone Number" value={data.user?.phoneNumber} />
                                         <DetailItem label="WhatsApp" value={data.user?.whatsappNumber} />
                                         <DetailItem label="Onboarded Date" value={data.onboardingDate ? formatDateTime(data.onboardingDate) : 'N/A'} />
 
-                                        {/* Professional Info */}
-                                        <div className="col-span-1 md:col-span-2 mt-2"><h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2"><Briefcase /> Professional Details</h4></div>
+                                        <div className="col-span-1 md:col-span-2 mt-2"><h4 className="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2"><Briefcase size={14} /> Professional Details</h4></div>
                                         <DetailItem label="Current Employer" value={data.currentEmployer} />
                                         <DetailItem label="Total Experience" value={`${data.yearsOfExperience} Years`} />
                                         <DetailItem label="Company Type" value={data.companyType} />
@@ -124,8 +91,7 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
                                         <DetailItem label="Payout ID" value={data.payoutId} />
                                         <DetailItem label="Interviews Completed" value={data.metrics?.interviewsCompleted || 0} />
 
-                                        {/* Banking Info */}
-                                        <div className="col-span-1 md:col-span-2 mt-2"><h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2"><CreditCard /> Bank Details</h4></div>
+                                        <div className="col-span-1 md:col-span-2 mt-2"><h4 className="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2"><CreditCard size={14} /> Bank Details</h4></div>
                                         <DetailItem label="Bank Name" value={data.bankDetails?.bankName} />
                                         <DetailItem label="Account Name" value={data.bankDetails?.accountName} />
                                         <DetailItem label="Account Number" value={data.bankDetails?.accountNumber} />
@@ -134,48 +100,40 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
                                 </div>
 
                                 {/* Footer Actions */}
-                                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex flex-wrap justify-between items-center gap-3">
+                                <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-wrap justify-between items-center gap-3">
                                     <div className="flex gap-2">
-                                        {/* Welcome Email Button */}
-                                        <LocalButton 
-                                            variant="outline" 
-                                            size="sm" 
+                                        <button
                                             onClick={() => handleAction(onSendWelcome, 'welcome')}
-                                            isLoading={loadingAction === 'welcome'}
-                                            icon={data.welcomeEmailSentAt ? RefreshCw : Send}
-                                            className={data.welcomeEmailSentAt ? "text-green-600 border-green-200 bg-green-50 hover:bg-green-100" : ""}
+                                            disabled={loadingAction === 'welcome'}
+                                            className={`inline-flex items-center gap-2 px-3 h-8 text-xs font-medium rounded-md border transition-colors disabled:opacity-40 ${data.welcomeEmailSentAt ? 'text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100' : 'text-slate-700 border-slate-200 bg-white hover:bg-slate-50'}`}
                                         >
+                                            {loadingAction === 'welcome' ? <Loader2 size={13} className="animate-spin" /> : (data.welcomeEmailSentAt ? <RefreshCw size={13} /> : <Send size={13} />)}
                                             {data.welcomeEmailSentAt ? "Resend Welcome Mail" : "Send Welcome Mail"}
-                                        </LocalButton>
+                                        </button>
 
-                                        {/* Probation Email Button */}
                                         {showProbationActions && (
-                                            <LocalButton 
-                                                variant="outline" 
-                                                size="sm"
+                                            <button
                                                 onClick={() => handleAction(onSendProbation, 'probation')}
-                                                isLoading={loadingAction === 'probation'}
-                                                icon={data.probationEmailSentAt ? RefreshCw : Send}
-                                                className={data.probationEmailSentAt ? "text-green-600 border-green-200 bg-green-50 hover:bg-green-100" : ""}
+                                                disabled={loadingAction === 'probation'}
+                                                className={`inline-flex items-center gap-2 px-3 h-8 text-xs font-medium rounded-md border transition-colors disabled:opacity-40 ${data.probationEmailSentAt ? 'text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100' : 'text-slate-700 border-slate-200 bg-white hover:bg-slate-50'}`}
                                             >
+                                                {loadingAction === 'probation' ? <Loader2 size={13} className="animate-spin" /> : (data.probationEmailSentAt ? <RefreshCw size={13} /> : <Send size={13} />)}
                                                 {data.probationEmailSentAt ? "Resend Probation Mail" : "Send Probation Mail"}
-                                            </LocalButton>
+                                            </button>
                                         )}
 
-                                        {/* Mark Probation Sent Button */}
                                         {showProbationActions && !data.probationEmailSentAt && (
-                                            <LocalButton 
-                                                variant="outline" 
-                                                size="sm"
+                                            <button
                                                 onClick={() => handleAction(onMarkProbation, 'mark')}
-                                                isLoading={loadingAction === 'mark'}
-                                                icon={CheckCircle}
+                                                disabled={loadingAction === 'mark'}
+                                                className="inline-flex items-center gap-2 px-3 h-8 text-xs font-medium rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-40"
                                             >
+                                                {loadingAction === 'mark' ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle size={13} />}
                                                 Mark Probation Sent
-                                            </LocalButton>
+                                            </button>
                                         )}
                                     </div>
-                                    <LocalButton variant="primary" onClick={onClose}>Close</LocalButton>
+                                    <button onClick={onClose} className="inline-flex items-center px-4 h-10 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">Close</button>
                                 </div>
                             </Dialog.Panel>
                         </Transition.Child>
@@ -186,7 +144,7 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
     );
 };
 
-// --- Upload Modal (Minified for brevity) ---
+// --- Upload Modal ---
 const UploadModal = ({ isOpen, onClose, onUploadConfirm, isLoading }) => {
     const [file, setFile] = useState(null);
     const [parsedData, setParsedData] = useState([]);
@@ -216,16 +174,18 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, isLoading }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={onClose}>
-            <div className="w-full max-w-lg bg-white rounded-xl shadow-lg border border-gray-100 p-6" onClick={e => e.stopPropagation()}>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Bulk Import Interviewers</h3>
+            <div className="w-full max-w-lg bg-white rounded-xl shadow-lg border border-slate-200 p-6" onClick={e => e.stopPropagation()}>
+                <h3 className="text-base font-semibold text-slate-900 mb-4">Bulk Import Interviewers</h3>
                 <div className="space-y-4">
-                    <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-100 file:text-gray-700 cursor-pointer border border-gray-200 rounded-lg p-2" />
+                    <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-slate-100 file:text-slate-700 cursor-pointer border border-slate-200 rounded-lg p-2" />
                     {error && <p className="text-red-600 text-sm">{error}</p>}
-                    <p className="text-xs text-gray-500">Supported files: .csv, .xlsx. Headers: firstName, email, phoneNumber, etc.</p>
+                    <p className="text-xs text-slate-500">Supported files: .csv, .xlsx. Headers: firstName, email, phoneNumber, etc.</p>
                 </div>
                 <div className="mt-6 flex justify-end gap-2">
-                    <LocalButton variant="outline" onClick={onClose}>Cancel</LocalButton>
-                    <LocalButton variant="primary" onClick={() => onUploadConfirm(parsedData)} isLoading={isLoading} disabled={!parsedData.length}>Upload</LocalButton>
+                    <button onClick={onClose} className="px-4 h-10 text-sm font-medium text-slate-700 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors">Cancel</button>
+                    <button onClick={() => onUploadConfirm(parsedData)} disabled={isLoading || !parsedData.length} className="inline-flex items-center gap-2 px-4 h-10 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-40 transition-colors">
+                        {isLoading && <Loader2 size={14} className="animate-spin" />} Upload
+                    </button>
                 </div>
             </div>
         </div>
@@ -233,13 +193,14 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, isLoading }) => {
 };
 
 const Interviewers = () => {
+    const navigate = useNavigate();
     const { showSuccess, showError } = useAlert();
     const { invalidateInterviewers } = useInvalidateAdmin();
     const [sortConfig, setSortConfig] = useState({ key: 'onboardingDate', direction: 'desc' });
     const [filters, setFilters] = useState({ search: '', status: '', domain: '' });
     const [debouncedFilters, setDebouncedFilters] = useState(filters);
     const [currentPage, setCurrentPage] = useState(1);
-    const [modalState, setModalState] = useState({ type: null, data: null }); // 'add', 'edit', 'view'
+    const [modalState, setModalState] = useState({ type: null, data: null });
     const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, ids: [], isBulk: false });
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -247,33 +208,21 @@ const Interviewers = () => {
     const itemsPerPage = 15;
     const [updatingId, setUpdatingId] = useState(null);
 
-    // Debounce filter/sort changes to avoid excessive queries
     const debouncedUpdate = useMemo(() => debounce((newFilters) => {
         setDebouncedFilters(newFilters);
         setCurrentPage(1);
     }, 400), []);
 
     useEffect(() => { debouncedUpdate(filters); return () => debouncedUpdate.cancel(); }, [filters, debouncedUpdate]);
-
-    // Reset to page 1 when sort changes
     useEffect(() => { setCurrentPage(1); }, [sortConfig]);
 
-    // Memoized query params
     const queryParams = useMemo(() => ({
-        page: currentPage,
-        limit: itemsPerPage,
-        search: debouncedFilters.search,
-        status: debouncedFilters.status,
-        domain: debouncedFilters.domain,
-        sortBy: sortConfig.key,
-        sortOrder: sortConfig.direction,
+        page: currentPage, limit: itemsPerPage,
+        search: debouncedFilters.search, status: debouncedFilters.status,
+        domain: debouncedFilters.domain, sortBy: sortConfig.key, sortOrder: sortConfig.direction,
     }), [currentPage, itemsPerPage, debouncedFilters, sortConfig]);
 
-    // TanStack Query
-    const { data, isLoading: loading } = useInterviewers(queryParams, {
-        keepPreviousData: true,
-    });
-
+    const { data, isLoading: loading } = useInterviewers(queryParams, { keepPreviousData: true });
     const interviewers = data?.interviewers || [];
     const totalDocs = data?.totalDocs || 0;
     const totalPages = Math.ceil(totalDocs / itemsPerPage);
@@ -283,11 +232,8 @@ const Interviewers = () => {
     // Handlers
     const handleStatusChange = async (id, status) => {
         setUpdatingId(id);
-        try {
-            await updateInterviewer(id, { status });
-            showSuccess('Status updated');
-            invalidateInterviewers();
-        } catch { showError('Update failed'); } finally { setUpdatingId(null); }
+        try { await updateInterviewer(id, { status }); showSuccess('Status updated'); invalidateInterviewers(); }
+        catch { showError('Update failed'); } finally { setUpdatingId(null); }
     };
 
     const handleSendWelcomeEmail = async (id) => {
@@ -345,213 +291,248 @@ const Interviewers = () => {
 
     const resetFilters = () => setFilters({ search: '', status: '', domain: '' });
 
-    // Table Columns Configuration - As per specific requirement
-    const columns = useMemo(() => [
-        { 
-            key: 'select', 
-            title: <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900" onChange={(e) => setSelectedRows(e.target.checked ? interviewers.map(i => i._id) : [])} checked={selectedRows.length === interviewers.length && interviewers.length > 0} />, 
-            render: (r) => <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900" checked={selectedRows.includes(r._id)} onChange={() => setSelectedRows(p => p.includes(r._id) ? p.filter(id => id !== r._id) : [...p, r._id])} />,
-            minWidth: '50px'
-        },
-        { 
-            key: 'user.firstName', 
-            title: 'Interviewer Name', 
-            sortable: true, 
-            minWidth: '200px',
-            render: (r) => (
-                <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-semibold text-xs border border-gray-200">
-                        {r.user.firstName?.[0]}{r.user.lastName?.[0]}
-                    </div>
+    const handleSort = (key) => setSortConfig(p => ({ key, direction: p.key === key && p.direction === 'asc' ? 'desc' : 'asc' }));
+
+    // ── Table columns ──
+    const columns = [
+        { key: 'select', title: 'select', minWidth: '50px' },
+        { key: 'user.firstName', title: 'Interviewer Name', sortable: true, minWidth: '200px' },
+        { key: 'user.email', title: 'Email ID', minWidth: '200px' },
+        { key: 'user.phoneNumber', title: 'Mobile No', minWidth: '140px' },
+        { key: 'user.whatsappNumber', title: 'WhatsApp', minWidth: '140px' },
+        { key: 'yearsOfExperience', title: 'Experience', sortable: true, minWidth: '120px' },
+        { key: 'paymentAmount', title: 'Payment', minWidth: '120px' },
+        { key: 'source', title: 'Source', minWidth: '110px' },
+        { key: 'status', title: 'Status', minWidth: '140px' },
+    ];
+
+    const renderCell = (col, r) => {
+        switch (col.key) {
+            case 'select':
+                return <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" checked={selectedRows.includes(r._id)} onChange={() => setSelectedRows(p => p.includes(r._id) ? p.filter(id => id !== r._id) : [...p, r._id])} />;
+            case 'user.firstName':
+                return (
                     <div className="flex flex-col">
-                        <span className="font-semibold text-gray-900 text-sm">{r.user.firstName} {r.user.lastName}</span>
-                        <span className="text-xs text-gray-500">{r.jobTitle || 'N/A'}</span>
+                        <button onClick={() => navigate(`/admin/interviewers/${r._id}`)} className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline text-left transition-colors">
+                            {r.user.firstName} {r.user.lastName}
+                        </button>
+                        <span className="text-xs text-slate-500">{r.jobTitle || 'N/A'}</span>
                     </div>
-                </div>
-            ) 
-        },
-        { 
-            key: 'user.email', 
-            title: 'Email ID', 
-            minWidth: '200px', 
-            render: (r) => <span className="text-gray-600 text-sm">{r.user.email}</span> 
-        },
-        { 
-            key: 'user.phoneNumber', 
-            title: 'Mobile No', 
-            minWidth: '140px', 
-            render: (r) => <div className="flex items-center gap-2 text-gray-600 text-sm"><Phone className="text-gray-400 w-3 h-3" /> {r.user.phoneNumber}</div> 
-        },
-        { 
-            key: 'user.whatsappNumber', 
-            title: 'WhatsApp', 
-            minWidth: '140px', 
-            render: (r) => <div className="flex items-center gap-2 text-gray-600 text-sm"><MessageCircle className="text-green-500 w-3 h-3" /> {r.user.whatsappNumber || '-'}</div> 
-        },
-        { 
-            key: 'yearsOfExperience', 
-            title: 'Experience', 
-            sortable: true, 
-            minWidth: '120px', 
-            render: (r) => <span className="text-gray-900 font-medium text-sm">{r.yearsOfExperience} Years</span> 
-        },
-        { 
-            key: 'status', 
-            title: 'Status', 
-            minWidth: '140px', 
-            render: (r) => (
-                <div className="relative">
-                    <select 
-                        value={r.status} 
-                        onChange={(e) => handleStatusChange(r._id, e.target.value)} 
-                        disabled={updatingId === r._id}
-                        className={`w-full text-xs font-semibold pl-2 pr-6 py-1.5 rounded-full appearance-none cursor-pointer focus:outline-none border ${
-                            r.status === 'Active' ? 'bg-green-50 text-green-700 border-green-200' : 
-                            r.status === 'On Probation' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : 
-                            'bg-gray-50 text-gray-600 border-gray-200'
-                        }`}
-                    >
-                        {Object.values(INTERVIEWER_STATUS).map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 opacity-50 pointer-events-none" />
-                </div>
-            ) 
-        },
-        {
-            key: 'actions',
-            title: '',
-            minWidth: '60px',
-            render: (r) => (
-                <ShadcnButton
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setModalState({ type: 'view', data: r })}
-                    className="h-7 w-7 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50"
-                    title="View Details"
-                >
-                    <Eye className="w-4 h-4" />
-                </ShadcnButton>
-            )
+                );
+            case 'user.email':
+                return <span className="text-slate-600 text-sm">{r.user.email}</span>;
+            case 'user.phoneNumber':
+                return <div className="flex items-center gap-2 text-slate-600 text-sm"><Phone className="text-slate-400 w-3 h-3" /> {r.user.phoneNumber}</div>;
+            case 'user.whatsappNumber':
+                return <div className="flex items-center gap-2 text-slate-600 text-sm"><MessageCircle className="text-emerald-500 w-3 h-3" /> {r.user.whatsappNumber || '-'}</div>;
+            case 'yearsOfExperience':
+                return <span className="text-slate-900 font-medium text-sm">{r.yearsOfExperience} Years</span>;
+            case 'paymentAmount': {
+                const EditablePayment = () => {
+                    const [val, setVal] = useState(String(r.paymentAmount || '').replace(/[^0-9]/g, ''));
+                    const [saving, setSaving] = useState(false);
+                    const save = async () => {
+                        const clean = val.replace(/[^0-9]/g, '');
+                        if (clean === String(r.paymentAmount || '').replace(/[^0-9]/g, '')) return;
+                        setSaving(true);
+                        try { await updateInterviewer(r._id, { paymentAmount: clean }); showSuccess('Payment updated'); invalidateInterviewers(); }
+                        catch { showError('Failed to update'); } finally { setSaving(false); }
+                    };
+                    return (
+                        <div className="relative">
+                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">₹</span>
+                            <input type="text" value={val} onChange={e => setVal(e.target.value.replace(/[^0-9]/g, ''))} onBlur={save} disabled={saving} placeholder="0"
+                                className="w-full pl-6 pr-2 py-1.5 text-xs font-semibold text-slate-900 border border-transparent rounded-lg bg-transparent hover:border-slate-200 focus:bg-white focus:border-slate-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-blue-400 text-right transition-all" />
+                        </div>
+                    );
+                };
+                return <EditablePayment />;
+            }
+            case 'source': {
+                const isInternal = r.source === 'Internal';
+                return (
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${isInternal ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-emerald-50 text-emerald-700 border-emerald-100'}`}>
+                        {isInternal ? 'Internal' : 'External'}
+                    </span>
+                );
+            }
+            case 'status':
+                return (
+                    <div className="relative">
+                        <select value={r.status} onChange={(e) => handleStatusChange(r._id, e.target.value)} disabled={updatingId === r._id}
+                            className={`w-full text-xs font-semibold pl-2 pr-6 py-1.5 rounded-full appearance-none cursor-pointer focus:outline-none border ${
+                                r.status === 'Active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                r.status === 'On Probation' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                'bg-slate-50 text-slate-600 border-slate-200'
+                            }`}>
+                            {Object.values(INTERVIEWER_STATUS).map(s => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                        <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 opacity-50 pointer-events-none" />
+                    </div>
+                );
+            default:
+                return null;
         }
-    ], [interviewers, selectedRows, updatingId]);
+    };
 
     return (
-        <div className="flex flex-col h-full overflow-hidden bg-white rounded-xl border border-gray-100 shadow-sm">
+        <div className="flex flex-col h-full overflow-hidden bg-white rounded-xl border border-slate-200">
 
             {/* Header Bar */}
-            <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0 shadow-sm">
+            <div className="bg-white border-b border-slate-200 px-6 py-4 flex-shrink-0">
                 <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
                     <div className="flex flex-wrap items-center gap-2 flex-1">
                         <div className="relative w-full sm:w-56">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                            <input
-                                type="text"
-                                value={filters.search}
-                                onChange={(e) => setFilters(p => ({ ...p, search: e.target.value }))}
-                                placeholder="Search by name, email..."
-                                className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-gray-400 transition-all"
-                            />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <input type="text" value={filters.search} onChange={(e) => setFilters(p => ({ ...p, search: e.target.value }))} placeholder="Search by name, email..."
+                                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all" />
                         </div>
-                        <CustomSelect
-                            value={filters.status}
-                            onChange={(e) => setFilters(p => ({ ...p, status: e.target.value }))}
-                            options={Object.values(INTERVIEWER_STATUS).map(s => ({ value: s, label: s }))}
-                            placeholder="All Status"
-                        />
-                        <CustomSelect
-                            value={filters.domain}
-                            onChange={(e) => setFilters(p => ({ ...p, domain: e.target.value }))}
-                            options={DOMAINS}
-                            placeholder="All Domains"
-                        />
+                        <div className="relative">
+                            <select value={filters.status} onChange={(e) => setFilters(p => ({ ...p, status: e.target.value }))}
+                                className="appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 block py-2 pl-3 pr-8 cursor-pointer hover:border-slate-300 transition-colors">
+                                <option value="">All Status</option>
+                                {Object.values(INTERVIEWER_STATUS).map(s => (<option key={s} value={s}>{s}</option>))}
+                            </select>
+                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                        </div>
+                        <div className="relative">
+                            <select value={filters.domain} onChange={(e) => setFilters(p => ({ ...p, domain: e.target.value }))}
+                                className="appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 block py-2 pl-3 pr-8 cursor-pointer hover:border-slate-300 transition-colors">
+                                <option value="">All Domains</option>
+                                {DOMAINS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
+                            </select>
+                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                        </div>
                         {(filters.search || filters.status || filters.domain) && (
-                            <ShadcnButton variant="ghost" size="sm" onClick={resetFilters} className="text-xs text-gray-500 hover:text-gray-900 font-medium px-2">Clear</ShadcnButton>
+                            <button onClick={resetFilters} className="text-xs text-slate-500 hover:text-slate-900 font-medium px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors">Clear</button>
                         )}
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
                         {selectedRows.length > 0 && (
-                            <div className="flex items-center gap-2 bg-slate-800 text-white px-3 py-1.5 rounded-lg shadow mr-1">
+                            <div className="flex items-center gap-2 bg-slate-800 text-white px-3 py-1.5 rounded-lg mr-1">
                                 <span className="text-xs font-semibold">{selectedRows.length} selected</span>
                                 {selectedRows.length === 1 && (
-                                    <ShadcnButton variant="ghost" size="icon" onClick={() => setModalState({ type: 'edit', data: interviewers.find(i => i._id === selectedRows[0]) })} className="h-7 w-7 hover:bg-slate-700 text-white" title="Edit">
+                                    <button onClick={() => setModalState({ type: 'edit', data: interviewers.find(i => i._id === selectedRows[0]) })} className="h-7 w-7 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors" title="Edit">
                                         <Edit className="w-3.5 h-3.5" />
-                                    </ShadcnButton>
+                                    </button>
                                 )}
-                                <ShadcnButton variant="ghost" size="icon" onClick={() => setDeleteDialog({ isOpen: true, ids: selectedRows, isBulk: true })} className="h-7 w-7 hover:bg-slate-700 text-white" title="Delete">
+                                <button onClick={() => setDeleteDialog({ isOpen: true, ids: selectedRows, isBulk: true })} className="h-7 w-7 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors" title="Delete">
                                     <Trash2 className="w-3.5 h-3.5" />
-                                </ShadcnButton>
+                                </button>
                             </div>
                         )}
-                        <LocalButton variant="outline" icon={Upload} onClick={() => setIsUploadModalOpen(true)}>Import</LocalButton>
-                        <LocalButton variant="primary" icon={Plus} onClick={() => setModalState({ type: 'add', data: null })}>Add Interviewer</LocalButton>
+                        <button onClick={() => setIsUploadModalOpen(true)} className="inline-flex items-center gap-2 px-4 h-10 text-sm font-medium text-slate-700 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors">
+                            <Upload className="h-4 w-4" /> Import
+                        </button>
+                        <button onClick={() => setModalState({ type: 'add', data: null })} className="inline-flex items-center gap-2 px-4 h-10 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                            <Plus className="h-4 w-4" /> Add Interviewer
+                        </button>
                     </div>
                 </div>
             </div>
 
-            {/* Table */}
+            {/* Table — local inline implementation */}
             <div className="flex-1 overflow-hidden flex flex-col">
                 <div className="flex-1 overflow-auto">
-                        <Table 
-                            columns={columns} 
-                            data={interviewers} 
-                            isLoading={loading} 
-                            sortConfig={sortConfig} 
-                            onSort={(key) => setSortConfig(p => ({ key, direction: p.key === key && p.direction === 'asc' ? 'desc' : 'asc' }))} 
-                            emptyMessage="No interviewers found" 
-                        />
-                    </div>
-                    
+                    <table className="min-w-full">
+                        <thead>
+                            <tr>
+                                {columns.map((col) => (
+                                    <th key={col.key} scope="col"
+                                        className={`sticky top-0 px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em] whitespace-nowrap border-b border-slate-200 bg-slate-50/90 backdrop-blur-sm z-10 ${col.sortable ? 'cursor-pointer hover:text-slate-900' : ''}`}
+                                        style={{ minWidth: col.minWidth }}
+                                        onClick={() => col.sortable && handleSort(col.key)}>
+                                        <div className="flex items-center gap-1.5">
+                                            {col.key === 'select' ? (
+                                                <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" onChange={(e) => setSelectedRows(e.target.checked ? interviewers.map(i => i._id) : [])} checked={selectedRows.length === interviewers.length && interviewers.length > 0} />
+                                            ) : col.title}
+                                            {col.sortable && (
+                                                <span className="text-[10px]">
+                                                    {sortConfig.key === col.key ? (sortConfig.direction === 'asc' ? '▲' : '▼') : <span className="text-slate-300">⇅</span>}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-slate-100">
+                            {loading ? (
+                                [...Array(8)].map((_, i) => (
+                                    <tr key={i} className="animate-pulse">
+                                        {columns.map((col) => (
+                                            <td key={col.key} className="px-5 py-3"><div className="h-4 w-full bg-slate-100 rounded" /></td>
+                                        ))}
+                                    </tr>
+                                ))
+                            ) : interviewers.length === 0 ? (
+                                <tr><td colSpan={columns.length} className="px-6 py-14 text-center text-sm text-slate-400">No interviewers found</td></tr>
+                            ) : (
+                                interviewers.map((r) => (
+                                    <tr key={r._id} className="hover:bg-slate-50/70 transition-colors group">
+                                        {columns.map((col) => (
+                                            <td key={col.key} className="px-5 py-2.5 whitespace-nowrap text-sm text-slate-700 align-middle">
+                                                {renderCell(col, r)}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
                 {/* Pagination */}
                 {!loading && totalDocs > 0 && (
-                    <div className="px-6 py-3 border-t border-gray-200 bg-white flex items-center justify-between shrink-0">
-                        <p className="text-xs text-gray-500">
-                            Page <b className="text-gray-900">{currentPage}</b> of {totalPages} ({totalDocs} total)
+                    <div className="px-6 py-3 border-t border-slate-200 bg-white flex items-center justify-between shrink-0">
+                        <p className="text-xs text-slate-500 font-medium">
+                            Page <span className="font-bold text-slate-900">{currentPage}</span> of {totalPages} ({totalDocs} total)
                         </p>
                         <div className="flex items-center gap-1.5">
-                            <ShadcnButton variant="outline" size="icon" onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage === 1}
-                                className="h-8 w-8 disabled:opacity-30">
+                            <button onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage === 1}
+                                className="h-9 w-9 rounded-md flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                                 <ChevronLeft className="w-4 h-4" />
-                            </ShadcnButton>
-                            <ShadcnButton variant="outline" size="icon" onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage === totalPages}
-                                className="h-8 w-8 disabled:opacity-30">
+                            </button>
+                            <button onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage === totalPages}
+                                className="h-9 w-9 rounded-md flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                                 <ChevronRight className="w-4 h-4" />
-                            </ShadcnButton>
+                            </button>
                         </div>
                     </div>
                 )}
             </div>
 
             {/* Modals */}
-            <InterviewerFormModal 
-                isOpen={modalState.type === 'add' || modalState.type === 'edit'} 
-                onClose={() => setModalState({ type: null, data: null })} 
+            <InterviewerFormModal
+                isOpen={modalState.type === 'add' || modalState.type === 'edit'}
+                onClose={() => setModalState({ type: null, data: null })}
                 onSuccess={() => { setModalState({ type: null, data: null }); invalidateInterviewers(); }}
-                interviewerData={modalState.type === 'edit' ? modalState.data : null} 
+                interviewerData={modalState.type === 'edit' ? modalState.data : null}
             />
-            
-            <ViewDetailsModal 
-                isOpen={modalState.type === 'view'} 
-                onClose={() => setModalState({ type: null, data: null })} 
+
+            <ViewDetailsModal
+                isOpen={modalState.type === 'view'}
+                onClose={() => setModalState({ type: null, data: null })}
                 data={modalState.data}
                 onSendWelcome={handleSendWelcomeEmail}
                 onSendProbation={handleSendProbationEmail}
                 onMarkProbation={handleMarkProbationAsSent}
             />
 
-            <ConfirmDialog 
-                isOpen={deleteDialog.isOpen} 
-                onClose={() => setDeleteDialog({ isOpen: false, ids: [], isBulk: false })} 
-                onConfirm={handleBulkDelete} 
-                title="Delete Interviewer" 
-                message="Are you sure? This action cannot be undone." 
+            <ConfirmDialog
+                isOpen={deleteDialog.isOpen}
+                onClose={() => setDeleteDialog({ isOpen: false, ids: [], isBulk: false })}
+                onConfirm={handleBulkDelete}
+                title="Delete Interviewer"
+                message="Are you sure? This action cannot be undone."
             />
 
-            <UploadModal 
-                isOpen={isUploadModalOpen} 
-                onClose={() => setIsUploadModalOpen(false)} 
-                onUploadConfirm={handleUpload} 
-                isLoading={isUploading} 
+            <UploadModal
+                isOpen={isUploadModalOpen}
+                onClose={() => setIsUploadModalOpen(false)}
+                onUploadConfirm={handleUpload}
+                isLoading={isUploading}
             />
         </div>
     );

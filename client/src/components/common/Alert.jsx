@@ -21,7 +21,7 @@ const Alert = ({
     success: {
       containerClass: 'bg-emerald-50 border-emerald-400 text-emerald-800',
       icon: <CheckCircle className="h-5 w-5 text-emerald-500" />,
-      dismissClass: 'text-emerald-500 hover:bg-emerald-100 focus:ring-indigo-500',
+      dismissClass: 'text-emerald-500 hover:bg-emerald-100 focus:ring-blue-500',
     },
     warning: {
       containerClass: 'bg-amber-50 border-amber-400 text-amber-800',

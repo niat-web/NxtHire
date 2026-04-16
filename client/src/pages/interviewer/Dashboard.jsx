@@ -17,38 +17,43 @@ const fadeIn = {
   visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.05, duration: 0.35 } }),
 };
 
-// ─── Small stat card (NxtResume exact pattern) ──────────────────────────────
-const StatCard = ({ title, value, icon: Icon, link, isLoading, color = 'indigo' }) => {
+// ─── Small stat card ──────────────────────────────────────────────────────
+const StatCard = ({ title, value, icon: Icon, link, isLoading, color = 'blue' }) => {
   const palette = {
-    indigo: 'bg-indigo-50 text-indigo-600',
-    green:  'bg-green-50 text-green-600',
-    red:    'bg-red-50 text-red-600',
-    amber:  'bg-amber-50 text-amber-600',
-    violet: 'bg-violet-50 text-violet-600',
-    sky:    'bg-sky-50 text-sky-600',
+    blue:   { grad: 'from-blue-500 to-blue-600', chip: 'bg-blue-50 text-blue-600 ring-blue-200/60' },
+    green:  { grad: 'from-emerald-500 to-teal-500', chip: 'bg-emerald-50 text-emerald-600 ring-emerald-200/60' },
+    red:    { grad: 'from-rose-500 to-pink-500', chip: 'bg-rose-50 text-rose-600 ring-rose-200/60' },
+    amber:  { grad: 'from-amber-500 to-orange-500', chip: 'bg-amber-50 text-amber-600 ring-amber-200/60' },
+    violet: { grad: 'from-violet-500 to-fuchsia-500', chip: 'bg-violet-50 text-violet-600 ring-violet-200/60' },
+    sky:    { grad: 'from-sky-500 to-blue-500', chip: 'bg-sky-50 text-sky-600 ring-sky-200/60' },
   };
+  const c = palette[color] || palette.blue;
+
+  const Wrapper = link ? Link : 'div';
+  const wrapperProps = link ? { to: link } : {};
 
   return (
-    <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-md">
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-gray-500">{title}</p>
-        <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center', palette[color])}>
+    <Wrapper {...wrapperProps} className="group relative block rounded-xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-lg hover:shadow-slate-200/50 hover:-translate-y-0.5 transition-all overflow-hidden">
+      <div className={cn('absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r', c.grad)} />
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{title}</p>
+        <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center ring-1 shadow-sm', c.chip)}>
           <Icon size={18} />
         </div>
       </div>
-      <div className="mt-2">
+      <div>
         {isLoading ? (
           <Skeleton className="h-8 w-20" />
         ) : (
-          <p className="text-2xl font-semibold text-gray-900">{value}</p>
+          <p className="text-3xl font-extrabold text-slate-900 tracking-tight">{value}</p>
         )}
       </div>
       {link && (
-        <Link to={link} className="mt-2 inline-flex items-center text-gray-400 hover:text-indigo-600 transition-colors">
-          <ArrowRight size={15} />
-        </Link>
+        <div className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 group-hover:gap-1.5 transition-all">
+          View details <ArrowRight size={12} />
+        </div>
       )}
-    </div>
+    </Wrapper>
   );
 };
 
@@ -65,20 +70,21 @@ const StatusBadge = ({ status }) => {
 };
 
 // ─── Quick action card ──────────────────────────────────────────────────────
-const QuickAction = ({ title, description, icon: Icon, to, color = 'indigo' }) => {
+const QuickAction = ({ title, description, icon: Icon, to, color = 'blue' }) => {
   const palette = {
-    indigo: 'bg-indigo-50 text-indigo-600',
-    teal:   'bg-teal-50 text-teal-600',
-    amber:  'bg-amber-50 text-amber-600',
+    blue:   'bg-blue-50 text-blue-600 ring-blue-200/60',
+    teal:   'bg-gradient-to-br from-emerald-50 to-teal-50 text-emerald-600 ring-emerald-200/60',
+    amber:  'bg-gradient-to-br from-amber-50 to-orange-50 text-amber-600 ring-amber-200/60',
   };
 
   return (
-    <Link to={to} className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-md hover:border-indigo-200 group block">
-      <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center mb-3', palette[color])}>
-        <Icon size={18} />
+    <Link to={to} className="group relative rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:shadow-lg hover:shadow-blue-100/40 hover:-translate-y-0.5 hover:border-blue-200 block overflow-hidden">
+      <div className={cn('w-11 h-11 rounded-xl flex items-center justify-center mb-4 ring-1 shadow-sm', palette[color])}>
+        <Icon size={19} />
       </div>
-      <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">{title}</h3>
-      <p className="text-xs text-gray-400 mt-1">{description}</p>
+      <h3 className="text-[15px] font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{title}</h3>
+      <p className="text-xs text-slate-500 mt-1 leading-relaxed">{description}</p>
+      <ArrowRight size={14} className="absolute top-5 right-5 text-slate-300 group-hover:text-blue-500 group-hover:translate-x-0.5 transition-all" />
     </Link>
   );
 };
@@ -97,13 +103,13 @@ const Dashboard = () => {
   const upcomingInterviews = data?.upcomingInterviews ?? [];
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+    <div className="flex flex-col h-full bg-slate-50">
+      <div className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6">
 
         {/* Stat cards — compact grid */}
         <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" initial="hidden" animate="visible">
           <motion.div custom={0} variants={fadeIn}>
-            <StatCard title="Scheduled" value={stats.scheduledCount} icon={Calendar} link="/interviewer/interview-evaluation" isLoading={isLoading} color="indigo" />
+            <StatCard title="Scheduled" value={stats.scheduledCount} icon={Calendar} link="/interviewer/interview-evaluation" isLoading={isLoading} color="blue" />
           </motion.div>
           <motion.div custom={1} variants={fadeIn}>
             <StatCard title="Completed" value={stats.completedCount} icon={CheckCircle} isLoading={isLoading} color="green" />
@@ -118,9 +124,12 @@ const Dashboard = () => {
 
         {/* Quick Actions */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <h2 className="text-base font-semibold text-gray-900 mb-3">Quick Actions</h2>
+          <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-base font-bold text-slate-900">Quick Actions</h2>
+            <div className="flex-1 h-px bg-gradient-to-r from-slate-200 to-transparent" />
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <QuickAction title="Set Availability" description="Update your available time slots" icon={Calendar} to="/interviewer/availability" color="indigo" />
+            <QuickAction title="Set Availability" description="Update your available time slots" icon={Calendar} to="/interviewer/availability" color="blue" />
             <QuickAction title="View Evaluations" description="Check domain evaluation sheets" icon={FileText} to="/interviewer/domain-evaluation" color="teal" />
             <QuickAction title="Update Profile" description="Keep your profile up to date" icon={Star} to="/interviewer/settings" color="amber" />
           </div>
@@ -128,11 +137,19 @@ const Dashboard = () => {
 
         {/* Upcoming Interviews table */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-          className="rounded-xl border border-gray-100 bg-white shadow-sm"
+          className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden"
         >
-          <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100">
-            <h3 className="text-sm font-semibold text-gray-900">Upcoming Interviews</h3>
-            <Link to="/interviewer/interview-evaluation" className="text-xs font-medium text-indigo-600 hover:text-indigo-800">View All</Link>
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-blue-50 ring-1 ring-blue-200/60 flex items-center justify-center">
+                <Briefcase size={16} className="text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900">Upcoming Interviews</h3>
+                <p className="text-[11px] text-slate-400 font-medium">Your scheduled sessions</p>
+              </div>
+            </div>
+            <Link to="/interviewer/interview-evaluation" className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-0.5">View all <ArrowRight size={12} /></Link>
           </div>
 
           {isLoading ? (
@@ -140,39 +157,44 @@ const Dashboard = () => {
               <Loader size="md" />
             </div>
           ) : upcomingInterviews.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-              <div className="bg-gray-50 p-3 rounded-full mb-3">
-                <Clock className="h-6 w-6 text-gray-400" />
+            <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/60 flex items-center justify-center mb-4 shadow-sm">
+                <Clock className="h-6 w-6 text-slate-400" />
               </div>
-              <h3 className="text-sm font-semibold text-gray-900 mb-1">No Upcoming Interviews</h3>
-              <p className="text-xs text-gray-500 max-w-sm">Check back later or update your availability.</p>
+              <h3 className="text-sm font-bold text-slate-900 mb-1">No upcoming interviews</h3>
+              <p className="text-xs text-slate-500 max-w-sm">Check back later or update your availability to get matched with candidates.</p>
+              <Link to="/interviewer/availability" className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700">
+                Set availability <ArrowRight size={12} />
+              </Link>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
-                <thead className="bg-gray-50/80">
+                <thead className="bg-slate-50/80">
                   <tr>
-                    <th className="px-5 py-2.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Domain</th>
-                    <th className="px-5 py-2.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Candidate</th>
-                    <th className="px-5 py-2.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    <th className="px-5 py-2.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                    <th className="px-5 py-2.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-5 py-2.5 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Meeting</th>
+                    <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em]">Domain</th>
+                    <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em]">Candidate</th>
+                    <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em]">Date</th>
+                    <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em]">Time</th>
+                    <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em]">Status</th>
+                    <th className="px-6 py-3 text-right text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em]">Meeting</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50 bg-white">
+                <tbody className="divide-y divide-slate-100 bg-white">
                   {upcomingInterviews.map((interview, index) => (
-                    <tr key={interview._id || index} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-5 py-3 font-medium text-gray-900">{interview.techStack || '-'}</td>
-                      <td className="px-5 py-3 text-gray-600">{interview.candidateName || '-'}</td>
-                      <td className="px-5 py-3 text-gray-600">{formatDate(interview.interviewDate)}</td>
-                      <td className="px-5 py-3 text-gray-500 text-xs">{interview.interviewTime || '-'}</td>
-                      <td className="px-5 py-3"><StatusBadge status={interview.interviewStatus} /></td>
-                      <td className="px-5 py-3 text-right">
+                    <tr key={interview._id || index} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="px-6 py-3.5 font-semibold text-slate-900">{interview.techStack || '-'}</td>
+                      <td className="px-6 py-3.5 text-slate-600">{interview.candidateName || '-'}</td>
+                      <td className="px-6 py-3.5 text-slate-600">{formatDate(interview.interviewDate)}</td>
+                      <td className="px-6 py-3.5 text-slate-500 text-xs">{interview.interviewTime || '-'}</td>
+                      <td className="px-6 py-3.5"><StatusBadge status={interview.interviewStatus} /></td>
+                      <td className="px-6 py-3.5 text-right">
                         {interview.meetingLink ? (
-                          <a href={interview.meetingLink} target="_blank" rel="noopener noreferrer" className="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-600 text-xs font-medium hover:bg-indigo-100">Join</a>
+                          <a href={interview.meetingLink} target="_blank" rel="noopener noreferrer" className="px-3 h-8 rounded-md bg-blue-600 text-white text-xs font-medium shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all inline-flex items-center gap-1">
+                            Join <ArrowRight size={11} />
+                          </a>
                         ) : (
-                          <span className="text-xs text-gray-300">No link</span>
+                          <span className="text-xs text-slate-300">No link</span>
                         )}
                       </td>
                     </tr>

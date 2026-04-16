@@ -54,7 +54,7 @@ const Guidelines = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600 mx-auto"></div>
           <h2 className="mt-4 text-xl font-semibold text-gray-800">Verifying application...</h2>
           <p className="mt-2 text-gray-600">Please wait while we validate your access.</p>
         </div>
@@ -65,7 +65,7 @@ const Guidelines = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div className="max-w-md w-full bg-white rounded-xl shadow-xl overflow-hidden">
           <div className="bg-red-600 p-6">
             <div className="flex justify-center">
               <div className="p-3 rounded-full bg-white bg-opacity-25">
@@ -81,7 +81,7 @@ const Guidelines = () => {
             <div className="flex justify-center">
               <Button
                 onClick={() => navigate('/')}
-                className="flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 shadow-md transition-colors"
+                className="flex items-center justify-center px-6 h-10 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 shadow-md transition-colors"
               >
                 <ArrowLeft className="mr-2 h-5 w-5" />
                 Back to Home

@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 // Self-contained loader
 const Loader = ({ text }) => (
     <div className="flex flex-col items-center justify-center text-center">
-        <Loader2 className="h-10 w-10 text-indigo-600 animate-spin" />
+        <Loader2 className="h-10 w-10 text-blue-600 animate-spin" />
         <p className="mt-4 text-gray-600">{text}</p>
     </div>
 );

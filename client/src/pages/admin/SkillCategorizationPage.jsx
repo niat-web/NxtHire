@@ -3,14 +3,11 @@ import React, { useEffect, useState, useMemo } from 'react';
 import {
     Briefcase, CheckCircle, ChevronLeft, ChevronRight,
     ChevronsLeft, ChevronsRight, User, Clock, Star,
-    Mail, Phone, Linkedin, Send
+    Mail, Phone, Linkedin, Send, Search, X, Loader2
 } from 'lucide-react';
-import Loader from '../../components/common/Loader';
 import { processSkillCategorization } from '../../api/admin.api';
 import { useAlert } from '../../hooks/useAlert';
-import EmptyState from '../../components/common/EmptyState';
 import { debounce } from '../../utils/helpers';
-import SearchInput from '../../components/common/SearchInput';
 import { formatDate, formatDateTime } from '../../utils/formatters';
 import Select from 'react-select';
 import { DOMAINS } from '../../utils/constants';
@@ -38,7 +35,7 @@ const SimpleButton = ({ children, variant = 'primary', icon: Icon, ...props }) =
 };
 
 const SimpleCard = ({ children, className = '' }) => (
-    <div className={`bg-white border border-gray-100 rounded-xl shadow-sm ${className}`}>
+    <div className={`bg-white rounded-xl border border-slate-200 shadow-sm ${className}`}>
         {children}
     </div>
 );
@@ -46,11 +43,11 @@ const SimpleCard = ({ children, className = '' }) => (
 const SimpleBadge = ({ children, color = 'gray' }) => {
     const colors = {
         gray: 'bg-gray-100 text-gray-800',
-        blue: 'bg-indigo-100 text-indigo-800',
+        blue: 'bg-blue-100 text-blue-800',
         green: 'bg-green-100 text-green-800',
         yellow: 'bg-yellow-100 text-yellow-800',
     };
-    
+
     return (
         <span className={`px-2 py-1 rounded text-xs font-medium ${colors[color]}`}>
             {children}
@@ -58,14 +55,36 @@ const SimpleBadge = ({ children, color = 'gray' }) => {
     );
 };
 
+// --- Inline Loading Spinner ---
+
+const InlineLoader = ({ text }) => (
+    <div className="flex flex-col items-center justify-center">
+        <div className="relative">
+            <div className="w-8 h-8 rounded-full border-[2.5px] border-slate-200" />
+            <div className="absolute inset-0 w-8 h-8 rounded-full border-[2.5px] border-transparent border-t-blue-600 border-r-blue-600 animate-spin" />
+        </div>
+        {text && <p className="text-xs mt-2.5 text-slate-400 font-medium">{text}</p>}
+    </div>
+);
+
+// --- Inline Empty State ---
+
+const InlineEmptyState = ({ icon: Icon, iconClassName = 'text-slate-400', title, description }) => (
+    <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+        {Icon && <Icon className={`w-14 h-14 mb-4 ${iconClassName}`} />}
+        <h3 className="text-base font-semibold text-slate-800 mb-1">{title}</h3>
+        <p className="text-sm text-slate-500 max-w-xs">{description}</p>
+    </div>
+);
+
 // --- Page Components ---
 
 const ApplicantInfo = ({ applicant, skillAssessment }) => (
     <SimpleCard className="p-6 mb-6">
         <div className="flex justify-between items-start mb-4">
             <div>
-                <h1 className="text-2xl font-semibold text-gray-900 mb-2">{applicant.fullName}</h1>
-                <div className="space-y-2 text-sm text-gray-600">
+                <h1 className="text-2xl font-semibold text-slate-900 mb-2">{applicant.fullName}</h1>
+                <div className="space-y-2 text-sm text-slate-600">
                     <div className="flex items-center">
                         <Mail className="w-4 h-4 mr-2" />
                         {applicant.email}
@@ -76,7 +95,7 @@ const ApplicantInfo = ({ applicant, skillAssessment }) => (
                     </div>
                     <div className="flex items-center">
                         <Linkedin className="w-4 h-4 mr-2" />
-                        <a href={applicant.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">
+                        <a href={applicant.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                             LinkedIn Profile
                         </a>
                     </div>
@@ -91,41 +110,41 @@ const BasicMetrics = ({ skillAssessment }) => (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <SimpleCard className="p-5">
             <div className="flex items-center mb-2">
-                <User className="w-5 h-5 text-indigo-600 mr-2" />
-                <span className="text-sm font-medium text-gray-600">Current Role</span>
+                <User className="w-5 h-5 text-blue-600 mr-2" />
+                <span className="text-sm font-medium text-slate-600">Current Role</span>
             </div>
-            <p className="font-semibold text-gray-900">{skillAssessment.jobTitle}</p>
-            <p className="text-sm text-gray-600">{skillAssessment.currentEmployer}</p>
+            <p className="font-semibold text-slate-900">{skillAssessment.jobTitle}</p>
+            <p className="text-sm text-slate-600">{skillAssessment.currentEmployer}</p>
         </SimpleCard>
 
         <SimpleCard className="p-5">
             <div className="flex items-center mb-2">
-                <Clock className="w-5 h-5 text-indigo-600 mr-2" />
-                <span className="text-sm font-medium text-gray-600">Experience</span>
+                <Clock className="w-5 h-5 text-blue-600 mr-2" />
+                <span className="text-sm font-medium text-slate-600">Experience</span>
             </div>
-            <p className="text-xl font-semibold text-gray-900">{skillAssessment.yearsOfExperience} years</p>
+            <p className="text-xl font-semibold text-slate-900">{skillAssessment.yearsOfExperience} years</p>
         </SimpleCard>
 
         <SimpleCard className="p-5">
             <div className="flex items-center mb-2">
-                <Star className="w-5 h-5 text-indigo-600 mr-2" />
-                <span className="text-sm font-medium text-gray-600">Suggested Domain</span>
+                <Star className="w-5 h-5 text-blue-600 mr-2" />
+                <span className="text-sm font-medium text-slate-600">Suggested Domain</span>
             </div>
-            <p className="font-semibold text-indigo-700">{skillAssessment.autoCategorizedDomain || 'N/A'}</p>
+            <p className="font-semibold text-blue-700">{skillAssessment.autoCategorizedDomain || 'N/A'}</p>
         </SimpleCard>
     </div>
 );
 
 const SkillsList = ({ skillAssessment }) => (
     <SimpleCard className="p-6 mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Technical Skills</h3>
-        
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">Technical Skills</h3>
+
         {skillAssessment.technicalSkills && skillAssessment.technicalSkills.length > 0 ? (
             <div className="space-y-6">
                 {skillAssessment.technicalSkills.map((skill, index) => (
-                    <div key={index} className="border border-gray-100 rounded p-4">
+                    <div key={index} className="border border-slate-200 rounded-lg p-4">
                         <div className="flex justify-between items-center mb-3">
-                            <h4 className="font-semibold text-gray-800">{skill.technology}</h4>
+                            <h4 className="font-semibold text-slate-800">{skill.technology}</h4>
                             <SimpleBadge color="gray">{skill.subSkills.length} skills</SimpleBadge>
                         </div>
                         <div className="flex flex-wrap gap-2">
@@ -135,16 +154,16 @@ const SkillsList = ({ skillAssessment }) => (
                         </div>
                     </div>
                 ))}
-                
+
                 {skillAssessment.otherSkills && (
-                    <div className="border border-gray-100 rounded p-4 bg-gray-50">
-                        <h4 className="font-semibold text-gray-700 mb-2">Other Skills</h4>
-                        <p className="text-sm text-gray-700 whitespace-pre-line">{skillAssessment.otherSkills}</p>
+                    <div className="border border-slate-200 rounded-lg p-4 bg-slate-50">
+                        <h4 className="font-semibold text-slate-700 mb-2">Other Skills</h4>
+                        <p className="text-sm text-slate-700 whitespace-pre-line">{skillAssessment.otherSkills}</p>
                     </div>
                 )}
             </div>
         ) : (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-slate-500">
                 <p>No technical skills listed</p>
             </div>
         )}
@@ -156,15 +175,15 @@ const ReviewForm = ({ applicant, skillAssessment, onCategorizeComplete }) => {
     const [selectedDomains, setSelectedDomains] = useState([]);
     const [notes, setNotes] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
     useEffect(() => {
-        const initialDomains = (skillAssessment?.domains && skillAssessment.domains.length > 0) 
-            ? skillAssessment.domains 
+        const initialDomains = (skillAssessment?.domains && skillAssessment.domains.length > 0)
+            ? skillAssessment.domains
             : (skillAssessment?.autoCategorizedDomain ? [skillAssessment.autoCategorizedDomain] : []);
         setSelectedDomains(DOMAINS.filter(d => initialDomains.includes(d.value)));
         setNotes(skillAssessment?.additionalNotes || '');
     }, [skillAssessment]);
-  
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!selectedDomains || selectedDomains.length === 0) {
@@ -182,42 +201,42 @@ const ReviewForm = ({ applicant, skillAssessment, onCategorizeComplete }) => {
             setIsSubmitting(false);
         }
     };
-    
+
     return (
         <SimpleCard className="p-6">
             <div className="flex items-center mb-6">
-                <CheckCircle className="w-5 h-5 text-indigo-600 mr-2" />
-                <h3 className="text-lg font-semibold text-gray-900">Admin Review</h3>
+                <CheckCircle className="w-5 h-5 text-blue-600 mr-2" />
+                <h3 className="text-lg font-semibold text-slate-900">Admin Review</h3>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
                         Assign Domain(s) *
                     </label>
-                    <Select 
-                        isMulti 
-                        name="domains" 
-                        options={DOMAINS} 
-                        value={selectedDomains} 
-                        onChange={setSelectedDomains} 
-                        placeholder="Select domains..." 
+                    <Select
+                        isMulti
+                        name="domains"
+                        options={DOMAINS}
+                        value={selectedDomains}
+                        onChange={setSelectedDomains}
+                        placeholder="Select domains..."
                         className="text-sm"
                         styles={{
                             control: (base) => ({
                                 ...base,
                                 minHeight: '40px',
-                                borderColor: '#d1d5db',
+                                borderColor: '#e2e8f0',
                                 '&:hover': {
-                                    borderColor: '#6b7280',
+                                    borderColor: '#94a3b8',
                                 },
                             }),
                         }}
                     />
                 </div>
-                
+
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
                         Review Notes (Optional)
                     </label>
                     <textarea
@@ -225,13 +244,13 @@ const ReviewForm = ({ applicant, skillAssessment, onCategorizeComplete }) => {
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Add notes about this assessment..."
                         rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
                     />
                 </div>
-                
+
                 <div className="flex justify-end">
-                    <SimpleButton 
-                        type="submit" 
+                    <SimpleButton
+                        type="submit"
                         disabled={isSubmitting || selectedDomains.length === 0}
                         icon={Send}
                     >
@@ -243,91 +262,110 @@ const ReviewForm = ({ applicant, skillAssessment, onCategorizeComplete }) => {
     );
 };
 
-const SimpleSidebar = ({ 
-    assessments, 
-    selectedAssessment, 
-    onSelectAssessment, 
-    loading, 
-    searchTerm, 
-    onSearchChange, 
-    pagination, 
+const SimpleSidebar = ({
+    assessments,
+    selectedAssessment,
+    onSelectAssessment,
+    loading,
+    searchTerm,
+    onSearchChange,
+    pagination,
     onPageChange,
-    sidebarCollapsed 
-}) => (
-    <div className={`bg-white border-r border-gray-200 flex flex-col ${sidebarCollapsed ? 'w-0 overflow-hidden' : 'w-full lg:w-80'}`}>
-        <div className="p-4 border-b border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Review Queue</h2>
-                <SimpleBadge color="yellow">{pagination.totalItems} Pending</SimpleBadge>
-            </div>
-            <SearchInput 
-                value={searchTerm} 
-                onChange={onSearchChange} 
-                onClear={() => onSearchChange({ target: { value: '' } })} 
-                placeholder="Search applicants..." 
-            />
-        </div>
+    sidebarCollapsed
+}) => {
+    const handleClear = () => onSearchChange({ target: { value: '' } });
 
-        <div className="flex-1 overflow-y-auto">
-            {loading && assessments.length === 0 && (
-                <div className="p-6 text-center">
-                    <Loader text="Loading..." />
+    return (
+        <div className={`bg-white border-r border-slate-200 flex flex-col ${sidebarCollapsed ? 'w-0 overflow-hidden' : 'w-full lg:w-80'}`}>
+            <div className="p-4 border-b border-slate-200">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-slate-900">Review Queue</h2>
+                    <SimpleBadge color="yellow">{pagination.totalItems} Pending</SimpleBadge>
                 </div>
-            )}
-            
-            {!loading && assessments.length === 0 && (
-                <div className="p-8 text-center">
-                    <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
-                    <h3 className="font-medium text-gray-900 mb-2">Queue Empty</h3>
-                    <p className="text-sm text-gray-500">No pending assessments</p>
+                {/* Inline Search Input */}
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={onSearchChange}
+                        placeholder="Search applicants..."
+                        className="w-full pl-9 pr-9 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-300 focus:outline-none"
+                    />
+                    {searchTerm && (
+                        <button
+                            type="button"
+                            onClick={handleClear}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    )}
                 </div>
-            )}
-            
-            {assessments.map((assessment) => (
-                <button 
-                    key={assessment._id} 
-                    onClick={() => onSelectAssessment(assessment)} 
-                    className={`w-full text-left p-4 border-b border-gray-100 hover:bg-gray-50 focus:outline-none ${selectedAssessment?._id === assessment._id ? 'bg-indigo-50 border-l-4 border-l-indigo-600' : ''}`}
-                >
-                    <div className="flex justify-between items-start mb-2">
-                        <p className="font-medium text-gray-900">{assessment.applicant.fullName}</p>
-                        <span className="text-xs text-gray-500">{formatDateTime(assessment.createdAt)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                        <SimpleBadge color="blue">{assessment.autoCategorizedDomain || 'N/A'}</SimpleBadge>
-                        <span className="text-gray-600">{assessment.yearsOfExperience} years exp</span>
-                    </div>
-                </button>
-            ))}
-        </div>
-        
-        {pagination.totalPages > 1 && (
-            <div className="p-3 border-t border-gray-200 flex justify-between items-center">
-                <SimpleButton
-                    onClick={() => onPageChange(pagination.currentPage - 1)}
-                    disabled={pagination.currentPage === 1}
-                    variant="outline"
-                    icon={ChevronLeft}
-                >
-                    Previous
-                </SimpleButton>
-                
-                <span className="text-sm text-gray-600">
-                    Page {pagination.currentPage} of {pagination.totalPages}
-                </span>
-                
-                <SimpleButton
-                    onClick={() => onPageChange(pagination.currentPage + 1)}
-                    disabled={pagination.currentPage === pagination.totalPages}
-                    variant="outline"
-                    icon={ChevronRight}
-                >
-                    Next
-                </SimpleButton>
             </div>
-        )}
-    </div>
-);
+
+            <div className="flex-1 overflow-y-auto">
+                {loading && assessments.length === 0 && (
+                    <div className="p-6">
+                        <InlineLoader text="Loading..." />
+                    </div>
+                )}
+
+                {!loading && assessments.length === 0 && (
+                    <InlineEmptyState
+                        icon={CheckCircle}
+                        iconClassName="text-green-500"
+                        title="Queue Empty"
+                        description="No pending assessments"
+                    />
+                )}
+
+                {assessments.map((assessment) => (
+                    <button
+                        key={assessment._id}
+                        onClick={() => onSelectAssessment(assessment)}
+                        className={`w-full text-left p-4 border-b border-slate-100 hover:bg-slate-50 focus:outline-none transition-colors ${selectedAssessment?._id === assessment._id ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''}`}
+                    >
+                        <div className="flex justify-between items-start mb-2">
+                            <p className="font-medium text-slate-900">{assessment.applicant.fullName}</p>
+                            <span className="text-xs text-slate-500">{formatDateTime(assessment.createdAt)}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                            <SimpleBadge color="blue">{assessment.autoCategorizedDomain || 'N/A'}</SimpleBadge>
+                            <span className="text-slate-600">{assessment.yearsOfExperience} years exp</span>
+                        </div>
+                    </button>
+                ))}
+            </div>
+
+            {pagination.totalPages > 1 && (
+                <div className="p-3 border-t border-slate-200 flex justify-between items-center">
+                    <SimpleButton
+                        onClick={() => onPageChange(pagination.currentPage - 1)}
+                        disabled={pagination.currentPage === 1}
+                        variant="outline"
+                        icon={ChevronLeft}
+                    >
+                        Previous
+                    </SimpleButton>
+
+                    <span className="text-sm text-slate-600">
+                        Page {pagination.currentPage} of {pagination.totalPages}
+                    </span>
+
+                    <SimpleButton
+                        onClick={() => onPageChange(pagination.currentPage + 1)}
+                        disabled={pagination.currentPage === pagination.totalPages}
+                        variant="outline"
+                        icon={ChevronRight}
+                    >
+                        Next
+                    </SimpleButton>
+                </div>
+            )}
+        </div>
+    );
+};
 
 // --- Main Page Component ---
 const SkillCategorizationPage = () => {
@@ -399,7 +437,7 @@ const SkillCategorizationPage = () => {
     };
 
     return (
-        <div className="flex h-full bg-gray-50">
+        <div className="flex h-full bg-[#f5f7fb]">
             <SimpleSidebar
                 assessments={assessments}
                 selectedAssessment={selectedAssessment}
@@ -426,41 +464,43 @@ const SkillCategorizationPage = () => {
                 <div className="h-full overflow-y-auto p-6">
                     {loading && !selectedAssessment && (
                         <div className="flex items-center justify-center h-full">
-                            <Loader text="Loading Assessment..." />
+                            <InlineLoader text="Loading Assessment..." />
                         </div>
                     )}
-                    
+
                     {!loading && selectedAssessment ? (
                         <div className="max-w-4xl mx-auto">
-                            <ApplicantInfo 
-                                applicant={selectedAssessment.applicant} 
-                                skillAssessment={selectedAssessment} 
+                            <ApplicantInfo
+                                applicant={selectedAssessment.applicant}
+                                skillAssessment={selectedAssessment}
                             />
                             <BasicMetrics skillAssessment={selectedAssessment} />
                             <SkillsList skillAssessment={selectedAssessment} />
-                            <ReviewForm 
-                                applicant={selectedAssessment.applicant} 
-                                skillAssessment={selectedAssessment} 
-                                onCategorizeComplete={handleCategorizeComplete} 
+                            <ReviewForm
+                                applicant={selectedAssessment.applicant}
+                                skillAssessment={selectedAssessment}
+                                onCategorizeComplete={handleCategorizeComplete}
                             />
                         </div>
                     ) : (!loading && assessments.length > 0 && (
                         <div className="flex items-center justify-center h-full">
-                            <div className="text-center">
-                                <Briefcase className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                                <h3 className="text-lg font-medium text-gray-900 mb-2">Select Assessment</h3>
-                                <p className="text-gray-600">Choose an applicant from the list to review</p>
-                            </div>
+                            <InlineEmptyState
+                                icon={Briefcase}
+                                iconClassName="text-slate-400"
+                                title="Select Assessment"
+                                description="Choose an applicant from the list to review"
+                            />
                         </div>
                     ))}
 
                     {!loading && assessments.length === 0 && (
                         <div className="flex items-center justify-center h-full">
-                            <div className="text-center">
-                                <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                                <h3 className="text-lg font-medium text-gray-900 mb-2">All Done!</h3>
-                                <p className="text-gray-600">No pending assessments to review</p>
-                            </div>
+                            <InlineEmptyState
+                                icon={CheckCircle}
+                                iconClassName="text-green-500"
+                                title="All Done!"
+                                description="No pending assessments to review"
+                            />
                         </div>
                     )}
                 </div>

@@ -1,0 +1,6 @@
+candidateName,mailId,mobileNumber,uid,techStack,hiringName,interviewDate,interviewTime,interviewDuration,remarks,interviewerName
+Rahul Sharma,rahul.sharma@gmail.com,9876543210,NW-2024-001,MERN,October Batch,2026-04-20,10:00-11:00,60 mins,First round interview,Tirupathi Kella
+Priya Reddy,priya.reddy@gmail.com,9876543211,NW-2024-002,PYTHON,October Batch,2026-04-21,14:00-15:00,60 mins,,
+Amit Kumar,amit.kumar@outlook.com,9876543212,NW-2024-003,JAVA,November Batch,2026-04-22,11:00-12:00,60 mins,Rescheduled from last week,
+Sneha Patel,sneha.patel@yahoo.com,9876543213,NW-2024-004,DSA,November Batch,2026-04-23,09:00-10:00,60 mins,,Kiran Panasa
+Vikram Singh,vikram.singh@gmail.com,9876543214,NW-2024-005,MERN,December Batch,2026-04-24,15:00-16:00,60 mins,Priority candidate,

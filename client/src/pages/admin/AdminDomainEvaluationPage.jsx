@@ -1,5 +1,6 @@
 // client/src/pages/admin/AdminDomainEvaluationPage.jsx
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
@@ -62,7 +63,22 @@ const RemarksModal = ({ isOpen, onClose, content }) => {
 
 const AdminDomainEvaluationPage = () => {
     const { showError, showSuccess } = useAlert();
-    const [selectedDomain, setSelectedDomain] = useState(null);
+    const navigate = useNavigate();
+    const { domainName: domainNameParam } = useParams();
+    const selectedDomain = useMemo(
+        () => (domainNameParam ? { value: decodeURIComponent(domainNameParam), label: decodeURIComponent(domainNameParam) } : null),
+        [domainNameParam]
+    );
+    const setSelectedDomain = useCallback(
+        (val) => {
+            if (val && val.value) {
+                navigate(`/admin/domain-evaluation/${encodeURIComponent(val.value)}`);
+            } else {
+                navigate('/admin/domain-evaluation');
+            }
+        },
+        [navigate]
+    );
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [remarksModal, setRemarksModal] = useState({ isOpen: false, content: '' });
@@ -174,7 +190,7 @@ const AdminDomainEvaluationPage = () => {
             title: 'Remarks', 
             minWidth: '200px', 
             render: (row) => row.interviewerRemarks ?
-                <Button variant="link" size="xs" onClick={() => setRemarksModal({isOpen: true, content: row.interviewerRemarks})} className="text-gray-700 text-xs hover:text-indigo-600 text-left truncate max-w-[180px] block p-0 h-auto">
+                <Button variant="link" size="xs" onClick={() => setRemarksModal({isOpen: true, content: row.interviewerRemarks})} className="text-gray-700 text-xs hover:text-blue-600 text-left truncate max-w-[180px] block p-0 h-auto">
                     {row.interviewerRemarks}
                 </Button> :
                 <span className="text-gray-300">-</span> 
@@ -264,13 +280,13 @@ const AdminDomainEvaluationPage = () => {
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search candidate..."
-                                className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                                className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
                             />
                         </div>
 
                         {/* Filter Dropdown */}
                         <div className="relative z-50" ref={filterMenuRef}>
-                            <Button variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} className={`${(activeFilters.interviewDate || activeFilters.interviewStatus) ? '!border-indigo-500 !text-indigo-600 !bg-indigo-50' : ''}`}>
+                            <Button variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} className={`${(activeFilters.interviewDate || activeFilters.interviewStatus) ? '!border-blue-500 !text-blue-600 !bg-blue-50' : ''}`}>
                                 <Filter className="mr-2 h-4 w-4" />
                                 Filter
                             </Button>
@@ -281,13 +297,13 @@ const AdminDomainEvaluationPage = () => {
                                         <div>
                                             <label className="block text-xs font-medium text-gray-700 mb-1.5">Interview Date</label>
                                             <div className="relative">
-                                                <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(p => ({ ...p, interviewDate: date }))} isClearable placeholderText="Select date" className="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500" />
+                                                <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(p => ({ ...p, interviewDate: date }))} isClearable placeholderText="Select date" className="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-blue-500" portalId="datepicker-portal" popperClassName="!z-[9999]" popperProps={{ strategy: 'fixed' }} />
                                                 <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                                             </div>
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-700 mb-1.5">Status</label>
-                                            <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(p => ({ ...p, interviewStatus: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-1 focus:ring-indigo-500">
+                                            <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(p => ({ ...p, interviewStatus: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-1 focus:ring-blue-500">
                                                 <option value="">All Statuses</option>
                                                 {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                             </select>
@@ -323,7 +339,7 @@ const AdminDomainEvaluationPage = () => {
                             <div className="flex h-full items-center justify-center"><Loader size="lg" /></div>
                         ) : (
                             <table className="min-w-full text-sm">
-                                <thead className="bg-gradient-to-r from-indigo-50 to-blue-50 sticky top-0 z-10">
+                                <thead className="bg-blue-50 sticky top-0 z-10">
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">Domain</th>
                                         <th className="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">Candidates</th>
@@ -336,9 +352,9 @@ const AdminDomainEvaluationPage = () => {
                                 </thead>
                                 <tbody className="divide-y divide-gray-50 bg-white">
                                     {summaryData.map(item => (
-                                        <tr key={item.domainName} className="hover:bg-indigo-50/50 transition-colors group">
+                                        <tr key={item.domainName} className="hover:bg-blue-50/50 transition-colors group">
                                             <td className="px-6 py-4">
-                                                <Button variant="ghost" onClick={() => setSelectedDomain({ value: item.domainName, label: item.domainName })} className="font-semibold text-gray-900 group-hover:text-indigo-600 flex items-center gap-2 p-0 h-auto">
+                                                <Button variant="ghost" onClick={() => setSelectedDomain({ value: item.domainName, label: item.domainName })} className="font-semibold text-gray-900 group-hover:text-blue-600 flex items-center gap-2 p-0 h-auto">
                                                     {item.domainName}
                                                     <ArrowLeft className="rotate-180 opacity-0 group-hover:opacity-100 transition-opacity" />
                                                 </Button>
@@ -367,12 +383,12 @@ const AdminDomainEvaluationPage = () => {
                             </div>
                         ) : (
                             <table className="min-w-full text-sm border-separate border-spacing-0">
-                                <thead className="bg-gradient-to-r from-indigo-50 to-blue-50 sticky top-0 z-20">
+                                <thead className="bg-blue-50 sticky top-0 z-20">
                                     <tr>
                                         {staticColumns.map(col => (
                                             <th 
                                                 key={col.key}
-                                                className={`px-4 py-3 border-b border-r border-gray-200 text-left text-xs font-semibold text-gray-600 bg-indigo-50 sticky top-0 ${col.isSticky ? 'z-30' : 'z-20'}`} 
+                                                className={`px-4 py-3 border-b border-r border-gray-200 text-left text-xs font-semibold text-gray-600 bg-blue-50 sticky top-0 ${col.isSticky ? 'z-30' : 'z-20'}`} 
                                                 style={{ 
                                                     minWidth: col.minWidth, 
                                                     left: col.isSticky ? col.left : 'auto',
@@ -389,7 +405,7 @@ const AdminDomainEvaluationPage = () => {
                                                 { bg: 'bg-sky-100', text: 'text-sky-800', border: 'border-sky-200' },
                                                 { bg: 'bg-violet-100', text: 'text-violet-800', border: 'border-violet-200' },
                                                 { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-200' },
-                                                { bg: 'bg-indigo-100', text: 'text-indigo-800', border: 'border-indigo-200' },
+                                                { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200' },
                                                 { bg: 'bg-rose-100', text: 'text-rose-800', border: 'border-rose-200' },
                                                 { bg: 'bg-teal-100', text: 'text-teal-800', border: 'border-teal-200' },
                                                 { bg: 'bg-fuchsia-100', text: 'text-fuchsia-800', border: 'border-fuchsia-200' },
@@ -417,7 +433,7 @@ const AdminDomainEvaluationPage = () => {
                                                 { bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-100' },
                                                 { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-100' },
                                                 { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100' },
-                                                { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-100' },
+                                                { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-100' },
                                                 { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-100' },
                                                 { bg: 'bg-teal-50', text: 'text-teal-700', border: 'border-teal-100' },
                                                 { bg: 'bg-fuchsia-50', text: 'text-fuchsia-700', border: 'border-fuchsia-100' },

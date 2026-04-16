@@ -25,7 +25,7 @@ import { cn } from '@/lib/utils';
 
 const PageLoader = ({ text }) => (
   <div className="flex flex-col items-center justify-center text-center p-8 bg-white/90 rounded-xl shadow-xl m-4">
-    <Loader2 className="h-10 w-10 text-indigo-600 animate-spin mb-4" />
+    <Loader2 className="h-10 w-10 text-blue-600 animate-spin mb-4" />
     <p className="text-lg font-semibold text-gray-800">{text}</p>
     <p className="text-sm text-gray-500 mt-2">Please wait...</p>
   </div>
@@ -33,11 +33,11 @@ const PageLoader = ({ text }) => (
 
 const EmailVerificationStep = ({ onSubmit, register, errors, isSubmitting }) => (
   <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 relative overflow-hidden transform transition-all duration-300 mx-auto m-4">
-    <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-indigo-50 -z-10 opacity-70"></div>
+    <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-blue-50 -z-10 opacity-70"></div>
 
     <div className="p-8 sm:p-10 text-center">
-      <div className="inline-flex items-center justify-center w-20 h-20 bg-indigo-100 rounded-full mb-6 shadow-inner">
-        <Mail className="h-10 w-10 text-indigo-600" />
+      <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full mb-6 shadow-inner">
+        <Mail className="h-10 w-10 text-blue-600" />
       </div>
       <h2 className="text-3xl font-semibold text-gray-900 mb-2">Book Your Interview</h2>
       <p className="text-base text-gray-600">
@@ -65,7 +65,7 @@ const EmailVerificationStep = ({ onSubmit, register, errors, isSubmitting }) => 
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 shadow-md font-semibold"
+        className="w-full h-11 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 shadow-md font-semibold"
         isLoading={isSubmitting}
       >
         {isSubmitting ? (
@@ -83,12 +83,15 @@ const EmailVerificationStep = ({ onSubmit, register, errors, isSubmitting }) => 
 
 const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, availableSlots, trigger }) => {
     const [mobileStep, setMobileStep] = useState(1);
+    const [isValidating, setIsValidating] = useState(false);
 
     const handleNextStep = async () => {
-        const isValid = await trigger(['studentName', 'studentPhone']);
-        if (isValid) {
-            setMobileStep(2);
-        }
+        if (isValidating) return;
+        setIsValidating(true);
+        try {
+            const isValid = await trigger(['studentName', 'studentPhone']);
+            if (isValid) setMobileStep(2);
+        } finally { setIsValidating(false); }
     };
 
     return (
@@ -159,7 +162,7 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                             <Button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 rounded-xl shadow-md font-semibold"
+                                className="w-full h-12 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 rounded-xl shadow-md font-semibold"
                                 isLoading={isSubmitting}
                             >
                                 {isSubmitting ? 'Processing...' : 'Confirm My Booking'}
@@ -190,7 +193,7 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                             availableSlots.map((interviewerSlot) => (
                                 <div key={interviewerSlot._id} className="animate-fadeIn">
                                     <div className="flex items-center gap-3 mb-4 sticky top-0 bg-white z-10 py-2">
-                                        <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
+                                        <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
                                             <Calendar className="h-5 w-5" />
                                         </div>
                                         <h3 className="text-lg font-semibold text-gray-800">{formatDate(interviewerSlot.date)}</h3>
@@ -209,14 +212,14 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                                                     flex flex-col items-center justify-center p-4
                                                     border-2 border-gray-100 rounded-xl cursor-pointer
                                                     transition-all duration-200
-                                                    hover:border-indigo-200 hover:bg-indigo-50 hover:shadow-md
-                                                    peer-checked:border-indigo-600 peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:shadow-lg
+                                                    hover:border-blue-200 hover:bg-blue-50 hover:shadow-md
+                                                    peer-checked:border-blue-600 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:shadow-lg
                                                     bg-white
                                                 ">
                                                     <span className="text-sm font-semibold">{`${formatTime(slot.startTime)} - ${formatTime(slot.endTime)}`}</span>
 
                                                     <div className="absolute top-3 right-3 opacity-0 peer-checked:opacity-100 transition-opacity">
-                                                        <div className="bg-white text-indigo-600 rounded-full p-0.5">
+                                                        <div className="bg-white text-blue-600 rounded-full p-0.5">
                                                             <Check className="h-3 w-3" />
                                                         </div>
                                                     </div>
@@ -247,7 +250,7 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                     <Button
                         type="button"
                         onClick={handleNextStep}
-                        className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-semibold"
+                        className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 font-semibold"
                     >
                         Select Time Slot <ArrowRight className="ml-2" />
                     </Button>
@@ -266,7 +269,7 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                         <Button
                             type="submit"
                             disabled={isSubmitting}
-                            className="flex-grow h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 font-semibold"
+                            className="flex-grow h-12 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 font-semibold"
                             isLoading={isSubmitting}
                         >
                             {isSubmitting ? 'Processing...' : 'Confirm Booking'}
@@ -383,7 +386,7 @@ const PublicBookingPage = () => {
     };
 
     return (
-        <div className="h-screen bg-gradient-to-br from-indigo-50 via-indigo-50 to-indigo-50 font-sans relative overflow-hidden flex flex-col p-0">
+        <div className="h-screen bg-gradient-to-br from-blue-50 via-blue-50 to-blue-50 font-sans relative overflow-hidden flex flex-col p-0">
             {/* Subtle Background Elements */}
             <div className="absolute top-0 left-0 w-[40rem] h-[40rem] bg-[radial-gradient(ellipse_at_center,_rgba(120,119,198,0.3)_0%,_rgba(255,255,255,0)_70%)] opacity-50 pointer-events-none"></div>
             <div className="absolute bottom-0 right-0 w-[30rem] h-[30rem] bg-[radial-gradient(ellipse_at_center,_rgba(79,70,229,0.3)_0%,_rgba(255,255,255,0)_70%)] opacity-40 pointer-events-none"></div>

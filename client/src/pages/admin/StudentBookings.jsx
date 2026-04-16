@@ -84,15 +84,15 @@ const StudentBookings = () => {
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
                             <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                                 placeholder="Search by Public ID..."
-                                className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-gray-400 transition-all" />
+                                className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-gray-400 transition-all" />
                         </div>
                         <select value={creatorFilter} onChange={(e) => setCreatorFilter(e.target.value)}
-                            className="pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer hover:border-gray-300 transition-colors">
+                            className="pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer hover:border-gray-300 transition-colors">
                             <option value="">All Creators</option>
                             {creatorOptions.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                         </select>
                         <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}
-                            className="pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer hover:border-gray-300 transition-colors">
+                            className="pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer hover:border-gray-300 transition-colors">
                             <option value="newest">Newest First</option>
                             <option value="oldest">Oldest First</option>
                             <option value="most_students">Most Students</option>
@@ -124,7 +124,7 @@ const StudentBookings = () => {
                     </div>
                 ) : (
                     <table className="w-full text-left">
-                        <thead className="bg-gradient-to-r from-indigo-50 to-blue-50 sticky top-0 z-10">
+                        <thead className="bg-gradient-to-r from-blue-50 to-blue-50 sticky top-0 z-10">
                             <tr>
                                 <th className="py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Created</th>
                                 <th className="py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Public Link</th>
@@ -152,10 +152,10 @@ const StudentBookings = () => {
                                         <td className="py-3.5 px-6">
                                             <div className="flex items-center gap-2">
                                                 <a href={url} target="_blank" rel="noopener noreferrer"
-                                                    className="font-mono text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md hover:bg-indigo-100 transition-colors">
+                                                    className="font-mono text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md hover:bg-blue-100 transition-colors">
                                                     {booking.publicId}
                                                 </a>
-                                                <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50"
+                                                <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-blue-600 hover:bg-blue-50"
                                                     onClick={() => { navigator.clipboard.writeText(url); showSuccess("Link copied!"); }} title="Copy">
                                                     <Clipboard className="h-3.5 w-3.5" />
                                                 </Button>
@@ -180,11 +180,11 @@ const StudentBookings = () => {
                                         </td>
                                         <td className="py-3.5 px-6 text-right">
                                             <div className="flex items-center justify-end gap-1">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50"
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50"
                                                     onClick={() => navigate(`/admin/public-bookings/${booking._id}/tracking`)} title="Track">
                                                     <Eye className="h-4 w-4" />
                                                 </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50"
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50"
                                                     onClick={() => navigate(`/admin/public-bookings/${booking._id}/authorize`)} title="Authorize">
                                                     <Users className="h-4 w-4" />
                                                 </Button>

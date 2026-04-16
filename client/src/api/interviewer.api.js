@@ -20,6 +20,11 @@ export const getInterviewerEvaluationSummary = () => {
 };
 
 export const getEvaluationDataForInterviewer = (params) => {
+    // When a domain is selected, use the RESTful path-param URL.
+    if (params && params.domain) {
+        const { domain, ...rest } = params;
+        return api.get(`/api/interviewer/evaluation-data/domain/${encodeURIComponent(domain)}`, { params: rest });
+    }
     return api.get('/api/interviewer/evaluation-data', { params });
 };
 

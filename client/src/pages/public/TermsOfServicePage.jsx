@@ -1,9 +1,10 @@
 import SEO from '../../components/common/SEO';
+import { Shield } from 'lucide-react';
 
 const Section = ({ title, children }) => (
-  <div className="mb-8">
-    <h2 className="text-lg font-semibold text-gray-900 mb-3">{title}</h2>
-    <div className="text-sm text-gray-600 leading-relaxed space-y-3">{children}</div>
+  <div className="mb-10 pb-8 border-b border-slate-100 last:border-0 last:pb-0 last:mb-0">
+    <h2 className="text-xl font-bold text-slate-900 mb-4 tracking-tight">{title}</h2>
+    <div className="text-[15px] text-slate-600 leading-relaxed space-y-3">{children}</div>
   </div>
 );
 
@@ -12,16 +13,36 @@ const TermsOfServicePage = () => (
     <SEO title="Terms of Service" description="Terms of Service for NxtHire interviewer platform." path="/terms-of-service" />
 
     {/* Header */}
-    <section className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-indigo-800 text-white py-16">
-      <div className="max-w-3xl mx-auto px-6 text-center">
-        <p className="text-indigo-200 text-sm font-semibold uppercase tracking-widest mb-3">Legal</p>
-        <h1 className="text-3xl lg:text-4xl font-extrabold">Terms of Service</h1>
-        <p className="mt-3 text-indigo-100">Last updated: April 2026</p>
+    <section className="relative overflow-hidden bg-[#f5f7fb] pt-32 pb-20 lg:pt-40">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-blue-200/40 blur-3xl -translate-y-1/3 translate-x-1/4" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-blue-200/50 blur-3xl translate-y-1/3 -translate-x-1/4" />
+        <div
+          className="absolute inset-0 opacity-[0.025]"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(15,23,42,.5) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,.5) 1px, transparent 1px)',
+            backgroundSize: '48px 48px',
+          }}
+        />
+      </div>
+      <div className="relative max-w-3xl mx-auto px-6 text-center">
+        <span className="inline-flex items-center gap-2 px-4 py-1.5 mb-6 text-xs font-semibold tracking-wide uppercase text-blue-700 bg-white border border-blue-200 rounded-full shadow-sm">
+          <Shield size={13} className="text-blue-500" />
+          Legal
+        </span>
+        <h1 className="text-4xl lg:text-5xl xl:text-6xl font-extrabold text-slate-900 leading-[1.05] tracking-tight">
+          Terms of{' '}
+          <span className="text-blue-600">
+            Service
+          </span>
+        </h1>
+        <p className="mt-5 text-slate-500 text-base">Last updated: April 2026</p>
       </div>
     </section>
 
     {/* Content */}
-    <article className="max-w-3xl mx-auto px-6 py-16">
+    <article className="max-w-3xl mx-auto px-6 py-16 -mt-6 relative z-10 bg-white rounded-3xl border border-slate-200 shadow-xl lg:px-12 mb-24">
       <Section title="1. Acceptance of Terms">
         <p>By accessing or using the NxtHire platform ("Platform"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the Platform.</p>
       </Section>
@@ -76,7 +97,7 @@ const TermsOfServicePage = () => (
       </Section>
 
       <Section title="12. Contact">
-        <p>For questions about these Terms, contact us at <a href="mailto:interviewercommunity@nxtwave.in" className="text-indigo-600 hover:underline">interviewercommunity@nxtwave.in</a>.</p>
+        <p>For questions about these Terms, contact us at <a href="mailto:interviewercommunity@nxtwave.in" className="font-semibold text-blue-600 hover:underline">interviewercommunity@nxtwave.in</a>.</p>
       </Section>
     </article>
   </div>

@@ -44,13 +44,13 @@ const InitialApplicationForm = ({ onSuccess }) => {
     control: (provided, state) => ({
       ...provided,
       backgroundColor: '#fff',
-      borderColor: state.isFocused ? '#10b981' : (errors.sourcingChannel ? '#ef4444' : '#e5e7eb'),
+      borderColor: state.isFocused ? '#2563eb' : (errors.sourcingChannel ? '#ef4444' : '#e5e7eb'),
       borderRadius: '0.75rem',
       boxShadow: state.isFocused ? '0 0 0 2px rgba(249,115,22,0.15)' : 'none',
       paddingLeft: '2.5rem',
       minHeight: '46px',
       color: '#111827',
-      '&:hover': { borderColor: state.isFocused ? '#10b981' : '#d1d5db' },
+      '&:hover': { borderColor: state.isFocused ? '#2563eb' : '#d1d5db' },
     }),
     placeholder: (provided) => ({ ...provided, color: '#9ca3af' }),
     singleValue: (provided) => ({ ...provided, color: '#111827' }),
@@ -64,10 +64,10 @@ const InitialApplicationForm = ({ onSuccess }) => {
     }),
     option: (provided, state) => ({
       ...provided,
-      backgroundColor: state.isSelected ? '#10b981' : state.isFocused ? '#ecfdf5' : 'transparent',
+      backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#eff6ff' : 'transparent',
       color: state.isSelected ? '#fff' : '#374151',
       cursor: 'pointer',
-      ':active': { backgroundColor: '#059669' },
+      ':active': { backgroundColor: '#1d4ed8' },
     }),
     input: (provided) => ({ ...provided, color: '#111827' }),
     indicatorSeparator: () => ({ display: 'none' }),
@@ -76,7 +76,7 @@ const InitialApplicationForm = ({ onSuccess }) => {
 
   const labelCls = 'block text-sm font-medium text-gray-700 mb-1.5';
   const iconCls =
-    'absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-gray-400 group-focus-within:text-indigo-600 transition-colors';
+    'absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-gray-400 group-focus-within:text-blue-600 transition-colors';
 
   return (
     <>
@@ -232,7 +232,7 @@ const InitialApplicationForm = ({ onSuccess }) => {
           <input
             id="interestedInJoining"
             type="checkbox"
-            className="mt-0.5 w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500/30 transition-all cursor-pointer"
+            className="mt-0.5 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500/30 transition-all cursor-pointer"
             {...register('interestedInJoining')}
           />
           <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">
@@ -247,7 +247,7 @@ const InitialApplicationForm = ({ onSuccess }) => {
             disabled={isSubmitting}
             variant="success"
             size="lg"
-            className="w-full rounded-xl shadow-md shadow-emerald-500/15 font-semibold"
+            className="w-full rounded-xl shadow-md font-semibold"
           >
             {isSubmitting ? (
               <>

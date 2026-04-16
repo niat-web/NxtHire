@@ -54,7 +54,7 @@ const ForgotPassword = () => {
 
       <div className="w-full max-w-[440px]">
         {/* Main Card */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 sm:p-10">
+        <div className="bg-white rounded-xl shadow-xl border border-gray-100 p-8 sm:p-10">
           <AnimatePresence mode="wait">
             {isSubmitted ? (
               // --- Success State ---

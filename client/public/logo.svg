@@ -1,49 +1,12 @@
-<svg viewBox="0 0 230 60" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="nxt-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#6366F1;" /> <!-- Indigo 500 -->
-      <stop offset="100%" style="stop-color:#4F46E5;" /> <!-- Indigo 600 -->
-    </linearGradient>
-  </defs>
-
-  <style>
-    .logo-font {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-      font-size: 42px;
-      letter-spacing: 0.05em;
-      dominant-baseline: middle;
-      text-anchor: start;
-    }
-  </style>
-
-  <g transform="translate(0, 30)">
-    <!-- NXT Text with Gradient -->
-    <text 
-      x="0" 
-      y="0" 
-      class="logo-font"
-      font-weight="800"
-      fill="url(#nxt-gradient)">
-      NXT
-    </text>
-
-    <!-- Separator Line -->
-    <rect 
-      x="110" 
-      y="-18" 
-      width="2.5" 
-      height="36" 
-      fill="#4B5563"
-      rx="1.25"/>
-
-    <!-- HIRE Text -->
-    <text 
-      x="125" 
-      y="0" 
-      class="logo-font"
-      font-weight="600"
-      fill="#E5E7EB">
-      HIRE
-    </text>
-  </g>
+<svg viewBox="0 0 140 40" xmlns="http://www.w3.org/2000/svg">
+  <text
+    x="0"
+    y="28"
+    font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+    font-size="30"
+    letter-spacing="-0.03em"
+    dominant-baseline="middle"
+    text-anchor="start">
+    <tspan font-weight="800" fill="#2563EB">Nxt</tspan><tspan font-weight="600" fill="#1E293B">Hire</tspan>
+  </text>
 </svg>

@@ -6,7 +6,7 @@ import CreatableSelect from 'react-select/creatable';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from 'date-fns';
-import { Download, Plus, Edit, Trash2, MoreVertical, Search, Inbox, AlertTriangle, ChevronLeft, ChevronRight, ChevronDown, RefreshCw, Upload, Filter, X, Loader2 } from 'lucide-react';
+import { Download, Plus, Edit, Trash2, MoreVertical, Search, Inbox, AlertTriangle, ChevronLeft, ChevronRight, ChevronDown, RefreshCw, Upload, Filter, X, Loader2, ExternalLink } from 'lucide-react';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { deleteMainSheetEntry, bulkUpdateMainSheetEntries, refreshRecordingLinks, bulkUploadMainSheetEntries as bulkUpload, exportMainSheet } from '@/api/admin.api';
@@ -31,7 +31,16 @@ const LocalButton = ({ children, onClick, isLoading = false, variant = 'primary'
 };
 
 const LocalSearchInput = ({ value, onChange, placeholder }) => (
-    <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" /><input type="text" value={value} onChange={onChange} placeholder={placeholder} className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-gray-400 text-sm bg-gray-50" /></div>
+    <div className="relative">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+        <input
+            type="text"
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            className="w-full pl-10 pr-3 h-10 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 text-sm text-slate-900 placeholder:text-slate-400 transition-colors"
+        />
+    </div>
 );
 
 // ... (other local components: LocalConfirmDialog, LocalDropdownMenu, LocalEmptyState, SkeletonRow, LocalTable, EditableHiringName, EditableDomainCell, UploadModal, RemarksModal, EditableCell are omitted for brevity, assumed functional) ...
@@ -98,11 +107,11 @@ const LocalDropdownMenu = ({ options }) => {
     }, [isOpen]);
 
     const MenuContent = () => (
-        <div ref={menuRef} className="fixed z-50 w-48 origin-top-right bg-white rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" style={{ top: `${position.top}px`, left: `${position.left}px` }}>
-            <div className="py-1">
+        <div ref={menuRef} className="fixed z-50 w-48 origin-top-right bg-white rounded-xl shadow-xl shadow-slate-900/10 border border-slate-200 focus:outline-none overflow-hidden" style={{ top: `${position.top}px`, left: `${position.left}px` }}>
+            <div className="py-1.5">
                 {options.map((option) => (
-                    <button key={option.label} onClick={() => { option.onClick(); setIsOpen(false); }} className={`group flex items-center w-full px-4 py-2 text-sm ${option.isDestructive ? 'text-red-700 hover:bg-red-50' : 'text-gray-700 hover:bg-gray-100'}`}>
-                        {option.icon && <option.icon className={`mr-3 h-5 w-5 ${option.isDestructive ? 'text-red-400' : 'text-gray-400'}`} />}
+                    <button key={option.label} onClick={() => { option.onClick(); setIsOpen(false); }} className={`group flex items-center gap-2.5 w-full px-4 py-2 text-sm font-medium transition-colors ${option.isDestructive ? 'text-rose-600 hover:bg-rose-50' : 'text-slate-700 hover:bg-slate-50'}`}>
+                        {option.icon && <option.icon className={`h-4 w-4 ${option.isDestructive ? 'text-rose-400' : 'text-slate-400'}`} />}
                         {option.label}
                     </button>
                 ))}
@@ -110,15 +119,42 @@ const LocalDropdownMenu = ({ options }) => {
         </div>
     );
     return (
-        <div className="relative"><ShadcnButton ref={buttonRef} variant="ghost" size="icon" onClick={toggleMenu} className="rounded-full hover:bg-gray-100"><MoreVertical /></ShadcnButton>{isOpen && createPortal(<MenuContent />, document.body)}</div>
+        <div className="relative">
+            <button
+                ref={buttonRef}
+                onClick={toggleMenu}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+            >
+                <MoreVertical className="h-4 w-4" />
+            </button>
+            {isOpen && createPortal(<MenuContent />, document.body)}
+        </div>
     );
 };
 
 const ActionsMenu = ({ onAddEntries, onReload, onExport, onImport, isRefreshing, isExporting }) => {
     const [open, setOpen] = useState(false);
-    const ref = useRef(null);
+    const [position, setPosition] = useState({ top: 0, left: 0 });
+    const buttonRef = useRef(null);
+    const menuRef = useRef(null);
+
+    const toggleMenu = () => {
+        if (!open && buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            setPosition({
+                top: rect.bottom + 8,
+                left: rect.right - 192, // 192 = w-48
+            });
+        }
+        setOpen(!open);
+    };
+
     useEffect(() => {
-        const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+        const handler = (e) => {
+            if (open && menuRef.current && !menuRef.current.contains(e.target) && buttonRef.current && !buttonRef.current.contains(e.target)) {
+                setOpen(false);
+            }
+        };
         if (open) document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
     }, [open]);
@@ -131,32 +167,47 @@ const ActionsMenu = ({ onAddEntries, onReload, onExport, onImport, isRefreshing,
     ];
 
     return (
-        <div className="relative" ref={ref}>
-            <ShadcnButton variant="outline" size="icon" onClick={() => setOpen(!open)} className="h-9 w-9 rounded-lg">
+        <>
+            <button
+                ref={buttonRef}
+                onClick={toggleMenu}
+                className="h-10 w-10 rounded-xl flex items-center justify-center border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-slate-600 transition-colors"
+            >
                 <MoreVertical className="h-4 w-4" />
-            </ShadcnButton>
-            {open && (
-                <div className="absolute top-full right-0 mt-1.5 w-44 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-[60]">
+            </button>
+            {open && createPortal(
+                <div
+                    ref={menuRef}
+                    className="fixed w-48 bg-white rounded-xl shadow-xl shadow-slate-900/10 border border-slate-200 py-1.5 z-[9999] overflow-hidden"
+                    style={{ top: `${position.top}px`, left: `${position.left}px` }}
+                >
                     {items.map((item, i) => (
                         <button key={item.label} onClick={item.onClick} disabled={item.disabled}
-                            className={`flex items-center gap-2.5 w-full px-3.5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 disabled:opacity-40 transition-colors ${i === 0 ? 'text-indigo-600 hover:bg-indigo-50' : ''}`}>
+                            className={`flex items-center gap-2.5 w-full px-4 py-2.5 text-sm font-medium disabled:opacity-40 transition-colors ${i === 0 ? 'text-blue-600 hover:bg-blue-50' : 'text-slate-700 hover:bg-slate-50'}`}>
                             <item.icon className="h-4 w-4" />
                             {item.label}
                         </button>
                     ))}
-                </div>
+                </div>,
+                document.body
             )}
-        </div>
+        </>
     );
 };
 
 const LocalEmptyState = ({ message, icon: Icon }) => (
-    <div className="text-center py-20 text-gray-500"><Icon className="mx-auto h-10 w-10 text-gray-400 mb-2" /><h3 className="font-semibold text-gray-700">No Data Found</h3><p className="text-sm">{message}</p></div>
+    <div className="text-center py-20 px-6">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/60 shadow-sm mb-4">
+            <Icon className="h-6 w-6 text-slate-400" />
+        </div>
+        <h3 className="text-sm font-bold text-slate-900">No entries yet</h3>
+        <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">{message}</p>
+    </div>
 );
 
 const LocalTable = ({ columns, data, isLoading, emptyMessage, emptyIcon, sortConfig, onSort }) => (
     <div className="w-full h-full overflow-auto">
-        <table className="min-w-full bg-white divide-y divide-gray-200 border-collapse">
+        <table className="min-w-full bg-white border-collapse">
             <thead>
                 <tr>
                     {columns.map(col => (
@@ -164,14 +215,14 @@ const LocalTable = ({ columns, data, isLoading, emptyMessage, emptyIcon, sortCon
                            key={col.key}
                            scope="col"
                            onClick={() => col.sortable && onSort && onSort(col.key)}
-                           className={`sticky top-0 z-10 px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap ${col.sortable ? 'cursor-pointer hover:text-gray-900' : ''} ${col.isSticky ? 'left-0 z-20' : ''} bg-gradient-to-r from-indigo-50 to-blue-50`}
+                           className={`sticky top-0 z-10 px-4 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em] whitespace-nowrap border-b border-slate-200 ${col.sortable ? 'cursor-pointer hover:text-slate-900' : ''} ${col.isSticky ? 'left-0 z-20' : ''} bg-slate-50/90 backdrop-blur-sm`}
                            style={{ minWidth: col.minWidth }}
                         >
                             <div className="flex items-center gap-1.5">
                                 {col.title}
                                 {col.sortable && (
                                     <span className="text-[10px]">
-                                        {sortConfig.key === col.key ? (sortConfig.direction === 'asc' ? '▲' : '▼') : <span className="text-gray-300">⇅</span>}
+                                        {sortConfig.key === col.key ? (sortConfig.direction === 'asc' ? '▲' : '▼') : <span className="text-slate-300">⇅</span>}
                                     </span>
                                 )}
                             </div>
@@ -179,16 +230,19 @@ const LocalTable = ({ columns, data, isLoading, emptyMessage, emptyIcon, sortCon
                     ))}
                 </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100">
                 {isLoading ? (
                     [...Array(15)].map((_, i) => <SkeletonRow key={i} columns={columns} />)
                 ) : data.length === 0 ? (
                     <tr><td colSpan={columns.length}><LocalEmptyState message={emptyMessage} icon={emptyIcon} /></td></tr>
                 ) : (
                     data.map((row, rowIndex) => (
-                        <tr key={row._id || rowIndex} className="hover:bg-gray-50/80 transition-colors group">
+                        <tr key={row._id || rowIndex} className="hover:bg-slate-50/70 transition-colors group h-px">
                             {columns.map(col => (
-                                <td key={col.key} className={`px-3 py-px whitespace-nowrap text-sm text-gray-700 align-middle ${col.isSticky ? 'sticky left-0 z-[1] bg-white group-hover:bg-gray-50/80' : ''}`}>
+                                <td
+                                    key={col.key}
+                                    className={`${col.isCustomCell ? 'p-0' : 'px-4 py-0.5'} whitespace-nowrap text-sm text-slate-700 align-middle h-full ${col.isSticky ? 'sticky left-0 z-[1] bg-white group-hover:bg-slate-50/70' : ''}`}
+                                >
                                     {col.render ? col.render(row, rowIndex) : row[col.key]}
                                 </td>
                             ))}
@@ -300,7 +354,7 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, title, instructions, re
             <div className="relative w-full max-w-4xl bg-white rounded-xl shadow-lg flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                 <div className="p-4 border-b"><h3 className="text-lg font-semibold text-gray-800">{title}</h3></div>
                 <div className="p-6 flex-grow overflow-y-auto space-y-4">
-                    <div className="flex items-center gap-4"><input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>{error && <p className="text-red-600 text-sm font-semibold">{error}</p>}</div>
+                    <div className="flex items-center gap-4"><input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>{error && <p className="text-red-600 text-sm font-semibold">{error}</p>}</div>
                     {parsedData.length > 0 && (<div className="border border-gray-200 rounded-xl max-h-80 overflow-auto"><table className="min-w-full text-xs"><thead className="bg-gray-100 sticky top-0"><tr className="text-left font-semibold text-gray-600">{Object.keys(parsedData[0]).map(h => <th key={h} className="p-2 border-b">{h}</th>)}</tr></thead><tbody>{parsedData.slice(0, 10).map((row, i) => (<tr key={i} className="bg-white border-b">{Object.values(row).map((val, j) => <td key={j} className="p-2 truncate" title={val}>{String(val)}</td>)}</tr>))}</tbody></table>{parsedData.length > 10 && <div className="p-2 text-center text-sm bg-gray-50">...and {parsedData.length - 10} more rows</div>}</div>)}
                 </div>
                 <div className="bg-gray-50 p-4 flex justify-between items-center border-t">
@@ -358,14 +412,14 @@ const EditableCell = ({ value, onSave, isLoading, fieldName, rowId }) => {
     };
 
     return (
-        <div className="relative">
+        <div className="relative h-full">
             <textarea
                 value={currentValue}
                 onChange={(e) => setCurrentValue(e.target.value)}
                 onBlur={handleSave}
                 disabled={isLoading}
                 placeholder=""
-                className="w-full text-xs p-2 border border-transparent rounded-md bg-transparent focus:bg-white focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 resize-none h-[38px] leading-tight"
+                className="block w-full h-full min-h-[28px] text-xs px-3 py-2 border-0 bg-transparent focus:outline-none focus:bg-white focus:ring-1 focus:ring-inset focus:ring-blue-400 resize-none leading-tight transition-colors"
             />
             {isLoading && <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-gray-400" />}
         </div>
@@ -379,9 +433,29 @@ const MainSheet = () => {
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
+    const [filterMenuPos, setFilterMenuPos] = useState({ top: 0, left: 0 });
     const [tempFilters, setTempFilters] = useState({ interviewDate: null, interviewStatus: '' });
     const [activeFilters, setActiveFilters] = useState({ interviewDate: null, interviewStatus: '' });
     const filterMenuRef = useRef(null);
+    const filterButtonRef = useRef(null);
+
+    const toggleFilterMenu = () => {
+        if (!isFilterMenuOpen && filterButtonRef.current) {
+            const rect = filterButtonRef.current.getBoundingClientRect();
+            setFilterMenuPos({ top: rect.bottom + 8, left: rect.right - 320 }); // 320 = w-80
+        }
+        setIsFilterMenuOpen(!isFilterMenuOpen);
+    };
+
+    useEffect(() => {
+        const handler = (e) => {
+            if (isFilterMenuOpen && filterMenuRef.current && !filterMenuRef.current.contains(e.target) && filterButtonRef.current && !filterButtonRef.current.contains(e.target)) {
+                setIsFilterMenuOpen(false);
+            }
+        };
+        if (isFilterMenuOpen) document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, [isFilterMenuOpen]);
     const [currentPage, setCurrentPage] = useState(1);
     const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, entry: null, isLoading: false });
     const [updatingId, setUpdatingId] = useState(null);
@@ -563,10 +637,10 @@ const MainSheet = () => {
         { key: 'uid', title: 'UID', minWidth: '120px' },
         { key: 'mobileNumber', title: 'Mobile', minWidth: '120px' },
         { key: 'mailId', title: "Mail ID", minWidth: '200px' },
-        { key: 'candidateResume', title: 'Resume', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline">Link</a> : '' },
-        { key: 'meetingLink', title: 'Meeting Link', minWidth: '250px', render: (row) => row.meetingLink ? (<a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline truncate block max-w-[250px]" title={row.meetingLink}>{row.meetingLink}</a>) : '' },
-        { key: 'recordingLink', title: 'Recording Link', minWidth: '250px', render: (row) => row.recordingLink ? (<a href={row.recordingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline truncate block max-w-[250px]" title={row.recordingLink}>{row.recordingLink}</a>) : '' },
-        { key: 'transcriptLink', title: 'Transcript Link', minWidth: '250px', render: (row) => row.transcriptLink ? (<a href={row.transcriptLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline truncate block max-w-[250px]" title={row.transcriptLink}>{row.transcriptLink}</a>) : '' },
+        { key: 'candidateResume', title: 'Resume', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition-colors" title={row.candidateResume}>Link <ExternalLink className="h-3 w-3" /></a> : <span className="text-gray-300">—</span> },
+        { key: 'meetingLink', title: 'Meeting Link', minWidth: '110px', render: (row) => row.meetingLink ? (<a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition-colors" title={row.meetingLink}>Link <ExternalLink className="h-3 w-3" /></a>) : <span className="text-gray-300">—</span> },
+        { key: 'recordingLink', title: 'Recording Link', minWidth: '120px', render: (row) => row.recordingLink ? (<a href={row.recordingLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition-colors" title={row.recordingLink}>Link <ExternalLink className="h-3 w-3" /></a>) : <span className="text-gray-300">—</span> },
+        { key: 'transcriptLink', title: 'Transcript Link', minWidth: '120px', render: (row) => row.transcriptLink ? (<a href={row.transcriptLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition-colors" title={row.transcriptLink}>Link <ExternalLink className="h-3 w-3" /></a>) : <span className="text-gray-300">—</span> },
         { key: 'interviewDate', title: 'Date', render: (row) => row.interviewDate ? formatDate(row.interviewDate) : '' },
         { 
             key: 'interviewTime', 
@@ -582,9 +656,49 @@ const MainSheet = () => {
             // --- MODIFICATION END ---
         },
         { key: 'interviewDuration', title: 'Duration' },
-        { key: 'interviewStatus', title: 'Status', minWidth: '130px', render: (row) => { const statusColors = {'Completed': 'bg-emerald-50 text-emerald-700 border-emerald-200','Scheduled': 'bg-amber-50 text-amber-700 border-amber-200','InProgress': 'bg-blue-50 text-blue-700 border-blue-200','Cancelled': 'bg-red-50 text-red-700 border-red-200' }; return (<div className="relative"><select value={row.interviewStatus || ''} onChange={(e) => handleStatusChange(row._id, e.target.value)} disabled={updatingId === row._id} className={`w-full text-xs font-semibold pl-2 pr-5 py-1 border rounded-md cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-indigo-500/20 ${statusColors[row.interviewStatus] || 'bg-gray-50 text-gray-500 border-gray-200'}`} onClick={(e) => e.stopPropagation()}><option value="" disabled>Select</option>{MAIN_SHEET_INTERVIEW_STATUSES.map(status => (<option key={status.value} value={status.value}>{status.label}</option>))}</select><ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400 pointer-events-none" /></div>); } },
-        { key: 'remarks', title: 'Remarks', minWidth: '250px', render: (row) => <EditableCell value={row.remarks} onSave={handleCellSave} fieldName="remarks" rowId={row._id} isLoading={updatingId === row._id} /> },
-        { key: 'interviewerName', title: 'Interviewer', minWidth: '180px', render: (row) => (<div className="relative"><select value={row.interviewer?._id || ''} onChange={(e) => handleInterviewerChange(row._id, e.target.value)} disabled={updatingId === row._id} className="w-full pl-2 pr-5 py-1 text-xs border border-gray-200 rounded-md bg-white cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-indigo-500/20 text-gray-700 hover:border-gray-300 transition-colors" onClick={(e) => e.stopPropagation()}><option value="">Unassigned</option>{interviewerOptions.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select><ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400 pointer-events-none" /></div>) },
+        { key: 'interviewStatus', title: 'Status', minWidth: '140px', isCustomCell: true, render: (row) => {
+            const statusColors = {
+                'Completed': 'bg-emerald-50 text-emerald-700',
+                'Scheduled': 'bg-amber-50 text-amber-700',
+                'InProgress': 'bg-blue-50 text-blue-700',
+                'Cancelled': 'bg-red-50 text-red-700',
+            };
+            return (
+                <div className="relative h-full">
+                    <select
+                        value={row.interviewStatus || ''}
+                        onChange={(e) => handleStatusChange(row._id, e.target.value)}
+                        disabled={updatingId === row._id}
+                        className={`block w-full h-full min-h-[28px] text-xs font-semibold pl-3 pr-7 py-2 border-0 rounded-none cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-inset focus:ring-blue-400 transition-colors ${statusColors[row.interviewStatus] || 'bg-white text-gray-500'}`}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <option value="" disabled>Select</option>
+                        {MAIN_SHEET_INTERVIEW_STATUSES.map(status => (
+                            <option key={status.value} value={status.value}>{status.label}</option>
+                        ))}
+                    </select>
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
+                </div>
+            );
+        } },
+        { key: 'remarks', title: 'Remarks', minWidth: '250px', isCustomCell: true, render: (row) => <EditableCell value={row.remarks} onSave={handleCellSave} fieldName="remarks" rowId={row._id} isLoading={updatingId === row._id} /> },
+        { key: 'interviewerName', title: 'Interviewer', minWidth: '200px', isCustomCell: true, render: (row) => (
+            <div className="relative h-full">
+                <select
+                    value={row.interviewer?._id || ''}
+                    onChange={(e) => handleInterviewerChange(row._id, e.target.value)}
+                    disabled={updatingId === row._id}
+                    className="block w-full h-full min-h-[28px] pl-3 pr-7 py-2 text-xs border-0 rounded-none bg-white cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-inset focus:ring-blue-400 text-gray-700 transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <option value="">Unassigned</option>
+                    {interviewerOptions.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
+            </div>
+        ) },
         { key: 'interviewerMail', title: "Interviewer Mail", minWidth: '200px', render: (row) => row.interviewer?.user?.email || '' },
         { key: 'interviewerRemarks', title: 'Interviewer Remarks', minWidth: '250px', render: (row) => {
             const remarks = row.interviewerRemarks;
@@ -617,50 +731,87 @@ const MainSheet = () => {
     const showingTo = Math.min(pagination.currentPage * 100, pagination.totalItems);
 
     return (
-        <div className="h-full w-full flex flex-col overflow-hidden">
+        <div className="h-full w-full flex flex-col overflow-hidden bg-[#f5f7fb]">
             {/* Header */}
-            <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0 shadow-sm">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <div className="bg-white border-b border-slate-200 px-6 py-4 flex-shrink-0">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                        <h1 className="text-lg font-semibold text-gray-900">Main Sheet</h1>
+                        <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">Main Sheet</h1>
                         {pagination.totalItems > 0 && (
-                            <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">{pagination.totalItems} records</span>
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-widest uppercase text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-0.5 rounded-full">
+                                {pagination.totalItems} records
+                            </span>
                         )}
                     </div>
-                    <div className="flex items-center gap-2">
-                        <div className="w-56">
-                            <LocalSearchInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search..." />
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-64">
+                            <LocalSearchInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search candidates..." />
                         </div>
-                        <div className="relative" ref={filterMenuRef}>
-                            <ShadcnButton variant="outline" size="sm" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} className="rounded-lg">
-                                <Filter className="h-3.5 w-3.5 mr-1.5" />
-                                Filter
-                                {isFilterActive && <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-1.5 p-0.5 rounded-full hover:bg-gray-200"><X className="h-3 w-3 text-gray-500" /></span>}
-                            </ShadcnButton>
-                            {isFilterMenuOpen && (
-                                <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 z-[60] p-4">
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Date</label>
-                                            <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(prev => ({ ...prev, interviewDate: date }))} isClearable placeholderText="Select a date"
-                                                className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                                                popperClassName="!z-[9999]" popperProps={{ strategy: 'fixed' }} />
-                                        </div>
-                                        <div>
-                                            <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Status</label>
-                                            <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(prev => ({...prev, interviewStatus: e.target.value}))} className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer">
-                                                <option value="">All Statuses</option>
-                                                {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
-                                            </select>
-                                        </div>
+                        <button
+                            ref={filterButtonRef}
+                            onClick={toggleFilterMenu}
+                            className={`h-10 inline-flex items-center gap-2 px-4 text-sm font-semibold rounded-xl border transition-colors ${isFilterActive ? 'border-blue-200 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                        >
+                            <Filter className="h-3.5 w-3.5" />
+                            Filter
+                            {isFilterActive && (
+                                <span
+                                    onClick={(e) => { e.stopPropagation(); handleClearFilters(); }}
+                                    className="ml-0.5 p-0.5 rounded-full hover:bg-blue-100"
+                                >
+                                    <X className="h-3 w-3 text-blue-600" />
+                                </span>
+                            )}
+                        </button>
+                        {isFilterMenuOpen && createPortal(
+                            <div
+                                ref={filterMenuRef}
+                                className="fixed w-80 bg-white rounded-xl shadow-xl shadow-slate-900/10 border border-slate-200 z-[9999] p-5"
+                                style={{ top: `${filterMenuPos.top}px`, left: `${filterMenuPos.left}px` }}
+                            >
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em] mb-2">Date</label>
+                                        <DatePicker
+                                            selected={tempFilters.interviewDate}
+                                            onChange={(date) => setTempFilters(prev => ({ ...prev, interviewDate: date }))}
+                                            isClearable
+                                            placeholderText="Select a date"
+                                            className="w-full h-10 px-3 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-colors"
+                                            portalId="datepicker-portal"
+                                            popperClassName="!z-[10000]"
+                                            popperProps={{ strategy: 'fixed' }}
+                                        />
                                     </div>
-                                    <div className="mt-4 pt-3 border-t border-gray-100 flex justify-end gap-2">
-                                        <ShadcnButton variant="outline" size="sm" onClick={handleClearFilters}>Clear</ShadcnButton>
-                                        <ShadcnButton size="sm" onClick={handleApplyFilters}>Apply</ShadcnButton>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em] mb-2">Status</label>
+                                        <select
+                                            value={tempFilters.interviewStatus}
+                                            onChange={(e) => setTempFilters(prev => ({ ...prev, interviewStatus: e.target.value }))}
+                                            className="w-full h-10 px-3 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 cursor-pointer transition-colors"
+                                        >
+                                            <option value="">All Statuses</option>
+                                            {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
+                                        </select>
                                     </div>
                                 </div>
-                            )}
-                        </div>
+                                <div className="mt-5 pt-4 border-t border-slate-100 flex justify-end gap-2">
+                                    <button
+                                        onClick={handleClearFilters}
+                                        className="h-9 px-4 text-xs font-medium text-slate-600 rounded-md border border-slate-200 hover:bg-slate-50 transition-colors"
+                                    >
+                                        Clear
+                                    </button>
+                                    <button
+                                        onClick={handleApplyFilters}
+                                        className="h-9 px-4 text-xs font-medium text-white rounded-md bg-blue-600 hover:bg-blue-700 transition-all"
+                                    >
+                                        Apply
+                                    </button>
+                                </div>
+                            </div>,
+                            document.body
+                        )}
                         {/* Actions dropdown */}
                         <ActionsMenu
                             onAddEntries={() => navigate('/admin/main-sheet/add')}
@@ -673,7 +824,7 @@ const MainSheet = () => {
                     </div>
                 </div>
             </div>
-            
+
             <div className="flex-1 overflow-hidden bg-white">
                 <LocalTable
                     columns={columns}
@@ -687,15 +838,18 @@ const MainSheet = () => {
             </div>
 
             {!loading && pagination && pagination.totalPages > 1 && (
-                <div className="flex items-center justify-between border-t border-gray-200 bg-white px-6 py-3 flex-shrink-0">
-                    <p className="text-xs text-gray-500">
-                        Showing <span className="font-semibold text-gray-900">{showingFrom}</span>–<span className="font-semibold text-gray-900">{showingTo}</span> of <span className="font-semibold text-gray-900">{pagination.totalItems}</span>
+                <div className="flex items-center justify-between border-t border-slate-200 bg-white px-6 py-3 flex-shrink-0">
+                    <p className="text-xs text-slate-500 font-medium">
+                        Showing <span className="font-bold text-slate-900">{showingFrom}</span>–<span className="font-bold text-slate-900">{showingTo}</span> of <span className="font-bold text-slate-900">{pagination.totalItems}</span>
                     </p>
                     <div className="flex items-center gap-1.5">
-                        <ShadcnButton variant="outline" size="icon" onClick={() => setCurrentPage(pagination.currentPage - 1)}
-                            disabled={loading || pagination.currentPage <= 1} className="h-8 w-8">
-                            <ChevronLeft className="h-4 w-4"/>
-                        </ShadcnButton>
+                        <button
+                            onClick={() => setCurrentPage(pagination.currentPage - 1)}
+                            disabled={loading || pagination.currentPage <= 1}
+                            className="h-9 w-9 rounded-md flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                        </button>
                         <div className="hidden md:flex items-center gap-1">
                             {(() => {
                                 const pages = [];
@@ -711,20 +865,30 @@ const MainSheet = () => {
                                 }
                                 return pages.map((p, idx) =>
                                     p === '...' ? (
-                                        <span key={`dots-${idx}`} className="px-1.5 text-xs text-gray-400">...</span>
+                                        <span key={`dots-${idx}`} className="px-1.5 text-xs text-slate-400">…</span>
                                     ) : (
-                                        <ShadcnButton key={p} variant={p === current ? 'default' : 'outline'} size="sm"
-                                            onClick={() => setCurrentPage(p)} className="h-8 w-8 p-0 text-xs">
+                                        <button
+                                            key={p}
+                                            onClick={() => setCurrentPage(p)}
+                                            className={`h-9 min-w-[36px] px-2.5 rounded-md text-xs font-medium transition-all ${
+                                                p === current
+                                                    ? 'text-white bg-blue-600'
+                                                    : 'text-slate-600 border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300'
+                                            }`}
+                                        >
                                             {p}
-                                        </ShadcnButton>
+                                        </button>
                                     )
                                 );
                             })()}
                         </div>
-                        <ShadcnButton variant="outline" size="icon" onClick={() => setCurrentPage(pagination.currentPage + 1)}
-                            disabled={loading || pagination.currentPage >= pagination.totalPages} className="h-8 w-8">
-                            <ChevronRight className="h-4 w-4"/>
-                        </ShadcnButton>
+                        <button
+                            onClick={() => setCurrentPage(pagination.currentPage + 1)}
+                            disabled={loading || pagination.currentPage >= pagination.totalPages}
+                            className="h-9 w-9 rounded-md flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <ChevronRight className="h-4 w-4" />
+                        </button>
                     </div>
                 </div>
             )}

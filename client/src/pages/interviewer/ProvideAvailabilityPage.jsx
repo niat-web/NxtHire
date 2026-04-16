@@ -60,23 +60,23 @@ const ProvideAvailabilityPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-indigo-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#f5f7fb] flex items-center justify-center">
         <Loader size="xl" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-[#f5f7fb]">
       {/* Enhanced Header with Glassmorphism Effect */}
-        <div className="sticky top-0 z-30 bg-gradient-to-br from-indigo-50/80 via-white/80 to-indigo-50/80 backdrop-blur-sm border-b border-gray-200">
+        <div className="sticky top-0 z-30 bg-white border-b border-gray-200">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
                 {/* Navigation */}
                 <nav className="flex items-center space-x-4">
                 <Link
                     to="/interviewer/availability"
-                    className="group flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    className="group flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     aria-label="Go back to availability requests"
                 >
                     <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
@@ -110,14 +110,14 @@ const ProvideAvailabilityPage = () => {
               {/* Main Details Card */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 {/* Card Header */}
-                <div className="bg-gradient-to-r from-indigo-600 to-indigo-600 px-6 py-5">
+                <div className="bg-blue-600 px-6 py-5">
                   <div className="flex items-center">
                     <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mr-4">
                       <Calendar className="w-5 h-5 text-white" />
                     </div>
                     <div>
                       <h2 className="text-xl font-semibold text-white">Interview Details</h2>
-                      <p className="text-indigo-100 text-sm">Booking ID: {bookingId}</p>
+                      <p className="text-blue-100 text-sm">Booking ID: {bookingId}</p>
                     </div>
                   </div>
                 </div>
@@ -126,12 +126,12 @@ const ProvideAvailabilityPage = () => {
                 {bookingRequest && (
                   <div className="p-6 space-y-6">
                     {/* Interview Date */}
-                    <div className="flex items-start space-x-4 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
-                      <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Calendar className="w-6 h-6 text-indigo-600" />
+                    <div className="flex items-start space-x-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                      <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Calendar className="w-6 h-6 text-blue-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-indigo-600 uppercase tracking-wider mb-1">Interview Date</p>
+                        <p className="text-xs font-medium text-blue-600 uppercase tracking-wider mb-1">Interview Date</p>
                         <p className="text-lg font-semibold text-gray-900 leading-tight">
                           {formatDate(bookingRequest.bookingDate)}
                         </p>
@@ -140,12 +140,12 @@ const ProvideAvailabilityPage = () => {
 
                     {/* Candidate Information */}
                     {bookingRequest.candidateName && (
-                      <div className="flex items-start space-x-4 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
-                        <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <User className="w-6 h-6 text-indigo-600" />
+                      <div className="flex items-start space-x-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                        <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <User className="w-6 h-6 text-blue-600" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-indigo-600 uppercase tracking-wider mb-1">Candidate</p>
+                          <p className="text-xs font-medium text-blue-600 uppercase tracking-wider mb-1">Candidate</p>
                           <p className="text-lg font-semibold text-gray-900 leading-tight truncate">
                             {bookingRequest.candidateName}
                           </p>
@@ -189,7 +189,7 @@ const ProvideAvailabilityPage = () => {
 
               {/* Tips and Guidelines Card */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
+                <div className="bg-blue-600 px-6 py-4">
                   <div className="flex items-center">
                     <CheckCircle className="w-6 h-6 text-white mr-3" />
                     <h3 className="text-lg font-semibold text-white">Best Practices</h3>
@@ -203,8 +203,8 @@ const ProvideAvailabilityPage = () => {
                       'Ensure stable internet for video calls'
                     ].map((tip, index) => (
                       <li key={index} className="flex items-start space-x-3">
-                        <div className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <div className="w-2 h-2 bg-indigo-600 rounded-full"></div>
+                        <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                         </div>
                         <span className="text-sm text-gray-700 leading-relaxed">{tip}</span>
                       </li>
@@ -240,8 +240,8 @@ const ProvideAvailabilityPage = () => {
             <div className="text-center">
               <div className="relative mb-6">
                 <div className="w-16 h-16 mx-auto relative">
-                  <div className="absolute inset-0 rounded-full border-4 border-indigo-100"></div>
-                  <div className="absolute inset-0 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-blue-100"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-blue-600 border-t-transparent animate-spin"></div>
                 </div>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Submitting Your Availability</h3>
@@ -249,7 +249,7 @@ const ProvideAvailabilityPage = () => {
                 Please wait while we process your time slots and notify the candidate...
               </p>
               <div className="mt-6 bg-gray-100 rounded-full h-2 overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-indigo-600 to-indigo-600 rounded-full animate-pulse"></div>
+                <div className="h-full bg-blue-600 rounded-full animate-pulse"></div>
               </div>
             </div>
           </div>

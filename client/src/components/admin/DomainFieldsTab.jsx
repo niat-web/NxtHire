@@ -66,7 +66,7 @@ const ImportModal = ({ isOpen, onClose, onImportOptions, onImportAllOptions, onI
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
-                        className="relative w-full max-w-4xl h-[80vh] bg-white rounded-xl shadow-2xl flex flex-col"
+                        className="relative w-full max-w-4xl h-[80vh] bg-white rounded-xl shadow-xl flex flex-col"
                         onClick={e => e.stopPropagation()}
                     >
                         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-xl">
@@ -91,7 +91,7 @@ const ImportModal = ({ isOpen, onClose, onImportOptions, onImportAllOptions, onI
                                     {filteredDomains.map(domain => (
                                         <li key={domain.domainName}>
                                             <button type="button" onClick={() => { setSelectedDomain(domain); setSelectedParameter(null); }}
-                                                className={cn('w-full text-left px-3 py-2 text-sm rounded-lg font-medium transition-colors', selectedDomain?.domainName === domain.domainName ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100')}
+                                                className={cn('w-full text-left px-3 py-2 text-sm rounded-lg font-medium transition-colors', selectedDomain?.domainName === domain.domainName ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100')}
                                             >
                                                 {domain.domainName}
                                             </button>
@@ -108,7 +108,7 @@ const ImportModal = ({ isOpen, onClose, onImportOptions, onImportAllOptions, onI
                                                 <ul className="space-y-1">
                                                     {category.parameters.map(param => (
                                                         <li key={param.parameterName}>
-                                                            <div className="group flex justify-between items-center rounded-lg bg-white border border-gray-200 hover:border-indigo-300 transition-all">
+                                                            <div className="group flex justify-between items-center rounded-lg bg-white border border-gray-200 hover:border-blue-300 transition-all">
                                                                 <button type="button" onClick={() => setSelectedParameter({ ...param, categoryName: category.categoryName })} className="flex-grow text-left px-3 py-2 text-sm font-medium text-gray-800">
 
                                                                     {param.parameterName}
@@ -156,7 +156,7 @@ const BulkAddOptionsModal = ({ isOpen, onClose, onAdd }) => {
                  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm" onClick={onClose}>
                      <motion.div
                         initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                        className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl flex flex-col" onClick={e => e.stopPropagation()}
+                        className="relative w-full max-w-lg bg-white rounded-xl shadow-xl flex flex-col" onClick={e => e.stopPropagation()}
                     >
                         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-xl">
                             <h3 className="text-lg font-semibold text-gray-900">Paste from Spreadsheet</h3>
@@ -390,8 +390,8 @@ const DomainFieldsTab = ({ domains, selectedDomain, setSelectedDomain }) => {
                     {selectedDomain && (
                         <div className="flex items-center gap-2">
                              <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
-                                <button type="button" onClick={() => setMode('edit')} className={cn('px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1', mode === 'edit' ? 'bg-white shadow-md' : 'text-gray-500')}><Edit /> Edit</button>
-                                <button type="button" onClick={() => setMode('preview')} className={cn('px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1', mode === 'preview' ? 'bg-white shadow-md' : 'text-gray-500')}><Eye /> Preview</button>
+                                <button type="button" onClick={() => setMode('edit')} className={cn('px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1', mode === 'edit' ? 'bg-white shadow-md' : 'text-gray-500')}><Edit /> Edit</button>
+                                <button type="button" onClick={() => setMode('preview')} className={cn('px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1', mode === 'preview' ? 'bg-white shadow-md' : 'text-gray-500')}><Eye /> Preview</button>
                             </div>
                             {mode === 'edit' && (
                                 <>

@@ -100,7 +100,7 @@ const InterviewerLayout = () => {
   const useFullPageLayout = fullPageLayoutPaths.some(path => location.pathname.startsWith(path));
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-[#f5f7fb]">
       <Sidebar
         navItems={interviewerNavItems}
         variant="interviewer"

@@ -49,23 +49,8 @@ const AdminLayout = () => {
     });
   }, [apiCounts, adminNavItems]);
 
-  const getPageTitle = () => {
-    const allNavItems = [
-      ...adminNavItems,
-      { label: 'Applicants', path: '/admin/hiring/applicants' },
-      { label: 'LinkedIn Review', path: '/admin/hiring/linkedin-review' },
-      { label: 'Skills Review', path: '/admin/hiring/skill-categorization' },
-      { label: 'Guidelines Review', path: '/admin/hiring/guidelines' },
-      { label: 'Interviewer Bookings', path: '/admin/bookings/interviewer-bookings'},
-      { label: 'Booking Slots', path: '/admin/bookings/booking-slots' },
-      { label: 'Student Bookings', path: '/admin/bookings/student-bookings' },
-    ];
-
-    const currentNav = allNavItems.find(item => location.pathname.startsWith(item.path));
-    return currentNav?.label || 'Admin Panel';
-  };
-
   const fullPageLayoutPaths = [
+      '/admin/dashboard',
       '/admin/hiring',
       '/admin/bookings',
       '/admin/interviewers',
@@ -78,26 +63,28 @@ const AdminLayout = () => {
       '/admin/notifications',
       '/admin/public-bookings/',
       '/admin/interview-bookings/',
+      '/admin/notifications-inbox',
   ];
 
   const useFullPageLayout = fullPageLayoutPaths.some(path => location.pathname.startsWith(path));
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-[#f5f7fb]">
       <Sidebar
         navItems={adminNavItemsWithCounts}
         variant="admin"
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-      { !useFullPageLayout && location.pathname !== '/admin/dashboard' && (
-          <header className="bg-white border-b border-gray-200 shadow-sm h-14 flex items-center justify-between px-6">
-            <h1 className="text-lg font-semibold text-gray-900">{getPageTitle()}</h1>
+        {/* Top bar — only on dashboard */}
+        {location.pathname === '/admin/dashboard' && (
+          <header className="bg-[#f0f4fa] border-b border-slate-200/80 h-12 flex items-center justify-between px-6 shrink-0">
+            <h1 className="text-sm font-semibold text-slate-900">Dashboard</h1>
             <NotificationBell />
           </header>
         )}
 
-        <main className={cn('flex-1 bg-gray-50', useFullPageLayout ? 'overflow-hidden' : 'overflow-y-auto')}>
+        <main className={cn('flex-1 bg-[#f5f7fb]', useFullPageLayout ? 'overflow-hidden' : 'overflow-y-auto')}>
           {useFullPageLayout ? (
             <div className="h-full flex flex-col">
                 <PageTransition className="h-full flex flex-col">

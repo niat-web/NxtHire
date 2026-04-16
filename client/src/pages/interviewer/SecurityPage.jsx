@@ -62,7 +62,7 @@ const SecurityPage = () => {
         className="bg-white rounded-xl border border-gray-100 overflow-hidden"
       >
         <div className="flex items-center gap-2.5 px-5 py-3 border-b border-gray-100 bg-gray-50/50">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
             <Shield size={15} className="text-white" />
           </div>
           <div>

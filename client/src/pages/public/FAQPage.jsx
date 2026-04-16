@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, Search } from 'lucide-react';
+import { ChevronDown, Search, Sparkles, Mail, ArrowRight } from 'lucide-react';
 import SEO from '../../components/common/SEO';
 import { cn } from '@/lib/utils';
 
@@ -41,13 +41,18 @@ const faqs = [
 ];
 
 const AccordionItem = ({ question, answer, isOpen, onToggle }) => (
-  <div className="border-b border-gray-100 last:border-0">
-    <button onClick={onToggle} className="w-full flex items-center justify-between py-4 px-1 text-left group">
-      <span className={cn('text-sm font-medium transition-colors', isOpen ? 'text-indigo-600' : 'text-gray-900 group-hover:text-indigo-600')}>{question}</span>
-      <ChevronDown size={16} className={cn('text-gray-400 transition-transform shrink-0 ml-4', isOpen && 'rotate-180 text-indigo-500')} />
+  <div className="border-b border-slate-100 last:border-0">
+    <button onClick={onToggle} className="w-full flex items-center justify-between py-5 px-1 text-left group gap-4">
+      <span className={cn('text-[15px] font-semibold transition-colors', isOpen ? 'text-slate-900' : 'text-slate-800 group-hover:text-blue-600')}>{question}</span>
+      <div className={cn(
+        'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all',
+        isOpen ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-100 text-slate-400 group-hover:bg-slate-200'
+      )}>
+        <ChevronDown size={15} className={cn('transition-transform', isOpen && 'rotate-180')} />
+      </div>
     </button>
-    <div className={cn('overflow-hidden transition-all duration-200', isOpen ? 'max-h-40 pb-4' : 'max-h-0')}>
-      <p className="text-sm text-gray-500 leading-relaxed px-1">{answer}</p>
+    <div className={cn('overflow-hidden transition-all duration-300', isOpen ? 'max-h-96 pb-5' : 'max-h-0')}>
+      <p className="text-[14px] text-slate-500 leading-relaxed px-1">{answer}</p>
     </div>
   </div>
 );
@@ -71,37 +76,68 @@ const FAQPage = () => {
       <SEO title="FAQ" description="Frequently asked questions about becoming an interviewer on NxtHire." path="/faq" />
 
       {/* Hero */}
-      <section className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-indigo-800 text-white py-16">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <p className="text-indigo-200 text-sm font-semibold uppercase tracking-widest mb-3">Support</p>
-          <h1 className="text-3xl lg:text-4xl font-extrabold">Frequently Asked Questions</h1>
-          <p className="mt-3 text-indigo-100 max-w-lg mx-auto">Find answers to common questions about joining, interviewing, and earning on NxtHire.</p>
+      <section className="relative overflow-hidden bg-[#f5f7fb] pt-32 pb-20 lg:pt-40">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-blue-200/40 blur-3xl -translate-y-1/3 translate-x-1/4" />
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-blue-200/50 blur-3xl translate-y-1/3 -translate-x-1/4" />
+          <div
+            className="absolute inset-0 opacity-[0.025]"
+            style={{
+              backgroundImage:
+                'linear-gradient(rgba(15,23,42,.5) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,.5) 1px, transparent 1px)',
+              backgroundSize: '48px 48px',
+            }}
+          />
+        </div>
+        <div className="relative max-w-3xl mx-auto px-6 text-center">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 mb-6 text-xs font-semibold tracking-wide uppercase text-blue-700 bg-white border border-blue-200 rounded-full shadow-sm">
+            <Sparkles size={13} className="text-blue-500" />
+            Support Center
+          </span>
+          <h1 className="text-4xl lg:text-5xl xl:text-6xl font-extrabold text-slate-900 leading-[1.05] tracking-tight">
+            Frequently Asked{' '}
+            <span className="text-blue-600">
+              Questions
+            </span>
+          </h1>
+          <p className="mt-5 text-lg text-slate-500 max-w-lg mx-auto leading-relaxed">
+            Find answers to common questions about joining, interviewing, and earning on NxtHire.
+          </p>
 
-          <div className="mt-8 max-w-md mx-auto relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-indigo-300" />
+          <div className="mt-10 max-w-md mx-auto relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search questions..."
-              className="w-full pl-11 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-sm text-white placeholder:text-indigo-200 focus:outline-none focus:bg-white/15 focus:border-white/30 transition-all"
+              className="w-full pl-11 pr-4 h-12 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 shadow-xl focus:outline-none focus:border-blue-300 focus:ring-4 focus:ring-blue-100/60 transition-all"
             />
           </div>
         </div>
       </section>
 
       {/* FAQ Content */}
-      <section className="max-w-3xl mx-auto px-6 py-16">
+      <section className="max-w-3xl mx-auto px-6 py-20">
         {filteredFaqs.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-400 text-sm">No questions match your search.</p>
+          <div className="text-center py-16">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/60 flex items-center justify-center mx-auto mb-4 shadow-sm">
+              <Search className="h-6 w-6 text-slate-400" />
+            </div>
+            <p className="text-slate-600 font-semibold">No questions match your search.</p>
+            <p className="text-sm text-slate-400 mt-1">Try a different keyword.</p>
           </div>
         ) : (
           <div className="space-y-10">
             {filteredFaqs.map(cat => (
               <div key={cat.category}>
-                <h2 className="text-xs font-semibold text-indigo-600 uppercase tracking-widest mb-4">{cat.category}</h2>
-                <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-5">
+                <div className="flex items-center gap-3 mb-5">
+                  <span className="inline-flex px-3 py-1 text-[11px] font-bold tracking-widest uppercase text-blue-700 bg-blue-50 border border-blue-100 rounded-full">
+                    {cat.category}
+                  </span>
+                  <div className="flex-1 h-px bg-gradient-to-r from-slate-200 to-transparent" />
+                </div>
+                <div className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow px-6 lg:px-7">
                   {cat.items.map((item, i) => {
                     const key = `${cat.category}-${i}`;
                     return <AccordionItem key={key} question={item.q} answer={item.a} isOpen={openIndex === key} onToggle={() => toggle(key)} />;
@@ -114,12 +150,30 @@ const FAQPage = () => {
       </section>
 
       {/* Still have questions */}
-      <section className="bg-gray-50 py-14">
-        <div className="max-w-xl mx-auto px-6 text-center">
-          <h2 className="text-lg font-bold text-gray-900 mb-2">Still have questions?</h2>
-          <p className="text-sm text-gray-500 mb-4">Reach out to our team and we'll get back to you within 24 hours.</p>
-          <a href="mailto:interviewercommunity@nxtwave.in" className="inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
-            interviewercommunity@nxtwave.in
+      <section className="relative py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900" />
+        <div className="absolute inset-0">
+          <div className="absolute -top-24 -right-24 w-[500px] h-[500px] rounded-full bg-blue-500/20 blur-3xl" />
+          <div className="absolute -bottom-24 -left-24 w-[500px] h-[500px] rounded-full bg-blue-500/20 blur-3xl" />
+        </div>
+        <div className="relative max-w-2xl mx-auto px-6 text-center">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-600 shadow-xl mb-6">
+            <Mail className="text-white" size={22} />
+          </div>
+          <h2 className="text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-[1.1]">
+            Still have{' '}
+            <span className="text-blue-300">
+              questions?
+            </span>
+          </h2>
+          <p className="mt-4 text-slate-300 text-base max-w-md mx-auto">
+            Reach out to our team and we'll get back to you within 24 hours.
+          </p>
+          <a
+            href="mailto:interviewercommunity@nxtwave.in"
+            className="mt-8 inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-xl transition-all hover:-translate-y-0.5"
+          >
+            interviewercommunity@nxtwave.in <ArrowRight size={16} />
           </a>
         </div>
       </section>

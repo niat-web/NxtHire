@@ -208,9 +208,9 @@ const AuthorizeStudentsPage = () => {
     const el = dropRef.current;
     if (!el) return;
     const onPrevent = (e) => { e.preventDefault(); e.stopPropagation(); };
-    const onDrop = (e) => { onPrevent(e); const file = e.dataTransfer.files?.[0]; if (file) { handleFileChange({ target: { files: [file] } }); } el.classList.remove('ring-2', 'ring-indigo-500'); };
-    const onDragEnter = (e) => { onPrevent(e); el.classList.add('ring-2', 'ring-indigo-500'); };
-    const onDragLeave = (e) => { onPrevent(e); el.classList.remove('ring-2', 'ring-indigo-500'); };
+    const onDrop = (e) => { onPrevent(e); const file = e.dataTransfer.files?.[0]; if (file) { handleFileChange({ target: { files: [file] } }); } el.classList.remove('ring-2', 'ring-blue-500'); };
+    const onDragEnter = (e) => { onPrevent(e); el.classList.add('ring-2', 'ring-blue-500'); };
+    const onDragLeave = (e) => { onPrevent(e); el.classList.remove('ring-2', 'ring-blue-500'); };
     const onDragOver = onPrevent;
     el.addEventListener('dragenter', onDragEnter); el.addEventListener('dragleave', onDragLeave);
     el.addEventListener('dragover', onDragOver); el.addEventListener('drop', onDrop);
@@ -266,7 +266,7 @@ const AuthorizeStudentsPage = () => {
           <div className="flex items-center gap-4">
             <Link
               to="/admin/bookings/student-bookings"
-              className="h-10 w-10 flex items-center justify-center rounded-full bg-gray-50 border border-gray-200 text-gray-600 hover:bg-white hover:text-indigo-600 hover:border-indigo-200 transition-all duration-200 shadow-sm"
+              className="h-10 w-10 flex items-center justify-center rounded-full bg-gray-50 border border-gray-200 text-gray-600 hover:bg-white hover:text-blue-600 hover:border-blue-200 transition-all duration-200 shadow-sm"
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
@@ -275,10 +275,10 @@ const AuthorizeStudentsPage = () => {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-xs font-medium border border-indigo-100">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-medium border border-blue-100">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
               </span>
               {bookingDetails?.title || 'Booking Session'}
             </div>
@@ -297,7 +297,7 @@ const AuthorizeStudentsPage = () => {
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
                 <div className="p-5 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
                   <div className="flex items-center gap-2 font-semibold text-gray-800">
-                    <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
+                    <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
                       <FileText className="h-4 w-4" />
                     </div>
                     Paste Data
@@ -313,14 +313,14 @@ const AuthorizeStudentsPage = () => {
                       value={pastedText}
                       onChange={(e) => processText(e.target.value)}
                       placeholder={`Paste student data here...\n\nSupported Columns:\n${columnsHelp.join(', ')}`}
-                      className="w-full h-full absolute inset-0 p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm font-mono text-gray-700 placeholder:text-gray-400 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all resize-none"
+                      className="w-full h-full absolute inset-0 p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm font-mono text-gray-700 placeholder:text-gray-400 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all resize-none"
                       spellCheck={false}
                     />
                   </div>
 
                   <div className="flex items-center justify-between pt-2">
                     <p className="text-xs text-gray-500 flex items-center gap-1.5">
-                      <Info className="text-indigo-500" />
+                      <Info className="text-blue-500" />
                       Tab or comma separated
                     </p>
                     <Button variant="secondary" size="sm" onClick={handleClear} disabled={!pastedText && students.length === 0}>
@@ -343,12 +343,12 @@ const AuthorizeStudentsPage = () => {
                 <div className="p-5">
                   <div
                     ref={dropRef}
-                    className="group relative border-2 border-dashed border-gray-300 hover:border-indigo-500 hover:bg-indigo-50/30 rounded-xl p-8 text-center transition-all duration-200 cursor-pointer"
+                    className="group relative border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50/30 rounded-xl p-8 text-center transition-all duration-200 cursor-pointer"
                     onClick={() => fileInputRef.current?.click()}
                   >
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv,.xlsx,.xls,.xlsm" className="hidden" />
 
-                    <div className="mb-4 inline-flex items-center justify-center h-12 w-12 rounded-full bg-indigo-50 text-indigo-600 group-hover:scale-110 transition-transform">
+                    <div className="mb-4 inline-flex items-center justify-center h-12 w-12 rounded-full bg-blue-50 text-blue-600 group-hover:scale-110 transition-transform">
                       <Upload className="h-6 w-6" />
                     </div>
                     <h3 className="text-sm font-semibold text-gray-900 mb-1">Click to upload or drag and drop</h3>
@@ -370,7 +370,7 @@ const AuthorizeStudentsPage = () => {
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="Search students..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all"
                   />
                 </div>
 
@@ -378,7 +378,7 @@ const AuthorizeStudentsPage = () => {
                   <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors select-none">
                     <input
                       type="checkbox"
-                      className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
                       checked={showInvalidOnly}
                       onChange={(e) => setShowInvalidOnly(e.target.checked)}
                     />
@@ -462,7 +462,7 @@ const AuthorizeStudentsPage = () => {
                                 href={/^https?:\/\//i.test(s.resumeLink) ? s.resumeLink : `https://${s.resumeLink}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-700 transition-colors font-medium text-xs"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-colors font-medium text-xs"
                               >
                                 View <FileText className="h-3 w-3" />
                               </a>
@@ -496,7 +496,7 @@ const AuthorizeStudentsPage = () => {
                     disabled={validCount === 0}
                     variant="success"
                     size="lg"
-                    className="shadow-sm shadow-indigo-600/20"
+                    className="shadow-sm shadow-blue-600/20"
                   >
                     {!isSaving && <Send className="mr-2 h-4 w-4" />}
                     {`Authorize & Invite ${validCount} Students`}

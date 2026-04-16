@@ -1,5 +1,6 @@
 // client/src/pages/interviewer/InterviewerDomainEvaluationPage.jsx
-import React, { useState, useEffect, useMemo, useRef, Fragment } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback, Fragment } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
     updateEvaluationData,
     updateInterviewStatus,
@@ -32,20 +33,22 @@ import { format } from 'date-fns';
 
 const EditableStatusCell = React.memo(({ interview, onStatusChange, isUpdating }) => {
     const statusConfig = {
-        'Completed': 'bg-green-50 text-green-800 border-green-200 focus:ring-green-500',
-        'Scheduled': 'bg-emerald-50 text-emerald-800 border-emerald-200 focus:ring-indigo-500',
-        'InProgress': 'bg-purple-50 text-purple-800 border-purple-200 focus:ring-purple-500',
-        'Cancelled': 'bg-red-50 text-red-800 border-red-200 focus:ring-red-500',
+        'Completed': 'bg-green-50 text-green-800',
+        'Scheduled': 'bg-emerald-50 text-emerald-800',
+        'InProgress': 'bg-purple-50 text-purple-800',
+        'Cancelled': 'bg-red-50 text-red-800',
     };
-    const baseClasses = 'w-full text-xs font-medium px-2 py-1 border rounded-lg shadow-md focus:outline-none focus:ring-1 transition-colors cursor-pointer appearance-none';
-    const colorClass = statusConfig[interview.interviewStatus] || 'bg-gray-50 text-gray-800 border-gray-200';
+    const colorClass = statusConfig[interview.interviewStatus] || 'bg-white text-gray-800';
 
     return (
         <select
             value={interview.interviewStatus || ''}
             onChange={(e) => onStatusChange(interview._id, e.target.value)}
             disabled={isUpdating}
-            className={cn(baseClasses, colorClass)}
+            className={cn(
+                'block w-full h-full min-h-[34px] text-xs font-semibold px-3 py-2 border-0 rounded-none focus:outline-none focus:ring-1 focus:ring-inset focus:ring-blue-400 transition-colors cursor-pointer appearance-none',
+                colorClass
+            )}
             onClick={(e) => e.stopPropagation()}
         >
             <option value="" disabled>Select Status</option>
@@ -68,8 +71,7 @@ const EditableRemarksCell = React.memo(({ interview, onSave, isUpdating }) => {
             onBlur={handleBlur}
             disabled={isUpdating}
             placeholder="Add remarks..."
-            // Reduced min-height and padding
-            className="w-full h-full min-h-[28px] bg-transparent text-xs p-1 border-0 focus:ring-1 focus:ring-indigo-500 rounded resize-none focus:bg-white transition-colors"
+            className="block w-full h-full min-h-[34px] bg-transparent text-xs px-3 py-2 border-0 resize-none focus:outline-none focus:ring-1 focus:ring-inset focus:ring-blue-400 focus:bg-white transition-colors"
         />
     );
 });
@@ -125,7 +127,22 @@ const getQualityColor = (value, options) => {
 
 const InterviewerDomainEvaluationPage = () => {
     const { showError, showSuccess } = useAlert();
-    const [selectedDomain, setSelectedDomain] = useState(null);
+    const navigate = useNavigate();
+    const { domainName: domainNameParam } = useParams();
+    const selectedDomain = useMemo(
+        () => (domainNameParam ? { value: decodeURIComponent(domainNameParam), label: decodeURIComponent(domainNameParam) } : null),
+        [domainNameParam]
+    );
+    const setSelectedDomain = useCallback(
+        (val) => {
+            if (val && val.value) {
+                navigate(`/interviewer/domain-evaluation/${encodeURIComponent(val.value)}`);
+            } else {
+                navigate('/interviewer/domain-evaluation');
+            }
+        },
+        [navigate]
+    );
     const [search, setSearch] = useState('');
     const [savingStates, setSavingStates] = useState({});
     const [updatingStatusId, setUpdatingStatusId] = useState(null);
@@ -253,8 +270,7 @@ const InterviewerDomainEvaluationPage = () => {
                     onBlur={(e) => handleSaveEvaluation(interview._id, fieldHeader, e.target.value)}
                     placeholder="Value..."
                     disabled={isLoading}
-                    // Reduced padding for text input
-                    className="w-full h-full bg-transparent p-1 text-xs border-0 focus:ring-1 focus:ring-indigo-500 rounded focus:bg-white transition-colors"
+                    className="block w-full h-full min-h-[34px] bg-transparent px-3 py-2 text-xs border-0 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-blue-400 focus:bg-white transition-colors"
                 />
             );
         }
@@ -266,15 +282,17 @@ const InterviewerDomainEvaluationPage = () => {
             <select
                 value={savedValue || ''}
                 onChange={(e) => handleSaveEvaluation(interview._id, fieldHeader, e.target.value)}
-                // Reduced padding for select
-                className={`w-full h-full p-1 text-xs border-0 focus:ring-1 focus:ring-indigo-500 rounded cursor-pointer transition-colors ${currentStyle}`}
+                className={cn(
+                    'block w-full h-full min-h-[34px] px-3 py-2 text-xs border-0 rounded-none focus:outline-none focus:ring-1 focus:ring-inset focus:ring-blue-400 cursor-pointer transition-colors appearance-none',
+                    currentStyle
+                )}
                 disabled={isLoading}
             >
                 <option value="" className="text-gray-400 bg-white">Select...</option>
                 {column.options.map((opt, i) => (
-                    <option 
-                        key={i} 
-                        value={opt.value} 
+                    <option
+                        key={i}
+                        value={opt.value}
                         className={`py-1 ${getQualityColor(opt.value, column.options)}`}
                     >
                         {opt.label}
@@ -295,8 +313,8 @@ const InterviewerDomainEvaluationPage = () => {
         { key: 'interviewId', title: 'ID', minWidth: '100px' }, 
         { key: 'mobileNumber', title: 'Mobile', minWidth: '120px' }, 
         { key: 'mailId', title: 'Email', minWidth: '200px' }, 
-        { key: 'candidateResume', title: 'Resume', minWidth: '100px', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-medium"><ExternalLink /> Link</a> : '-' },
-        { key: 'meetingLink', title: 'Link', minWidth: '180px', render: (row) => row.meetingLink ? <a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline truncate block max-w-[180px] text-xs" title={row.meetingLink}>{row.meetingLink}</a> : '-' }, 
+        { key: 'candidateResume', title: 'Resume', minWidth: '100px', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"><ExternalLink /> Link</a> : '-' },
+        { key: 'meetingLink', title: 'Link', minWidth: '180px', render: (row) => row.meetingLink ? <a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate block max-w-[180px] text-xs" title={row.meetingLink}>{row.meetingLink}</a> : '-' }, 
         { key: 'interviewDate', title: 'Date', minWidth: '110px', render: (row) => formatDate(row.interviewDate)}, 
         { 
             key: 'interviewTime', 
@@ -305,7 +323,7 @@ const InterviewerDomainEvaluationPage = () => {
             render: (row) => row.interviewTime ? row.interviewTime.split('-').map(t => formatTime(t.trim())).join(' - ') : '-' 
         }, 
         { key: 'interviewDuration', title: 'Duration', minWidth: '100px' },
-        { key: 'interviewStatus', title: 'Status', minWidth: '140px', render: (row) => <EditableStatusCell interview={row} onStatusChange={handleStatusChange} isUpdating={updatingStatusId === row._id} /> },
+        { key: 'interviewStatus', title: 'Status', minWidth: '140px', isCustomCell: true, render: (row) => <EditableStatusCell interview={row} onStatusChange={handleStatusChange} isUpdating={updatingStatusId === row._id} /> },
         { key: 'interviewerRemarks', title: 'Remarks', minWidth: '200px', isCustomCell: true, render: (row) => <EditableRemarksCell interview={row} onSave={handleRemarkSave} isUpdating={savingStates[`${row._id}-interviewerRemarks`]} />},
     ], [updatingStatusId, savingStates, handleStatusChange, handleRemarkSave]);
 
@@ -331,7 +349,7 @@ const InterviewerDomainEvaluationPage = () => {
                     
                     {/* Info Help */}
                     <div className="relative group mr-2">
-                        <Info className="h-5 w-5 text-indigo-500 cursor-help" />
+                        <Info className="h-5 w-5 text-blue-500 cursor-help" />
                         <div className="absolute top-full right-0 mt-2 w-72 bg-gray-900 text-white text-xs rounded-lg shadow-xl p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
                             <p className="font-semibold mb-1">Important:</p>
                             <ul className="list-disc list-inside space-y-1 opacity-90">
@@ -350,13 +368,13 @@ const InterviewerDomainEvaluationPage = () => {
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     placeholder="Search candidate..."
-                                    className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                                    className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
                                 />
                             </div>
 
                             {/* Filter Dropdown - z-50 ensures it's above table headers */}
                             <div className="relative z-50" ref={filterMenuRef}>
-                                <Button variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} className={cn((activeFilters.interviewDate || activeFilters.interviewStatus) && "border-indigo-500 text-indigo-600 bg-indigo-50")}>
+                                <Button variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} className={cn((activeFilters.interviewDate || activeFilters.interviewStatus) && "border-blue-500 text-blue-600 bg-blue-50")}>
                                     <Filter className="h-4 w-4 mr-2" />Filter
                                 </Button>
                                 {isFilterMenuOpen && (
@@ -366,13 +384,13 @@ const InterviewerDomainEvaluationPage = () => {
                                             <div>
                                                 <label className="block text-xs font-medium text-gray-700 mb-1.5">Interview Date</label>
                                                 <div className="relative">
-                                                    <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(p => ({ ...p, interviewDate: date }))} isClearable placeholderText="Select date" className="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500" />
+                                                    <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(p => ({ ...p, interviewDate: date }))} isClearable placeholderText="Select date" className="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-blue-500" portalId="datepicker-portal" popperClassName="!z-[9999]" popperProps={{ strategy: 'fixed' }} />
                                                     <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                                                 </div>
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-medium text-gray-700 mb-1.5">Status</label>
-                                                <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(p => ({ ...p, interviewStatus: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-1 focus:ring-indigo-500">
+                                                <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(p => ({ ...p, interviewStatus: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-1 focus:ring-blue-500">
                                                     <option value="">All Statuses</option>
                                                     {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                                 </select>
@@ -401,7 +419,7 @@ const InterviewerDomainEvaluationPage = () => {
                             <div className="flex h-full items-center justify-center"><Loader size="lg" /></div>
                         ) : (
                             <table className="min-w-full text-sm">
-                                <thead className="bg-gradient-to-r from-indigo-50 to-blue-50 sticky top-0 z-10">
+                                <thead className="bg-blue-50 sticky top-0 z-10">
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Domain</th>
                                         <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Help Doc</th>
@@ -413,16 +431,16 @@ const InterviewerDomainEvaluationPage = () => {
                                 </thead>
                                 <tbody className="divide-y divide-gray-50 bg-white">
                                     {summaryData.map(item => (
-                                        <tr key={item.domainName} className="hover:bg-indigo-50/50 transition-colors group">
+                                        <tr key={item.domainName} className="hover:bg-blue-50/50 transition-colors group">
                                             <td className="px-6 py-4">
-                                                <button onClick={() => setSelectedDomain({ value: item.domainName, label: item.domainName })} className="font-semibold text-gray-900 group-hover:text-indigo-600 flex items-center gap-2">
+                                                <button onClick={() => setSelectedDomain({ value: item.domainName, label: item.domainName })} className="font-semibold text-gray-900 group-hover:text-blue-600 flex items-center gap-2">
                                                     {item.domainName}
                                                     <ArrowLeft className="rotate-180 opacity-0 group-hover:opacity-100 transition-opacity" />
                                                 </button>
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 {item.interviewHelpDoc ? (
-                                                    <a href={item.interviewHelpDoc} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-indigo-600 hover:underline font-medium text-xs">
+                                                    <a href={item.interviewHelpDoc} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline font-medium text-xs">
                                                         View <ExternalLink />
                                                     </a>
                                                 ) : <span className="text-gray-300">-</span>}
@@ -445,12 +463,12 @@ const InterviewerDomainEvaluationPage = () => {
                         ) : (
                             <table className="min-w-full text-sm border-separate border-spacing-0">
                                 {/* Fixed Table Header */}
-                                <thead className="bg-gradient-to-r from-indigo-50 to-blue-50 sticky top-0 z-20">
+                                <thead className="bg-blue-50 sticky top-0 z-20">
                                     <tr>
                                         {staticColumns.map(col => (
                                             <th
                                                 key={col.key}
-                                                className={cn("px-4 py-3 border-b border-r border-gray-200 text-left text-xs font-medium text-gray-600 bg-indigo-50 sticky top-0", col.isSticky ? "z-30" : "z-20")} 
+                                                className={cn("px-4 py-3 border-b border-r border-gray-200 text-left text-xs font-medium text-gray-600 bg-blue-50 sticky top-0", col.isSticky ? "z-30" : "z-20")} 
                                                 style={{ 
                                                     minWidth: col.minWidth, 
                                                     left: col.isSticky ? col.left : 'auto',
@@ -467,7 +485,7 @@ const InterviewerDomainEvaluationPage = () => {
                                                 { bg: 'bg-sky-100', text: 'text-sky-800', border: 'border-sky-200' },
                                                 { bg: 'bg-violet-100', text: 'text-violet-800', border: 'border-violet-200' },
                                                 { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-200' },
-                                                { bg: 'bg-indigo-100', text: 'text-indigo-800', border: 'border-indigo-200' },
+                                                { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200' },
                                                 { bg: 'bg-rose-100', text: 'text-rose-800', border: 'border-rose-200' },
                                                 { bg: 'bg-teal-100', text: 'text-teal-800', border: 'border-teal-200' },
                                                 { bg: 'bg-fuchsia-100', text: 'text-fuchsia-800', border: 'border-fuchsia-200' },
@@ -494,7 +512,7 @@ const InterviewerDomainEvaluationPage = () => {
                                                 { bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-100' },
                                                 { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-100' },
                                                 { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100' },
-                                                { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-100' },
+                                                { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-100' },
                                                 { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-100' },
                                                 { bg: 'bg-teal-50', text: 'text-teal-700', border: 'border-teal-100' },
                                                 { bg: 'bg-fuchsia-50', text: 'text-fuchsia-700', border: 'border-fuchsia-100' },
@@ -515,12 +533,16 @@ const InterviewerDomainEvaluationPage = () => {
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-100">
                                     {evaluationData.interviews.map(interview => (
-                                        <tr key={interview._id} className="hover:bg-gray-50/80 transition-colors">
+                                        <tr key={interview._id} className="hover:bg-gray-50/80 transition-colors h-px">
                                             {staticColumns.map(col => (
                                                 <td
                                                     key={`${col.key}-${interview._id}`}
-                                                    className={cn("px-3 py-1 border-r border-gray-100 text-xs text-gray-700 whitespace-nowrap align-middle", col.isSticky && "sticky z-10 bg-white group-hover:bg-gray-50", col.isCustomCell && "p-1")}
-                                                    style={{ 
+                                                    className={cn(
+                                                        "border-r border-gray-100 text-xs text-gray-700 whitespace-nowrap align-middle h-full",
+                                                        col.isCustomCell ? "p-0" : "px-3 py-1",
+                                                        col.isSticky && "sticky z-10 bg-white group-hover:bg-gray-50"
+                                                    )}
+                                                    style={{
                                                         left: col.isSticky ? col.left : 'auto',
                                                         boxShadow: col.isSticky ? '2px 0 5px -2px rgba(0,0,0,0.05)' : 'none'
                                                     }}
@@ -530,9 +552,9 @@ const InterviewerDomainEvaluationPage = () => {
                                             ))}
                                             {evaluationData.evaluationSheet?.columnGroups.flatMap(group =>
                                                 group.columns.map(col => (
-                                                    <td 
-                                                        key={`${group.title}-${col.header}-${interview._id}`} 
-                                                        className="px-2 py-1 border-r border-gray-100 text-xs text-center align-middle"
+                                                    <td
+                                                        key={`${group.title}-${col.header}-${interview._id}`}
+                                                        className="p-0 border-r border-gray-100 text-xs text-center align-middle h-full"
                                                     >
                                                         {renderCellContent(interview, col, group)}
                                                     </td>

@@ -2,17 +2,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   Edit, Plus, Trash2, ChevronLeft, ChevronRight,
-  Search, ChevronDown, Loader2, Shield, User
+  Search, Shield, User
 } from 'lucide-react';
 import { deleteUser, updateUser } from '../../api/admin.api';
 import { useUsers, useInvalidateAdmin } from '../../hooks/useAdminQueries';
 import { formatDateTime } from '../../utils/formatters';
-import { debounce } from '../../utils/helpers';
 import { useAlert } from '../../hooks/useAlert';
 import UserFormModal from './UserFormModal';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
-import Table from '../../components/common/Table';
-import { Button } from '@/components/ui/button';
 
 const UserManagement = () => {
     const { showSuccess, showError } = useAlert();
@@ -27,9 +24,8 @@ const UserManagement = () => {
     const itemsPerPage = 15;
 
     useEffect(() => {
-        const handler = debounce(() => setDebouncedSearch(search), 300);
-        handler();
-        return () => handler.cancel();
+        const timer = setTimeout(() => setDebouncedSearch(search), 300);
+        return () => clearTimeout(timer);
     }, [search]);
 
     useEffect(() => { setPage(1); }, [debouncedSearch, activeTab, sortConfig]);
@@ -71,155 +67,181 @@ const UserManagement = () => {
         } catch { showError('Failed to delete user.'); }
     };
 
-    const getInitials = (first = '', last = '') => `${first.charAt(0)}${last.charAt(0)}`.toUpperCase();
+    const handleSort = (key) => setSortConfig(p => ({ key, direction: p.key === key && p.direction === 'asc' ? 'desc' : 'asc' }));
 
-    const avatarColors = [
-        'bg-indigo-50 text-indigo-600 border-indigo-100',
-        'bg-purple-50 text-purple-600 border-purple-100',
-        'bg-pink-50 text-pink-600 border-pink-100',
-        'bg-amber-50 text-amber-600 border-amber-100',
-        'bg-sky-50 text-sky-600 border-sky-100',
-        'bg-rose-50 text-rose-600 border-rose-100',
+    const columns = [
+        { key: 'name', title: 'Name', sortable: true, minWidth: '200px' },
+        { key: 'email', title: 'Email', sortable: true, minWidth: '240px' },
+        { key: 'isActive', title: 'Status', sortable: true, minWidth: '110px' },
+        { key: 'lastLogin', title: 'Last Login', sortable: true, minWidth: '180px' },
+        { key: 'createdAt', title: 'Created', sortable: true, minWidth: '160px' },
+        { key: 'actions', title: '', minWidth: '90px' },
     ];
-    const getAvatarColor = (id) => {
-        if (!id) return 'bg-gray-100 text-gray-600 border-gray-200';
-        const hash = id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-        return avatarColors[hash % avatarColors.length];
+
+    const renderCell = (col, row) => {
+        switch (col.key) {
+            case 'name':
+                return <span className="text-[13px] font-medium text-slate-900">{row.firstName} {row.lastName}</span>;
+            case 'email':
+                return <span className="text-[13px] text-slate-500">{row.email}</span>;
+            case 'isActive':
+                return (
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => toggleActiveStatus(row)}
+                            className={`relative w-8 h-[18px] rounded-full transition-colors ${row.isActive ? 'bg-blue-600' : 'bg-slate-200'}`}
+                            title={row.isActive ? 'Active' : 'Inactive'}
+                        >
+                            <span className={`block w-3.5 h-3.5 rounded-full bg-white shadow-sm transform transition-transform mt-[2px] ml-[2px] ${row.isActive ? 'translate-x-[14px]' : 'translate-x-0'}`} />
+                        </button>
+                        <span className={`text-[11px] font-semibold ${row.isActive ? 'text-emerald-600' : 'text-slate-400'}`}>
+                            {row.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
+                );
+            case 'lastLogin':
+                return (
+                    <span className={`text-[12px] ${row.lastLogin ? 'text-slate-500' : 'text-slate-300 italic'}`}>
+                        {row.lastLogin ? formatDateTime(row.lastLogin) : 'Never'}
+                    </span>
+                );
+            case 'createdAt':
+                return <span className="text-[12px] text-slate-500">{formatDateTime(row.createdAt)}</span>;
+            case 'actions':
+                return (
+                    <div className="flex items-center gap-0.5">
+                        <button onClick={() => setModalState({ type: 'edit', data: row })}
+                            className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Edit">
+                            <Edit className="w-3.5 h-3.5" />
+                        </button>
+                        <button onClick={() => setDeleteDialog({ isOpen: true, user: row })}
+                            className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors" title="Delete">
+                            <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                    </div>
+                );
+            default:
+                return null;
+        }
     };
 
-    const columns = useMemo(() => [
-        {
-            key: 'name', title: 'User', minWidth: '240px', sortable: true,
-            render: (row) => (
-                <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-xs border ${getAvatarColor(row._id)}`}>
-                        {getInitials(row.firstName, row.lastName)}
-                    </div>
-                    <div>
-                        <p className="text-sm font-semibold text-gray-900">{row.firstName} {row.lastName}</p>
-                        <p className="text-xs text-gray-400">{row.email}</p>
-                    </div>
-                </div>
-            )
-        },
-        {
-            key: 'isActive', title: 'Status', sortable: true, minWidth: '100px',
-            render: (row) => (
-                <button onClick={() => toggleActiveStatus(row)}
-                    className={`relative w-9 h-5 rounded-full transition-colors ${row.isActive ? 'bg-emerald-500' : 'bg-gray-300'}`}
-                    title={row.isActive ? 'Active' : 'Inactive'}>
-                    <span className={`block w-3.5 h-3.5 rounded-full bg-white shadow transform transition-transform mt-[3px] ml-[3px] ${row.isActive ? 'translate-x-4' : 'translate-x-0'}`} />
-                </button>
-            )
-        },
-        {
-            key: 'lastLogin', title: 'Last Login', sortable: true, minWidth: '180px',
-            render: (row) => (
-                <span className={`text-xs ${row.lastLogin ? 'text-gray-600' : 'text-gray-300 italic'}`}>
-                    {row.lastLogin ? formatDateTime(row.lastLogin) : 'Never logged in'}
-                </span>
-            )
-        },
-        {
-            key: 'createdAt', title: 'Created', sortable: true, minWidth: '150px',
-            render: (row) => <span className="text-xs text-gray-500">{formatDateTime(row.createdAt)}</span>
-        },
-        {
-            key: 'actions', title: '', minWidth: '80px',
-            render: (row) => (
-                <div className="flex items-center gap-0.5">
-                    <Button variant="ghost" size="icon" onClick={() => setModalState({ type: 'edit', data: row })}
-                        className="h-7 w-7 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50" title="Edit">
-                        <Edit className="w-3.5 h-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => setDeleteDialog({ isOpen: true, user: row })}
-                        className="h-7 w-7 text-gray-400 hover:text-red-600 hover:bg-red-50" title="Delete">
-                        <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                </div>
-            ),
-        },
-    ], [toggleActiveStatus]);
-
-    // Count all users per role (approximate from current page data - actual counts come from API)
-    const tabCounts = useMemo(() => {
-        return { admin: activeTab === 'admin' ? pagination.totalItems : '–', interviewer: activeTab === 'interviewer' ? pagination.totalItems : '–' };
-    }, [activeTab, pagination.totalItems]);
-
     return (
-        <div className="flex flex-col h-full bg-gray-50">
+        <div className="flex flex-col h-full bg-white rounded-xl border border-slate-200 overflow-hidden">
 
-            {/* Header */}
-            <div className="bg-white border-b border-gray-200 px-6 py-4 shrink-0 shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                    <div>
-                        <h1 className="text-lg font-semibold text-gray-900">User Management</h1>
-                        <p className="text-xs text-gray-400 mt-0.5">{pagination.totalItems} {activeTab === 'admin' ? 'administrators' : 'interviewers'}</p>
-                    </div>
-                    <Button onClick={() => setModalState({ type: 'add', data: null })} className="gap-2">
-                        <Plus className="w-4 h-4" /> Add User
-                    </Button>
-                </div>
-
-                {/* Tabs + Search */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex bg-gray-100 rounded-lg p-0.5">
-                        <button onClick={() => setActiveTab('admin')}
-                            className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
-                                activeTab === 'admin' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-                            }`}>
-                            <Shield className="w-4 h-4" />
-                            Admins
+            {/* Single header row: tabs + search + add button */}
+            <div className="bg-white border-b border-slate-200 px-5 py-3 shrink-0">
+                <div className="flex items-center gap-3">
+                    {/* Tabs */}
+                    <div className="inline-flex bg-slate-100 rounded-lg p-0.5 shrink-0">
+                        <button
+                            onClick={() => setActiveTab('admin')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold rounded-md transition-all ${
+                                activeTab === 'admin'
+                                    ? 'bg-white text-slate-900 shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-700'
+                            }`}
+                        >
+                            <Shield className="w-3 h-3" /> Admins
                         </button>
-                        <button onClick={() => setActiveTab('interviewer')}
-                            className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
-                                activeTab === 'interviewer' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-                            }`}>
-                            <User className="w-4 h-4" />
-                            Interviewers
+                        <button
+                            onClick={() => setActiveTab('interviewer')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold rounded-md transition-all ${
+                                activeTab === 'interviewer'
+                                    ? 'bg-white text-slate-900 shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-700'
+                            }`}
+                        >
+                            <User className="w-3 h-3" /> Interviewers
                         </button>
                     </div>
 
-                    <div className="relative w-full sm:w-72">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <input type="text" value={search} onChange={e => setSearch(e.target.value)}
-                            placeholder="Search by name or email..."
-                            className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-gray-400 transition-all" />
+                    {/* Spacer */}
+                    <div className="flex-1" />
+
+                    {/* Search — right side */}
+                    <div className="relative w-64 shrink-0">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                        <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or email..."
+                            className="w-full pl-9 pr-3 h-9 bg-slate-50 border border-slate-200 rounded-lg text-[13px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 focus:bg-white transition-colors" />
                     </div>
+
+                    {/* Add button */}
+                    <button onClick={() => setModalState({ type: 'add', data: null })}
+                        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white rounded-md bg-blue-600 hover:bg-blue-700 transition-colors shrink-0">
+                        <Plus className="w-3.5 h-3.5" /> Add User
+                    </button>
                 </div>
             </div>
 
             {/* Table */}
             <div className="flex-1 overflow-hidden flex flex-col">
                 <div className="flex-1 overflow-auto">
-                    <Table
-                        columns={columns}
-                        data={users}
-                        isLoading={loading}
-                        sortConfig={sortConfig}
-                        onSort={(key) => setSortConfig(p => ({ key, direction: p.key === key && p.direction === 'asc' ? 'desc' : 'asc' }))}
-                        emptyMessage={`No ${activeTab === 'admin' ? 'administrators' : 'interviewers'} found.`}
-                    />
+                    <table className="min-w-full">
+                        <thead>
+                            <tr>
+                                {columns.map((col) => (
+                                    <th key={col.key} scope="col"
+                                        className={`sticky top-0 px-5 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] whitespace-nowrap border-b border-slate-100 bg-slate-50/80 backdrop-blur-sm z-10 ${col.sortable ? 'cursor-pointer hover:text-slate-600' : ''}`}
+                                        style={{ minWidth: col.minWidth }}
+                                        onClick={() => col.sortable && handleSort(col.key)}>
+                                        <div className="flex items-center gap-1">
+                                            {col.title}
+                                            {col.sortable && (
+                                                <span className="text-[9px]">
+                                                    {sortConfig.key === col.key ? (sortConfig.direction === 'asc' ? '▲' : '▼') : <span className="text-slate-300">⇅</span>}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-slate-100/80">
+                            {loading ? (
+                                [...Array(6)].map((_, i) => (
+                                    <tr key={i} className="animate-pulse">
+                                        {columns.map((col) => (
+                                            <td key={col.key} className="px-5 py-3"><div className="h-3.5 w-3/4 bg-slate-100 rounded" /></td>
+                                        ))}
+                                    </tr>
+                                ))
+                            ) : users.length === 0 ? (
+                                <tr><td colSpan={columns.length} className="px-6 py-14 text-center text-[13px] text-slate-400">No {activeTab === 'admin' ? 'administrators' : 'interviewers'} found.</td></tr>
+                            ) : (
+                                users.map((row) => (
+                                    <tr key={row._id} className="hover:bg-slate-50/60 transition-colors">
+                                        {columns.map((col) => (
+                                            <td key={col.key} className="px-5 py-2.5 whitespace-nowrap align-middle">
+                                                {renderCell(col, row)}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
                 </div>
 
                 {/* Pagination */}
                 {!loading && pagination.totalItems > 0 && (
-                    <div className="px-6 py-3 border-t border-gray-200 bg-white flex items-center justify-between shrink-0">
-                        <p className="text-xs text-gray-500">
+                    <div className="px-5 py-2.5 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
+                        <p className="text-[11px] text-slate-400">
                             Showing {((pagination.currentPage - 1) * itemsPerPage) + 1}–{Math.min(pagination.currentPage * itemsPerPage, pagination.totalItems)} of {pagination.totalItems}
                         </p>
-                        <div className="flex items-center gap-1.5">
-                            <Button variant="outline" size="icon" onClick={() => setPage(p => p - 1)} disabled={pagination.currentPage === 1}
-                                className="h-8 w-8 disabled:opacity-30">
-                                <ChevronLeft className="w-4 h-4" />
-                            </Button>
-                            <span className="text-xs font-medium text-gray-600 px-2">
-                                Page <b className="text-gray-900">{pagination.currentPage}</b> of {pagination.totalPages}
+                        <div className="flex items-center gap-3">
+                            <span className="text-[11px] text-slate-500">
+                                Page {pagination.currentPage} of {pagination.totalPages}
                             </span>
-                            <Button variant="outline" size="icon" onClick={() => setPage(p => p + 1)} disabled={pagination.currentPage === pagination.totalPages}
-                                className="h-8 w-8 disabled:opacity-30">
-                                <ChevronRight className="w-4 h-4" />
-                            </Button>
+                            <div className="flex items-center gap-1">
+                                <button onClick={() => setPage(p => p - 1)} disabled={pagination.currentPage === 1}
+                                    className="h-7 w-7 rounded-md flex items-center justify-center border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                                    <ChevronLeft className="w-3.5 h-3.5" />
+                                </button>
+                                <button onClick={() => setPage(p => p + 1)} disabled={pagination.currentPage === pagination.totalPages}
+                                    className="h-7 w-7 rounded-md flex items-center justify-center border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                                    <ChevronRight className="w-3.5 h-3.5" />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}

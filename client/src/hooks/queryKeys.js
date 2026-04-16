@@ -38,6 +38,8 @@ export const adminKeys = {
   evaluationParameters: () => [...adminKeys.all, 'evaluation-parameters'],
 
   customEmailTemplates: () => [...adminKeys.all, 'custom-email-templates'],
+  notificationSettings: () => [...adminKeys.all, 'notification-settings'],
+  confirmedSlots: (params) => [...adminKeys.all, 'confirmed-slots', params],
 
   payoutSheet: (params) => [...adminKeys.all, 'payout-sheet', params],
   paymentRequests: (params) => [...adminKeys.all, 'payment-requests', params],
@@ -55,6 +57,7 @@ export const interviewerKeys = {
   evaluationData: (params) => [...interviewerKeys.all, 'evaluation-data', params],
   bookingRequests: () => [...interviewerKeys.all, 'booking-requests'],
   paymentHistory: (params) => [...interviewerKeys.all, 'payment-history', params],
+  notificationPreferences: () => [...interviewerKeys.all, 'notification-preferences'],
 };
 
 export const publicKeys = {

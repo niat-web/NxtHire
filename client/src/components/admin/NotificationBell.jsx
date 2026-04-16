@@ -1,15 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
-import { Bell, CheckCheck, Calendar, UserCheck, Video, Clock } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Bell, CheckCheck, Calendar, UserCheck, Video, Clock, ArrowRight, FileText, ClipboardCheck } from 'lucide-react';
 import { useSocket } from '../../contexts/SocketContext';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 const typeConfig = {
-  interviewer_submitted_slots: { icon: UserCheck, color: 'bg-indigo-50 text-indigo-600' },
-  student_booked_slot:         { icon: Calendar,  color: 'bg-emerald-50 text-emerald-600' },
-  meet_link_generated:         { icon: Video,     color: 'bg-amber-50 text-amber-600' },
-  new_applicant:               { icon: UserCheck,  color: 'bg-sky-50 text-sky-600' },
-  payment_confirmed:           { icon: CheckCheck, color: 'bg-green-50 text-green-600' },
+  interviewer_submitted_slots: { icon: UserCheck,     color: 'bg-blue-50 text-blue-600' },
+  student_booked_slot:         { icon: Calendar,      color: 'bg-emerald-50 text-emerald-600' },
+  meet_link_generated:         { icon: Video,         color: 'bg-amber-50 text-amber-600' },
+  new_applicant:               { icon: UserCheck,     color: 'bg-sky-50 text-sky-600' },
+  payment_confirmed:           { icon: CheckCheck,    color: 'bg-green-50 text-green-600' },
+  skill_assessment_submitted:  { icon: FileText,      color: 'bg-violet-50 text-violet-600' },
+  guidelines_submitted:        { icon: ClipboardCheck, color: 'bg-orange-50 text-orange-600' },
 };
 
 const timeAgo = (date) => {
@@ -60,7 +63,7 @@ const NotificationBell = () => {
               )}
             </div>
             {unreadCount > 0 && (
-              <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs text-indigo-600 hover:text-indigo-800 h-7">
+              <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs text-blue-600 hover:text-blue-800 h-7">
                 <CheckCheck size={13} className="mr-1" /> Mark all read
               </Button>
             )}
@@ -83,7 +86,7 @@ const NotificationBell = () => {
                     onClick={() => { if (!n.isRead) markAsRead(n._id); }}
                     className={cn(
                       'w-full flex items-start gap-3 px-4 py-3 text-left transition-colors border-b border-gray-50 last:border-0',
-                      n.isRead ? 'bg-white hover:bg-gray-50' : 'bg-indigo-50/30 hover:bg-indigo-50/50'
+                      n.isRead ? 'bg-white hover:bg-gray-50' : 'bg-blue-50/30 hover:bg-blue-50/50'
                     )}
                   >
                     <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5', config.color)}>
@@ -94,7 +97,7 @@ const NotificationBell = () => {
                         <p className={cn('text-xs font-semibold truncate', n.isRead ? 'text-gray-700' : 'text-gray-900')}>
                           {n.title}
                         </p>
-                        {!n.isRead && <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full shrink-0" />}
+                        {!n.isRead && <span className="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0" />}
                       </div>
                       <p className="text-[11px] text-gray-500 truncate mt-0.5">{n.message}</p>
                       <p className="text-[10px] text-gray-400 mt-1 flex items-center gap-1">
@@ -106,6 +109,15 @@ const NotificationBell = () => {
               })
             )}
           </div>
+
+          {/* View All link */}
+          <Link
+            to="/admin/notifications-inbox"
+            onClick={() => setOpen(false)}
+            className="flex items-center justify-center gap-1.5 px-4 py-2.5 border-t border-gray-100 text-xs font-semibold text-blue-600 hover:bg-blue-50/50 transition-colors"
+          >
+            View All Notifications <ArrowRight size={13} />
+          </Link>
         </div>
       )}
     </div>

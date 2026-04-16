@@ -1,0 +1,6 @@
+firstName,lastName,email,phoneNumber,domains,temporaryPassword,linkedinProfileUrl
+Arjun,Menon,arjun.menon@techcorp.com,9988776601,"MERN,PYTHON",Welcome@123,https://linkedin.com/in/arjunmenon
+Deepika,Iyer,deepika.iyer@infosys.com,9988776602,"JAVA,DSA",Welcome@123,https://linkedin.com/in/deepikaiyer
+Ravi,Teja,ravi.teja@wipro.com,9988776603,"PYTHON,DA",Welcome@123,https://linkedin.com/in/raviteja
+Kavitha,Nair,kavitha.nair@tcs.com,9988776604,"QA,MERN",Welcome@123,https://linkedin.com/in/kavithanair
+Suresh,Babu,suresh.babu@amazon.com,9988776605,"DSA,JAVA,PYTHON",Welcome@123,https://linkedin.com/in/sureshbabu

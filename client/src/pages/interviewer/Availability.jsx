@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Modal from '@/components/common/Modal';
-import Textarea from '@/components/common/Textarea';
 import { declineBookingRequest } from '@/api/interviewer.api';
 import { useAlert } from '@/hooks/useAlert';
 import {
@@ -25,14 +24,16 @@ const DeclineModal = ({ isOpen, onClose, onSubmit, request }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={`Decline — ${formatDate(request.bookingDate)}`} size="md">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Textarea
-          label="Reason"
-          placeholder="Please provide a reason for not being available..."
-          {...register('remarks', { required: 'A reason is required to decline.' })}
-          error={errors.remarks?.message}
-          rows={3}
-          required
-        />
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Reason<span className="text-red-600 ml-1">*</span></label>
+          <textarea
+            placeholder="Please provide a reason for not being available..."
+            {...register('remarks', { required: 'A reason is required to decline.' })}
+            rows={3}
+            className={`w-full rounded-lg border ${errors.remarks ? 'border-red-300' : 'border-slate-200'} bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 resize-none`}
+          />
+          {errors.remarks && <p className="mt-1 text-sm text-red-600">{errors.remarks.message}</p>}
+        </div>
         <div className="mt-6 flex justify-end gap-3">
           <Button variant="outline" type="button" onClick={onClose} disabled={isSubmitting}>Cancel</Button>
           <Button variant="destructive" type="submit" isLoading={isSubmitting}>Confirm Decline</Button>
@@ -43,9 +44,9 @@ const DeclineModal = ({ isOpen, onClose, onSubmit, request }) => {
 };
 
 // ─── Stat Card ──────────────────────────────────────────────────────────────
-const StatCard = ({ label, value, icon: Icon, color = 'indigo' }) => {
+const StatCard = ({ label, value, icon: Icon, color = 'blue' }) => {
   const palette = {
-    indigo:  'bg-indigo-50 text-indigo-600',
+    blue:    'bg-blue-50 text-blue-600',
     amber:   'bg-amber-50 text-amber-600',
     emerald: 'bg-emerald-50 text-emerald-600',
     red:     'bg-red-50 text-red-600',
@@ -221,7 +222,7 @@ const Availability = () => {
         <div className="p-6 space-y-6">
           {/* Stat cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <StatCard label="Total Requests" value={stats.total} icon={Calendar} color="indigo" />
+            <StatCard label="Total Requests" value={stats.total} icon={Calendar} color="blue" />
             <StatCard label="Pending Action" value={stats.pending} icon={Clock} color="amber" />
             <StatCard label="Slots Submitted" value={stats.submitted} icon={CheckCircle} color="emerald" />
             <StatCard label="Declined" value={stats.declined} icon={XCircle} color="red" />
@@ -262,7 +263,7 @@ const Availability = () => {
                       {/* Date badge */}
                       <div className={cn(
                         'w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 border',
-                        isActionable ? 'bg-indigo-50 text-indigo-600 border-indigo-100' : 'bg-gray-50 text-gray-400 border-gray-200'
+                        isActionable ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-gray-50 text-gray-400 border-gray-200'
                       )}>
                         <span className="text-[10px] font-bold uppercase leading-none">
                           {new Date(req.bookingDate).toLocaleString('default', { month: 'short' })}

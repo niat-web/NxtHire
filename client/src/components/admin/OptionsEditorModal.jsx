@@ -2,8 +2,6 @@
 import React from 'react';
 import { useFieldArray } from 'react-hook-form';
 import Modal from '@/components/common/Modal';
-import Button from '@/components/common/Button';
-import Input from '@/components/common/Input';
 import { Plus, Trash2 } from 'lucide-react';
 
 const OptionsEditorModal = ({ isOpen, onClose, path, control, register }) => {
@@ -26,29 +24,43 @@ const OptionsEditorModal = ({ isOpen, onClose, path, control, register }) => {
                             <input
                                 {...register(`${path}.${index}.label`)}
                                 placeholder="e.g., Confident & Fluent"
-                                className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+                                className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
                             />
                         </div>
                         <div className="col-span-5">
                              <input
                                 {...register(`${path}.${index}.value`)}
                                 placeholder="e.g., 5"
-                                className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+                                className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
                             />
                         </div>
                         <div className="col-span-1">
-                             <Button type="button" variant="outline" className="!p-2" onClick={() => remove(index)}>
-                                <Trash2 className="text-red-500" />
-                            </Button>
+                             <button
+                                type="button"
+                                onClick={() => remove(index)}
+                                className="inline-flex items-center justify-center px-2 h-10 text-sm font-medium rounded-md border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 transition-colors"
+                             >
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                            </button>
                         </div>
                     </div>
                 ))}
-                 <Button type="button" variant="outline" icon={<Plus/>} className="mt-4" onClick={() => append({ label: '', value: '' })}>
+                 <button
+                    type="button"
+                    onClick={() => append({ label: '', value: '' })}
+                    className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 transition-colors mt-4"
+                 >
+                    <Plus className="h-4 w-4 mr-2" />
                     Add Option
-                 </Button>
+                 </button>
             </div>
             <div className="flex justify-end pt-4 mt-4 border-t">
-                 <Button onClick={onClose}>Done</Button>
+                 <button
+                    onClick={onClose}
+                    className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                 >
+                    Done
+                 </button>
             </div>
         </Modal>
     );

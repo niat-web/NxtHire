@@ -47,6 +47,8 @@ import CustomEmailPage from '@/pages/admin/CustomEmailPage';
 import NewInterviewBooking from '@/pages/admin/NewInterviewBooking';
 import AuthorizeStudentsPage from '@/pages/admin/AuthorizeStudentsPage';
 import NotificationsPage from '@/pages/admin/NotificationsPage';
+import NotificationsInboxPage from '@/pages/admin/NotificationsInboxPage';
+import InterviewerDetailPage from '@/pages/admin/InterviewerDetailPage';
 
 // Interviewer Pages
 import InterviewerDashboard from '@/pages/interviewer/Dashboard';
@@ -68,7 +70,7 @@ function App() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
+      <div className="flex items-center justify-center min-h-screen bg-[#f5f7fb]">
         <Loader size="xl" />
       </div>
     );
@@ -119,13 +121,16 @@ function App() {
           <Route path="/admin/main-sheet/add" element={<MainSheetForm />} />     
           <Route path="/admin/main-sheet/edit/:id" element={<MainSheetForm />} />
           <Route path="/admin/interviewers" element={<Interviewers />} />
+          <Route path="/admin/interviewers/:id" element={<InterviewerDetailPage />} />
           <Route path="/admin/user-management" element={<UserManagement />} />
           <Route path="/admin/interview-bookings/:id/tracking" element={<InterviewerBookingTrackingPage />} />
           <Route path="/admin/public-bookings/:id/tracking" element={<EmailTrackingPage />} />
           <Route path="/admin/evaluation-setup" element={<DomainManagement />} />
           <Route path="/admin/domain-evaluation" element={<AdminDomainEvaluationPage />} />
+          <Route path="/admin/domain-evaluation/:domainName" element={<AdminDomainEvaluationPage />} />
           <Route path="/admin/custom-email" element={<CustomEmailPage />} />
           <Route path="/admin/notifications" element={<NotificationsPage />} />
+          <Route path="/admin/notifications-inbox" element={<NotificationsInboxPage />} />
           <Route path="/admin/earnings-report/*" element={<EarningsReportPage />} />
           <Route path="/admin/bookings/new" element={<NewInterviewBooking />} />
           <Route path="/admin/bookings/edit/:id" element={<NewInterviewBooking />} />
@@ -138,6 +143,7 @@ function App() {
           <Route path="/interviewer/dashboard" element={<InterviewerDashboard />} />
           <Route path="/interviewer/interview-evaluation" element={<InterviewEvaluation />} />
           <Route path="/interviewer/domain-evaluation" element={<InterviewerDomainEvaluationPage />} />
+          <Route path="/interviewer/domain-evaluation/:domainName" element={<InterviewerDomainEvaluationPage />} />
           <Route path="/interviewer/settings/*" element={<InterviewerSettingsPage />} />
           <Route path="/interviewer/availability" element={<Availability />} />
           <Route path="/interviewer/provide-availability/:bookingId" element={<ProvideAvailabilityPage />} />

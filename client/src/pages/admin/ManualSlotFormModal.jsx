@@ -134,8 +134,8 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                             </div>
                         </section>
 
-                        <div className="mt-auto p-3 bg-indigo-50 rounded-xl border border-indigo-100">
-                            <p className="text-xs text-indigo-800 font-medium leading-relaxed">
+                        <div className="mt-auto p-3 bg-blue-50 rounded-xl border border-blue-100">
+                            <p className="text-xs text-blue-800 font-medium leading-relaxed">
                                 <strong>Note:</strong> Slots will be added to the interviewer's availability for the selected date.
                             </p>
                         </div>
@@ -145,7 +145,7 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                     <div className="flex-1 flex flex-col h-full bg-white min-w-0">
                         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
                             <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                                <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg"><Clock className="h-4 w-4" /></div>
+                                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><Clock className="h-4 w-4" /></div>
                                 Define Slots
                             </h3>
                             <Button
@@ -153,7 +153,7 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => append({ startTime: '', endTime: '' })}
-                                className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50"
+                                className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
                             >
                                 <Plus className="h-3 w-3 mr-1" /> Add Slot
                             </Button>
@@ -166,7 +166,7 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                                         <div className="relative">
                                             <select 
                                                 {...register(`slots.${index}.startTime`, { required: true })} 
-                                                className="w-full pl-3 pr-8 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium focus:ring-1 focus:ring-indigo-500 focus:bg-white focus:border-indigo-500 transition-colors appearance-none cursor-pointer"
+                                                className="w-full pl-3 pr-8 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium focus:ring-1 focus:ring-blue-500 focus:bg-white focus:border-blue-500 transition-colors appearance-none cursor-pointer"
                                             >
                                                 <option value="">Start Time</option>
                                                 {TIME_SLOTS.map(slot => <option key={slot.value} value={slot.value}>{slot.label}</option>)}
@@ -181,7 +181,7 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                                         <div className="relative">
                                             <select 
                                                 {...register(`slots.${index}.endTime`, { required: true, validate: (value) => validateEndTime(value, index) })} 
-                                                className={cn('w-full pl-3 pr-8 py-2 bg-gray-50 border rounded-lg text-sm font-medium focus:ring-1 focus:bg-white transition-colors appearance-none cursor-pointer', errors.slots?.[index]?.endTime ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-200 focus:border-indigo-500 focus:ring-indigo-500')}
+                                                className={cn('w-full pl-3 pr-8 py-2 bg-gray-50 border rounded-lg text-sm font-medium focus:ring-1 focus:bg-white transition-colors appearance-none cursor-pointer', errors.slots?.[index]?.endTime ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-200 focus:border-blue-500 focus:ring-blue-500')}
                                             >
                                                 <option value="">End Time</option>
                                                 {TIME_SLOTS.map(slot => <option key={slot.value} value={slot.value}>{slot.label}</option>)}

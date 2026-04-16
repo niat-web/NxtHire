@@ -71,8 +71,8 @@ const createPasswordResetToken = async (email) => {
       .update(resetToken)
       .digest('hex');
       
-    // Set expire (10 minutes)
-    user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+    // Set expire (30 minutes)
+    user.passwordResetExpires = Date.now() + 30 * 60 * 1000;
     
     await user.save();
     

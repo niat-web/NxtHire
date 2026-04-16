@@ -1,25 +1,33 @@
 // client/src/components/common/Loader.jsx
 import { cn } from '@/lib/utils';
 
-const dotColors = ['bg-red-500', 'bg-blue-500', 'bg-green-600', 'bg-yellow-400', 'bg-orange-500'];
-
 const Loader = ({ size = 'md', text, fullScreen = false, className }) => {
-  const dotSizes = { sm: 'w-1.5 h-1.5', md: 'w-2.5 h-2.5', lg: 'w-3.5 h-3.5', xl: 'w-5 h-5' };
-  const gapSizes = { sm: 'gap-1', md: 'gap-1.5', lg: 'gap-2', xl: 'gap-3' };
-  const textSizes = { sm: 'text-xs', md: 'text-xs', lg: 'text-sm', xl: 'text-base' };
+  const sizes = {
+    sm: { spinner: 'w-5 h-5', border: 'border-2', text: 'text-xs mt-2' },
+    md: { spinner: 'w-8 h-8', border: 'border-[2.5px]', text: 'text-xs mt-2.5' },
+    lg: { spinner: 'w-10 h-10', border: 'border-[3px]', text: 'text-sm mt-3' },
+    xl: { spinner: 'w-14 h-14', border: 'border-[3px]', text: 'text-sm mt-3.5' },
+  };
+
+  const s = sizes[size] || sizes.md;
 
   const content = (
     <div className={cn('flex flex-col items-center justify-center', className)}>
-      <div className={cn('flex items-center', gapSizes[size])}>
-        {dotColors.map((color, i) => (
-          <div
-            key={i}
-            className={cn('rounded-full dot-bounce', dotSizes[size], color)}
-            style={{ animationDelay: `${i * 0.12}s` }}
-          />
-        ))}
+      <div className="relative">
+        {/* Track ring */}
+        <div className={cn('rounded-full border-slate-200', s.spinner, s.border)} />
+        {/* Spinning arc */}
+        <div
+          className={cn(
+            'absolute inset-0 rounded-full border-transparent border-t-blue-600 border-r-blue-600 animate-spin',
+            s.spinner,
+            s.border
+          )}
+        />
       </div>
-      {text && <p className={cn('mt-3 text-gray-400 font-medium', textSizes[size])}>{text}</p>}
+      {text && (
+        <p className={cn('text-slate-400 font-medium', s.text)}>{text}</p>
+      )}
     </div>
   );
 

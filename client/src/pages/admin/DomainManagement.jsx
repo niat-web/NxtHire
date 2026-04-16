@@ -4,12 +4,17 @@ import DomainsTab from '@/components/admin/DomainsTab';
 import DomainFieldsTab from '@/components/admin/DomainFieldsTab';
 import { useDomains } from '@/hooks/useAdminQueries';
 import { Grid, Settings } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import Loader from '@/components/common/Loader';
+
+const navItems = [
+  { id: 'domains', label: 'Domains', icon: Grid },
+  { id: 'fields', label: 'Domain Fields', icon: Settings },
+];
 
 const DomainManagement = () => {
     const { data: domains = [], isLoading: loading, refetch: fetchDomains } = useDomains();
-    const [activeTab, setActiveTab] = useState('domains'); // 'domains' or 'fields'
+    const [activeTab, setActiveTab] = useState('domains');
     const [selectedDomainForFields, setSelectedDomainForFields] = useState(null);
 
     const handleDomainClick = (domain) => {
@@ -19,45 +24,49 @@ const DomainManagement = () => {
             setActiveTab('fields');
         }
     };
-    
+
     if (loading) {
         return (
-            <div className="flex h-full items-center justify-center bg-gray-50">
+            <div className="flex h-full items-center justify-center bg-[#f5f7fb]">
                 <Loader size="lg" />
             </div>
         );
     }
 
-    const NavBtn = ({ id, label, icon: Icon }) => (
-        <Button
-            onClick={() => setActiveTab(id)}
-            variant={activeTab === id ? 'default' : 'ghost'}
-            className={`flex items-center gap-2 font-medium ${activeTab === id ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'text-gray-600 hover:bg-gray-200'}`}
-        >
-            <Icon className="h-4 w-4" /> {label}
-        </Button>
-    );
-
     return (
-        <div className="h-full w-full flex flex-col bg-gray-50">
-             <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0 flex justify-between items-center z-10 shadow-sm">
-                <h1 className="text-xl font-semibold text-gray-900"></h1>
-                <div className="flex bg-gray-100 p-1 rounded-xl gap-1">
-                    <NavBtn id="domains" label="Domains" icon={Grid} />
-                    <NavBtn id="fields" label="Domain Fields" icon={Settings} />
-                </div>
-             </div>
-             
-             <div className="flex-grow overflow-y-auto custom-scrollbar">
-                <div className="h-full max-w-7xl mx-auto">
+        <div className="flex h-full w-full overflow-hidden">
+            {/* Left sidebar */}
+            <aside className="w-56 shrink-0 bg-[#f0f4fa] border-r border-slate-200/80 flex flex-col">
+                <nav className="flex-1 p-3 space-y-1">
+                    {navItems.map(({ id, label, icon: Icon }) => (
+                        <button
+                            key={id}
+                            onClick={() => setActiveTab(id)}
+                            className={cn(
+                                'group relative flex items-center w-full gap-2.5 px-3 py-2.5 text-[13px] font-medium rounded-lg transition-all duration-200',
+                                activeTab === id
+                                    ? 'bg-white text-blue-700 shadow-sm border border-slate-200/60'
+                                    : 'text-slate-600 hover:bg-white/70 hover:text-slate-900'
+                            )}
+                        >
+                            <Icon className="w-4 h-4" />
+                            <span>{label}</span>
+                        </button>
+                    ))}
+                </nav>
+            </aside>
+
+            {/* Right content */}
+            <main className="flex-1 overflow-y-auto bg-[#f5f7fb] custom-scrollbar">
+                <div className="h-full">
                     {activeTab === 'domains' && (
-                        <DomainsTab domains={domains} onUpdate={fetchDomains} onDomainClick={handleDomainClick} /> 
+                        <DomainsTab domains={domains} onUpdate={fetchDomains} onDomainClick={handleDomainClick} />
                     )}
                     {activeTab === 'fields' && (
                         <DomainFieldsTab domains={domains} selectedDomain={selectedDomainForFields} setSelectedDomain={setSelectedDomainForFields} />
                     )}
                 </div>
-             </div>
+            </main>
         </div>
     );
 };

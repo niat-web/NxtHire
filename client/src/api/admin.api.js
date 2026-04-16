@@ -21,6 +21,12 @@ export const getAllEvaluationParameters = () => {
 
 // --- MODIFICATION START: New API function for Admin Domain Evaluation ---
 export const getEvaluationDataForAdmin = (params) => {
+    // When a domain is selected, use the RESTful path-param URL.
+    // Otherwise fall back to the query-param endpoint (no-op return).
+    if (params && params.domain) {
+        const { domain, ...rest } = params;
+        return api.get(`/api/admin/evaluation-data/domain/${encodeURIComponent(domain)}`, { params: rest });
+    }
     return api.get('/api/admin/evaluation-data', { params });
 };
 // --- MODIFICATION END ---

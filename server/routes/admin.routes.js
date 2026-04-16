@@ -175,6 +175,7 @@ router.route('/domains').get(getDomains).post(createDomain);
 router.route('/domains/:id').put(updateDomain).delete(deleteDomain);
 router.route('/evaluation-sheet/:domainId').get(getEvaluationSheetByDomain).put(updateEvaluationSheet);
 router.get('/evaluation-data', getEvaluationDataForAdmin);
+router.get('/evaluation-data/domain/:domainName', getEvaluationDataForAdmin);
 router.get('/evaluation-parameters/all', getAllEvaluationParameters);
 
 // --- NEW: Route for the domain evaluation summary ---

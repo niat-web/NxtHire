@@ -294,6 +294,16 @@ export const useMonthlyEarnings = (year, month, options) =>
     ...options,
   });
 
+// ─── Notification Settings ─────────────────────────────────────────────────
+export const useNotificationSettings = (options) =>
+  useQuery({
+    queryKey: adminKeys.notificationSettings(),
+    queryFn: () => adminApi.getNotificationSettings(),
+    select,
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+
 // ─── Invalidation helpers ──────────────────────────────────────────────────
 export const useInvalidateAdmin = () => {
   const queryClient = useQueryClient();
@@ -313,5 +323,6 @@ export const useInvalidateAdmin = () => {
     invalidatePayments: () => queryClient.invalidateQueries({ queryKey: [...adminKeys.all, 'payment-requests'] }),
     invalidateGuidelines: () => queryClient.invalidateQueries({ queryKey: [...adminKeys.all, 'guidelines'] }),
     invalidateSkillAssessments: () => queryClient.invalidateQueries({ queryKey: [...adminKeys.all, 'skill-assessments'] }),
+    invalidateNotificationSettings: () => queryClient.invalidateQueries({ queryKey: adminKeys.notificationSettings() }),
   };
 };
