@@ -2454,6 +2454,62 @@ const updatePublicBooking = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Add new interviewer slots to an existing public booking
+// @route   PUT /api/admin/public-bookings/:id/add-slots
+// @access  Private/Admin
+const addSlotsToPublicBooking = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { selectedSlots } = req.body; // same format as createPublicBooking: [{ interviewerId, date, slots: [{ startTime, endTime }] }]
+
+    if (!selectedSlots || selectedSlots.length === 0) {
+        res.status(400);
+        throw new Error('No slots provided.');
+    }
+
+    const publicBooking = await PublicBooking.findById(id);
+    if (!publicBooking) {
+        res.status(404);
+        throw new Error('Public booking not found.');
+    }
+
+    let addedCount = 0;
+
+    for (const newSlot of selectedSlots) {
+        // Check if this interviewer+date combination already exists
+        const existingEntry = publicBooking.interviewerSlots.find(
+            s => s.interviewer.toString() === newSlot.interviewerId &&
+                 new Date(s.date).toDateString() === new Date(newSlot.date).toDateString()
+        );
+
+        if (existingEntry) {
+            // Append only new time slots (avoid duplicates)
+            for (const ts of newSlot.slots) {
+                const isDuplicate = existingEntry.timeSlots.some(
+                    existing => existing.startTime === ts.startTime && existing.endTime === ts.endTime
+                );
+                if (!isDuplicate) {
+                    existingEntry.timeSlots.push({ startTime: ts.startTime, endTime: ts.endTime });
+                    addedCount++;
+                }
+            }
+        } else {
+            // Add new interviewer+date entry
+            publicBooking.interviewerSlots.push({
+                interviewer: newSlot.interviewerId,
+                date: newSlot.date,
+                timeSlots: newSlot.slots.map(ts => ({ startTime: ts.startTime, endTime: ts.endTime }))
+            });
+            addedCount += newSlot.slots.length;
+        }
+    }
+
+    await publicBooking.save();
+
+    logEvent('slots_added_to_public_booking', { publicBookingId: id, addedCount, adminId: req.user._id });
+
+    res.json({ success: true, message: `${addedCount} slot(s) added successfully.`, data: publicBooking });
+});
+
 const sendBookingReminders = asyncHandler(async (req, res) => {
     const { id } = req.params;
     
@@ -2583,30 +2639,30 @@ const updateStudentBooking = asyncHandler(async (req, res) => {
     const updateData = req.body;
     if (!updateData || Object.keys(updateData).length === 0) { res.status(400); throw new Error('Update data is required in the request body.'); }
 
-    if (id.includes('@')) {
-            const studentEmail = id;
-            const updateOperation = { $set: {} };
-            
-            // --- THIS IS THE FIX ---
-            // Build the `$set` object directly with the correct syntax
-            Object.keys(updateData).forEach(key => {
-                updateOperation.$set[`allowedStudents.$[elem].${key}`] = updateData[key];
-            });
-            // --- END OF FIX ---
+    // Handle pending student updates (email passed in body, not URL)
+    if (id === 'pending') {
+        const studentEmail = updateData.studentEmail;
+        if (!studentEmail) { res.status(400); throw new Error('studentEmail is required for pending updates.'); }
+        delete updateData.studentEmail;
 
-            const result = await PublicBooking.findOneAndUpdate(
-                { "allowedStudents.email": studentEmail },
-                updateOperation, // Use the correctly structured update object
-                { 
-                    arrayFilters: [{ "elem.email": studentEmail }], 
-                    new: true,
-                    timestamps: false // <-- THIS IS THE CRUCIAL FIX
-                }
-            );
+        const updateOperation = { $set: {} };
+        Object.keys(updateData).forEach(key => {
+            updateOperation.$set[`allowedStudents.$[elem].${key}`] = updateData[key];
+        });
 
-            if (!result) { res.status(404); throw new Error('Pending student invitation not found.'); }
-            return res.json({ success: true, data: result });
+        if (Object.keys(updateOperation.$set).length === 0) {
+            return res.json({ success: true, message: 'Nothing to update.' });
         }
+
+        const result = await PublicBooking.findOneAndUpdate(
+            { "allowedStudents.email": studentEmail.toLowerCase() },
+            updateOperation,
+            { arrayFilters: [{ "elem.email": studentEmail.toLowerCase() }], new: true, timestamps: false }
+        );
+
+        if (!result) { res.status(404); throw new Error('Pending student invitation not found.'); }
+        return res.json({ success: true, data: result });
+    }
     
     const booking = await StudentBooking.findById(id);
     if (!booking) { res.status(404); throw new Error('Student booking not found.'); }
@@ -3468,6 +3524,7 @@ module.exports = {
     deletePublicBooking,
     manualBookSlot,
     manualAddBookingSlot,
+    addSlotsToPublicBooking,
     getDomainsForHiringName,
     getEvaluationByPublicBooking,
     seedDefaultDomains,

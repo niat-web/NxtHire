@@ -21,16 +21,16 @@ import Loader from '@/components/common/Loader';
 // --- STYLED UI COMPONENTS ---
 
 const SectionCard = ({ title, icon: Icon, children, footer, className = '' }) => (
-    <div className={cn("bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col overflow-hidden", className)}>
+    <div className={cn("bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col overflow-hidden", className)}>
         {title && (
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center bg-gray-50/50">
-                {Icon && <Icon className="h-5 w-5 mr-3 text-gray-500" />}
-                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">{title}</h3>
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center bg-slate-50/50">
+                {Icon && <Icon className="h-5 w-5 mr-3 text-slate-500" />}
+                <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wide">{title}</h3>
             </div>
         )}
         <div className="p-6 flex-grow">{children}</div>
         {footer && (
-            <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-2">
+            <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-2">
                 {footer}
             </div>
         )}
@@ -39,7 +39,7 @@ const SectionCard = ({ title, icon: Icon, children, footer, className = '' }) =>
 
 const InputField = React.forwardRef(({ label, name, error, register, ...props }, ref) => (
     <div className="w-full">
-        <label htmlFor={name} className="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-1.5">{label}</label>
+        <label htmlFor={name} className="block text-xs font-medium text-slate-700 uppercase tracking-wide mb-1.5">{label}</label>
         <input
             id={name}
             {...register}
@@ -48,7 +48,7 @@ const InputField = React.forwardRef(({ label, name, error, register, ...props },
                 "w-full px-3 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-1 transition-colors",
                 error
                     ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                    : "border-gray-200 focus:ring-blue-500 focus:border-blue-500"
+                    : "border-slate-200 focus:ring-blue-500 focus:border-blue-500"
             )}
         />
         {error && <p className="mt-1.5 text-xs text-red-600 font-medium">{error.message}</p>}
@@ -58,7 +58,7 @@ InputField.displayName = 'InputField';
 
 const SelectField = React.forwardRef(({ label, name, error, register, options, ...props }, ref) => (
     <div className="w-full">
-        <label htmlFor={name} className="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-1.5">{label}</label>
+        <label htmlFor={name} className="block text-xs font-medium text-slate-700 uppercase tracking-wide mb-1.5">{label}</label>
         <select
             id={name}
             {...register}
@@ -67,7 +67,7 @@ const SelectField = React.forwardRef(({ label, name, error, register, options, .
                 "w-full px-3 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-1 transition-colors appearance-none",
                 error
                     ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                    : "border-gray-200 focus:ring-blue-500 focus:border-blue-500"
+                    : "border-slate-200 focus:ring-blue-500 focus:border-blue-500"
             )}
         >
             {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
@@ -81,10 +81,10 @@ const PasswordInputField = ({ label, name, error, register }) => {
     const [show, setShow] = useState(false);
     return (
         <div className="w-full">
-            <label htmlFor={name} className="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-1.5">{label}</label>
+            <label htmlFor={name} className="block text-xs font-medium text-slate-700 uppercase tracking-wide mb-1.5">{label}</label>
             <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <KeyRound className="h-5 w-5 text-gray-400" />
+                    <KeyRound className="h-5 w-5 text-slate-400" />
                 </div>
                 <input
                     id={name}
@@ -94,10 +94,10 @@ const PasswordInputField = ({ label, name, error, register }) => {
                         "w-full pl-10 pr-10 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-1 transition-colors",
                         error
                             ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                            : "border-gray-200 focus:ring-blue-500 focus:border-blue-500"
+                            : "border-slate-200 focus:ring-blue-500 focus:border-blue-500"
                     )}
                 />
-                <button type="button" onClick={() => setShow(!show)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors">
+                <button type="button" onClick={() => setShow(!show)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors">
                     {show ? <EyeOff className="h-5 w-5"/> : <Eye className="h-5 w-5"/>}
                 </button>
             </div>
@@ -110,7 +110,7 @@ const PasswordInputField = ({ label, name, error, register }) => {
 const LocalLoader = () => (
     <div className="flex flex-col justify-center items-center py-20 h-full">
         <Loader size="lg" />
-        <span className="text-sm font-medium text-gray-500">Loading Profile...</span>
+        <span className="text-sm font-medium text-slate-500">Loading Profile...</span>
     </div>
 );
 
@@ -136,14 +136,14 @@ const ExperienceModal = ({ isOpen, onClose, onSave, experience, isLoading }) => 
         onSave({ ...data, isPresent, skills: data.skills ? data.skills.split(',').map(s => s.trim()).filter(Boolean) : [] });
     };
 
-    const datePickerClass = "w-full px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-gray-900 transition-colors";
+    const datePickerClass = "w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-gray-900 transition-colors";
 
     return isOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm" onClick={onClose}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={onClose}>
             <div className="relative w-full max-w-2xl bg-white rounded-xl shadow-xl flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
-                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-xl">
-                    <h3 className="text-lg font-semibold text-gray-900">{experience ? 'Edit Experience' : 'Add Experience'}</h3>
-                    <Button variant="ghost" size="icon" onClick={onClose} className="p-2 rounded-lg hover:bg-gray-200 text-gray-500"><X className="h-5 w-5"/></Button>
+                <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-xl">
+                    <h3 className="text-lg font-semibold text-slate-900">{experience ? 'Edit Experience' : 'Add Experience'}</h3>
+                    <Button variant="ghost" size="icon" onClick={onClose} className="p-2 rounded-lg hover:bg-slate-200 text-slate-500"><X className="h-5 w-5"/></Button>
                 </div>
                 <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-grow overflow-hidden">
                     <div className="p-6 space-y-5 overflow-y-auto custom-scrollbar">
@@ -153,22 +153,22 @@ const ExperienceModal = ({ isOpen, onClose, onSave, experience, isLoading }) => 
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
-                                <label className="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-1.5">Start Date</label>
+                                <label className="block text-xs font-medium text-slate-700 uppercase tracking-wide mb-1.5">Start Date</label>
                                 <Controller name="startDate" control={control} rules={{ required: "Required" }} render={({ field }) => <DatePicker {...field} selected={field.value} onChange={date => field.onChange(date)} className={datePickerClass} dateFormat="MM/yyyy" showMonthYearPicker placeholderText="Select Date" />} />
                                 {errors.startDate && <p className="mt-1.5 text-xs text-red-600">{errors.startDate.message}</p>}
                             </div>
                             <div>
-                                <label className="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-1.5">End Date</label>
+                                <label className="block text-xs font-medium text-slate-700 uppercase tracking-wide mb-1.5">End Date</label>
                                 <Controller name="endDate" control={control} render={({ field }) => <DatePicker {...field} selected={field.value} onChange={date => field.onChange(date)} className={datePickerClass} dateFormat="MM/yyyy" showMonthYearPicker disabled={isPresent} placeholderText={isPresent ? "Present" : "Select Date"} />} />
                             </div>
                         </div>
                         <div className="flex items-center">
-                            <input id="isPresent" type="checkbox" checked={isPresent} onChange={(e) => setIsPresent(e.target.checked)} className="h-4 w-4 text-gray-900 rounded border-gray-300 focus:ring-gray-900" />
-                            <label htmlFor="isPresent" className="ml-2 text-sm font-medium text-gray-700">I currently work here</label>
+                            <input id="isPresent" type="checkbox" checked={isPresent} onChange={(e) => setIsPresent(e.target.checked)} className="h-4 w-4 text-slate-900 rounded border-gray-300 focus:ring-gray-900" />
+                            <label htmlFor="isPresent" className="ml-2 text-sm font-medium text-slate-700">I currently work here</label>
                         </div>
                         <InputField label="Skills (comma-separated)" name="skills" register={{...register('skills')}} placeholder="React, Node.js, Python..." />
                     </div>
-                    <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-2 rounded-b-xl">
+                    <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-2 rounded-b-xl">
                         <Button variant="outline" onClick={onClose}>Cancel</Button>
                         <Button type="submit" isLoading={isLoading} variant="default"><Save className="mr-2 h-4 w-4" />Save Experience</Button>
                     </div>
@@ -187,18 +187,18 @@ const SkillModal = ({ isOpen, onClose, onSave, skill, isLoading }) => {
     }, [skill, isOpen, reset]);
 
     return isOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm" onClick={onClose}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={onClose}>
             <div className="relative w-full max-w-md bg-white rounded-xl shadow-xl flex flex-col" onClick={e => e.stopPropagation()}>
-                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-xl">
-                    <h3 className="text-lg font-semibold text-gray-900">{skill ? 'Edit Skill' : 'Add Skill'}</h3>
-                    <Button variant="ghost" size="icon" onClick={onClose} className="p-2 rounded-lg hover:bg-gray-200 text-gray-500"><X className="h-5 w-5"/></Button>
+                <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-xl">
+                    <h3 className="text-lg font-semibold text-slate-900">{skill ? 'Edit Skill' : 'Add Skill'}</h3>
+                    <Button variant="ghost" size="icon" onClick={onClose} className="p-2 rounded-lg hover:bg-slate-200 text-slate-500"><X className="h-5 w-5"/></Button>
                 </div>
                 <form onSubmit={handleSubmit(onSave)} className="flex flex-col">
                     <div className="p-6 space-y-5">
                         <InputField label="Skill Name" name="skill" register={{...register('skill', { required: 'Required' })}} error={errors.skill} placeholder="e.g. React Native" />
                         <SelectField label="Proficiency Level" name="proficiencyLevel" register={{...register('proficiencyLevel', { required: 'Required' })}} options={levels} error={errors.proficiencyLevel} />
                     </div>
-                    <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-2 rounded-b-xl">
+                    <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-2 rounded-b-xl">
                         <Button variant="outline" onClick={onClose}>Cancel</Button>
                         <Button type="submit" isLoading={isLoading} variant="default"><Save className="mr-2 h-4 w-4" />Save Skill</Button>
                     </div>
@@ -209,16 +209,16 @@ const SkillModal = ({ isOpen, onClose, onSave, skill, isLoading }) => {
 };
 
 const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, itemType, isLoading }) => isOpen ? (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={onClose}>
         <div className="relative w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="p-6 flex flex-col items-center text-center">
                 <div className="h-12 w-12 rounded-full bg-red-50 flex items-center justify-center mb-4 border border-red-100">
                     <AlertTriangle className="h-6 w-6 text-red-600"/>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">Delete {itemType}</h3>
-                <p className="mt-2 text-sm text-gray-500">Are you sure you want to delete this {itemType.toLowerCase()}? This action cannot be undone.</p>
+                <h3 className="text-lg font-semibold text-slate-900">Delete {itemType}</h3>
+                <p className="mt-2 text-sm text-slate-500">Are you sure you want to delete this {itemType.toLowerCase()}? This action cannot be undone.</p>
             </div>
-            <div className="bg-gray-50 px-6 py-4 flex justify-center gap-3 border-t border-gray-100">
+            <div className="bg-slate-50 px-6 py-4 flex justify-center gap-3 border-t border-slate-100">
                 <Button variant="outline" onClick={onClose}>Cancel</Button>
                 <Button variant="destructive" onClick={onConfirm} isLoading={isLoading} className="bg-white text-red-600 border border-red-200 hover:bg-red-50">Delete</Button>
             </div>
@@ -378,42 +378,42 @@ const Profile = () => {
   );
 
   return (
-    <div className="flex h-full bg-gray-50 overflow-hidden">
+    <div className="flex h-full bg-[#f5f7fb] overflow-hidden">
 
         {/* ─── LEFT: Profile Sidebar ─────────────────────────────────── */}
-        <div className="w-72 shrink-0 bg-white border-r border-gray-200 flex flex-col overflow-y-auto hidden lg:flex">
+        <div className="w-72 shrink-0 bg-[#f0f4fa] border-r border-slate-200/80 flex flex-col overflow-y-auto hidden lg:flex">
             {/* Avatar & Info */}
-            <div className="p-6 text-center border-b border-gray-100">
+            <div className="p-6 text-center border-b border-slate-100">
                 <div className="relative inline-block">
-                    <div className="h-20 w-20 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-semibold mx-auto shadow-lg">
+                    <div className="h-20 w-20 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-semibold mx-auto shadow-sm">
                         {currentUser?.firstName?.charAt(0)}
                     </div>
                     <span className={`absolute bottom-1 right-1 w-4 h-4 ${statusColor} rounded-full border-2 border-white`} title={profile?.status} />
                 </div>
-                <h2 className="text-base font-semibold text-gray-900 mt-3">{currentUser?.firstName} {currentUser?.lastName}</h2>
-                <p className="text-xs text-gray-500 mt-0.5">{profile?.jobTitle || 'No Title'} at {profile?.currentEmployer || '—'}</p>
+                <h2 className="text-base font-semibold text-slate-900 mt-3">{currentUser?.firstName} {currentUser?.lastName}</h2>
+                <p className="text-xs text-slate-500 mt-0.5">{profile?.jobTitle || 'No Title'} at {profile?.currentEmployer || '—'}</p>
                 <Badge variant={profile?.status === 'Active' ? 'success' : 'warning'} className="mt-2 text-xs font-medium uppercase tracking-wide">
                     {profile?.status}
                 </Badge>
             </div>
 
             {/* Quick Info */}
-            <div className="px-5 py-4 space-y-3 border-b border-gray-100">
+            <div className="px-5 py-4 space-y-3 border-b border-slate-100">
                 <div className="flex items-center gap-3 text-sm">
-                    <Mail className="w-4 h-4 text-gray-400 shrink-0" />
-                    <span className="text-gray-600 truncate text-xs">{currentUser?.email}</span>
+                    <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                    <span className="text-slate-600 truncate text-xs">{currentUser?.email}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                    <Phone className="w-4 h-4 text-gray-400 shrink-0" />
-                    <span className="text-gray-600 text-xs">{currentUser?.phoneNumber || '—'}</span>
+                    <Phone className="w-4 h-4 text-slate-400 shrink-0" />
+                    <span className="text-slate-600 text-xs">{currentUser?.phoneNumber || '—'}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                    <Briefcase className="w-4 h-4 text-gray-400 shrink-0" />
-                    <span className="text-gray-600 text-xs">{profile?.yearsOfExperience || 0} years experience</span>
+                    <Briefcase className="w-4 h-4 text-slate-400 shrink-0" />
+                    <span className="text-slate-600 text-xs">{profile?.yearsOfExperience || 0} years experience</span>
                 </div>
                 {profile?.domains?.length > 0 && (
                     <div className="flex items-start gap-3 text-sm">
-                        <MapPin className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
+                        <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                         <div className="flex flex-wrap gap-1">
                             {profile.domains.map((d, i) => (
                                 <Badge key={i} variant="gray" className="text-xs">{d}</Badge>
@@ -432,10 +432,10 @@ const Profile = () => {
                             className={cn(
                                 "flex items-center gap-2.5 w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-colors",
                                 activeTab === tab.id
-                                    ? "bg-blue-600 text-white"
-                                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                    ? "bg-white text-blue-700 shadow-sm border border-slate-200/60"
+                                    : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
                             )}>
-                            <Icon className={cn("w-4 h-4", activeTab === tab.id ? "text-white" : "text-gray-400")} />
+                            <Icon className={cn("w-4 h-4", activeTab === tab.id ? "text-white" : "text-slate-400")} />
                             {tab.label}
                         </button>
                     );
@@ -444,12 +444,12 @@ const Profile = () => {
 
             {/* Profile Completeness */}
             {profile?.profileCompleteness !== undefined && (
-                <div className="p-4 border-t border-gray-100">
+                <div className="p-4 border-t border-slate-100">
                     <div className="flex justify-between items-center mb-1.5">
-                        <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Profile</span>
-                        <span className="text-xs font-medium text-gray-600">{Math.round(profile.profileCompleteness)}%</span>
+                        <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">Profile</span>
+                        <span className="text-xs font-medium text-slate-600">{Math.round(profile.profileCompleteness)}%</span>
                     </div>
-                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
                         <div className={cn("h-full rounded-full transition-all", profile.profileCompleteness === 100 ? "bg-emerald-500" : "bg-blue-500")}
                             style={{ width: `${profile.profileCompleteness}%` }} />
                     </div>
@@ -460,14 +460,14 @@ const Profile = () => {
         {/* ─── RIGHT: Tab Content ────────────────────────────────────── */}
         <div className="flex-1 overflow-y-auto">
             {/* Mobile header (visible only on sm) */}
-            <div className="lg:hidden bg-white border-b border-gray-200 p-4">
+            <div className="lg:hidden bg-white border-b border-slate-200 p-4">
                 <div className="flex items-center gap-3 mb-4">
                     <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center text-white text-lg font-semibold">
                         {currentUser?.firstName?.charAt(0)}
                     </div>
                     <div>
-                        <h2 className="text-base font-semibold text-gray-900">{currentUser?.firstName} {currentUser?.lastName}</h2>
-                        <p className="text-xs text-gray-500">{profile?.jobTitle} at {profile?.currentEmployer}</p>
+                        <h2 className="text-base font-semibold text-slate-900">{currentUser?.firstName} {currentUser?.lastName}</h2>
+                        <p className="text-xs text-slate-500">{profile?.jobTitle} at {profile?.currentEmployer}</p>
                     </div>
                 </div>
                 <div className="flex gap-1 overflow-x-auto no-scrollbar">
@@ -475,7 +475,7 @@ const Profile = () => {
                         <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                             className={cn(
                                 "px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors",
-                                activeTab === tab.id ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600"
+                                activeTab === tab.id ? "bg-white text-blue-700 shadow-sm border border-slate-200" : "bg-slate-100 text-slate-600"
                             )}>
                             {tab.label}
                         </button>
@@ -490,8 +490,8 @@ const Profile = () => {
                 {activeTab === 'Experience' && (
                     <div className="space-y-6">
                         <div className="flex justify-between items-center">
-                             <h2 className="text-lg font-semibold text-gray-900">Work Experience</h2>
-                             <Button variant="secondary" onClick={() => { setEditingExperience(null); setIsExperienceModalOpen(true); }} className="bg-amber-400 text-gray-900 hover:bg-amber-500 border border-amber-400"><Plus className="mr-2 h-4 w-4" />Add Experience</Button>
+                             <h2 className="text-lg font-semibold text-slate-900">Work Experience</h2>
+                             <Button variant="secondary" onClick={() => { setEditingExperience(null); setIsExperienceModalOpen(true); }} className="bg-amber-400 text-slate-900 hover:bg-amber-500 border border-amber-400"><Plus className="mr-2 h-4 w-4" />Add Experience</Button>
                         </div>
                         
                         {/* Current Role Card */}
@@ -499,8 +499,8 @@ const Profile = () => {
                              <div className="bg-emerald-50 rounded-xl p-6 border border-emerald-100 flex justify-between items-center">
                                 <div>
                                     <h3 className="text-sm font-medium text-emerald-900 uppercase tracking-wide mb-1">Current Role</h3>
-                                    <div className="text-lg font-semibold text-gray-900">{profile.jobTitle}</div>
-                                    <div className="text-gray-600 font-medium">{profile.currentEmployer} • {profile.yearsOfExperience} Years Exp.</div>
+                                    <div className="text-lg font-semibold text-slate-900">{profile.jobTitle}</div>
+                                    <div className="text-slate-600 font-medium">{profile.currentEmployer} • {profile.yearsOfExperience} Years Exp.</div>
                                 </div>
                                 <div className="p-3 bg-emerald-100 rounded-full text-emerald-600">
                                     <Briefcase className="h-6 w-6" />
@@ -511,23 +511,23 @@ const Profile = () => {
                         {profile?.experiences?.length === 0 ? (
                             <div className="text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
                                 <Briefcase className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-                                <p className="text-gray-500">No past experience added yet.</p>
+                                <p className="text-slate-500">No past experience added yet.</p>
                             </div>
                         ) : (
                             <div className="space-y-4">
                                 {profile?.experiences?.map(exp => (
-                                    <div key={exp._id} className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                                    <div key={exp._id} className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
                                         <div className="flex justify-between items-start mb-2">
                                             <div>
-                                                <h3 className="text-lg font-semibold text-gray-900">{exp.title}</h3>
-                                                <p className="text-gray-600 font-medium">{exp.company}</p>
+                                                <h3 className="text-lg font-semibold text-slate-900">{exp.title}</h3>
+                                                <p className="text-slate-600 font-medium">{exp.company}</p>
                                             </div>
                                             <div className="flex gap-2">
-                                                <Button variant="ghost" size="icon" onClick={() => { setEditingExperience(exp); setIsExperienceModalOpen(true); }} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><Edit className="h-4 w-4"/></Button>
-                                                <Button variant="ghost" size="icon" onClick={() => handleDeleteRequest(exp, 'Experience')} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><Trash2 className="h-4 w-4"/></Button>
+                                                <Button variant="ghost" size="icon" onClick={() => { setEditingExperience(exp); setIsExperienceModalOpen(true); }} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><Edit className="h-4 w-4"/></Button>
+                                                <Button variant="ghost" size="icon" onClick={() => handleDeleteRequest(exp, 'Experience')} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><Trash2 className="h-4 w-4"/></Button>
                                             </div>
                                         </div>
-                                        <p className="text-sm text-gray-500 flex items-center mb-4">
+                                        <p className="text-sm text-slate-500 flex items-center mb-4">
                                             <Calendar className="mr-2 h-4 w-4" />
                                             {formatDate(exp.startDate)} - {exp.isPresent ? <span className="text-green-600 font-semibold ml-1">Present</span> : (exp.endDate ? formatDate(exp.endDate) : 'N/A')}
                                         </p>
@@ -547,20 +547,20 @@ const Profile = () => {
                 {activeTab === 'Skills' && (
                     <div className="space-y-6">
                         <div className="flex justify-between items-center">
-                            <h2 className="text-lg font-semibold text-gray-900">Technical Skills</h2>
-                            <Button variant="secondary" onClick={() => { setEditingSkill(null); setIsSkillModalOpen(true); }} className="bg-amber-400 text-gray-900 hover:bg-amber-500 border border-amber-400"><Plus className="mr-2 h-4 w-4" />Add Skill</Button>
+                            <h2 className="text-lg font-semibold text-slate-900">Technical Skills</h2>
+                            <Button variant="secondary" onClick={() => { setEditingSkill(null); setIsSkillModalOpen(true); }} className="bg-amber-400 text-slate-900 hover:bg-amber-500 border border-amber-400"><Plus className="mr-2 h-4 w-4" />Add Skill</Button>
                         </div>
                         {profile?.skills?.length === 0 ? (
                             <div className="text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
                                 <Layers className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-                                <p className="text-gray-500">No skills added yet.</p>
+                                <p className="text-slate-500">No skills added yet.</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {profile?.skills?.map(skill => (
-                                    <div key={skill._id} className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex justify-between items-center group hover:border-gray-300 transition-colors">
+                                    <div key={skill._id} className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center group hover:border-gray-300 transition-colors">
                                         <div>
-                                            <h4 className="font-semibold text-gray-900">{skill.skill}</h4>
+                                            <h4 className="font-semibold text-slate-900">{skill.skill}</h4>
                                             <Badge
                                                 variant={
                                                     skill.proficiencyLevel === 'Expert' ? 'purple' :
@@ -573,8 +573,8 @@ const Profile = () => {
                                             </Badge>
                                         </div>
                                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Button variant="ghost" size="icon" onClick={() => { setEditingSkill(skill); setIsSkillModalOpen(true); }} className="p-1.5 text-gray-400 hover:text-blue-600 rounded-lg"><Edit /></Button>
-                                            <Button variant="ghost" size="icon" onClick={() => handleDeleteRequest(skill, 'Skill')} className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg"><Trash2 /></Button>
+                                            <Button variant="ghost" size="icon" onClick={() => { setEditingSkill(skill); setIsSkillModalOpen(true); }} className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg"><Edit /></Button>
+                                            <Button variant="ghost" size="icon" onClick={() => handleDeleteRequest(skill, 'Skill')} className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg"><Trash2 /></Button>
                                         </div>
                                     </div>
                                 ))}
@@ -593,8 +593,8 @@ const Profile = () => {
                                     <InputField label="Last Name" name="lastName" register={{...registerBasic('lastName', { required: 'Required' })}} error={errorsBasic.lastName} />
                                     <InputField label="Phone Number" name="phoneNumber" register={{...registerBasic('phoneNumber', { required: 'Required' })}} error={errorsBasic.phoneNumber} />
                                     <InputField label="WhatsApp Number" name="whatsappNumber" register={{...registerBasic('whatsappNumber')}} error={errorsBasic.whatsappNumber} />
-                                    <div className="md:col-span-2 pt-4 mt-2 border-t border-gray-100">
-                                        <h4 className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-4">Professional Overview</h4>
+                                    <div className="md:col-span-2 pt-4 mt-2 border-t border-slate-100">
+                                        <h4 className="text-xs font-medium text-slate-400 uppercase tracking-wide mb-4">Professional Overview</h4>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <InputField label="Current Employer" name="currentEmployer" register={{...registerBasic('currentEmployer', { required: 'Required' })}} error={errorsBasic.currentEmployer}/>
                                             <InputField label="Job Title" name="jobTitle" register={{...registerBasic('jobTitle', { required: 'Required' })}} error={errorsBasic.jobTitle} />

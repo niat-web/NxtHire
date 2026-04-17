@@ -64,6 +64,7 @@ const {
   deletePublicBooking,
   manualBookSlot,
   manualAddBookingSlot,
+  addSlotsToPublicBooking,
   getDomainsForHiringName,
   getEvaluationByPublicBooking,
   seedDefaultDomains,
@@ -181,6 +182,7 @@ router.route('/public-bookings').get(getPublicBookings).post(createPublicBooking
 router.route('/public-bookings/:id').get(getPublicBookingDetails).put(updatePublicBooking).delete(deletePublicBooking);
 router.post('/student-bookings/:id/manual-book', manualBookSlot);
 router.post('/public-bookings/:id/reminders', sendBookingReminders);
+router.put('/public-bookings/:id/add-slots', addSlotsToPublicBooking);
 router.get('/student-bookings/pipeline', getStudentPipeline);
 router.put('/student-bookings/:id', updateStudentBooking);
 router.get('/student-bookings/host-emails', getUniqueHostEmails);

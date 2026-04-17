@@ -115,8 +115,12 @@ const EditableHostEmail = ({ booking, hostEmails, onSave }) => {
         if (newEmail === (booking.hostEmail || '')) return;
         setIsLoading(true);
         try {
-            const id = booking.isPending ? booking.studentEmail : booking._id;
-            await updateStudentBooking(id, { hostEmail: newEmail });
+            if (booking.isPending) {
+                // For pending students, send email in body with a special flag
+                await updateStudentBooking('pending', { studentEmail: booking.studentEmail, hostEmail: newEmail });
+            } else {
+                await updateStudentBooking(booking._id, { hostEmail: newEmail });
+            }
             onSave(booking._id, 'hostEmail', newEmail);
             showSuccess("Host email updated.");
         } catch (err) {
@@ -137,8 +141,15 @@ const EditableInputCell = ({ booking, fieldKey, value, onSave, placeholder = "Ed
         if (currentValue.trim() === originalValue.trim()) return;
         setIsLoading(true);
         try {
-            const id = booking.isPending ? booking.studentEmail : booking._id;
-            await updateStudentBooking(id, { [fieldKey]: currentValue.trim() });
+            let id, payload;
+            if (booking.isPending) {
+                id = 'pending';
+                payload = { studentEmail: booking.studentEmail, [fieldKey]: currentValue.trim() };
+            } else {
+                id = booking._id;
+                payload = { [fieldKey]: currentValue.trim() };
+            }
+            await updateStudentBooking(id, payload);
             onSave(booking._id, fieldKey, currentValue.trim());
             showSuccess("Field updated successfully.");
         } catch (err) {
@@ -355,17 +366,8 @@ const ConfirmedSlotsView = () => {
     const domainOptions = useMemo(() => [{ value: '', label: 'All Domains' }, ...domainsList.map(domain => ({ value: domain.name, label: domain.name }))], [domainsList]);
     
     const handleCellSave = (id, fieldKey, newValue) => {
-        setStudentBookings(prev =>
-            prev.map(booking => {
-                if (booking._id === id) {
-                    return { ...booking, [fieldKey]: newValue };
-                }
-                return booking;
-            })
-        );
-        if (fieldKey === 'hostEmail' && newValue && !hostEmails.includes(newValue)) {
-            setHostEmails(prev => [...prev, newValue].sort());
-        }
+        // Data comes from TanStack Query — invalidate to refetch instead of local state update
+        invalidateStudentPipeline();
     };
     
     const confirmedColumns = useMemo(() => [

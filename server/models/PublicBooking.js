@@ -12,8 +12,9 @@ const AllowedStudentSchema = new mongoose.Schema({
     email: { type: String, required: true, trim: true, lowercase: true },
     // --- MODIFICATION START ---
     mobileNumber: { type: String, trim: true },
-    resumeLink: { type: String, trim: true }
-    // --- MODIFICATION END ---
+    resumeLink: { type: String, trim: true },
+    hostEmail: { type: String, trim: true },
+    eventTitle: { type: String, trim: true }
 }, { _id: false });
 
 

@@ -185,6 +185,7 @@ const getEvaluationDataForInterviewer = asyncHandler(async (req, res) => {
     const query = {
         interviewer: interviewer._id,
         techStack: domain,
+        meetingLink: { $exists: true, $nin: ['', null] }, // Only show interviews with meet link
     };
 
     if (interviewStatus) {
@@ -269,7 +270,11 @@ const getAssignedInterviews = asyncHandler(async (req, res) => {
     throw new Error('Interviewer profile not found for the logged-in user.');
   }
 
-  const assignedEntries = await MainSheetEntry.find({ interviewer: interviewer._id })
+  // Only show interviews that have a meet link generated
+  const assignedEntries = await MainSheetEntry.find({
+      interviewer: interviewer._id,
+      meetingLink: { $exists: true, $nin: ['', null] }
+    })
     .select(
       'techStack interviewId uid candidateName mobileNumber mailId meetingLink interviewDate interviewTime interviewDuration interviewStatus'
     )
@@ -360,14 +365,18 @@ const getMetrics = asyncHandler(async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    // Only count/show interviews that have a meet link generated
+    const hasMeetLink = { meetingLink: { $exists: true, $nin: ['', null] } };
+
     const [scheduledCount, completedCount, cancelledCount, upcomingInterviews] = await Promise.all([
-        MainSheetEntry.countDocuments({ interviewer: interviewer._id, interviewStatus: 'Scheduled' }),
-        MainSheetEntry.countDocuments({ interviewer: interviewer._id, interviewStatus: 'Completed' }),
-        MainSheetEntry.countDocuments({ interviewer: interviewer._id, interviewStatus: 'Cancelled' }),
-        MainSheetEntry.find({ 
-            interviewer: interviewer._id, 
+        MainSheetEntry.countDocuments({ interviewer: interviewer._id, interviewStatus: 'Scheduled', ...hasMeetLink }),
+        MainSheetEntry.countDocuments({ interviewer: interviewer._id, interviewStatus: 'Completed', ...hasMeetLink }),
+        MainSheetEntry.countDocuments({ interviewer: interviewer._id, interviewStatus: 'Cancelled', ...hasMeetLink }),
+        MainSheetEntry.find({
+            interviewer: interviewer._id,
             interviewStatus: 'Scheduled',
-            interviewDate: { $gte: today } // Only today and future dates
+            interviewDate: { $gte: today },
+            ...hasMeetLink
         }).sort({ interviewDate: 1, interviewTime: 1 }).limit(5)
     ]);
     

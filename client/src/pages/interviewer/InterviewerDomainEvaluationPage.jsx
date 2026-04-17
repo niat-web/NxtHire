@@ -32,6 +32,7 @@ import { format } from 'date-fns';
 
 
 const EditableStatusCell = React.memo(({ interview, onStatusChange, isUpdating }) => {
+    const MAIN_SHEET_INTERVIEW_STATUSES = useInterviewStatuses();
     const statusConfig = {
         'Completed': 'bg-green-50 text-green-800',
         'Scheduled': 'bg-emerald-50 text-emerald-800',

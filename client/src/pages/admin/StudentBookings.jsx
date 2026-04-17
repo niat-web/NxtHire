@@ -3,15 +3,142 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Eye, Link2, Users, Clipboard, Search, ChevronDown, ChevronRight,
-    Plus, CheckCircle, Clock, Trash2, User, ExternalLink, BarChart3
+    Plus, CheckCircle, Clock, Trash2, User, ExternalLink, BarChart3, X, Check, Loader2, CalendarPlus
 } from 'lucide-react';
-import { deletePublicBookingLink } from '@/api/admin.api';
-import { usePublicBookings, useInvalidateAdmin } from '@/hooks/useAdminQueries';
+import { deletePublicBookingLink, addSlotsToPublicBooking } from '@/api/admin.api';
+import { usePublicBookings, useBookingSlots, useInvalidateAdmin } from '@/hooks/useAdminQueries';
 import { useAlert } from '@/hooks/useAlert';
-import { formatDateTime } from '@/utils/formatters';
+import { formatDateTime, formatDate, formatTime } from '@/utils/formatters';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import Loader from '@/components/common/Loader';
 import { cn } from '@/lib/utils';
+
+// ── Add Slots Modal ──
+const AddSlotsModal = ({ isOpen, onClose, publicBookingId, onSuccess }) => {
+    const { showSuccess, showError } = useAlert();
+    const { data: slots = [], isLoading } = useBookingSlots({});
+    const [selectedSlots, setSelectedSlots] = useState({});
+    const [saving, setSaving] = useState(false);
+
+    const handleSlotToggle = (row, slot) => {
+        setSelectedSlots(prev => {
+            const next = { ...prev };
+            const entry = next[row.submissionId];
+            if (!entry) {
+                next[row.submissionId] = { interviewerId: row.interviewerId, date: row.interviewDate, slots: [{ startTime: slot.startTime, endTime: slot.endTime }] };
+            } else {
+                const idx = entry.slots.findIndex(s => s.startTime === slot.startTime && s.endTime === slot.endTime);
+                if (idx > -1) {
+                    const newSlots = entry.slots.filter((_, i) => i !== idx);
+                    if (!newSlots.length) delete next[row.submissionId];
+                    else next[row.submissionId] = { ...entry, slots: newSlots };
+                } else {
+                    next[row.submissionId] = { ...entry, slots: [...entry.slots, { startTime: slot.startTime, endTime: slot.endTime }] };
+                }
+            }
+            return next;
+        });
+    };
+
+    const selectedCount = Object.values(selectedSlots).reduce((c, item) => c + item.slots.length, 0);
+
+    const handleSave = async () => {
+        if (selectedCount === 0) return;
+        setSaving(true);
+        try {
+            await addSlotsToPublicBooking(publicBookingId, { selectedSlots: Object.values(selectedSlots) });
+            showSuccess(`${selectedCount} slot(s) added!`);
+            setSelectedSlots({});
+            onSuccess();
+            onClose();
+        } catch (err) {
+            showError(err.response?.data?.message || 'Failed to add slots.');
+        } finally { setSaving(false); }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
+            <div className="w-full max-w-2xl bg-white rounded-xl shadow-xl border border-slate-200 flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
+                {/* Header */}
+                <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200 shrink-0">
+                    <div>
+                        <h2 className="text-sm font-semibold text-slate-900">Add Slots to Public Link</h2>
+                        <p className="text-[11px] text-slate-400">Select available slots to add</p>
+                    </div>
+                    <button onClick={onClose} className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+                        <X size={16} />
+                    </button>
+                </div>
+
+                {/* Slots list */}
+                <div className="flex-1 overflow-y-auto">
+                    {isLoading ? (
+                        <div className="flex items-center justify-center h-40"><Loader size="md" /></div>
+                    ) : slots.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-40 text-slate-400">
+                            <p className="text-sm font-medium text-slate-500">No available slots</p>
+                            <p className="text-[11px] mt-0.5">Create booking requests first to get interviewer slots</p>
+                        </div>
+                    ) : (
+                        <table className="min-w-full">
+                            <thead>
+                                <tr>
+                                    <th className="sticky top-0 px-4 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Interviewer</th>
+                                    <th className="sticky top-0 px-4 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10 w-28">Date</th>
+                                    <th className="sticky top-0 px-4 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Time Slots</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {slots.map(row => {
+                                    const entry = selectedSlots[row.submissionId];
+                                    return (
+                                        <tr key={row.submissionId} className="hover:bg-slate-50/60 transition-colors">
+                                            <td className="px-4 py-2.5">
+                                                <p className="text-[12px] font-medium text-slate-900">{row.fullName}</p>
+                                                <p className="text-[10px] text-slate-400">{row.email}</p>
+                                            </td>
+                                            <td className="px-4 py-2.5 text-[12px] text-slate-600">{formatDate(row.interviewDate)}</td>
+                                            <td className="px-4 py-2.5">
+                                                <div className="flex flex-wrap gap-1">
+                                                    {row.timeSlots.map((slot, idx) => {
+                                                        const isSelected = entry?.slots.some(s => s.startTime === slot.startTime && s.endTime === slot.endTime);
+                                                        return (
+                                                            <button key={idx} type="button" onClick={() => handleSlotToggle(row, slot)}
+                                                                className={cn('inline-flex items-center gap-1 h-6 px-2 text-[10px] font-medium rounded border transition-colors',
+                                                                    isSelected ? 'bg-blue-50 text-blue-700 border-blue-300' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300')}>
+                                                                {isSelected && <Check size={10} />}
+                                                                {formatTime(slot.startTime)}-{formatTime(slot.endTime)}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+
+                {/* Footer */}
+                <div className="flex items-center justify-between px-5 py-3 border-t border-slate-200 shrink-0">
+                    <span className="text-[11px] text-slate-400">{selectedCount} slot(s) selected</span>
+                    <div className="flex gap-2">
+                        <button onClick={onClose} className="h-8 px-3 text-[12px] font-medium text-slate-700 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors">Cancel</button>
+                        <button onClick={handleSave} disabled={selectedCount === 0 || saving}
+                            className="inline-flex items-center gap-1.5 h-8 px-3 text-[12px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-40 transition-colors">
+                            {saving ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
+                            Add {selectedCount > 0 ? selectedCount : ''} Slots
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const StudentBookings = () => {
     const { showSuccess, showError } = useAlert();
@@ -22,6 +149,7 @@ const StudentBookings = () => {
     const [sortOption, setSortOption] = useState('newest');
     const [creatorFilter, setCreatorFilter] = useState('');
     const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, id: null });
+    const [addSlotsModal, setAddSlotsModal] = useState({ isOpen: false, bookingId: null });
 
     const creatorOptions = useMemo(() => {
         const creators = new Map();
@@ -179,6 +307,10 @@ const StudentBookings = () => {
                                         {/* Actions */}
                                         <td className="px-5 py-2.5" onClick={e => e.stopPropagation()}>
                                             <div className="flex items-center justify-end gap-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                                                <button onClick={() => setAddSlotsModal({ isOpen: true, bookingId: booking._id })}
+                                                    className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" title="Add Slots">
+                                                    <CalendarPlus size={14} />
+                                                </button>
                                                 <button onClick={() => navigate(`/admin/public-bookings/${booking._id}/evaluation`)}
                                                     className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Evaluations">
                                                     <BarChart3 size={14} />
@@ -211,6 +343,13 @@ const StudentBookings = () => {
                     <p className="text-[11px] text-slate-400">{filtered.length} of {publicBookings.length} links</p>
                 </div>
             )}
+
+            <AddSlotsModal
+                isOpen={addSlotsModal.isOpen}
+                onClose={() => setAddSlotsModal({ isOpen: false, bookingId: null })}
+                publicBookingId={addSlotsModal.bookingId}
+                onSuccess={() => invalidatePublicBookings()}
+            />
 
             <ConfirmDialog isOpen={deleteDialog.isOpen} onClose={() => setDeleteDialog({ isOpen: false, id: null })}
                 onConfirm={handleDeleteConfirm} title="Delete Public Link"

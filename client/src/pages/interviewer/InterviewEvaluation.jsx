@@ -147,6 +147,7 @@ const InterviewCard = ({ interview, onClick }) => {
 
 // ─── INTERVIEW DETAILS MODAL ────────────────────────────────────────────────
 const InterviewDetailsModal = ({ isOpen, onClose, interview, onStatusChange }) => {
+  const MAIN_SHEET_INTERVIEW_STATUSES = useInterviewStatuses();
   const [status, setStatus] = useState('');
 
   useEffect(() => {

@@ -32,8 +32,16 @@ const { validate, schemas } = require('../middleware/validator.middleware');
 
 const router = express.Router();
 
+const { getSettings, getAllSettings } = require('../controllers/appSettings.controller');
+const { getDomainOptions } = require('../controllers/domainOptions.controller');
+
 router.use(protect);
 router.use(interviewerOnly);
+
+// --- Read-only access to app settings and domain options for interviewers ---
+router.get('/app-settings', getAllSettings);
+router.get('/app-settings/:category', getSettings);
+router.get('/domain-options', getDomainOptions);
 
 // Route for push notification subscription
 router.post('/subscribe', subscribeToPushNotifications); // NEW

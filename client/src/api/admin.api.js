@@ -40,15 +40,26 @@ export const getEvaluationByPublicBooking = (bookingId, params) => {
 };
 
 // --- App Settings (dynamic constants) ---
-export const getAllAppSettings = () => api.get('/api/admin/app-settings');
-export const getAppSettings = (category) => api.get(`/api/admin/app-settings/${category}`);
+// Use role-aware path — interviewers can't access /api/admin routes
+const getSettingsBasePath = () => {
+    const cached = localStorage.getItem('cachedUser');
+    if (cached) {
+        try { const user = JSON.parse(cached); if (user.role === 'interviewer') return '/api/interviewer'; } catch {}
+    }
+    return '/api/admin';
+};
+export const getAllAppSettings = () => api.get(`${getSettingsBasePath()}/app-settings`);
+export const getAppSettings = (category) => api.get(`${getSettingsBasePath()}/app-settings/${category}`);
 export const createAppSetting = (category, data) => api.post(`/api/admin/app-settings/${category}`, data);
 export const updateAppSetting = (id, data) => api.put(`/api/admin/app-settings/item/${id}`, data);
 export const deleteAppSetting = (id) => api.delete(`/api/admin/app-settings/item/${id}`);
 export const seedAllAppSettings = () => api.post('/api/admin/app-settings/seed-all');
 
+// --- Add slots to existing public booking ---
+export const addSlotsToPublicBooking = (id, data) => api.put(`/api/admin/public-bookings/${id}/add-slots`, data);
+
 // --- Domain Options (simple name list for dropdowns) ---
-export const getDomainOptions = () => api.get('/api/admin/domain-options');
+export const getDomainOptions = () => api.get(`${getSettingsBasePath()}/domain-options`);
 export const createDomainOption = (data) => api.post('/api/admin/domain-options', data);
 export const updateDomainOption = (id, data) => api.put(`/api/admin/domain-options/${id}`, data);
 export const deleteDomainOption = (id) => api.delete(`/api/admin/domain-options/${id}`);
