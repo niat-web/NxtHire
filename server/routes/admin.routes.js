@@ -64,15 +64,32 @@ const {
   deletePublicBooking,
   manualBookSlot,
   manualAddBookingSlot,
+  getDomainsForHiringName,
+  getEvaluationByPublicBooking,
+  seedDefaultDomains,
 } = require('../controllers/admin.controller');
 const { getNotificationSettings, updateNotificationSettings } = require('../controllers/notificationSettings.controller');
 const { protect, adminOnly } = require('../middleware/auth.middleware');
 const { validate, schemas } = require('../middleware/validator.middleware');
 
+const { getDomainOptions, createDomainOption, updateDomainOption, deleteDomainOption, seedDomainOptions } = require('../controllers/domainOptions.controller');
+const { getSettings, getAllSettings, createSetting, updateSetting, deleteSetting, seedAllDefaults } = require('../controllers/appSettings.controller');
+
 const router = express.Router();
 
 router.use(protect);
 router.use(adminOnly);
+
+// --- Domain Options (simple name list for dropdowns) ---
+router.route('/domain-options').get(getDomainOptions).post(createDomainOption);
+router.post('/domain-options/seed', seedDomainOptions);
+router.route('/domain-options/:id').put(updateDomainOption).delete(deleteDomainOption);
+
+// --- App Settings (dynamic constants) ---
+router.get('/app-settings', getAllSettings);
+router.post('/app-settings/seed-all', seedAllDefaults);
+router.route('/app-settings/item/:id').put(updateSetting).delete(deleteSetting);
+router.route('/app-settings/:category').get(getSettings).post(createSetting);
 
 // --- Custom Email Feature Routes ---
 router.route('/custom-email-templates')
@@ -173,9 +190,12 @@ router.post('/student-bookings/:id/generate-meet', generateMeetLink);
 // --- Domain & Evaluation Sheet Management Routes ---
 router.route('/domains').get(getDomains).post(createDomain);
 router.route('/domains/:id').put(updateDomain).delete(deleteDomain);
+router.post('/domains/seed-defaults', seedDefaultDomains);
 router.route('/evaluation-sheet/:domainId').get(getEvaluationSheetByDomain).put(updateEvaluationSheet);
 router.get('/evaluation-data', getEvaluationDataForAdmin);
 router.get('/evaluation-data/domain/:domainName', getEvaluationDataForAdmin);
+router.get('/evaluation-data/domains-by-hiring/:hiringName', getDomainsForHiringName);
+router.get('/evaluation-data/by-public-booking/:bookingId', getEvaluationByPublicBooking);
 router.get('/evaluation-parameters/all', getAllEvaluationParameters);
 
 // --- NEW: Route for the domain evaluation summary ---

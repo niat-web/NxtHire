@@ -13,10 +13,9 @@ import {
 } from 'lucide-react';
 
 // API & Utils
-import { useDomains, useEvaluationDataAdmin, useDomainEvaluationSummary } from '../../hooks/useAdminQueries';
+import { useDomains, useEvaluationDataAdmin, useDomainEvaluationSummary, useHiringNames, useInterviewStatuses } from '../../hooks/useAdminQueries';
 import { useAlert } from '../../hooks/useAlert';
 import { formatDate, formatTime } from '../../utils/formatters';
-import { MAIN_SHEET_INTERVIEW_STATUSES } from '../../utils/constants';
 import { Button } from '@/components/ui/button';
 import Loader from '@/components/common/Loader';
 
@@ -62,6 +61,7 @@ const RemarksModal = ({ isOpen, onClose, content }) => {
 // --- Main Page Component ---
 
 const AdminDomainEvaluationPage = () => {
+    const MAIN_SHEET_INTERVIEW_STATUSES = useInterviewStatuses();
     const { showError, showSuccess } = useAlert();
     const navigate = useNavigate();
     const { domainName: domainNameParam } = useParams();
@@ -86,8 +86,8 @@ const AdminDomainEvaluationPage = () => {
 
     // Filter States
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
-    const [tempFilters, setTempFilters] = useState({ interviewDate: null, interviewStatus: '' });
-    const [activeFilters, setActiveFilters] = useState({ interviewDate: null, interviewStatus: '' });
+    const [tempFilters, setTempFilters] = useState({ interviewDate: null, interviewStatus: '', hiringName: '' });
+    const [activeFilters, setActiveFilters] = useState({ interviewDate: null, interviewStatus: '', hiringName: '' });
     const filterMenuRef = useRef(null);
     const searchTimerRef = useRef(null);
 
@@ -112,15 +112,25 @@ const AdminDomainEvaluationPage = () => {
     const { data: rawDomains = [] } = useDomains();
     const domains = useMemo(() => rawDomains.map(d => ({ value: d.name, label: d.name })), [rawDomains]);
 
+    // TanStack Query: Hiring names (public link identifiers)
+    const { data: hiringNames = [] } = useHiringNames();
+    const hiringNameOptions = useMemo(() => hiringNames.map(name => ({ value: name, label: name })), [hiringNames]);
+
     // TanStack Query: Summary data
     const { data: summaryData = [], isLoading: summaryLoading } = useDomainEvaluationSummary();
 
     // TanStack Query: Evaluation detail data
     const evalParams = useMemo(() => {
         if (!selectedDomain) return null;
-        const params = { domain: selectedDomain.value, search: debouncedSearch, ...activeFilters };
+        const params = { domain: selectedDomain.value, search: debouncedSearch };
         if (activeFilters.interviewDate) {
             params.interviewDate = format(activeFilters.interviewDate, 'yyyy-MM-dd');
+        }
+        if (activeFilters.interviewStatus) {
+            params.interviewStatus = activeFilters.interviewStatus;
+        }
+        if (activeFilters.hiringName) {
+            params.hiringName = activeFilters.hiringName;
         }
         return params;
     }, [selectedDomain, debouncedSearch, activeFilters]);
@@ -133,10 +143,10 @@ const AdminDomainEvaluationPage = () => {
 
     // Handlers
     const handleApplyFilters = () => { setActiveFilters(tempFilters); setIsFilterMenuOpen(false); };
-    const handleClearFilters = () => { 
-        setTempFilters({ interviewDate: null, interviewStatus: '' }); 
-        setActiveFilters({ interviewDate: null, interviewStatus: '' }); 
-        setIsFilterMenuOpen(false); 
+    const handleClearFilters = () => {
+        setTempFilters({ interviewDate: null, interviewStatus: '', hiringName: '' });
+        setActiveFilters({ interviewDate: null, interviewStatus: '', hiringName: '' });
+        setIsFilterMenuOpen(false);
     };
 
     const findLabelForValue = (value, options) => {
@@ -286,30 +296,37 @@ const AdminDomainEvaluationPage = () => {
 
                         {/* Filter Dropdown */}
                         <div className="relative z-50" ref={filterMenuRef}>
-                            <Button variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} className={`${(activeFilters.interviewDate || activeFilters.interviewStatus) ? '!border-blue-500 !text-blue-600 !bg-blue-50' : ''}`}>
+                            <Button variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} className={`${(activeFilters.interviewDate || activeFilters.interviewStatus || activeFilters.hiringName) ? '!border-blue-500 !text-blue-600 !bg-blue-50' : ''}`}>
                                 <Filter className="mr-2 h-4 w-4" />
                                 Filter
                             </Button>
                             {isFilterMenuOpen && (
-                                <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 p-4 z-50">
-                                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Filter Records</h4>
-                                    <div className="space-y-4">
+                                <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 p-4 z-50">
+                                    <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Filter Records</h4>
+                                    <div className="space-y-3">
                                         <div>
-                                            <label className="block text-xs font-medium text-gray-700 mb-1.5">Interview Date</label>
+                                            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Public Link</label>
+                                            <select value={tempFilters.hiringName} onChange={(e) => setTempFilters(p => ({ ...p, hiringName: e.target.value }))} className="w-full h-9 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300">
+                                                <option value="">All Public Links</option>
+                                                {hiringNameOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Interview Date</label>
                                             <div className="relative">
-                                                <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(p => ({ ...p, interviewDate: date }))} isClearable placeholderText="Select date" className="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-blue-500" portalId="datepicker-portal" popperClassName="!z-[9999]" popperProps={{ strategy: 'fixed' }} />
-                                                <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                                <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(p => ({ ...p, interviewDate: date }))} isClearable placeholderText="Select date" className="w-full h-9 pl-3 pr-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300" portalId="datepicker-portal" popperClassName="!z-[9999]" popperProps={{ strategy: 'fixed' }} />
+                                                <Calendar size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-medium text-gray-700 mb-1.5">Status</label>
-                                            <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(p => ({ ...p, interviewStatus: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-1 focus:ring-blue-500">
+                                            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Status</label>
+                                            <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(p => ({ ...p, interviewStatus: e.target.value }))} className="w-full h-9 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300">
                                                 <option value="">All Statuses</option>
                                                 {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                             </select>
                                         </div>
                                     </div>
-                                    <div className="mt-5 pt-3 border-t border-gray-100 flex justify-end gap-2">
+                                    <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end gap-2">
                                         <Button variant="ghost" size="sm" onClick={handleClearFilters}>Clear</Button>
                                         <Button size="sm" onClick={handleApplyFilters}>Apply</Button>
                                     </div>

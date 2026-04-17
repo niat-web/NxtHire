@@ -12,13 +12,11 @@ import {
 } from 'lucide-react';
 import Loader from '@/components/common/Loader';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 
-// ─── Inline Dropdown Menu ───────────────────────────────────────────────────
+// ─── Inline Dropdown ────────────────────────────────────────────────────────
 const InlineDropdownMenu = ({ options }) => {
     const [open, setOpen] = useState(false);
     const menuRef = useRef(null);
-
     useEffect(() => {
         if (!open) return;
         const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setOpen(false); };
@@ -27,58 +25,24 @@ const InlineDropdownMenu = ({ options }) => {
     }, [open]);
 
     return (
-        <div className="relative inline-block text-left" ref={menuRef}>
-            <button
-                type="button"
-                onClick={() => setOpen(v => !v)}
-                className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-transparent text-slate-500 hover:bg-slate-100 focus:outline-none transition-colors"
-            >
-                <span className="sr-only">Open options</span>
-                <MoreVertical className="h-5 w-5" />
+        <div className="relative inline-block" ref={menuRef}>
+            <button onClick={() => setOpen(v => !v)}
+                className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+                <MoreVertical className="h-4 w-4" />
             </button>
             {open && (
-                <div className="absolute right-0 z-50 mt-1 w-48 rounded-xl bg-white shadow-md ring-1 ring-black/5 focus:outline-none">
-                    <div className="py-1">
-                        {options.map((option) => (
-                            <button
-                                key={option.label}
-                                type="button"
-                                onClick={() => { setOpen(false); option.onClick?.(); }}
-                                className={cn(
-                                    'group flex items-center w-full px-4 py-2 text-sm transition-colors',
-                                    option.isDestructive
-                                        ? 'text-red-700 hover:bg-red-50'
-                                        : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
-                                )}
-                            >
-                                {option.icon && <option.icon className="mr-3 h-5 w-5 text-slate-400 group-hover:text-slate-500" />}
-                                <span>{option.label}</span>
-                            </button>
-                        ))}
-                    </div>
+                <div className="absolute right-0 z-50 mt-1 w-44 rounded-xl bg-white shadow-xl border border-slate-200 py-1 focus:outline-none">
+                    {options.map((option) => (
+                        <button key={option.label} onClick={() => { setOpen(false); option.onClick?.(); }}
+                            className={cn('flex items-center gap-2 w-full px-3 py-2 text-[13px] font-medium transition-colors',
+                                option.isDestructive ? 'text-red-600 hover:bg-red-50' : 'text-slate-700 hover:bg-slate-50'
+                            )}>
+                            {option.icon && <option.icon className="h-4 w-4" />}
+                            {option.label}
+                        </button>
+                    ))}
                 </div>
             )}
-        </div>
-    );
-};
-
-// ─── Stat Card ──────────────────────────────────────────────────────────────
-const StatCard = ({ label, value, icon: Icon, color = 'blue' }) => {
-    const palette = {
-        blue:    'bg-blue-50 text-blue-600',
-        emerald: 'bg-emerald-50 text-emerald-600',
-        amber:   'bg-amber-50 text-amber-600',
-        red:     'bg-red-50 text-red-600',
-    };
-    return (
-        <div className="bg-white px-5 py-3">
-            <div className="flex items-center justify-between">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">{label}</p>
-                <div className={cn('w-7 h-7 rounded-md flex items-center justify-center', palette[color])}>
-                    <Icon size={14} />
-                </div>
-            </div>
-            <p className="text-xl font-bold text-slate-900 mt-0.5">{value}</p>
         </div>
     );
 };
@@ -97,9 +61,7 @@ const InterviewBookings = () => {
     const creatorOptions = useMemo(() => {
         const creators = new Map();
         bookings.forEach(b => {
-            if (b.createdBy) {
-                creators.set(b.createdBy._id, `${b.createdBy.firstName} ${b.createdBy.lastName || ''}`.trim());
-            }
+            if (b.createdBy) creators.set(b.createdBy._id, `${b.createdBy.firstName} ${b.createdBy.lastName || ''}`.trim());
         });
         return Array.from(creators, ([value, label]) => ({ value, label }));
     }, [bookings]);
@@ -118,15 +80,10 @@ const InterviewBookings = () => {
         }),
     [bookings, filter, searchTerm, creatorFilter]);
 
-    const { openBookings, closedBookings } = useMemo(() => {
-        const sorted = [...filteredBookings].sort((a, b) => new Date(b.bookingDate) - new Date(a.bookingDate));
-        return {
-            openBookings: sorted.filter(b => b.status === 'Open'),
-            closedBookings: sorted.filter(b => b.status !== 'Open'),
-        };
-    }, [filteredBookings]);
+    const sorted = useMemo(() => [...filteredBookings].sort((a, b) => new Date(b.bookingDate) - new Date(a.bookingDate)), [filteredBookings]);
 
     // Stats
+    const openCount = useMemo(() => bookings.filter(b => b.status === 'Open').length, [bookings]);
     const totalInterviewers = useMemo(() => bookings.reduce((sum, b) => sum + b.interviewers.length, 0), [bookings]);
     const totalSubmitted = useMemo(() => bookings.reduce((sum, b) => sum + b.interviewers.filter(i => i.status === 'Submitted').length, 0), [bookings]);
 
@@ -148,106 +105,93 @@ const InterviewBookings = () => {
         } catch { showError('Failed to update status.'); }
     };
 
-    const hasFilters = searchTerm || filter || creatorFilter;
-
     return (
-        <div className="h-full flex flex-col">
-            {/* Header */}
-            <div className="bg-white border-b border-slate-200 px-5 py-3 shrink-0">
-                <div className="flex items-center gap-2">
-                    <div className="relative w-56">
+        <div className="h-full flex flex-col bg-white overflow-hidden">
+            {/* ── Toolbar: stats + filters + action ── */}
+            <div className="border-b border-slate-200 shrink-0">
+                {/* Top row: inline stats + new button */}
+                <div className="flex items-center px-5 py-2.5 gap-5 border-b border-slate-100">
+                    <div className="flex items-center gap-5 text-[12px]">
+                        <div className="flex items-center gap-1.5 text-slate-500">
+                            <Calendar size={13} className="text-slate-400" />
+                            <span className="font-bold text-slate-900">{bookings.length}</span> Total
+                        </div>
+                        <div className="flex items-center gap-1.5 text-slate-500">
+                            <Clock size={13} className="text-amber-500" />
+                            <span className="font-bold text-slate-900">{openCount}</span> Open
+                        </div>
+                        <div className="flex items-center gap-1.5 text-slate-500">
+                            <Users size={13} className="text-blue-500" />
+                            <span className="font-bold text-slate-900">{totalInterviewers}</span> Interviewers
+                        </div>
+                        <div className="flex items-center gap-1.5 text-slate-500">
+                            <CheckCircle2 size={13} className="text-emerald-500" />
+                            <span className="font-bold text-slate-900">{totalSubmitted}</span> Submitted
+                        </div>
+                    </div>
+                    <div className="flex-1" />
+                    <button onClick={() => navigate('/admin/bookings/new')}
+                        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors shrink-0">
+                        <Plus size={15} /> New Request
+                    </button>
+                </div>
+
+                {/* Bottom row: search + filters + tabs */}
+                <div className="flex items-center px-5 py-2 gap-2">
+                    <div className="relative w-52">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                         <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-                            placeholder="Search by date or creator..."
-                            className="w-full pl-9 pr-4 h-9 bg-slate-50 border border-slate-200 rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all" />
+                            placeholder="Search..."
+                            className="w-full pl-9 pr-3 h-8 bg-slate-50 border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all" />
                     </div>
                     <select value={creatorFilter} onChange={e => setCreatorFilter(e.target.value)}
-                        className="h-9 pl-3 pr-8 bg-white border border-slate-200 rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 appearance-none cursor-pointer hover:border-slate-300 transition-colors">
+                        className="h-8 pl-3 pr-7 bg-white border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 appearance-none cursor-pointer hover:border-slate-300 transition-colors">
                         <option value="">All Creators</option>
                         {creatorOptions.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                     </select>
-                    <select value={filter} onChange={e => setFilter(e.target.value)}
-                        className="h-9 pl-3 pr-8 bg-white border border-slate-200 rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 appearance-none cursor-pointer hover:border-slate-300 transition-colors">
-                        <option value="">All Statuses</option>
-                        <option value="Open">Open</option>
-                        <option value="Closed">Closed</option>
-                    </select>
                     <div className="flex-1" />
-                    <Button onClick={() => navigate('/admin/bookings/new')} className="rounded-md shrink-0">
-                        <Plus size={16} className="mr-2" /> New Request
-                    </Button>
+                    {/* Inline tabs */}
+                    <div className="flex items-center bg-slate-100 rounded-md p-0.5">
+                        {[
+                            { id: '', label: 'All' },
+                            { id: 'Open', label: 'Open' },
+                            { id: 'Closed', label: 'Closed' },
+                        ].map(tab => (
+                            <button key={tab.id} onClick={() => setFilter(tab.id)}
+                                className={cn(
+                                    'px-3 py-1 text-[11px] font-semibold rounded transition-all',
+                                    filter === tab.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                                )}>
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 
-            {/* Content */}
+            {/* ── Content ── */}
             <div className="flex-1 overflow-y-auto">
                 {loading ? (
-                    <div className="flex items-center justify-center h-64">
-                        <Loader size="lg" />
-                    </div>
-                ) : filteredBookings.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20">
-                        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                            <Inbox className="h-7 w-7 text-slate-300" />
-                        </div>
-                        <h3 className="text-base font-semibold text-slate-900 mb-1">No Requests Found</h3>
-                        <p className="text-sm text-slate-500 mb-5">
-                            {hasFilters ? 'No bookings match your filters.' : 'Create your first booking request.'}
-                        </p>
-                        {hasFilters ? (
-                            <Button variant="outline" size="sm" onClick={() => { setSearchTerm(''); setFilter(''); setCreatorFilter(''); }}>
-                                Clear filters
-                            </Button>
-                        ) : (
-                            <Button size="sm" onClick={() => navigate('/admin/bookings/new')}>
-                                <Plus size={14} className="mr-1.5" /> New Request
-                            </Button>
+                    <div className="flex items-center justify-center h-64"><Loader size="lg" /></div>
+                ) : sorted.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+                        <Inbox size={28} className="mb-2 opacity-30" />
+                        <p className="text-sm font-medium text-slate-500">{searchTerm || creatorFilter ? 'No bookings match your filters.' : 'No booking requests yet.'}</p>
+                        {!searchTerm && !creatorFilter && (
+                            <button onClick={() => navigate('/admin/bookings/new')}
+                                className="mt-3 inline-flex items-center gap-1.5 px-4 h-9 text-[13px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                                <Plus size={14} /> New Request
+                            </button>
                         )}
                     </div>
                 ) : (
-                    <div>
-                        {/* Stat cards */}
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-slate-200 border-b border-slate-200">
-                            <StatCard label="Total Requests" value={bookings.length} icon={Calendar} color="blue" />
-                            <StatCard label="Open" value={openBookings.length} icon={Clock} color="amber" />
-                            <StatCard label="Interviewers" value={totalInterviewers} icon={Users} color="emerald" />
-                            <StatCard label="Submitted" value={totalSubmitted} icon={CheckCircle2} color="emerald" />
-                        </div>
-
-                        {/* Tab row: All / Open / Closed */}
-                        <div className="flex items-center gap-1 border-b border-slate-200 px-5">
-                            {[
-                                { id: '', label: 'All', count: filteredBookings.length },
-                                { id: 'Open', label: 'Open Requests', count: openBookings.length },
-                                { id: 'Closed', label: 'Closed', count: closedBookings.length },
-                            ].map(tab => (
-                                <button key={tab.id} onClick={() => setFilter(tab.id)}
-                                    className={cn(
-                                        'px-4 py-2.5 text-sm font-medium border-b-2 transition-colors',
-                                        filter === tab.id
-                                            ? 'border-blue-500 text-blue-600'
-                                            : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-gray-300'
-                                    )}>
-                                    {tab.label}
-                                    <span className={cn(
-                                        'ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold',
-                                        filter === tab.id ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500'
-                                    )}>{tab.count}</span>
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Booking cards */}
-                        <div className="divide-y divide-slate-100">
-                            {(filter === '' ? [...openBookings, ...closedBookings] : filter === 'Open' ? openBookings : closedBookings).map(booking => (
-                                <BookingRow key={booking._id} booking={booking}
-                                    onEdit={() => navigate(`/admin/bookings/edit/${booking._id}`)}
-                                    onDelete={() => setDeleteDialog({ isOpen: true, id: booking._id })}
-                                    onTrack={() => navigate(`/admin/interview-bookings/${booking._id}/tracking`)}
-                                    onStatusChange={handleStatusChange} />
-                            ))}
-                        </div>
-                    </div>
+                    sorted.map(booking => (
+                        <BookingRow key={booking._id} booking={booking}
+                            onEdit={() => navigate(`/admin/bookings/edit/${booking._id}`)}
+                            onDelete={() => setDeleteDialog({ isOpen: true, id: booking._id })}
+                            onTrack={() => navigate(`/admin/interview-bookings/${booking._id}/tracking`)}
+                            onStatusChange={handleStatusChange} />
+                    ))
                 )}
             </div>
 
@@ -258,7 +202,7 @@ const InterviewBookings = () => {
     );
 };
 
-// ─── Booking Row Card ───────────────────────────────────────────────────────
+// ─── Booking Row ────────────────────────────────────────────────────────────
 const BookingRow = ({ booking, onEdit, onDelete, onTrack, onStatusChange }) => {
     const total = booking.interviewers.length;
     const available = booking.interviewers.filter(i => i.status === 'Submitted').length;
@@ -266,6 +210,7 @@ const BookingRow = ({ booking, onEdit, onDelete, onTrack, onStatusChange }) => {
     const pending = total - booking.interviewers.filter(i => i.status !== 'Pending').length;
     const progress = total > 0 ? Math.round((total - pending) / total * 100) : 0;
     const isClosed = booking.status === 'Closed';
+    const bookingDate = new Date(booking.bookingDate);
 
     const dropdownOptions = [
         isClosed
@@ -277,57 +222,64 @@ const BookingRow = ({ booking, onEdit, onDelete, onTrack, onStatusChange }) => {
 
     return (
         <div className={cn(
-            'bg-white px-5 py-3 hover:bg-slate-50/60 transition-colors duration-150 flex flex-col md:flex-row md:items-center gap-3',
-            isClosed && 'opacity-50'
+            'flex items-center gap-4 px-5 py-3 border-b border-slate-100 hover:bg-slate-50/50 transition-colors group',
+            isClosed && 'opacity-40'
         )}>
-            {/* Date badge */}
-            <div className="flex items-center gap-3 md:w-56 shrink-0">
-                <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex flex-col items-center justify-center shrink-0 border border-blue-100">
-                    <span className="text-[10px] font-bold uppercase leading-none">{new Date(booking.bookingDate).toLocaleString('default', { month: 'short' })}</span>
-                    <span className="text-base font-black leading-none">{new Date(booking.bookingDate).getDate()}</span>
+            {/* Date pill */}
+            <div className="w-11 shrink-0 text-center">
+                <div className="text-[10px] font-bold text-slate-400 uppercase leading-tight">
+                    {bookingDate.toLocaleString('default', { month: 'short' })}
                 </div>
-                <div className="min-w-0">
-                    <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-                        {formatDate(booking.bookingDate)}
-                        {isClosed && <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 text-[10px] uppercase font-bold rounded">Closed</span>}
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-0.5 truncate">
-                        <span className="inline-flex items-center gap-1"><User size={10} />{booking.createdBy?.firstName}</span>
-                        {' · '}{formatDateTime(booking.createdAt)}
-                    </p>
+                <div className="text-lg font-black text-slate-900 leading-tight">
+                    {bookingDate.getDate()}
                 </div>
             </div>
 
-            {/* Response stats */}
-            <div className="flex items-center gap-1.5 flex-1 justify-start md:justify-center">
-                <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100" title="Available">
-                    <CheckCircle2 size={12} /> <span className="text-xs font-semibold">{available}</span>
+            {/* Info */}
+            <div className="min-w-0 w-44 shrink-0">
+                <div className="flex items-center gap-1.5">
+                    <span className="text-[13px] font-semibold text-slate-900 truncate">{formatDate(booking.bookingDate)}</span>
+                    {isClosed && <span className="px-1.5 py-px bg-slate-200 text-slate-500 text-[9px] uppercase font-bold rounded">Closed</span>}
                 </div>
-                <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-600 border border-red-100" title="Unavailable">
-                    <XCircle size={12} /> <span className="text-xs font-semibold">{unavailable}</span>
-                </div>
-                <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-50 text-amber-600 border border-amber-100" title="Pending">
-                    <Clock size={12} /> <span className="text-xs font-semibold">{pending}</span>
+                <p className="text-[11px] text-slate-400 mt-0.5 flex items-center gap-1 truncate">
+                    <User size={10} className="shrink-0" /> {booking.createdBy?.firstName || 'Admin'}
+                </p>
+            </div>
+
+            {/* Response counts — compact inline */}
+            <div className="flex items-center gap-3 text-[11px] shrink-0">
+                <span className="flex items-center gap-1 text-emerald-600" title="Available">
+                    <CheckCircle2 size={12} /> {available}
+                </span>
+                <span className="flex items-center gap-1 text-red-500" title="Unavailable">
+                    <XCircle size={12} /> {unavailable}
+                </span>
+                <span className="flex items-center gap-1 text-amber-500" title="Pending">
+                    <Clock size={12} /> {pending}
+                </span>
+            </div>
+
+            {/* Progress bar */}
+            <div className="flex-1 max-w-[160px] hidden md:block">
+                <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div className={cn('h-full rounded-full transition-all duration-500', progress === 100 ? 'bg-emerald-500' : 'bg-blue-500')}
+                            style={{ width: `${progress}%` }} />
+                    </div>
+                    <span className={cn('text-[11px] font-bold w-8 text-right', progress === 100 ? 'text-emerald-600' : 'text-blue-600')}>
+                        {progress}%
+                    </span>
                 </div>
             </div>
 
-            {/* Progress */}
-            <div className="w-28 shrink-0 hidden sm:block">
-                <div className="flex justify-between items-center mb-1">
-                    <span className="text-[10px] font-semibold text-slate-400 uppercase">Response</span>
-                    <span className={cn('text-xs font-bold', progress === 100 ? 'text-emerald-600' : 'text-blue-600')}>{progress}%</span>
-                </div>
-                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                    <div className={cn('h-full rounded-full transition-all duration-500', progress === 100 ? 'bg-emerald-500' : 'bg-blue-500')}
-                        style={{ width: `${progress}%` }} />
-                </div>
-            </div>
+            <div className="flex-1" />
 
             {/* Actions */}
-            <div className="flex items-center gap-2 shrink-0">
-                <Button variant="outline" size="sm" onClick={onTrack} className="rounded-lg">
-                    Track <ChevronRight size={13} />
-                </Button>
+            <div className="flex items-center gap-1.5 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity">
+                <button onClick={onTrack}
+                    className="inline-flex items-center gap-1 h-7 px-3 text-[11px] font-medium text-slate-700 border border-slate-200 rounded-md bg-white hover:bg-slate-50 transition-colors">
+                    Track <ChevronRight size={12} />
+                </button>
                 <InlineDropdownMenu options={dropdownOptions} />
             </div>
         </div>

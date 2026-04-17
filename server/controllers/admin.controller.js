@@ -24,7 +24,7 @@ const { APPLICATION_STATUS, INTERVIEWER_STATUS, EMAIL_TEMPLATES, DOMAINS } = req
 const { sendEmail, sendAccountCreationEmail, sendNewInterviewerWelcomeEmail, sendStudentBookingInvitationEmail } = require('../services/email.service');
 const { pushNotification } = require('../services/notification.service');
 const { sendNotificationToInterviewer } = require('../services/push.service');
-const { sendWelcomeWhatsApp } = require('../services/whatsapp.service');
+const { sendWelcomeWhatsApp, sendBookingRequestWhatsApp, sendPaymentConfirmationWhatsApp } = require('../services/whatsapp.service');
 const { logEvent } = require('../middleware/logger.middleware');
 const crypto = require('crypto');
 const { registerUser } = require('../services/auth.service');
@@ -585,7 +585,7 @@ const createInterviewBooking = asyncHandler(async (req, res) => {
         createdBy: req.user._id,
     });
 
-    const interviewersToNotify = await Interviewer.find({ _id: { $in: interviewerIds } }).populate("user", "email firstName");
+    const interviewersToNotify = await Interviewer.find({ _id: { $in: interviewerIds } }).populate("user", "email firstName phoneNumber whatsappNumber");
 
     const formattedDate = new Date(bookingDate).toLocaleDateString('en-GB', {
         day: 'numeric',
@@ -616,11 +616,14 @@ const createInterviewBooking = asyncHandler(async (req, res) => {
             await sendNotificationToInterviewer(interviewer._id, {
                 title: 'New Interview Request',
                 body: `You have a new availability request for ${formattedDate}.`,
-                icon: `${process.env.CLIENT_URL}/logo.svg`, 
+                icon: `${process.env.CLIENT_URL}/logo.svg`,
                 data: {
                     url: '/interviewer/availability'
                 }
             });
+
+            // Send WhatsApp notification
+            sendBookingRequestWhatsApp(interviewer, bookingDate).catch(() => {});
         }
     }
 
@@ -703,7 +706,7 @@ const refreshRecordingLinks = asyncHandler(async (req, res) => {
 });
 
 const getEvaluationDataForAdmin = asyncHandler(async (req, res) => {
-    const { search, interviewStatus, interviewDate } = req.query;
+    const { search, interviewStatus, interviewDate, hiringName } = req.query;
     // Prefer path param (RESTful) but fall back to query param for compatibility
     const domain = req.params.domainName
         ? decodeURIComponent(req.params.domainName)
@@ -719,11 +722,14 @@ const getEvaluationDataForAdmin = asyncHandler(async (req, res) => {
     }
 
     const evaluationSheet = await EvaluationSheet.findOne({ domain: domainDoc._id });
-    
+
     const query = { techStack: domain };
-    
+
     if (interviewStatus) {
         query.interviewStatus = interviewStatus;
+    }
+    if (hiringName) {
+        query.hiringName = hiringName;
     }
     if (interviewDate) {
         const date = new Date(interviewDate);
@@ -743,7 +749,7 @@ const getEvaluationDataForAdmin = asyncHandler(async (req, res) => {
             { interviewId: searchRegex },
         ];
     }
-    
+
     const maxLimit = Math.min(parseInt(req.query.limit) || 500, 500);
     const interviews = await MainSheetEntry.find(query)
         .sort({ interviewDate: -1 })
@@ -3318,6 +3324,90 @@ const manualAddBookingSlot = asyncHandler(async (req, res) => {
 });
 // --- END OF NEW FUNCTION ---
 
+// @desc    Get unique domains for a specific hiringName from MainSheetEntry
+// @route   GET /api/admin/evaluation-data/domains-by-hiring/:hiringName
+// @access  Private/Admin
+const getDomainsForHiringName = asyncHandler(async (req, res) => {
+    const hiringName = decodeURIComponent(req.params.hiringName);
+    const domains = await MainSheetEntry.distinct('techStack', {
+        hiringName,
+        techStack: { $exists: true, $ne: '' }
+    });
+    res.json({ success: true, data: domains });
+});
+
+// @desc    Get evaluation data for a specific public booking's students by email matching
+// @route   GET /api/admin/evaluation-data/by-public-booking/:bookingId
+// @access  Private/Admin
+const getEvaluationByPublicBooking = asyncHandler(async (req, res) => {
+    const { bookingId } = req.params;
+    const { domain, search } = req.query;
+
+    const publicBooking = await PublicBooking.findById(bookingId);
+    if (!publicBooking) {
+        res.status(404);
+        throw new Error('Public booking not found.');
+    }
+
+    // Get all student emails from this public link
+    const studentEmails = (publicBooking.allowedStudents || [])
+        .map(s => s.email?.toLowerCase().trim())
+        .filter(Boolean);
+
+    if (!studentEmails.length) {
+        return res.json({ success: true, data: { domains: [], evaluationSheet: null, interviews: [] } });
+    }
+
+    // Get unique domains for these students from MainSheetEntry
+    const emailRegex = studentEmails.map(e => new RegExp(`^${e}$`, 'i'));
+    const allDomains = await MainSheetEntry.distinct('techStack', {
+        mailId: { $in: emailRegex },
+        techStack: { $exists: true, $ne: '' }
+    });
+
+    // If no domain selected, return just domains list
+    if (!domain) {
+        return res.json({ success: true, data: { domains: allDomains, evaluationSheet: null, interviews: [] } });
+    }
+
+    // Get evaluation sheet for the selected domain
+    const domainDoc = await Domain.findOne({ name: domain });
+    const evaluationSheet = domainDoc ? await EvaluationSheet.findOne({ domain: domainDoc._id }) : null;
+
+    // Query MainSheetEntry by student emails + domain
+    const query = {
+        mailId: { $in: emailRegex },
+        techStack: domain,
+    };
+
+    if (search) {
+        const searchRegex = { $regex: search, $options: 'i' };
+        query.$and = [
+            { $or: [{ candidateName: searchRegex }, { mailId: searchRegex }, { uid: searchRegex }] }
+        ];
+    }
+
+    const interviews = await MainSheetEntry.find(query).sort({ interviewDate: -1 }).limit(500);
+
+    res.json({ success: true, data: { domains: allDomains, evaluationSheet, interviews } });
+});
+
+// @desc    Seed default domains if they don't exist
+// @route   POST /api/admin/domains/seed-defaults
+// @access  Private/Admin
+const seedDefaultDomains = asyncHandler(async (req, res) => {
+    const defaults = ['MERN', 'JAVA', 'PYTHON', 'DA', 'QA', 'DSA', 'Other'];
+    let created = 0;
+    for (const name of defaults) {
+        const exists = await Domain.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
+        if (!exists) {
+            await Domain.create({ name, createdBy: req.user._id });
+            created++;
+        }
+    }
+    res.json({ success: true, data: { message: `${created} domains seeded, ${defaults.length - created} already existed.` } });
+});
+
 module.exports = {
     getDashboardStats, getEarningsReport: generateAndGetPayoutSheet, getPaymentRequests, sendPaymentEmail,
     getApplicants, createApplicant, updateApplicant, deleteApplicant, exportApplicants,
@@ -3378,4 +3468,7 @@ module.exports = {
     deletePublicBooking,
     manualBookSlot,
     manualAddBookingSlot,
+    getDomainsForHiringName,
+    getEvaluationByPublicBooking,
+    seedDefaultDomains,
 };

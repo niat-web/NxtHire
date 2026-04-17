@@ -47,6 +47,7 @@ const InterviewerLayout = () => {
     };
   }, [askPermissionAndSubscribe, showInfo, currentUser]);
 
+  // WATI chat widget — just a "Chat with us" button that opens WhatsApp to support number
   useEffect(() => {
     const script = document.createElement('script');
     script.type = 'text/javascript';

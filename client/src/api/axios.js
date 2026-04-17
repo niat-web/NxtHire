@@ -27,9 +27,11 @@ api.interceptors.response.use(
     // Handle 401 Unauthorized errors
     // --- MODIFICATION START ---
     // Only redirect if we are NOT on the login page. A 401 on the login page means invalid credentials.
-    if (error.response && error.response.status === 401 && window.location.pathname !== '/login') {
-    // --- MODIFICATION END ---
-      // Clear local storage and redirect to login
+    // Only redirect to login for admin/interviewer pages — NOT public pages
+    const publicPaths = ['/', '/about', '/faq', '/terms-of-service', '/cookie-policy', '/applicationform', '/InterviewerApplication', '/login', '/forgot-password', '/create-password', '/reset-password', '/book', '/payment-confirmation', '/confirm-payment-received', '/application-success', '/skill-assessment', '/guidelines', '/guidelines-submission-success', '/skill-assessment-success', '/docs'];
+    const currentPath = window.location.pathname;
+    const isPublicPage = publicPaths.some(p => currentPath === p || currentPath.startsWith(p + '/'));
+    if (error.response && error.response.status === 401 && !isPublicPage) {
       localStorage.removeItem('token');
       window.location.href = '/login';
     }

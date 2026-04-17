@@ -15,9 +15,9 @@ import {
     updateInterviewer, bulkUploadInterviewers, bulkDeleteInterviewers,
     sendWelcomeEmail, sendProbationEmail, markProbationAsSent
 } from '../../api/admin.api';
-import { INTERVIEWER_STATUS, DOMAINS } from '../../utils/constants';
+import { INTERVIEWER_STATUS } from '../../utils/constants';
 import { debounce } from '../../utils/helpers';
-import { useInterviewers, useInvalidateAdmin } from '../../hooks/useAdminQueries';
+import { useInterviewers, useInvalidateAdmin, useDomainOptions } from '../../hooks/useAdminQueries';
 import { formatDateTime } from '../../utils/formatters';
 import { useAlert } from '../../hooks/useAlert';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
@@ -195,6 +195,7 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, isLoading }) => {
 const Interviewers = () => {
     const navigate = useNavigate();
     const { showSuccess, showError } = useAlert();
+    const DOMAINS = useDomainOptions();
     const { invalidateInterviewers } = useInvalidateAdmin();
     const [sortConfig, setSortConfig] = useState({ key: 'onboardingDate', direction: 'desc' });
     const [filters, setFilters] = useState({ search: '', status: '', domain: '' });

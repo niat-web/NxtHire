@@ -36,8 +36,13 @@ export const adminKeys = {
   evaluationData: (params) => [...adminKeys.all, 'evaluation-data', params],
   evaluationSummary: () => [...adminKeys.all, 'evaluation-summary'],
   evaluationParameters: () => [...adminKeys.all, 'evaluation-parameters'],
+  domainsForHiring: (hiringName) => [...adminKeys.all, 'domains-for-hiring', hiringName],
+  evaluationByPublicBooking: (bookingId, params) => [...adminKeys.all, 'evaluation-by-public-booking', bookingId, params],
 
   customEmailTemplates: () => [...adminKeys.all, 'custom-email-templates'],
+  domainOptions: () => [...adminKeys.all, 'domain-options'],
+  appSettings: (category) => [...adminKeys.all, 'app-settings', category],
+  allAppSettings: () => [...adminKeys.all, 'app-settings-all'],
   notificationSettings: () => [...adminKeys.all, 'notification-settings'],
   confirmedSlots: (params) => [...adminKeys.all, 'confirmed-slots', params],
 

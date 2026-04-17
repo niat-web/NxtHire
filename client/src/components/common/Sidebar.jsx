@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { LogOut, ChevronRight, ChevronUp, User, Bell, KeyRound } from 'lucide-react';
+import { LogOut, ChevronRight, ChevronUp, User, Bell, KeyRound, Settings } from 'lucide-react';
 import logoSrc from '/logo.svg';
 import { cn } from '@/lib/utils';
 
@@ -25,6 +25,7 @@ const Sidebar = ({ navItems, variant = 'admin' }) => {
   const profileMenuItems = variant === 'admin'
     ? [
         { label: 'Notifications', icon: Bell, action: () => { navigate('/admin/notifications'); setMenuOpen(false); } },
+        { label: 'Settings', icon: Settings, action: () => { navigate('/admin/settings'); setMenuOpen(false); } },
         { label: 'User Management', icon: User, action: () => { navigate('/admin/user-management'); setMenuOpen(false); } },
       ]
     : [

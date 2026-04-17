@@ -8,9 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import StatusBadge from '../common/StatusBadge';
 import { processSkillCategorization } from '../../api/admin.api';
 import { useAlert } from '../../hooks/useAlert';
-import { DOMAINS } from '../../utils/constants';
+import { useDomainOptions } from '../../hooks/useAdminQueries';
 
 const SkillCategorization = ({ applicant, skillAssessment, onCategorizeComplete }) => {
+  const DOMAINS = useDomainOptions();
   const { showSuccess, showError } = useAlert();
   const [selectedDomains, setSelectedDomains] = useState([]);
   const [notes, setNotes] = useState('');

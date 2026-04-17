@@ -4,10 +4,12 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2 } from 'lucide-react';
 import { useAlert } from '../../hooks/useAlert';
-import { SOURCING_CHANNELS, APPLICATION_STATUS } from '../../utils/constants';
+import { APPLICATION_STATUS } from '../../utils/constants';
+import { useSourcingChannels } from '../../hooks/useAdminQueries';
 import { createApplicant, updateApplicant } from '../../api/admin.api';
 
 const ApplicantFormModal = ({ isOpen, onClose, onSuccess, applicantData }) => {
+    const SOURCING_CHANNELS = useSourcingChannels();
     const isEditMode = !!applicantData;
     const { showSuccess, showError } = useAlert();
     const {

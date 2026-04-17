@@ -9,11 +9,13 @@ import FilterDropdown from '../common/FilterDropdown';
 import StatusBadge from '../common/StatusBadge';
 import { getApplicants } from '../../api/admin.api';
 import { formatDate } from '../../utils/formatters';
-import { APPLICATION_STATUS, DOMAINS } from '../../utils/constants';
+import { APPLICATION_STATUS } from '../../utils/constants';
+import { useDomainOptions } from '../../hooks/useAdminQueries';
 import { debounce } from '../../utils/helpers';
 import Alert from '../common/Alert';
 
 const ApplicantsList = () => {
+  const DOMAINS = useDomainOptions();
   const [loading, setLoading] = useState(true);
   const [applicants, setApplicants] = useState([]);
   const [pagination, setPagination] = useState({

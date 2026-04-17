@@ -31,6 +31,28 @@ export const getEvaluationDataForAdmin = (params) => {
 };
 // --- MODIFICATION END ---
 
+export const getDomainsForHiringName = (hiringName) => {
+    return api.get(`/api/admin/evaluation-data/domains-by-hiring/${encodeURIComponent(hiringName)}`);
+};
+
+export const getEvaluationByPublicBooking = (bookingId, params) => {
+    return api.get(`/api/admin/evaluation-data/by-public-booking/${bookingId}`, { params });
+};
+
+// --- App Settings (dynamic constants) ---
+export const getAllAppSettings = () => api.get('/api/admin/app-settings');
+export const getAppSettings = (category) => api.get(`/api/admin/app-settings/${category}`);
+export const createAppSetting = (category, data) => api.post(`/api/admin/app-settings/${category}`, data);
+export const updateAppSetting = (id, data) => api.put(`/api/admin/app-settings/item/${id}`, data);
+export const deleteAppSetting = (id) => api.delete(`/api/admin/app-settings/item/${id}`);
+export const seedAllAppSettings = () => api.post('/api/admin/app-settings/seed-all');
+
+// --- Domain Options (simple name list for dropdowns) ---
+export const getDomainOptions = () => api.get('/api/admin/domain-options');
+export const createDomainOption = (data) => api.post('/api/admin/domain-options', data);
+export const updateDomainOption = (id, data) => api.put(`/api/admin/domain-options/${id}`, data);
+export const deleteDomainOption = (id) => api.delete(`/api/admin/domain-options/${id}`);
+export const seedDomainOptions = () => api.post('/api/admin/domain-options/seed');
 
 // --- Applicants ---
 export const getApplicants = (params) => {

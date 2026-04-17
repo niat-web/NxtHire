@@ -49,6 +49,8 @@ import AuthorizeStudentsPage from '@/pages/admin/AuthorizeStudentsPage';
 import NotificationsPage from '@/pages/admin/NotificationsPage';
 import NotificationsInboxPage from '@/pages/admin/NotificationsInboxPage';
 import InterviewerDetailPage from '@/pages/admin/InterviewerDetailPage';
+import PublicLinkEvaluationPage from '@/pages/admin/PublicLinkEvaluationPage';
+import AdminSettingsPage from '@/pages/admin/AdminSettingsPage';
 
 // Interviewer Pages
 import InterviewerDashboard from '@/pages/interviewer/Dashboard';
@@ -125,12 +127,14 @@ function App() {
           <Route path="/admin/user-management" element={<UserManagement />} />
           <Route path="/admin/interview-bookings/:id/tracking" element={<InterviewerBookingTrackingPage />} />
           <Route path="/admin/public-bookings/:id/tracking" element={<EmailTrackingPage />} />
+          <Route path="/admin/public-bookings/:id/evaluation" element={<PublicLinkEvaluationPage />} />
           <Route path="/admin/evaluation-setup" element={<DomainManagement />} />
           <Route path="/admin/domain-evaluation" element={<AdminDomainEvaluationPage />} />
           <Route path="/admin/domain-evaluation/:domainName" element={<AdminDomainEvaluationPage />} />
           <Route path="/admin/custom-email" element={<CustomEmailPage />} />
           <Route path="/admin/notifications" element={<NotificationsPage />} />
           <Route path="/admin/notifications-inbox" element={<NotificationsInboxPage />} />
+          <Route path="/admin/settings" element={<AdminSettingsPage />} />
           <Route path="/admin/earnings-report/*" element={<EarningsReportPage />} />
           <Route path="/admin/bookings/new" element={<NewInterviewBooking />} />
           <Route path="/admin/bookings/edit/:id" element={<NewInterviewBooking />} />

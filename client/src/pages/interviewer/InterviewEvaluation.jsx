@@ -13,7 +13,7 @@ import {
   ExternalLink, MapPin, Inbox, Filter, List, LayoutGrid
 } from 'lucide-react';
 import { Dialog, Transition, Listbox } from '@headlessui/react';
-import { MAIN_SHEET_INTERVIEW_STATUSES } from '../../utils/constants';
+import { useInterviewStatuses } from '../../hooks/useAdminQueries';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -287,6 +287,7 @@ const FilterListbox = ({ value, onChange, options, label, icon: Icon }) => (
 
 // ─── MAIN COMPONENT ─────────────────────────────────────────────────────────
 const InterviewEvaluation = () => {
+  const MAIN_SHEET_INTERVIEW_STATUSES = useInterviewStatuses();
   const { showSuccess, showError } = useAlert();
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [filters, setFilters] = useState({ domain: [], status: [] });

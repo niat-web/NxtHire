@@ -4,11 +4,11 @@ import { Eye, Search, Check, X, CheckCircle, XCircle, MoreVertical, ChevronDown,
 import { Menu, Transition } from '@headlessui/react';
 import { reviewGuidelinesSubmission } from '../../api/admin.api';
 import { formatDateTime } from '../../utils/formatters';
-import { DOMAINS, APPLICATION_STATUS } from '../../utils/constants';
+import { APPLICATION_STATUS } from '../../utils/constants';
 import { debounce } from '../../utils/helpers';
 import { useAlert } from '../../hooks/useAlert';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
-import { useGuidelinesSubmissions, useInvalidateAdmin } from '../../hooks/useAdminQueries';
+import { useGuidelinesSubmissions, useInvalidateAdmin, useDomainOptions } from '../../hooks/useAdminQueries';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
@@ -127,6 +127,7 @@ const GuidelinesDetailView = ({ guideline, onBack }) => {
 
 // ── MAIN LIST VIEW ──
 const Guidelines = () => {
+    const DOMAINS = useDomainOptions();
     const [searchTerm, setSearchTerm] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');

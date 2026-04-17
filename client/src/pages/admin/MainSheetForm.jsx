@@ -6,8 +6,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Plus, Trash2, Save, ArrowLeft } from 'lucide-react';
 import { useAlert } from '@/hooks/useAlert';
 import { bulkUpdateMainSheetEntries } from '@/api/admin.api';
-import { useMainSheetEntry, useInterviewers, useDomains, useInvalidateAdmin } from '@/hooks/useAdminQueries';
-import { MAIN_SHEET_INTERVIEW_STATUSES } from '@/utils/constants';
+import { useMainSheetEntry, useInterviewers, useDomains, useInvalidateAdmin, useInterviewStatuses } from '@/hooks/useAdminQueries';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 const LocalInput = React.forwardRef(({ className, ...props }, ref) => (
@@ -37,6 +36,7 @@ const LocalLoader = ({ text }) => (
 
 // --- MAIN FORM COMPONENT ---
 const MainSheetForm = () => {
+    const MAIN_SHEET_INTERVIEW_STATUSES = useInterviewStatuses();
     const { id } = useParams();
     const navigate = useNavigate();
     const isEditMode = !!id;

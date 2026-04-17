@@ -10,8 +10,7 @@ import { useAlert } from '../../hooks/useAlert';
 import { debounce } from '../../utils/helpers';
 import { formatDate, formatDateTime } from '../../utils/formatters';
 import Select from 'react-select';
-import { DOMAINS } from '../../utils/constants';
-import { useSkillAssessments, useInvalidateAdmin } from '../../hooks/useAdminQueries';
+import { useSkillAssessments, useInvalidateAdmin, useDomainOptions } from '../../hooks/useAdminQueries';
 import { Button } from '@/components/ui/button';
 
 // --- Simple UI Components ---
@@ -171,6 +170,7 @@ const SkillsList = ({ skillAssessment }) => (
 );
 
 const ReviewForm = ({ applicant, skillAssessment, onCategorizeComplete }) => {
+    const DOMAINS = useDomainOptions();
     const { showSuccess, showError } = useAlert();
     const [selectedDomains, setSelectedDomains] = useState([]);
     const [notes, setNotes] = useState('');

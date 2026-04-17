@@ -7,12 +7,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Save, X, Loader2, Info } from 'lucide-react';
 import { useAlert } from '../../hooks/useAlert';
 import { createInterviewer, updateInterviewer } from '../../api/admin.api';
-import { DOMAINS, INTERVIEWER_STATUS } from '../../utils/constants';
+import { INTERVIEWER_STATUS } from '../../utils/constants';
+import { useDomainOptions } from '../../hooks/useAdminQueries';
 import { createPortal } from 'react-dom';
 
 const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) => {
     const isEditMode = !!interviewerData;
     const { showSuccess, showError } = useAlert();
+    const DOMAINS = useDomainOptions();
     const {
         register,
         handleSubmit,
@@ -24,7 +26,7 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
     } = useForm();
 
     const [statusOptions] = useState(Object.values(INTERVIEWER_STATUS).map(s => ({ value: s, label: s })));
-    const [domainOptions] = useState(DOMAINS);
+    const domainOptions = DOMAINS;
     const [companyTypeOptions] = useState([
         { value: 'Other', label: 'Other' },
         { value: 'Product-based', label: 'Product-based' },

@@ -64,6 +64,7 @@ const AdminLayout = () => {
       '/admin/public-bookings/',
       '/admin/interview-bookings/',
       '/admin/notifications-inbox',
+      '/admin/settings',
   ];
 
   const useFullPageLayout = fullPageLayoutPaths.some(path => location.pathname.startsWith(path));

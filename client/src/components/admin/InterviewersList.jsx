@@ -10,10 +10,13 @@ import StatusBadge from '../common/StatusBadge';
 import { Badge } from '@/components/ui/badge';
 import { getInterviewers } from '../../api/admin.api';
 import { formatDate } from '../../utils/formatters';
-import { INTERVIEWER_STATUS, DOMAINS, PAYMENT_TIERS } from '../../utils/constants';
+import { INTERVIEWER_STATUS } from '../../utils/constants';
+import { useDomainOptions, usePaymentTiers } from '../../hooks/useAdminQueries';
 import { debounce } from '../../utils/helpers';
 
 const InterviewersList = () => {
+    const PAYMENT_TIERS = usePaymentTiers();
+    const DOMAINS = useDomainOptions();
     const [loading, setLoading] = useState(true);
     const [interviewers, setInterviewers] = useState([]);
     const [pagination, setPagination] = useState({

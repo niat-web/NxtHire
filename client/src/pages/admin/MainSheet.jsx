@@ -10,11 +10,10 @@ import { Download, Plus, Edit, Trash2, MoreVertical, Search, Inbox, AlertTriangl
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { deleteMainSheetEntry, bulkUpdateMainSheetEntries, refreshRecordingLinks, bulkUploadMainSheetEntries as bulkUpload, exportMainSheet } from '@/api/admin.api';
-import { useMainSheetEntries, useInterviewers, useHiringNames, useDomains, useInvalidateAdmin } from '@/hooks/useAdminQueries';
+import { useMainSheetEntries, useInterviewers, useHiringNames, useDomains, useInvalidateAdmin, useInterviewStatuses } from '@/hooks/useAdminQueries';
 import { useAlert } from '@/hooks/useAlert';
 import { debounce } from '@/utils/helpers';
 import { formatDate, formatTime } from '@/utils/formatters'; // <-- Ensure formatTime is imported
-import { MAIN_SHEET_INTERVIEW_STATUSES } from '@/utils/constants';
 import { Button as ShadcnButton } from '@/components/ui/button';
 
 // --- SELF-CONTAINED UI COMPONENTS (Definitions omitted for brevity, assumed functional) ---
@@ -428,6 +427,7 @@ const EditableCell = ({ value, onSave, isLoading, fieldName, rowId }) => {
 
 
 const MainSheet = () => {
+    const MAIN_SHEET_INTERVIEW_STATUSES = useInterviewStatuses();
     const { showSuccess, showError } = useAlert();
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
@@ -457,6 +457,7 @@ const MainSheet = () => {
         return () => document.removeEventListener('mousedown', handler);
     }, [isFilterMenuOpen]);
     const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(100);
     const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, entry: null, isLoading: false });
     const [updatingId, setUpdatingId] = useState(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -470,7 +471,7 @@ const MainSheet = () => {
 
     // --- TanStack Query: build query params ---
     const queryParams = useMemo(() => {
-        const params = { search: debouncedSearch, page: currentPage, limit: 100, ...activeFilters, sortBy: sortConfig.key, sortOrder: sortConfig.direction };
+        const params = { search: debouncedSearch, page: currentPage, limit: rowsPerPage, ...activeFilters, sortBy: sortConfig.key, sortOrder: sortConfig.direction };
         if (activeFilters.interviewDate) {
             params.interviewDate = format(activeFilters.interviewDate, 'yyyy-MM-dd');
         }
@@ -727,8 +728,8 @@ const MainSheet = () => {
         isLoading: isUploading,
     };
 
-    const showingFrom = pagination.totalItems > 0 ? (pagination.currentPage - 1) * 100 + 1 : 0;
-    const showingTo = Math.min(pagination.currentPage * 100, pagination.totalItems);
+    const showingFrom = pagination.totalItems > 0 ? (pagination.currentPage - 1) * rowsPerPage + 1 : 0;
+    const showingTo = Math.min(pagination.currentPage * rowsPerPage, pagination.totalItems);
 
     return (
         <div className="h-full w-full flex flex-col overflow-hidden bg-[#f5f7fb]">
@@ -837,11 +838,24 @@ const MainSheet = () => {
                 />
             </div>
 
-            {!loading && pagination && pagination.totalPages > 1 && (
-                <div className="flex items-center justify-between border-t border-slate-200 bg-white px-6 py-3 flex-shrink-0">
-                    <p className="text-xs text-slate-500 font-medium">
-                        Showing <span className="font-bold text-slate-900">{showingFrom}</span>–<span className="font-bold text-slate-900">{showingTo}</span> of <span className="font-bold text-slate-900">{pagination.totalItems}</span>
-                    </p>
+            {!loading && pagination && pagination.totalItems > 0 && (
+                <div className="flex items-center justify-between border-t border-slate-200 bg-white px-6 py-2.5 flex-shrink-0">
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 text-[12px] text-slate-500">
+                            <span>Rows per page</span>
+                            <select value={rowsPerPage} onChange={e => { setRowsPerPage(Number(e.target.value)); setCurrentPage(1); }}
+                                className="h-7 pl-2 pr-6 border border-slate-200 rounded text-[12px] bg-white appearance-none cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-300">
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
+                                <option value={200}>200</option>
+                                <option value={500}>500</option>
+                            </select>
+                        </div>
+                        <p className="text-[12px] text-slate-500">
+                            Showing <span className="font-bold text-slate-900">{showingFrom}</span>–<span className="font-bold text-slate-900">{showingTo}</span> of <span className="font-bold text-slate-900">{pagination.totalItems}</span>
+                        </p>
+                    </div>
                     <div className="flex items-center gap-1.5">
                         <button
                             onClick={() => setCurrentPage(pagination.currentPage - 1)}

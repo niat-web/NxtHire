@@ -2,8 +2,8 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    Eye, Link2, Users, Clipboard, Search, ChevronDown,
-    Plus, CheckCircle, Clock, Trash2, Calendar, Filter, User
+    Eye, Link2, Users, Clipboard, Search, ChevronDown, ChevronRight,
+    Plus, CheckCircle, Clock, Trash2, User, ExternalLink, BarChart3
 } from 'lucide-react';
 import { deletePublicBookingLink } from '@/api/admin.api';
 import { usePublicBookings, useInvalidateAdmin } from '@/hooks/useAdminQueries';
@@ -12,15 +12,6 @@ import { formatDateTime } from '@/utils/formatters';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import Loader from '@/components/common/Loader';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-
-const StatusCount = ({ count, icon: Icon, colorClass, label }) => (
-    <div className={cn('flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium', colorClass)}>
-        <Icon className="h-3 w-3" />
-        <span>{count}</span>
-        <span className="opacity-70 hidden sm:inline">{label}</span>
-    </div>
-);
 
 const StudentBookings = () => {
     const { showSuccess, showError } = useAlert();
@@ -34,23 +25,19 @@ const StudentBookings = () => {
 
     const creatorOptions = useMemo(() => {
         const creators = new Map();
-        publicBookings.forEach(booking => {
-            if (booking.createdBy) {
-                const name = `${booking.createdBy.firstName} ${booking.createdBy.lastName || ''}`.trim();
-                creators.set(booking.createdBy._id, name);
-            }
+        publicBookings.forEach(b => {
+            if (b.createdBy) creators.set(b.createdBy._id, `${b.createdBy.firstName} ${b.createdBy.lastName || ''}`.trim());
         });
         return Array.from(creators, ([value, label]) => ({ value, label }));
     }, [publicBookings]);
 
-    const filteredAndSortedBookings = useMemo(() => {
+    const filtered = useMemo(() => {
         let items = [...publicBookings];
         if (searchTerm) items = items.filter(b => b.publicId.toLowerCase().includes(searchTerm.toLowerCase()));
         if (creatorFilter) items = items.filter(b => b.createdBy?._id === creatorFilter);
         switch (sortOption) {
             case 'oldest': items.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)); break;
             case 'most_students': items.sort((a, b) => (b.allowedStudents?.length || 0) - (a.allowedStudents?.length || 0)); break;
-            case 'fewest_students': items.sort((a, b) => (a.allowedStudents?.length || 0) - (b.allowedStudents?.length || 0)); break;
             default: items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         }
         return items;
@@ -58,140 +45,156 @@ const StudentBookings = () => {
 
     const handleDeleteConfirm = async () => {
         if (!deleteDialog.id) return;
-        try {
-            await deletePublicBookingLink(deleteDialog.id);
-            showSuccess('Public booking link deleted!');
-            invalidatePublicBookings();
-        } catch { showError("Failed to delete the link."); }
+        try { await deletePublicBookingLink(deleteDialog.id); showSuccess('Link deleted!'); invalidatePublicBookings(); }
+        catch { showError("Failed to delete."); }
         finally { setDeleteDialog({ isOpen: false, id: null }); }
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <Loader size="lg" />
-            </div>
-        );
-    }
+    // Stats
+    const totalStudents = useMemo(() => publicBookings.reduce((s, b) => s + (b.allowedStudents?.length || 0), 0), [publicBookings]);
+    const totalBooked = useMemo(() => publicBookings.reduce((s, b) => s + (b.bookedCount || 0), 0), [publicBookings]);
+
+    if (loading) return <div className="flex items-center justify-center h-64"><Loader size="lg" /></div>;
 
     return (
-        <div className="h-full flex flex-col">
-            {/* Header */}
-            <div className="bg-white border-b border-gray-200 px-6 py-4 shrink-0 shadow-sm">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-                    <div className="flex flex-col sm:flex-row gap-2 flex-1">
-                        <div className="relative flex-1 sm:max-w-xs">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                                placeholder="Search by Public ID..."
-                                className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-gray-400 transition-all" />
+        <div className="h-full flex flex-col bg-white overflow-hidden">
+            {/* Toolbar */}
+            <div className="border-b border-slate-200 shrink-0">
+                {/* Stats row */}
+                <div className="flex items-center px-5 py-2 gap-5 border-b border-slate-100">
+                    <div className="flex items-center gap-5 text-[12px]">
+                        <div className="flex items-center gap-1.5 text-slate-500">
+                            <Link2 size={13} className="text-slate-400" />
+                            <span className="font-bold text-slate-900">{publicBookings.length}</span> Links
                         </div>
-                        <select value={creatorFilter} onChange={(e) => setCreatorFilter(e.target.value)}
-                            className="pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer hover:border-gray-300 transition-colors">
+                        <div className="flex items-center gap-1.5 text-slate-500">
+                            <Users size={13} className="text-blue-500" />
+                            <span className="font-bold text-slate-900">{totalStudents}</span> Students
+                        </div>
+                        <div className="flex items-center gap-1.5 text-slate-500">
+                            <CheckCircle size={13} className="text-emerald-500" />
+                            <span className="font-bold text-slate-900">{totalBooked}</span> Booked
+                        </div>
+                    </div>
+                    <div className="flex-1" />
+                    <button onClick={() => navigate('/admin/bookings/booking-slots')}
+                        className="inline-flex items-center gap-2 h-8 px-3 text-[12px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                        <Plus size={13} /> New Link
+                    </button>
+                </div>
+
+                {/* Filter row */}
+                <div className="flex items-center gap-2 px-5 py-2">
+                    <div className="relative w-48">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                        <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Search by ID..."
+                            className="w-full pl-9 pr-3 h-8 bg-slate-50 border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all" />
+                    </div>
+                    <div className="relative">
+                        <select value={creatorFilter} onChange={e => setCreatorFilter(e.target.value)}
+                            className="appearance-none h-8 pl-3 pr-7 bg-white border border-slate-200 rounded-md text-[12px] cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-colors">
                             <option value="">All Creators</option>
                             {creatorOptions.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                         </select>
-                        <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}
-                            className="pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer hover:border-gray-300 transition-colors">
+                        <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
+                    </div>
+                    <div className="relative">
+                        <select value={sortOption} onChange={e => setSortOption(e.target.value)}
+                            className="appearance-none h-8 pl-3 pr-7 bg-white border border-slate-200 rounded-md text-[12px] cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-colors">
                             <option value="newest">Newest First</option>
                             <option value="oldest">Oldest First</option>
                             <option value="most_students">Most Students</option>
-                            <option value="fewest_students">Fewest Students</option>
                         </select>
+                        <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
                     </div>
-                    <Button onClick={() => navigate('/admin/bookings/booking-slots')} className="rounded-lg">
-                        <Plus className="mr-2 h-4 w-4" /> New Link
-                    </Button>
                 </div>
             </div>
 
             {/* Table */}
             <div className="flex-1 overflow-auto">
-                {filteredAndSortedBookings.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 text-center">
-                        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                            <Link2 className="h-7 w-7 text-gray-300" />
-                        </div>
-                        <h3 className="text-base font-semibold text-gray-900 mb-1">No links found</h3>
-                        <p className="text-sm text-gray-500 max-w-xs mx-auto">
-                            {publicBookings.length === 0 ? "Create your first public booking link." : "No links match your filters."}
-                        </p>
-                        {publicBookings.length === 0 && (
-                            <Button onClick={() => navigate('/admin/bookings/booking-slots')} className="mt-5" size="sm">
-                                <Plus className="mr-1.5 h-4 w-4" /> Create Link
-                            </Button>
-                        )}
+                {filtered.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-64 text-slate-400">
+                        <Link2 size={28} className="mb-2 opacity-20" />
+                        <p className="text-sm font-medium text-slate-500">{publicBookings.length === 0 ? 'No public links yet' : 'No links match your filters'}</p>
                     </div>
                 ) : (
-                    <table className="w-full text-left">
-                        <thead className="bg-gradient-to-r from-blue-50 to-blue-50 sticky top-0 z-10">
+                    <table className="min-w-full">
+                        <thead>
                             <tr>
-                                <th className="py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Created</th>
-                                <th className="py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Public Link</th>
-                                <th className="py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Details</th>
-                                <th className="py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                                <th className="py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider text-right">Actions</th>
+                                <th className="sticky top-0 px-5 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Created</th>
+                                <th className="sticky top-0 px-5 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Public ID</th>
+                                <th className="sticky top-0 px-5 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Interviewers</th>
+                                <th className="sticky top-0 px-5 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Students</th>
+                                <th className="sticky top-0 px-5 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Booked</th>
+                                <th className="sticky top-0 px-5 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Pending</th>
+                                <th className="sticky top-0 w-32 px-5 py-2 bg-slate-50 border-b border-slate-200 z-10" />
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100 bg-white">
-                            {filteredAndSortedBookings.map((booking) => {
+                        <tbody className="divide-y divide-slate-100">
+                            {filtered.map(booking => {
                                 const uniqueInterviewers = [...new Set(
-                                    booking.interviewerSlots
-                                        .map(slot => slot.interviewer?.user ? `${slot.interviewer.user.firstName} ${slot.interviewer.user.lastName}`.trim() : 'Unknown')
-                                        .filter(Boolean)
+                                    booking.interviewerSlots?.map(s => s.interviewer?.user ? `${s.interviewer.user.firstName} ${s.interviewer.user.lastName}`.trim() : null).filter(Boolean)
                                 )];
                                 const url = `${window.location.origin}/book/${booking.publicId}`;
-                                const creatorName = booking.createdBy ? `${booking.createdBy.firstName} ${booking.createdBy.lastName || ''}`.trim() : 'N/A';
+                                const creatorName = booking.createdBy ? `${booking.createdBy.firstName} ${booking.createdBy.lastName || ''}`.trim() : '—';
 
                                 return (
-                                    <tr key={booking._id} className="group hover:bg-gray-50/80 transition-colors">
-                                        <td className="py-3.5 px-6">
-                                            <div className="text-sm font-medium text-gray-900">{formatDateTime(booking.createdAt)}</div>
-                                            <div className="text-xs text-gray-400 mt-0.5">by {creatorName}</div>
+                                    <tr key={booking._id} className="group hover:bg-slate-50/60 transition-colors cursor-pointer"
+                                        onClick={() => navigate(`/admin/public-bookings/${booking._id}/evaluation`)}>
+                                        {/* Created */}
+                                        <td className="px-5 py-2.5">
+                                            <p className="text-[12px] font-medium text-slate-900">{formatDateTime(booking.createdAt)}</p>
+                                            <p className="text-[10px] text-slate-400 mt-0.5">by {creatorName}</p>
                                         </td>
-                                        <td className="py-3.5 px-6">
-                                            <div className="flex items-center gap-2">
-                                                <a href={url} target="_blank" rel="noopener noreferrer"
-                                                    className="font-mono text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md hover:bg-blue-100 transition-colors">
-                                                    {booking.publicId}
-                                                </a>
-                                                <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-blue-600 hover:bg-blue-50"
-                                                    onClick={() => { navigator.clipboard.writeText(url); showSuccess("Link copied!"); }} title="Copy">
-                                                    <Clipboard className="h-3.5 w-3.5" />
-                                                </Button>
-                                            </div>
-                                        </td>
-                                        <td className="py-3.5 px-6">
-                                            <div className="flex items-center gap-3 text-sm text-gray-700">
-                                                <span className="flex items-center gap-1" title={uniqueInterviewers.join(', ')}>
-                                                    <Users className="h-3.5 w-3.5 text-gray-400" /> {uniqueInterviewers.length}
-                                                </span>
-                                                <span className="text-gray-200">|</span>
-                                                <span className="flex items-center gap-1">
-                                                    <User className="h-3.5 w-3.5 text-gray-400" /> {booking.allowedStudents?.length || 0}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td className="py-3.5 px-6">
+                                        {/* Public ID */}
+                                        <td className="px-5 py-2.5" onClick={e => e.stopPropagation()}>
                                             <div className="flex items-center gap-1.5">
-                                                <StatusCount count={booking.bookedCount} icon={CheckCircle} colorClass="bg-green-50 text-green-700 border-green-100" label="Booked" />
-                                                <StatusCount count={booking.pendingCount} icon={Clock} colorClass="bg-amber-50 text-amber-600 border-amber-100" label="Pending" />
+                                                <span className="font-mono text-[11px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">{booking.publicId}</span>
+                                                <button onClick={() => { navigator.clipboard.writeText(url); showSuccess("Copied!"); }}
+                                                    className="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Copy link">
+                                                    <Clipboard size={11} />
+                                                </button>
                                             </div>
                                         </td>
-                                        <td className="py-3.5 px-6 text-right">
-                                            <div className="flex items-center justify-end gap-1">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50"
-                                                    onClick={() => navigate(`/admin/public-bookings/${booking._id}/tracking`)} title="Track">
-                                                    <Eye className="h-4 w-4" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50"
-                                                    onClick={() => navigate(`/admin/public-bookings/${booking._id}/authorize`)} title="Authorize">
-                                                    <Users className="h-4 w-4" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50"
-                                                    onClick={() => setDeleteDialog({ isOpen: true, id: booking._id })} title="Delete">
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
+                                        {/* Interviewers */}
+                                        <td className="px-5 py-2.5">
+                                            <span className="text-[12px] text-slate-600" title={uniqueInterviewers.join(', ')}>{uniqueInterviewers.length}</span>
+                                        </td>
+                                        {/* Students */}
+                                        <td className="px-5 py-2.5">
+                                            <span className="text-[12px] font-medium text-slate-900">{booking.allowedStudents?.length || 0}</span>
+                                        </td>
+                                        {/* Booked */}
+                                        <td className="px-5 py-2.5">
+                                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
+                                                <CheckCircle size={11} /> {booking.bookedCount || 0}
+                                            </span>
+                                        </td>
+                                        {/* Pending */}
+                                        <td className="px-5 py-2.5">
+                                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-500">
+                                                <Clock size={11} /> {booking.pendingCount || 0}
+                                            </span>
+                                        </td>
+                                        {/* Actions */}
+                                        <td className="px-5 py-2.5" onClick={e => e.stopPropagation()}>
+                                            <div className="flex items-center justify-end gap-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                                                <button onClick={() => navigate(`/admin/public-bookings/${booking._id}/evaluation`)}
+                                                    className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Evaluations">
+                                                    <BarChart3 size={14} />
+                                                </button>
+                                                <button onClick={() => navigate(`/admin/public-bookings/${booking._id}/tracking`)}
+                                                    className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Track">
+                                                    <Eye size={14} />
+                                                </button>
+                                                <button onClick={() => navigate(`/admin/public-bookings/${booking._id}/authorize`)}
+                                                    className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Authorize">
+                                                    <Users size={14} />
+                                                </button>
+                                                <button onClick={() => setDeleteDialog({ isOpen: true, id: booking._id })}
+                                                    className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Delete">
+                                                    <Trash2 size={14} />
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -203,9 +206,9 @@ const StudentBookings = () => {
             </div>
 
             {/* Footer */}
-            {filteredAndSortedBookings.length > 0 && (
-                <div className="px-6 py-3 border-t border-gray-200 bg-white flex items-center justify-between shrink-0">
-                    <p className="text-xs text-gray-500">Showing {filteredAndSortedBookings.length} of {publicBookings.length} links</p>
+            {filtered.length > 0 && (
+                <div className="px-5 py-2 border-t border-slate-100 shrink-0">
+                    <p className="text-[11px] text-slate-400">{filtered.length} of {publicBookings.length} links</p>
                 </div>
             )}
 

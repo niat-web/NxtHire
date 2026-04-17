@@ -6,12 +6,13 @@ import Select from 'react-select';
 import { ArrowRight, User, Mail, Phone, Linkedin, Users, MessageSquare, Loader2 } from 'lucide-react';
 import { submitApplication } from '../../api/applicant.api';
 import { useAlert } from '../../hooks/useAlert';
-import { SOURCING_CHANNELS } from '../../utils/constants';
+import { useSourcingChannels } from '../../hooks/useAdminQueries';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 const InitialApplicationForm = ({ onSuccess }) => {
+  const SOURCING_CHANNELS = useSourcingChannels();
   const navigate = useNavigate();
   const { showSuccess, showError } = useAlert();
   const {

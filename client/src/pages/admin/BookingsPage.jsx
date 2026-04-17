@@ -10,9 +10,9 @@ import StudentBookings from './StudentBookings';
 import ConfirmedSlots from './ConfirmedSlots';
 
 const tabs = [
-  { id: 'interviewer-bookings', label: 'Interviewer Bookings', icon: Calendar, countKey: 'openBookings' },
+  { id: 'interviewer-bookings', label: 'Interviewer Bookings', icon: Calendar },
   { id: 'booking-slots', label: 'Booking Slots', icon: Clock },
-  { id: 'student-bookings', label: 'Public Links', icon: Link2, countKey: 'publicLinks' },
+  { id: 'student-bookings', label: 'Public Links', icon: Link2 },
   { id: 'confirmed-slots', label: 'Confirmed Slots', icon: CheckCircle },
 ];
 

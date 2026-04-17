@@ -206,6 +206,62 @@ export const useDomains = (options) =>
     ...options,
   });
 
+// ─── Domain Options (simple name list, separate from evaluation domains) ───
+export const useDomainOptionsList = (options) =>
+  useQuery({
+    queryKey: adminKeys.domainOptions(),
+    queryFn: () => adminApi.getDomainOptions(),
+    select,
+    staleTime: 10 * 60 * 1000,
+    ...options,
+  });
+
+// Convenience hook: returns domain options as { value, label } for dropdowns
+export const useDomainOptions = () => {
+  const { data: domains = [] } = useDomainOptionsList();
+  return domains.map(d => ({ value: d.name, label: d.name }));
+};
+
+export const useInvalidateDomainOptions = () => {
+  const queryClient = useQueryClient();
+  return () => queryClient.invalidateQueries({ queryKey: adminKeys.domainOptions() });
+};
+
+// ─── App Settings (dynamic constants) ──────────────────────────────────────
+export const useAppSettings = (category, options) =>
+  useQuery({
+    queryKey: adminKeys.appSettings(category),
+    queryFn: () => adminApi.getAppSettings(category),
+    select,
+    staleTime: 10 * 60 * 1000,
+    enabled: !!category,
+    ...options,
+  });
+
+export const useAllAppSettings = (options) =>
+  useQuery({
+    queryKey: adminKeys.allAppSettings(),
+    queryFn: () => adminApi.getAllAppSettings(),
+    select,
+    staleTime: 10 * 60 * 1000,
+    ...options,
+  });
+
+// Convenience hooks for specific categories
+export const useSourcingChannels = () => { const { data = [] } = useAppSettings('sourcing_channels'); return data.map(d => ({ value: d.value, label: d.label })); };
+export const useProficiencyLevels = () => { const { data = [] } = useAppSettings('proficiency_levels'); return data.map(d => ({ value: d.value, label: d.label })); };
+export const usePaymentTiers = () => { const { data = [] } = useAppSettings('payment_tiers'); return data.map(d => ({ value: d.value, label: d.label, amount: d.amount })); };
+export const useTechStacks = () => { const { data = [] } = useAppSettings('tech_stacks'); return data.map(d => ({ value: d.value, label: d.label })); };
+export const useInterviewStatuses = () => { const { data = [] } = useAppSettings('interview_statuses'); return data.map(d => ({ value: d.value, label: d.label })); };
+
+export const useInvalidateAppSettings = () => {
+  const queryClient = useQueryClient();
+  return (category) => {
+    if (category) queryClient.invalidateQueries({ queryKey: adminKeys.appSettings(category) });
+    queryClient.invalidateQueries({ queryKey: adminKeys.allAppSettings() });
+  };
+};
+
 export const useEvaluationSheet = (domainId, options) =>
   useQuery({
     queryKey: adminKeys.evaluationSheet(domainId),
@@ -291,6 +347,28 @@ export const useMonthlyEarnings = (year, month, options) =>
     select,
     staleTime: 5 * 60 * 1000,
     enabled: !!year && month !== undefined,
+    ...options,
+  });
+
+// ─── Evaluation data for a public booking (by student emails) ──────────────
+export const useEvaluationByPublicBooking = (bookingId, params, options) =>
+  useQuery({
+    queryKey: adminKeys.evaluationByPublicBooking(bookingId, params),
+    queryFn: () => adminApi.getEvaluationByPublicBooking(bookingId, params),
+    select,
+    enabled: !!bookingId,
+    staleTime: 60 * 1000,
+    ...options,
+  });
+
+// ─── Domains for a specific Hiring Name ────────────────────────────────────
+export const useDomainsForHiringName = (hiringName, options) =>
+  useQuery({
+    queryKey: adminKeys.domainsForHiring(hiringName),
+    queryFn: () => adminApi.getDomainsForHiringName(hiringName),
+    select,
+    enabled: !!hiringName,
+    staleTime: 5 * 60 * 1000,
     ...options,
   });
 

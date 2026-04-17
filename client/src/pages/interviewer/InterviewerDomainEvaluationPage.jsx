@@ -19,7 +19,7 @@ import {
     Search, ExternalLink, Filter, X, Info, Grid,
     Calendar, Check, RefreshCw, ArrowLeft, Loader2, List
 } from 'lucide-react';
-import { MAIN_SHEET_INTERVIEW_STATUSES } from '../../utils/constants';
+import { useInterviewStatuses } from '../../hooks/useAdminQueries';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -126,6 +126,7 @@ const getQualityColor = (value, options) => {
 // --- MAIN PAGE COMPONENT ---
 
 const InterviewerDomainEvaluationPage = () => {
+    const MAIN_SHEET_INTERVIEW_STATUSES = useInterviewStatuses();
     const { showError, showSuccess } = useAlert();
     const navigate = useNavigate();
     const { domainName: domainNameParam } = useParams();
