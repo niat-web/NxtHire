@@ -31,7 +31,7 @@ const AccordionItem = ({ tech, control, register, setValue, watch, isOpen, onTog
                 <div className="flex items-center gap-3">
                     <h4 className="text-base font-semibold text-gray-800">{tech.name}</h4>
                     {selectedCount > 0 && (
-                        <span className="bg-blue-100 text-slate-900 text-xs font-semibold px-2.5 py-1 rounded-full">{selectedCount} selected</span>
+                        <span className="border border-slate-900 bg-slate-900 text-white text-[11px] font-semibold uppercase tracking-wide px-2.5 py-0.5 rounded-full">{selectedCount} selected</span>
                     )}
                 </div>
                 <span className={`w-6 h-6 text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-blue-500' : ''}`}>▼</span>

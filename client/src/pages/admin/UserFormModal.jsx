@@ -117,9 +117,9 @@ const UserFormModal = ({ isOpen, onClose, onSuccess, userData }) => {
                                 </div>
 
                                 {!isEditMode && (
-                                    <div className="flex items-start gap-3 p-5 bg-sky-50 border border-sky-100 rounded-xl">
-                                        <Send className="w-4 h-4 text-sky-600 mt-0.5 shrink-0" />
-                                        <p className="text-xs text-sky-700 leading-relaxed">
+                                    <div className="flex items-start gap-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                                        <Send className="h-3.5 w-3.5 text-slate-500 mt-0.5 shrink-0" aria-hidden="true" />
+                                        <p className="text-[12.5px] text-slate-600 leading-relaxed">
                                             An email will be sent to the user with a secure link to create their password. The link expires in 24 hours.
                                         </p>
                                     </div>

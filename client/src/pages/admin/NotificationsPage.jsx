@@ -32,19 +32,21 @@ const Toggle = ({ enabled, onChange, disabled }) => (
 );
 
 // ── Single notification row ──────────────────────────────────────────────────
-const Row = ({ icon: Icon, color, title, desc, settingKey, settings, onToggle, saving }) => {
+// `color` prop kept for backwards-compat but intentionally unused; every row
+// renders the editorial outlined icon tile for visual consistency.
+const Row = ({ icon: Icon, title, desc, settingKey, settings, onToggle, saving }) => {
   const enabled = settings[settingKey] !== false;
   return (
     <div className={cn(
-      'flex items-center gap-3 py-3 px-3 rounded-lg transition-colors',
-      enabled ? 'hover:bg-gray-50' : 'opacity-60 hover:opacity-80'
+      'flex items-center gap-3 py-3 px-3 rounded-xl transition-colors',
+      enabled ? 'hover:bg-slate-50/60' : 'opacity-60 hover:opacity-80'
     )}>
-      <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center shrink-0', color)}>
-        <Icon size={15} />
-      </div>
+      <span className="w-9 h-9 rounded-lg border border-slate-200 bg-white flex items-center justify-center shrink-0 text-slate-700">
+        <Icon className="h-4 w-4" aria-hidden="true" />
+      </span>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-gray-900">{title}</p>
-        <p className="text-xs text-gray-400 mt-0.5">{desc}</p>
+        <p className="text-[13px] font-semibold text-slate-900">{title}</p>
+        <p className="text-[12px] text-slate-500 mt-0.5">{desc}</p>
       </div>
       <Toggle enabled={enabled} onChange={(val) => onToggle(settingKey, val)} disabled={saving} />
     </div>
@@ -229,15 +231,15 @@ const NotificationsPage = () => {
 
             {/* Info card */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-              className="rounded-xl border border-slate-200 bg-slate-50/50 p-4"
+              className="rounded-2xl border border-slate-200 bg-white p-4"
             >
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
-                  <AlertCircle size={15} className="text-slate-900" />
-                </div>
+                <span className="w-8 h-8 rounded-lg border border-slate-200 bg-white flex items-center justify-center shrink-0 text-slate-700">
+                  <AlertCircle className="h-4 w-4" aria-hidden="true" />
+                </span>
                 <div>
-                  <p className="text-sm font-semibold text-blue-900">How it works</p>
-                  <p className="text-xs text-slate-900/70 mt-1 leading-relaxed">
+                  <p className="text-[13px] font-semibold text-slate-900">How it works</p>
+                  <p className="text-[12.5px] text-slate-600 mt-1 leading-relaxed">
                     Turning off a notification stops it from being sent. Critical system emails like password resets should stay enabled. Changes take effect immediately.
                   </p>
                 </div>

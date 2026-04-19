@@ -61,9 +61,9 @@ const GuidelinesDetailView = ({ guideline, onBack }) => {
             {/* Top bar */}
             <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200 shrink-0">
                 <div className="flex items-center gap-3">
-                    <button onClick={onBack}
+                    <button aria-label="Back" onClick={onBack}
                         className="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors">
-                        <ArrowLeft size={15} />
+                        <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
                     </button>
                     <div>
                         <h1 className="text-sm font-semibold text-slate-900">{applicant.fullName || 'Unknown'}</h1>

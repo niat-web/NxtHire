@@ -144,7 +144,7 @@ const PaymentDetails = () => {
           <div className="bg-white rounded-xl border border-gray-100 p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm text-gray-500">Total Earnings</p>
-              <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg border border-slate-200 bg-white text-slate-700 flex items-center justify-center">
                 <IndianRupee size={18} />
               </div>
             </div>

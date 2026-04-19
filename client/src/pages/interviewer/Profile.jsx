@@ -491,20 +491,20 @@ const Profile = () => {
                     <div className="space-y-6">
                         <div className="flex justify-between items-center">
                              <h2 className="text-lg font-semibold text-slate-900">Work Experience</h2>
-                             <Button variant="secondary" onClick={() => { setEditingExperience(null); setIsExperienceModalOpen(true); }} className="bg-amber-400 text-slate-900 hover:bg-amber-500 border border-amber-400"><Plus className="mr-2 h-4 w-4" />Add Experience</Button>
+                             <Button variant="secondary" onClick={() => { setEditingExperience(null); setIsExperienceModalOpen(true); }} className="bg-slate-900 text-white hover:bg-[#FF4800] border border-slate-900"><Plus className="mr-2 h-4 w-4" />Add Experience</Button>
                         </div>
                         
                         {/* Current Role Card */}
                         {profile?.jobTitle && profile?.currentEmployer && (
-                             <div className="bg-emerald-50 rounded-xl p-6 border border-emerald-100 flex justify-between items-center">
+                             <div className="bg-white rounded-2xl p-6 border border-slate-200 flex justify-between items-center">
                                 <div>
-                                    <h3 className="text-sm font-medium text-emerald-900 uppercase tracking-wide mb-1">Current Role</h3>
-                                    <div className="text-lg font-semibold text-slate-900">{profile.jobTitle}</div>
-                                    <div className="text-slate-600 font-medium">{profile.currentEmployer} • {profile.yearsOfExperience} Years Exp.</div>
+                                    <h3 className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1.5">Current role</h3>
+                                    <div className="text-[17px] font-semibold text-slate-900">{profile.jobTitle}</div>
+                                    <div className="text-slate-600 font-medium text-[13.5px] mt-0.5">{profile.currentEmployer} · {profile.yearsOfExperience} Years Exp.</div>
                                 </div>
-                                <div className="p-3 bg-emerald-100 rounded-full text-emerald-600">
-                                    <Briefcase className="h-6 w-6" />
-                                </div>
+                                <span className="inline-flex items-center justify-center h-11 w-11 rounded-xl border border-slate-200 bg-white text-slate-700">
+                                    <Briefcase className="h-5 w-5" aria-hidden="true" />
+                                </span>
                              </div>
                         )}
 
@@ -548,7 +548,7 @@ const Profile = () => {
                     <div className="space-y-6">
                         <div className="flex justify-between items-center">
                             <h2 className="text-lg font-semibold text-slate-900">Technical Skills</h2>
-                            <Button variant="secondary" onClick={() => { setEditingSkill(null); setIsSkillModalOpen(true); }} className="bg-amber-400 text-slate-900 hover:bg-amber-500 border border-amber-400"><Plus className="mr-2 h-4 w-4" />Add Skill</Button>
+                            <Button variant="secondary" onClick={() => { setEditingSkill(null); setIsSkillModalOpen(true); }} className="bg-slate-900 text-white hover:bg-[#FF4800] border border-slate-900"><Plus className="mr-2 h-4 w-4" />Add Skill</Button>
                         </div>
                         {profile?.skills?.length === 0 ? (
                             <div className="text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">

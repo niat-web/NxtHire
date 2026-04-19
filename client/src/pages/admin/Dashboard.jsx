@@ -175,11 +175,11 @@ const ProbationRow = ({ interviewer, onRefresh }) => {
         <p className="text-[12px] text-slate-500">{interviewer.metrics?.interviewsCompleted} completed</p>
       </div>
       <div className="flex gap-1 shrink-0">
-        <button onClick={send} disabled={busy} className="h-8 w-8 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 transition-colors" title="Send email">
-          {busy ? <Loader2 size={13} className="animate-spin" /> : <Mail size={13} />}
+        <button aria-label="Send probation email" onClick={send} disabled={busy} className="h-8 w-8 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 transition-colors" title="Send email">
+          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <Mail className="h-3.5 w-3.5" aria-hidden="true" />}
         </button>
-        <button onClick={mark} disabled={busy} className="h-8 w-8 rounded-full flex items-center justify-center text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 disabled:opacity-40 transition-colors" title="Mark sent">
-          <Check size={13} />
+        <button aria-label="Mark probation as sent" onClick={mark} disabled={busy} className="h-8 w-8 rounded-full flex items-center justify-center text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 disabled:opacity-40 transition-colors" title="Mark sent">
+          <Check className="h-3.5 w-3.5" aria-hidden="true" />
         </button>
       </div>
     </div>

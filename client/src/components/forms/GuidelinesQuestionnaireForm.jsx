@@ -115,10 +115,10 @@ const GuidelinesQuestionnaireForm = () => {
                   <button key={i} onClick={() => setCurrentQuestion(i)}
                     className={`w-9 h-9 rounded-md text-xs font-medium flex items-center justify-center transition-all relative ${
                       isActive
-                        ? 'bg-slate-900 text-white shadow-md'
+                        ? 'bg-slate-900 text-white'
                         : isAnswered
-                          ? 'bg-blue-100 text-slate-900 hover:bg-blue-200'
-                          : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                          ? 'border border-slate-900 bg-white text-slate-900 hover:bg-slate-900 hover:text-white'
+                          : 'border border-slate-200 bg-white text-slate-500 hover:border-slate-400'
                     }`}>
                     {i + 1}
                     {isAnswered && !isActive && (
@@ -138,8 +138,8 @@ const GuidelinesQuestionnaireForm = () => {
               <div className={`h-full rounded-full transition-all ${progress === 100 ? 'bg-slate-500' : 'bg-slate-500'}`} style={{ width: `${progress}%` }} />
             </div>
             <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
-              <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-blue-100 rounded border border-slate-200" /> Answered</div>
-              <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-gray-100 rounded border border-gray-200" /> Unanswered</div>
+              <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#FF4800' }} /> Answered</div>
+              <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-slate-200" /> Unanswered</div>
             </div>
           </div>
         </div>

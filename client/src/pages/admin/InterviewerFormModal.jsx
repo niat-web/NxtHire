@@ -20,7 +20,6 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
         handleSubmit,
         reset,
         control,
-        watch,
         setValue,
         formState: { errors, isSubmitting }
     } = useForm();
@@ -34,27 +33,42 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
         { value: 'Startup', label: 'Startup' }
     ]);
 
-    // Watch source to toggle fields
-    const source = watch('source', 'External');
+    // Source toggle: local state is the source of truth for the UI so the pills
+    // flip instantly; we mirror it into RHF on every change so the submit payload
+    // carries the right value. (Pure watch()+setValue on a hidden input doesn't
+    // reliably re-render, which is why Internal wasn't visually activating.)
+    const [source, setSource] = useState('External');
 
+    const changeSource = (next) => {
+        setSource(next);
+        setValue('source', next, { shouldDirty: true, shouldTouch: true });
+    };
+
+    // Run the form-reset ONLY when the drawer transitions open, not on every render.
+    // useDomainOptions() returns a freshly-mapped array each render, so including it
+    // in deps made this effect fire constantly — which snapped `source` back to
+    // 'External' right after every click on the Internal pill. Scope strictly to isOpen.
     useEffect(() => {
-        if (isOpen) {
-            if (isEditMode && interviewerData) {
-                const transformedDomains = (interviewerData.domains || [])
-                    .map(d => domainOptions.find(opt => opt.value === d))
-                    .filter(Boolean);
+        if (!isOpen) return;
+        if (isEditMode && interviewerData) {
+            const transformedDomains = (interviewerData.domains || [])
+                .map(d => domainOptions.find(opt => opt.value === d))
+                .filter(Boolean);
 
-                reset({
-                    ...interviewerData.user,
-                    ...interviewerData,
-                    domains: transformedDomains,
-                    source: interviewerData.source || 'External',
-                });
-            } else {
-                reset({ status: INTERVIEWER_STATUS.PROBATION, paymentAmount: '', companyType: 'Other', domains: [], source: 'External' });
-            }
+            const nextSource = interviewerData.source || 'External';
+            reset({
+                ...interviewerData.user,
+                ...interviewerData,
+                domains: transformedDomains,
+                source: nextSource,
+            });
+            setSource(nextSource);
+        } else {
+            reset({ status: INTERVIEWER_STATUS.PROBATION, paymentAmount: '', companyType: 'Other', domains: [], source: 'External' });
+            setSource('External');
         }
-    }, [interviewerData, isEditMode, reset, isOpen, domainOptions]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen]);
 
     const onSubmit = async (data) => {
         try {
@@ -107,23 +121,27 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
                         <div className="flex-grow overflow-y-auto">
                             <form id="interviewer-form" onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
 
+                                {/* Hidden RHF-tracked field; the toggle updates both local state
+                                    and this field via changeSource(). */}
+                                <input type="hidden" {...register('source')} />
+
                                 {/* Source selector — only on create */}
                                 {!isEditMode && (
                                     <div>
                                         <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Source Type</label>
                                         <div className="flex rounded-lg border border-slate-200 p-0.5 bg-slate-100">
-                                            <button type="button" onClick={() => setValue('source', 'Internal')}
+                                            <button type="button" onClick={() => changeSource('Internal')}
                                                 className={`flex-1 py-2 text-[13px] font-semibold rounded-md transition-all ${source === 'Internal' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
                                                 Internal
                                             </button>
-                                            <button type="button" onClick={() => setValue('source', 'External')}
+                                            <button type="button" onClick={() => changeSource('External')}
                                                 className={`flex-1 py-2 text-[13px] font-semibold rounded-md transition-all ${source === 'External' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
                                                 External
                                             </button>
                                         </div>
                                         {source === 'Internal' && (
-                                            <div className="mt-2 flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50/60 p-3 text-[12px] text-blue-800 leading-relaxed">
-                                                <Info size={14} className="text-blue-500 mt-0.5 shrink-0" />
+                                            <div className="mt-2 flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50/60 p-3 text-[12px] text-slate-700 leading-relaxed">
+                                                <Info className="h-3.5 w-3.5 text-slate-500 mt-0.5 shrink-0" aria-hidden="true" />
                                                 <span>Internal interviewers require only basic details. Additional fields can be updated later.</span>
                                             </div>
                                         )}

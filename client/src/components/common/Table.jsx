@@ -113,18 +113,20 @@ const Table = ({
               </p>
               <div className="flex items-center gap-1.5">
                   <button
+                    aria-label="Previous page"
                     onClick={handlePreviousPage}
                     disabled={pagination.currentPage === 1}
                     className="h-9 w-9 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors"
                   >
-                    <ChevronLeft className="h-4 w-4" />
+                    <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                   </button>
                   <button
+                    aria-label="Next page"
                     onClick={handleNextPage}
                     disabled={pagination.currentPage >= pagination.totalPages}
                     className="h-9 w-9 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors"
                   >
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="h-4 w-4" aria-hidden="true" />
                   </button>
               </div>
           </nav>

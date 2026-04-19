@@ -213,17 +213,17 @@ const InterviewDetailsModal = ({ isOpen, onClose, interview, onStatusChange }) =
 
                   {interview.meetingLink && (
                     <a href={interview.meetingLink} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200 hover:bg-blue-100 transition-colors group">
+                      className="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-200 hover:border-slate-900 transition-colors group">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <Video size={18} className="text-slate-900" />
-                        </div>
+                        <span className="inline-flex items-center justify-center h-9 w-9 rounded-lg border border-slate-200 bg-white text-slate-700">
+                          <Video className="h-4 w-4" aria-hidden="true" />
+                        </span>
                         <div>
-                          <p className="text-sm font-semibold text-blue-800">Join Meeting</p>
-                          <p className="text-xs text-blue-500 truncate max-w-[240px]">{interview.meetingLink}</p>
+                          <p className="text-[13px] font-semibold text-slate-900">Join meeting</p>
+                          <p className="text-[12px] text-slate-500 truncate max-w-[240px]">{interview.meetingLink}</p>
                         </div>
                       </div>
-                      <ExternalLink size={16} className="text-blue-400 group-hover:text-slate-900 transition-colors" />
+                      <ExternalLink className="h-4 w-4 text-slate-400 group-hover:text-slate-900 transition-colors" aria-hidden="true" />
                     </a>
                   )}
 

@@ -66,13 +66,13 @@ const LocalConfirmDialog = ({ isOpen, onClose, onConfirm, title, message, isLoad
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" onClick={onClose}>
             <div className="relative w-full max-w-md bg-white rounded-xl shadow-lg" onClick={e => e.stopPropagation()}>
                 <div className="p-6">
-                    <div className="flex items-start">
-                        <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                            <AlertTriangle className="h-6 w-6 text-red-600" aria-hidden="true" />
-                        </div>
-                        <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                            <h3 className="text-lg leading-6 font-medium text-gray-900">{title}</h3>
-                            <div className="mt-2"><p className="text-sm text-gray-500">{message}</p></div>
+                    <div className="flex items-start gap-4">
+                        <span className="flex-shrink-0 inline-flex items-center justify-center h-10 w-10 rounded-full border border-red-200 bg-white text-red-600">
+                            <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+                        </span>
+                        <div>
+                            <h3 className="text-[16px] font-semibold text-slate-900 tracking-tight">{title}</h3>
+                            <p className="mt-1.5 text-[13.5px] text-slate-600 leading-relaxed">{message}</p>
                         </div>
                     </div>
                 </div>
@@ -120,11 +120,12 @@ const LocalDropdownMenu = ({ options }) => {
     return (
         <div className="relative">
             <button
+                aria-label="Row actions"
                 ref={buttonRef}
                 onClick={toggleMenu}
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
             >
-                <MoreVertical className="h-4 w-4" />
+                <MoreVertical className="h-4 w-4" aria-hidden="true" />
             </button>
             {isOpen && createPortal(<MenuContent />, document.body)}
         </div>
@@ -168,11 +169,12 @@ const ActionsMenu = ({ onAddEntries, onReload, onExport, onImport, isRefreshing,
     return (
         <>
             <button
+                aria-label="More actions"
                 ref={buttonRef}
                 onClick={toggleMenu}
                 className="h-10 w-10 rounded-xl flex items-center justify-center border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-slate-600 transition-colors"
             >
-                <MoreVertical className="h-4 w-4" />
+                <MoreVertical className="h-4 w-4" aria-hidden="true" />
             </button>
             {open && createPortal(
                 <div
@@ -739,7 +741,7 @@ const MainSheet = () => {
                     <div className="flex items-center gap-3">
                         <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">Main Sheet</h1>
                         {pagination.totalItems > 0 && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-widest uppercase text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-0.5 rounded-full">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-widest uppercase border border-slate-200 bg-white text-slate-700 border border-emerald-100 px-2.5 py-0.5 rounded-full">
                                 {pagination.totalItems} records
                             </span>
                         )}

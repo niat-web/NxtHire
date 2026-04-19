@@ -30,8 +30,8 @@ const AccordionItem = ({ tech, register, setValue, watch, isOpen, onToggle }) =>
       <button type="button" onClick={onToggle}
         className="flex justify-between items-center w-full px-5 py-4 text-left">
         <div className="flex items-center gap-3">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold ${selectedCount > 0 ? 'bg-blue-100 text-slate-900' : 'bg-gray-100 text-gray-500'}`}>
-            {selectedCount > 0 ? <Check size={14} /> : tech.name.charAt(0)}
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[12px] font-semibold border ${selectedCount > 0 ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-white text-slate-600'}`}>
+            {selectedCount > 0 ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : tech.name.charAt(0)}
           </div>
           <div>
             <h4 className="text-sm font-semibold text-gray-900">{tech.name}</h4>

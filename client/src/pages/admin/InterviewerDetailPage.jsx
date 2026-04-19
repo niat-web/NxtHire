@@ -67,13 +67,13 @@ const InterviewerDetailPage = () => {
   if (error || !interviewer) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4 px-6">
-        <div className="w-14 h-14 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center">
-          <Shield className="h-6 w-6 text-rose-500" />
-        </div>
-        <h2 className="text-lg font-bold text-slate-900">Interviewer not found</h2>
-        <p className="text-sm text-slate-500">The record may have been deleted or the ID is invalid.</p>
-        <button onClick={() => navigate('/admin/interviewers')} className="text-sm font-semibold text-slate-900 hover:text-blue-800">
-          <ArrowLeft className="inline h-4 w-4 mr-1" /> Back to Interviewers
+        <span className="inline-flex items-center justify-center h-16 w-16 rounded-2xl border border-slate-200 bg-white text-slate-700">
+          <Shield className="h-6 w-6" aria-hidden="true" />
+        </span>
+        <h2 className="font-display text-[22px] font-semibold text-slate-900 tracking-tight">Interviewer not found.</h2>
+        <p className="text-[13.5px] text-slate-500">The record may have been deleted or the ID is invalid.</p>
+        <button onClick={() => navigate('/admin/interviewers')} className="inline-flex h-10 items-center gap-1.5 rounded-full border border-slate-900 px-4 text-[12.5px] font-semibold text-slate-900 transition-colors hover:bg-slate-900 hover:text-white">
+          <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" /> Back to interviewers
         </button>
       </div>
     );
@@ -150,12 +150,10 @@ const InterviewerDetailPage = () => {
 
         {/* Header card */}
         <motion.div
-          className="relative overflow-hidden rounded-xl border border-slate-200 bg-gradient-to-br from-white via-white to-emerald-50/30 shadow-sm p-6 lg:p-7"
+          className="rounded-2xl border border-slate-200 bg-white p-6 lg:p-7"
           initial="hidden" animate="visible" variants={fadeUp}
         >
-          <div className="absolute -top-16 -right-16 w-56 h-56 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-16 -left-16 w-56 h-56 bg-blue-100/40 rounded-full blur-3xl pointer-events-none" />
-          <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">{fullName}</h1>

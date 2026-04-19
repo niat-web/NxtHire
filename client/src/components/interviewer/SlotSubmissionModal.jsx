@@ -154,7 +154,7 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
 
                     {/* Interviewer Info */}
                     <div className="flex items-center gap-4 mb-8 p-5 bg-white rounded-xl border border-slate-100 shadow-md">
-                        <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-slate-900 font-semibold text-lg">
+                        <div className="h-12 w-12 rounded-full bg-slate-900 flex items-center justify-center text-white font-semibold text-[15px]">
                             {currentUser?.firstName?.[0]}
                         </div>
                         <div>
@@ -203,7 +203,7 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
                             type="button"
                             variant="outline"
                             onClick={() => append({ startTime: '', endTime: '' })}
-                            className="bg-slate-50 text-slate-900 hover:bg-blue-100 border-slate-200"
+                            className="bg-white text-slate-900 hover:border-slate-900 border border-slate-200"
                         >
                             <Plus className="mr-2 h-4 w-4" /> Add Slot
                         </Button>

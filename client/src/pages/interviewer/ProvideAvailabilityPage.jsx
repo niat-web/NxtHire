@@ -124,15 +124,15 @@ const ProvideAvailabilityPage = () => {
 
                 {/* Card Content */}
                 {bookingRequest && (
-                  <div className="p-6 space-y-6">
+                  <div className="p-6 space-y-3">
                     {/* Interview Date */}
-                    <div className="flex items-start space-x-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                      <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Calendar className="w-6 h-6 text-slate-900" />
-                      </div>
+                    <div className="flex items-start space-x-4 p-4 rounded-2xl border border-slate-200 bg-white">
+                      <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl border border-slate-200 bg-white text-slate-700 flex-shrink-0">
+                        <Calendar className="h-5 w-5" aria-hidden="true" />
+                      </span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-slate-900 uppercase tracking-wider mb-1">Interview Date</p>
-                        <p className="text-lg font-semibold text-gray-900 leading-tight">
+                        <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1">Interview date</p>
+                        <p className="text-[16px] font-semibold text-slate-900 leading-tight">
                           {formatDate(bookingRequest.bookingDate)}
                         </p>
                       </div>
@@ -140,13 +140,13 @@ const ProvideAvailabilityPage = () => {
 
                     {/* Candidate Information */}
                     {bookingRequest.candidateName && (
-                      <div className="flex items-start space-x-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                        <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <User className="w-6 h-6 text-slate-900" />
-                        </div>
+                      <div className="flex items-start space-x-4 p-4 rounded-2xl border border-slate-200 bg-white">
+                        <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl border border-slate-200 bg-white text-slate-700 flex-shrink-0">
+                          <User className="h-5 w-5" aria-hidden="true" />
+                        </span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-slate-900 uppercase tracking-wider mb-1">Candidate</p>
-                          <p className="text-lg font-semibold text-gray-900 leading-tight truncate">
+                          <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1">Candidate</p>
+                          <p className="text-[16px] font-semibold text-slate-900 leading-tight truncate">
                             {bookingRequest.candidateName}
                           </p>
                         </div>
@@ -155,29 +155,29 @@ const ProvideAvailabilityPage = () => {
 
                     {/* Position */}
                     {bookingRequest.position && (
-                      <div className="flex items-start space-x-4 p-4 bg-purple-50 rounded-xl border border-purple-100">
-                        <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <Building2 className="w-6 h-6 text-purple-600" />
-                        </div>
+                      <div className="flex items-start space-x-4 p-4 rounded-2xl border border-slate-200 bg-white">
+                        <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl border border-slate-200 bg-white text-slate-700 flex-shrink-0">
+                          <Building2 className="h-5 w-5" aria-hidden="true" />
+                        </span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-purple-600 uppercase tracking-wider mb-1">Position</p>
-                          <p className="text-lg font-semibold text-gray-900 leading-tight">
+                          <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1">Position</p>
+                          <p className="text-[16px] font-semibold text-slate-900 leading-tight">
                             {bookingRequest.position}
                           </p>
                         </div>
                       </div>
                     )}
 
-                    {/* Status */}
-                    <div className="flex items-start space-x-4 p-4 bg-amber-50 rounded-xl border border-amber-100">
-                      <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Clock className="w-6 h-6 text-amber-600" />
-                      </div>
+                    {/* Status — keeps amber because it IS semantic warning */}
+                    <div className="flex items-start space-x-4 p-4 rounded-2xl border border-amber-200 bg-amber-50/60">
+                      <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl border border-amber-200 bg-white text-amber-600 flex-shrink-0">
+                        <Clock className="h-5 w-5" aria-hidden="true" />
+                      </span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-amber-600 uppercase tracking-wider mb-1">Status</p>
+                        <p className="text-[11px] font-semibold text-amber-700 uppercase tracking-[0.2em] mb-1">Status</p>
                         <div className="flex items-center mt-2">
-                          <Badge variant="warning" className="px-3 py-1.5 text-sm">
-                            <AlertCircle className="w-4 h-4 mr-1.5" />
+                          <Badge variant="warning" className="gap-1.5">
+                            <AlertCircle className="h-3 w-3" aria-hidden="true" />
                             Awaiting Availability
                           </Badge>
                         </div>
@@ -203,10 +203,10 @@ const ProvideAvailabilityPage = () => {
                       'Ensure stable internet for video calls'
                     ].map((tip, index) => (
                       <li key={index} className="flex items-start space-x-3">
-                        <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <div className="w-2 h-2 bg-slate-900 rounded-full"></div>
-                        </div>
-                        <span className="text-sm text-gray-700 leading-relaxed">{tip}</span>
+                        <span className="w-6 h-6 rounded-full border border-slate-200 bg-white flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#FF4800' }} />
+                        </span>
+                        <span className="text-[13.5px] text-slate-700 leading-relaxed">{tip}</span>
                       </li>
                     ))}
                   </ul>

@@ -5,7 +5,7 @@ import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import {
     User, Search, Edit, Trash2, Plus, Upload, CheckCircle,
-    AlertTriangle, Loader2, X, ChevronLeft, ChevronRight,
+    AlertTriangle, Loader2, X, ChevronLeft, ChevronRight, ChevronUp, Minus,
     Users, ChevronDown, Eye, Phone, MessageCircle, Briefcase, CreditCard,
     Send, RefreshCw
 } from 'lucide-react';
@@ -323,11 +323,11 @@ const Interviewers = () => {
             case 'user.email':
                 return <span className="text-slate-600 text-sm">{r.user.email}</span>;
             case 'user.phoneNumber':
-                return <div className="flex items-center gap-2 text-slate-600 text-sm"><Phone className="text-slate-400 w-3 h-3" /> {r.user.phoneNumber}</div>;
+                return <div className="flex items-center gap-2 text-slate-700 text-[13px]"><Phone className="h-3 w-3 text-slate-400" aria-hidden="true" /> {r.user.phoneNumber}</div>;
             case 'user.whatsappNumber':
-                return <div className="flex items-center gap-2 text-slate-600 text-sm"><MessageCircle className="text-emerald-500 w-3 h-3" /> {r.user.whatsappNumber || '-'}</div>;
+                return <div className="flex items-center gap-2 text-slate-700 text-[13px]"><MessageCircle className="h-3 w-3 text-slate-400" aria-hidden="true" /> {r.user.whatsappNumber || <span className="text-slate-300">—</span>}</div>;
             case 'yearsOfExperience':
-                return <span className="text-slate-900 font-medium text-sm">{r.yearsOfExperience} Years</span>;
+                return <span className="text-slate-900 font-medium text-[13px]">{r.yearsOfExperience} yrs</span>;
             case 'paymentAmount': {
                 const EditablePayment = () => {
                     const [val, setVal] = useState(String(r.paymentAmount || '').replace(/[^0-9]/g, ''));
@@ -339,11 +339,12 @@ const Interviewers = () => {
                         try { await updateInterviewer(r._id, { paymentAmount: clean }); showSuccess('Payment updated'); invalidateInterviewers(); }
                         catch { showError('Failed to update'); } finally { setSaving(false); }
                     };
+                    const isZero = !val || val === '0';
                     return (
                         <div className="relative">
-                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">₹</span>
+                            <span className={`absolute left-2.5 top-1/2 -translate-y-1/2 text-[12px] ${isZero ? 'text-slate-300' : 'text-slate-500'}`} aria-hidden="true">₹</span>
                             <input type="text" value={val} onChange={e => setVal(e.target.value.replace(/[^0-9]/g, ''))} onBlur={save} disabled={saving} placeholder="0"
-                                className="w-full pl-6 pr-2 py-1.5 text-xs font-semibold text-slate-900 border border-transparent rounded-lg bg-transparent hover:border-slate-200 focus:bg-white focus:border-slate-300 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-blue-400 text-right transition-all" />
+                                className={`w-24 pl-6 pr-2 py-1.5 text-[13px] font-semibold border border-transparent rounded-lg bg-transparent hover:border-slate-200 focus:bg-white focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 text-right transition-colors ${isZero ? 'text-slate-400' : 'text-slate-900'}`} />
                         </div>
                     );
                 };
@@ -352,7 +353,7 @@ const Interviewers = () => {
             case 'source': {
                 const isInternal = r.source === 'Internal';
                 return (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide border border-slate-200 bg-slate-50 text-slate-700">
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold uppercase tracking-wide border ${isInternal ? 'border-slate-900 bg-white text-slate-900' : 'border-slate-200 bg-white text-slate-600'}`}>
                         {isInternal ? 'Internal' : 'External'}
                     </span>
                 );
@@ -361,14 +362,15 @@ const Interviewers = () => {
                 return (
                     <div className="relative">
                         <select value={r.status} onChange={(e) => handleStatusChange(r._id, e.target.value)} disabled={updatingId === r._id}
-                            className={`w-full text-[11px] font-semibold uppercase tracking-wide pl-3 pr-7 py-1.5 rounded-full appearance-none cursor-pointer focus:outline-none border ${
+                            className={`w-full text-[10.5px] font-semibold uppercase tracking-wide pl-3 pr-7 py-1 rounded-full appearance-none cursor-pointer focus:outline-none border ${
                                 r.status === 'Active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
                                 r.status === 'On Probation' ? 'bg-amber-50 text-amber-800 border-amber-200' :
+                                r.status === 'Suspended' || r.status === 'Terminated' ? 'bg-red-50 text-red-700 border-red-200' :
                                 'bg-slate-50 text-slate-600 border-slate-200'
                             }`}>
                             {Object.values(INTERVIEWER_STATUS).map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
-                        <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 opacity-50 pointer-events-none" />
+                        <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 opacity-50 pointer-events-none" aria-hidden="true" />
                     </div>
                 );
             default:
@@ -379,66 +381,60 @@ const Interviewers = () => {
     return (
         <div className="flex flex-col h-full overflow-hidden bg-white">
 
-            {/* Header hero */}
-            <section className="border-b border-slate-200 bg-white px-6 lg:px-10 pt-8 pb-6 shrink-0">
-                <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-6 max-w-7xl w-full mx-auto">
-                    <div>
-                        <h1 style={{ fontFamily: 'Fraunces, Georgia, serif' }} className="text-[32px] sm:text-[38px] font-semibold text-slate-900 tracking-tight leading-none">Interviewers</h1>
-                        <p className="mt-2 text-[13.5px] text-slate-500">{totalDocs} total</p>
+            {/* Single-row header — title left, search + filters + actions all on one line */}
+            <section className="border-b border-slate-200 bg-white px-6 lg:px-8 py-4 shrink-0">
+                <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-baseline gap-3 mr-auto">
+                        <h1 style={{ fontFamily: 'Fraunces, Georgia, serif' }} className="text-[26px] sm:text-[30px] font-semibold text-slate-900 tracking-tight leading-none">Interviewers</h1>
+                        <span className="text-[13px] text-slate-500">{totalDocs} total</span>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                        {selectedRows.length > 0 && (
-                            <div className="flex items-center gap-2 bg-slate-900 text-white px-3 h-10 rounded-full mr-1">
-                                <span className="text-[12px] font-semibold">{selectedRows.length} selected</span>
-                                {selectedRows.length === 1 && (
-                                    <button onClick={() => setModalState({ type: 'edit', data: interviewers.find(i => i._id === selectedRows[0]) })} className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors" title="Edit">
-                                        <Edit className="w-3.5 h-3.5" />
-                                    </button>
-                                )}
-                                <button onClick={() => setDeleteDialog({ isOpen: true, ids: selectedRows, isBulk: true })} className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors" title="Delete">
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                            </div>
-                        )}
-                        <button onClick={() => setIsUploadModalOpen(true)} className="inline-flex h-10 items-center gap-1.5 rounded-full border border-slate-900 px-4 text-[12.5px] font-semibold text-slate-900 transition-colors hover:bg-slate-900 hover:text-white">
-                            <Upload className="h-4 w-4" /> Import
-                        </button>
-                        <button onClick={() => setModalState({ type: 'add', data: null })} className="inline-flex h-10 items-center gap-2 rounded-full bg-slate-900 px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#FF4800]">
-                            <Plus className="h-4 w-4" /> Add interviewer
-                        </button>
-                    </div>
-                </div>
-            </section>
 
-            {/* Sticky filter bar */}
-            <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/90 backdrop-blur px-6 lg:px-10 py-3 shrink-0">
-                <div className="flex flex-wrap items-center gap-3 max-w-7xl w-full mx-auto">
-                    <div className="relative w-full sm:w-72">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <div className="relative w-full sm:w-64">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
                         <input type="text" value={filters.search} onChange={(e) => setFilters(p => ({ ...p, search: e.target.value }))} placeholder="Search by name or email"
-                            className="w-full h-10 pl-10 pr-4 bg-white border border-slate-200 rounded-full text-[13px] placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 transition-colors" />
+                            className="w-full h-9 pl-10 pr-4 bg-white border border-slate-200 rounded-full text-[13px] placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 transition-colors" />
                     </div>
                     <div className="relative">
                         <select value={filters.status} onChange={(e) => setFilters(p => ({ ...p, status: e.target.value }))}
-                            className="appearance-none bg-white border border-slate-200 text-slate-700 text-[13px] rounded-full focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 h-10 pl-4 pr-9 cursor-pointer transition-colors">
+                            className="appearance-none bg-white border border-slate-200 text-slate-700 text-[13px] rounded-full focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 h-9 pl-4 pr-9 cursor-pointer transition-colors">
                             <option value="">All status</option>
                             {Object.values(INTERVIEWER_STATUS).map(s => (<option key={s} value={s}>{s}</option>))}
                         </select>
-                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" aria-hidden="true" />
                     </div>
                     <div className="relative">
                         <select value={filters.domain} onChange={(e) => setFilters(p => ({ ...p, domain: e.target.value }))}
-                            className="appearance-none bg-white border border-slate-200 text-slate-700 text-[13px] rounded-full focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 h-10 pl-4 pr-9 cursor-pointer transition-colors">
+                            className="appearance-none bg-white border border-slate-200 text-slate-700 text-[13px] rounded-full focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 h-9 pl-4 pr-9 cursor-pointer transition-colors">
                             <option value="">All domains</option>
                             {DOMAINS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
                         </select>
-                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" aria-hidden="true" />
                     </div>
                     {(filters.search || filters.status || filters.domain) && (
                         <button onClick={resetFilters} className="text-[12px] text-slate-500 hover:text-slate-900 font-medium px-3 h-8 rounded-full hover:bg-slate-100 transition-colors">Clear</button>
                     )}
+
+                    {selectedRows.length > 0 && (
+                        <div className="flex items-center gap-2 bg-slate-900 text-white px-3 h-9 rounded-full">
+                            <span className="text-[12px] font-semibold">{selectedRows.length} selected</span>
+                            {selectedRows.length === 1 && (
+                                <button aria-label="Edit" onClick={() => setModalState({ type: 'edit', data: interviewers.find(i => i._id === selectedRows[0]) })} className="h-6 w-6 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors">
+                                    <Edit className="h-3.5 w-3.5" aria-hidden="true" />
+                                </button>
+                            )}
+                            <button aria-label="Delete" onClick={() => setDeleteDialog({ isOpen: true, ids: selectedRows, isBulk: true })} className="h-6 w-6 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors">
+                                <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                            </button>
+                        </div>
+                    )}
+                    <button onClick={() => setIsUploadModalOpen(true)} className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-900 px-4 text-[12.5px] font-semibold text-slate-900 transition-colors hover:bg-slate-900 hover:text-white">
+                        <Upload className="h-3.5 w-3.5" aria-hidden="true" /> Import
+                    </button>
+                    <button onClick={() => setModalState({ type: 'add', data: null })} className="inline-flex h-9 items-center gap-2 rounded-full bg-slate-900 px-4 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#FF4800]">
+                        <Plus className="h-3.5 w-3.5" aria-hidden="true" /> Add interviewer
+                    </button>
                 </div>
-            </div>
+            </section>
 
             {/* Table — local inline implementation */}
             <div className="flex-1 overflow-hidden flex flex-col">
@@ -456,9 +452,9 @@ const Interviewers = () => {
                                                 <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900" onChange={(e) => setSelectedRows(e.target.checked ? interviewers.map(i => i._id) : [])} checked={selectedRows.length === interviewers.length && interviewers.length > 0} />
                                             ) : col.title}
                                             {col.sortable && (
-                                                <span className="text-[10px]">
-                                                    {sortConfig.key === col.key ? (sortConfig.direction === 'asc' ? '▲' : '▼') : <span className="text-slate-300">⇅</span>}
-                                                </span>
+                                                sortConfig.key === col.key
+                                                    ? (sortConfig.direction === 'asc' ? <ChevronUp className="h-3 w-3 text-slate-900" aria-hidden="true" /> : <ChevronDown className="h-3 w-3 text-slate-900" aria-hidden="true" />)
+                                                    : <Minus className="h-3 w-3 text-slate-300" aria-hidden="true" />
                                             )}
                                         </div>
                                     </th>
@@ -480,7 +476,7 @@ const Interviewers = () => {
                                 interviewers.map((r) => (
                                     <tr key={r._id} className="hover:bg-slate-50/60 transition-colors group">
                                         {columns.map((col) => (
-                                            <td key={col.key} className="px-5 py-3 whitespace-nowrap text-[13px] text-slate-700 align-middle">
+                                            <td key={col.key} className="px-5 py-2.5 whitespace-nowrap text-[13px] text-slate-700 align-middle">
                                                 {renderCell(col, r)}
                                             </td>
                                         ))}
@@ -492,18 +488,18 @@ const Interviewers = () => {
                 </div>
 
                 {!loading && totalDocs > 0 && (
-                    <div className="px-6 lg:px-10 py-3.5 border-t border-slate-200 bg-white flex items-center justify-between shrink-0">
+                    <div className="px-6 lg:px-8 py-3 border-t border-slate-200 bg-white flex items-center justify-between shrink-0">
                         <p className="text-[12px] text-slate-500">
-                            Page <span className="font-semibold text-slate-900">{currentPage}</span> of {totalPages} · <span className="font-semibold text-slate-900">{totalDocs}</span> total
+                            Page <span className="font-semibold text-slate-900">{currentPage}</span> of <span className="font-semibold text-slate-900">{totalPages}</span> · <span className="font-semibold text-slate-900">{totalDocs.toLocaleString()}</span> total
                         </p>
                         <div className="flex items-center gap-1.5">
-                            <button onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage === 1}
-                                className="h-9 w-9 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors">
-                                <ChevronLeft className="w-4 h-4" />
+                            <button aria-label="Previous page" onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage === 1}
+                                className="h-8 w-8 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors">
+                                <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
                             </button>
-                            <button onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage === totalPages}
-                                className="h-9 w-9 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors">
-                                <ChevronRight className="w-4 h-4" />
+                            <button aria-label="Next page" onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage === totalPages}
+                                className="h-8 w-8 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors">
+                                <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
                             </button>
                         </div>
                     </div>

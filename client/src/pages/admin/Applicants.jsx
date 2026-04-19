@@ -236,8 +236,8 @@ const Applicants = () => {
                     <div className="flex-1" />
 
                     {/* Right side actions */}
-                    <button onClick={handleExport} className="h-9 w-9 rounded-md flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors shrink-0" title="Export">
-                        <Download size={16} />
+                    <button aria-label="Export applicants" onClick={handleExport} className="h-9 w-9 rounded-md flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors shrink-0" title="Export">
+                        <Download className="h-4 w-4" aria-hidden="true" />
                     </button>
                     <button onClick={() => setModalState({ type: 'add', data: null })}
                         className="inline-flex items-center gap-2 px-4 h-9 text-[13px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] transition-colors shrink-0">
