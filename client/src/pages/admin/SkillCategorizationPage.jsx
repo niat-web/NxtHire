@@ -94,7 +94,7 @@ const ApplicantInfo = ({ applicant, skillAssessment }) => (
                     </div>
                     <div className="flex items-center">
                         <Linkedin className="w-4 h-4 mr-2" />
-                        <a href={applicant.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                        <a href={applicant.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-slate-900 hover:underline">
                             LinkedIn Profile
                         </a>
                     </div>
@@ -109,7 +109,7 @@ const BasicMetrics = ({ skillAssessment }) => (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <SimpleCard className="p-5">
             <div className="flex items-center mb-2">
-                <User className="w-5 h-5 text-blue-600 mr-2" />
+                <User className="w-5 h-5 text-slate-900 mr-2" />
                 <span className="text-sm font-medium text-slate-600">Current Role</span>
             </div>
             <p className="font-semibold text-slate-900">{skillAssessment.jobTitle}</p>
@@ -118,7 +118,7 @@ const BasicMetrics = ({ skillAssessment }) => (
 
         <SimpleCard className="p-5">
             <div className="flex items-center mb-2">
-                <Clock className="w-5 h-5 text-blue-600 mr-2" />
+                <Clock className="w-5 h-5 text-slate-900 mr-2" />
                 <span className="text-sm font-medium text-slate-600">Experience</span>
             </div>
             <p className="text-xl font-semibold text-slate-900">{skillAssessment.yearsOfExperience} years</p>
@@ -126,10 +126,10 @@ const BasicMetrics = ({ skillAssessment }) => (
 
         <SimpleCard className="p-5">
             <div className="flex items-center mb-2">
-                <Star className="w-5 h-5 text-blue-600 mr-2" />
+                <Star className="w-5 h-5 text-slate-900 mr-2" />
                 <span className="text-sm font-medium text-slate-600">Suggested Domain</span>
             </div>
-            <p className="font-semibold text-blue-700">{skillAssessment.autoCategorizedDomain || 'N/A'}</p>
+            <p className="font-semibold text-slate-900">{skillAssessment.autoCategorizedDomain || 'N/A'}</p>
         </SimpleCard>
     </div>
 );
@@ -205,7 +205,7 @@ const ReviewForm = ({ applicant, skillAssessment, onCategorizeComplete }) => {
     return (
         <SimpleCard className="p-6">
             <div className="flex items-center mb-6">
-                <CheckCircle className="w-5 h-5 text-blue-600 mr-2" />
+                <CheckCircle className="w-5 h-5 text-slate-900 mr-2" />
                 <h3 className="text-lg font-semibold text-slate-900">Admin Review</h3>
             </div>
 
@@ -244,7 +244,7 @@ const ReviewForm = ({ applicant, skillAssessment, onCategorizeComplete }) => {
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Add notes about this assessment..."
                         rows={4}
-                        className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
+                        className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
                     />
                 </div>
 
@@ -290,7 +290,7 @@ const SimpleSidebar = ({
                         value={searchTerm}
                         onChange={onSearchChange}
                         placeholder="Search applicants..."
-                        className="w-full pl-9 pr-9 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-300 focus:outline-none"
+                        className="w-full pl-9 pr-9 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:outline-none"
                     />
                     {searchTerm && (
                         <button
@@ -324,7 +324,7 @@ const SimpleSidebar = ({
                     <button
                         key={assessment._id}
                         onClick={() => onSelectAssessment(assessment)}
-                        className={`w-full text-left p-4 border-b border-slate-100 hover:bg-slate-50 focus:outline-none transition-colors ${selectedAssessment?._id === assessment._id ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''}`}
+                        className={`w-full text-left p-4 border-b border-slate-100 hover:bg-slate-50 focus:outline-none transition-colors ${selectedAssessment?._id === assessment._id ? 'bg-slate-50 border-l-4 border-l-blue-600' : ''}`}
                     >
                         <div className="flex justify-between items-start mb-2">
                             <p className="font-medium text-slate-900">{assessment.applicant.fullName}</p>
@@ -437,7 +437,7 @@ const SkillCategorizationPage = () => {
     };
 
     return (
-        <div className="flex h-full bg-[#f5f7fb]">
+        <div className="flex h-full bg-[#FAFAF9]">
             <SimpleSidebar
                 assessments={assessments}
                 selectedAssessment={selectedAssessment}

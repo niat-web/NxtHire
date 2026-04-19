@@ -88,7 +88,7 @@ const BookingForm = ({ onSubmit, initialData = null }) => {
                         render={({ field }) => (
                             <DatePicker selected={field.value} onChange={field.onChange} minDate={new Date()} dateFormat="EEE, MMM d, yyyy" placeholderText="Select date..."
                                 portalId="datepicker-portal" popperClassName="!z-[9999]" popperProps={{ strategy: 'fixed' }}
-                                className="pl-10 pr-3 h-9 border border-slate-200 rounded-md text-[13px] font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 bg-white w-52" />
+                                className="pl-10 pr-3 h-9 border border-slate-200 rounded-md text-[13px] font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 bg-white w-52" />
                         )} />
                 </div>
                 {errors.bookingDate && <span className="text-[11px] text-red-500 font-medium">{errors.bookingDate.message}</span>}
@@ -97,7 +97,7 @@ const BookingForm = ({ onSubmit, initialData = null }) => {
 
                 {/* Selected count */}
                 <span className="text-[11px] text-slate-500">
-                    Selected: <span className="font-bold text-blue-600">{(selectedInterviewerIds || []).length}</span> / {filtered.length}
+                    Selected: <span className="font-bold text-slate-900">{(selectedInterviewerIds || []).length}</span> / {filtered.length}
                 </span>
                 {errors.interviewerIds && <span className="text-[11px] text-red-500 font-medium">Select at least one</span>}
             </div>
@@ -107,11 +107,11 @@ const BookingForm = ({ onSubmit, initialData = null }) => {
                 <div className="relative w-52">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                     <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Search interviewers..."
-                        className="w-full pl-9 pr-3 h-8 bg-slate-50 border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all" />
+                        className="w-full pl-9 pr-3 h-8 bg-slate-50 border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all" />
                 </div>
                 <div className="relative">
                     <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-                        className="appearance-none h-8 pl-3 pr-7 bg-white border border-slate-200 rounded-md text-[12px] cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-colors">
+                        className="appearance-none h-8 pl-3 pr-7 bg-white border border-slate-200 rounded-md text-[12px] cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors">
                         <option value="">All Statuses</option>
                         {Object.values(INTERVIEWER_STATUS).map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
@@ -119,7 +119,7 @@ const BookingForm = ({ onSubmit, initialData = null }) => {
                 </div>
                 <div className="relative">
                     <select value={domainFilter} onChange={e => setDomainFilter(e.target.value)}
-                        className="appearance-none h-8 pl-3 pr-7 bg-white border border-slate-200 rounded-md text-[12px] cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-colors">
+                        className="appearance-none h-8 pl-3 pr-7 bg-white border border-slate-200 rounded-md text-[12px] cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors">
                         <option value="">All Domains</option>
                         {DOMAINS.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
                     </select>
@@ -133,7 +133,7 @@ const BookingForm = ({ onSubmit, initialData = null }) => {
                     Select Active ({activeCount})
                 </button>
                 <label className="flex items-center gap-1.5 cursor-pointer select-none">
-                    <input type="checkbox" className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-3.5 w-3.5"
+                    <input type="checkbox" className="rounded border-slate-300 text-slate-900 focus:ring-slate-900 h-3.5 w-3.5"
                         checked={(selectedInterviewerIds || []).length === filtered.length && filtered.length > 0}
                         onChange={selectAll} disabled={loadingInterviewers || filtered.length === 0} />
                     <span className="text-[11px] text-slate-600 font-medium">All</span>
@@ -182,10 +182,10 @@ const BookingForm = ({ onSubmit, initialData = null }) => {
                                             const isSelected = (field.value || []).includes(interviewer.value);
                                             return (
                                                 <tr key={interviewer.value} onClick={() => toggleSelect(interviewer.value)}
-                                                    className={cn('cursor-pointer transition-colors', isSelected ? 'bg-blue-50/50' : 'hover:bg-slate-50/60')}>
+                                                    className={cn('cursor-pointer transition-colors', isSelected ? 'bg-slate-50/50' : 'hover:bg-slate-50/60')}>
                                                     <td className="px-5 py-2.5">
                                                         <div className={cn('w-4 h-4 rounded border-2 flex items-center justify-center transition-all',
-                                                            isSelected ? 'bg-blue-600 border-blue-600' : 'bg-white border-slate-300')}>
+                                                            isSelected ? 'bg-slate-900 border-blue-600' : 'bg-white border-slate-300')}>
                                                             {isSelected && <Check className="w-2.5 h-2.5 text-white" />}
                                                         </div>
                                                     </td>

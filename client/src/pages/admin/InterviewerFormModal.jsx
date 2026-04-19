@@ -78,7 +78,7 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
 
     const reactSelectStyles = { menuPortal: base => ({ ...base, zIndex: 100 }) };
 
-    const inputClass = (hasError) => `h-10 w-full rounded-lg border ${hasError ? 'border-red-300' : 'border-slate-200'} bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300`;
+    const inputClass = (hasError) => `h-10 w-full rounded-lg border ${hasError ? 'border-red-300' : 'border-slate-200'} bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900`;
 
     return createPortal(
         <AnimatePresence>
@@ -122,7 +122,7 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
                                             </button>
                                         </div>
                                         {source === 'Internal' && (
-                                            <div className="mt-2 flex items-start gap-2 rounded-lg border border-blue-200 bg-blue-50/60 p-3 text-[12px] text-blue-800 leading-relaxed">
+                                            <div className="mt-2 flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50/60 p-3 text-[12px] text-blue-800 leading-relaxed">
                                                 <Info size={14} className="text-blue-500 mt-0.5 shrink-0" />
                                                 <span>Internal interviewers require only basic details. Additional fields can be updated later.</span>
                                             </div>
@@ -169,7 +169,7 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
 
                                 {/* Password info — only on create */}
                                 {!isEditMode && (
-                                    <div className="rounded-lg border border-blue-200 bg-blue-50/60 p-3 text-[12px] text-blue-800 leading-relaxed">
+                                    <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-3 text-[12px] text-blue-800 leading-relaxed">
                                         <p className="font-semibold text-blue-900 mb-0.5">Password setup via email</p>
                                         The interviewer will receive a welcome email with a secure link to set their own password. No password is required here.
                                     </div>
@@ -202,7 +202,7 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
 
                                         <div>
                                             <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Company Type</label>
-                                            <select {...register('companyType')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300">
+                                            <select {...register('companyType')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900">
                                                 {companyTypeOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                             </select>
                                         </div>
@@ -210,17 +210,17 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Interviewer ID</label>
-                                                <input type="text" {...register('interviewerId')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300" />
+                                                <input type="text" {...register('interviewerId')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900" />
                                             </div>
                                             <div>
                                                 <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Payout ID</label>
-                                                <input type="text" {...register('payoutId')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300" />
+                                                <input type="text" {...register('payoutId')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900" />
                                             </div>
                                         </div>
 
                                         <div>
                                             <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Payment Amount (₹ per interview)</label>
-                                            <input type="number" placeholder="e.g. 500" {...register('paymentAmount')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300" />
+                                            <input type="number" placeholder="e.g. 500" {...register('paymentAmount')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900" />
                                         </div>
                                     </>
                                 )}
@@ -228,7 +228,7 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
                                 {/* Status — always show */}
                                 <div>
                                     <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Status</label>
-                                    <select {...register('status')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300">
+                                    <select {...register('status')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900">
                                         {statusOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                     </select>
                                 </div>
@@ -239,7 +239,7 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
                         {/* Footer */}
                         <div className="flex justify-end gap-3 px-5 py-4 border-t border-slate-200 bg-slate-50 flex-shrink-0">
                             <button type="button" onClick={onClose} className="px-4 h-10 text-[13px] font-medium rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors">Cancel</button>
-                            <button type="submit" form="interviewer-form" disabled={isSubmitting} className="px-4 h-10 text-[13px] font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors inline-flex items-center">
+                            <button type="submit" form="interviewer-form" disabled={isSubmitting} className="px-4 h-10 text-[13px] font-medium rounded-md bg-slate-900 text-white hover:bg-[#FF4800] disabled:opacity-50 transition-colors inline-flex items-center">
                                 {isSubmitting ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Save className="mr-1.5 h-4 w-4" />}
                                 {isEditMode ? 'Save Changes' : 'Create Interviewer'}
                             </button>

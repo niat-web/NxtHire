@@ -26,7 +26,7 @@ const tabComponents = {
 const BASE = '/admin/hiring';
 
 const HiringSidebar = memo(({ activeTab, onTabClick, counts }) => (
-  <aside className="w-56 flex-shrink-0 bg-[#f0f4fa] border-r border-slate-200/80 flex flex-col">
+  <aside className="w-56 flex-shrink-0 bg-white border-r border-slate-200/80 flex flex-col">
     <nav className="flex-1 p-3 space-y-0.5">
       {tabs.map(tab => {
         const isActive = activeTab === tab.id;
@@ -38,7 +38,7 @@ const HiringSidebar = memo(({ activeTab, onTabClick, counts }) => (
             className={cn(
               'flex items-center w-full px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-150',
               isActive
-                ? 'bg-white text-blue-700 shadow-sm border border-slate-200/60'
+                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/60'
                 : 'text-slate-600 hover:bg-white/70 hover:text-slate-900'
             )}
           >

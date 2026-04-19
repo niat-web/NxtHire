@@ -77,7 +77,7 @@ const InitialApplicationForm = ({ onSuccess }) => {
 
   const labelCls = 'block text-sm font-medium text-gray-700 mb-1.5';
   const iconCls =
-    'absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-gray-400 group-focus-within:text-blue-600 transition-colors';
+    'absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-gray-400 group-focus-within:text-slate-900 transition-colors';
 
   return (
     <>
@@ -233,7 +233,7 @@ const InitialApplicationForm = ({ onSuccess }) => {
           <input
             id="interestedInJoining"
             type="checkbox"
-            className="mt-0.5 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500/30 transition-all cursor-pointer"
+            className="mt-0.5 w-4 h-4 rounded border-gray-300 text-slate-900 focus:ring-slate-900/30 transition-all cursor-pointer"
             {...register('interestedInJoining')}
           />
           <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">

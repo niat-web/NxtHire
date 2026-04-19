@@ -107,7 +107,7 @@ const AddSlotsModal = ({ isOpen, onClose, publicBookingId, onSuccess }) => {
                                                         return (
                                                             <button key={idx} type="button" onClick={() => handleSlotToggle(row, slot)}
                                                                 className={cn('inline-flex items-center gap-1 h-6 px-2 text-[10px] font-medium rounded border transition-colors',
-                                                                    isSelected ? 'bg-blue-50 text-blue-700 border-blue-300' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300')}>
+                                                                    isSelected ? 'bg-slate-50 text-slate-900 border-blue-300' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300')}>
                                                                 {isSelected && <Check size={10} />}
                                                                 {formatTime(slot.startTime)}-{formatTime(slot.endTime)}
                                                             </button>
@@ -129,7 +129,7 @@ const AddSlotsModal = ({ isOpen, onClose, publicBookingId, onSuccess }) => {
                     <div className="flex gap-2">
                         <button onClick={onClose} className="h-8 px-3 text-[12px] font-medium text-slate-700 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors">Cancel</button>
                         <button onClick={handleSave} disabled={selectedCount === 0 || saving}
-                            className="inline-flex items-center gap-1.5 h-8 px-3 text-[12px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-40 transition-colors">
+                            className="inline-flex items-center gap-1.5 h-8 px-3 text-[12px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] disabled:opacity-40 transition-colors">
                             {saving ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
                             Add {selectedCount > 0 ? selectedCount : ''} Slots
                         </button>
@@ -206,7 +206,7 @@ const StudentBookings = () => {
                     </div>
                     <div className="flex-1" />
                     <button onClick={() => navigate('/admin/bookings/booking-slots')}
-                        className="inline-flex items-center gap-2 h-8 px-3 text-[12px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                        className="inline-flex items-center gap-2 h-8 px-3 text-[12px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] transition-colors">
                         <Plus size={13} /> New Link
                     </button>
                 </div>
@@ -216,11 +216,11 @@ const StudentBookings = () => {
                     <div className="relative w-48">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                         <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Search by ID..."
-                            className="w-full pl-9 pr-3 h-8 bg-slate-50 border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all" />
+                            className="w-full pl-9 pr-3 h-8 bg-slate-50 border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all" />
                     </div>
                     <div className="relative">
                         <select value={creatorFilter} onChange={e => setCreatorFilter(e.target.value)}
-                            className="appearance-none h-8 pl-3 pr-7 bg-white border border-slate-200 rounded-md text-[12px] cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-colors">
+                            className="appearance-none h-8 pl-3 pr-7 bg-white border border-slate-200 rounded-md text-[12px] cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors">
                             <option value="">All Creators</option>
                             {creatorOptions.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                         </select>
@@ -228,7 +228,7 @@ const StudentBookings = () => {
                     </div>
                     <div className="relative">
                         <select value={sortOption} onChange={e => setSortOption(e.target.value)}
-                            className="appearance-none h-8 pl-3 pr-7 bg-white border border-slate-200 rounded-md text-[12px] cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-colors">
+                            className="appearance-none h-8 pl-3 pr-7 bg-white border border-slate-200 rounded-md text-[12px] cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors">
                             <option value="newest">Newest First</option>
                             <option value="oldest">Oldest First</option>
                             <option value="most_students">Most Students</option>
@@ -277,9 +277,9 @@ const StudentBookings = () => {
                                         {/* Public ID */}
                                         <td className="px-5 py-2.5" onClick={e => e.stopPropagation()}>
                                             <div className="flex items-center gap-1.5">
-                                                <span className="font-mono text-[11px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">{booking.publicId}</span>
+                                                <span className="font-mono text-[11px] font-medium text-slate-900 bg-slate-50 px-1.5 py-0.5 rounded">{booking.publicId}</span>
                                                 <button onClick={() => { navigator.clipboard.writeText(url); showSuccess("Copied!"); }}
-                                                    className="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Copy link">
+                                                    className="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-colors" title="Copy link">
                                                     <Clipboard size={11} />
                                                 </button>
                                             </div>
@@ -312,15 +312,15 @@ const StudentBookings = () => {
                                                     <CalendarPlus size={14} />
                                                 </button>
                                                 <button onClick={() => navigate(`/admin/public-bookings/${booking._id}/evaluation`)}
-                                                    className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Evaluations">
+                                                    className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-colors" title="Evaluations">
                                                     <BarChart3 size={14} />
                                                 </button>
                                                 <button onClick={() => navigate(`/admin/public-bookings/${booking._id}/tracking`)}
-                                                    className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Track">
+                                                    className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-colors" title="Track">
                                                     <Eye size={14} />
                                                 </button>
                                                 <button onClick={() => navigate(`/admin/public-bookings/${booking._id}/authorize`)}
-                                                    className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Authorize">
+                                                    className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-colors" title="Authorize">
                                                     <Users size={14} />
                                                 </button>
                                                 <button onClick={() => setDeleteDialog({ isOpen: true, id: booking._id })}

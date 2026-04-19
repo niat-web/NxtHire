@@ -95,7 +95,7 @@ const GuidelinesQuestionnaireForm = () => {
 
       {/* ─── Progress Bar ────────────────────────────────────────── */}
       <div className="h-1 bg-gray-100 shrink-0">
-        <div className="h-full bg-blue-500 transition-all duration-300" style={{ width: `${progress}%` }} />
+        <div className="h-full bg-slate-500 transition-all duration-300" style={{ width: `${progress}%` }} />
       </div>
 
       {/* ─── Main Content ────────────────────────────────────────── */}
@@ -115,14 +115,14 @@ const GuidelinesQuestionnaireForm = () => {
                   <button key={i} onClick={() => setCurrentQuestion(i)}
                     className={`w-9 h-9 rounded-md text-xs font-medium flex items-center justify-center transition-all relative ${
                       isActive
-                        ? 'bg-blue-600 text-white shadow-md'
+                        ? 'bg-slate-900 text-white shadow-md'
                         : isAnswered
-                          ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                          ? 'bg-blue-100 text-slate-900 hover:bg-blue-200'
                           : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                     }`}>
                     {i + 1}
                     {isAnswered && !isActive && (
-                      <Check className="absolute -top-1 -right-1 w-3.5 h-3.5 text-blue-600 bg-white rounded-full p-px" />
+                      <Check className="absolute -top-1 -right-1 w-3.5 h-3.5 text-slate-900 bg-white rounded-full p-px" />
                     )}
                   </button>
                 );
@@ -135,10 +135,10 @@ const GuidelinesQuestionnaireForm = () => {
               <span className="font-semibold text-gray-700">{progress}%</span>
             </div>
             <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-              <div className={`h-full rounded-full transition-all ${progress === 100 ? 'bg-blue-500' : 'bg-blue-500'}`} style={{ width: `${progress}%` }} />
+              <div className={`h-full rounded-full transition-all ${progress === 100 ? 'bg-slate-500' : 'bg-slate-500'}`} style={{ width: `${progress}%` }} />
             </div>
             <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
-              <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-blue-100 rounded border border-blue-200" /> Answered</div>
+              <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-blue-100 rounded border border-slate-200" /> Answered</div>
               <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-gray-100 rounded border border-gray-200" /> Unanswered</div>
             </div>
           </div>
@@ -151,7 +151,7 @@ const GuidelinesQuestionnaireForm = () => {
 
               {/* Question Number Badge */}
               <div className="flex items-center gap-3 mb-6">
-                <span className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center text-xs font-semibold">
+                <span className="w-8 h-8 bg-slate-900 text-white rounded-lg flex items-center justify-center text-xs font-semibold">
                   {currentQuestion + 1}
                 </span>
                 <span className="text-xs text-gray-400 font-medium">of {questions.length} questions</span>
@@ -175,7 +175,7 @@ const GuidelinesQuestionnaireForm = () => {
                           : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                       }`}>
                       <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-semibold shrink-0 transition-colors ${
-                        isSelected ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-500'
+                        isSelected ? 'bg-slate-900 text-white' : 'bg-gray-100 text-gray-500'
                       }`}>
                         {isSelected ? <Check size={16} /> : letter}
                       </div>

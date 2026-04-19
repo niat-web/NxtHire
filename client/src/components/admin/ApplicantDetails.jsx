@@ -15,8 +15,8 @@ const statusColors = {
     'Under Review': 'bg-amber-50 text-amber-700',
     'Profile Approved': 'bg-emerald-50 text-emerald-700',
     'Profile Rejected': 'bg-red-50 text-red-700',
-    'Skills Assessment Sent': 'bg-blue-50 text-blue-700',
-    'Skills Assessment Completed': 'bg-blue-50 text-blue-700',
+    'Skills Assessment Sent': 'bg-slate-50 text-slate-900',
+    'Skills Assessment Completed': 'bg-slate-50 text-slate-900',
     'Guidelines Sent': 'bg-violet-50 text-violet-700',
     'Guidelines Reviewed': 'bg-violet-50 text-violet-700',
     'Guidelines Failed': 'bg-red-50 text-red-700',
@@ -111,7 +111,7 @@ const ApplicantDetails = () => {
     return (
       <div className="text-center py-12">
         <p className="text-slate-500">Applicant not found</p>
-        <Link to="/admin/applicants" className="inline-flex items-center mt-4 px-4 h-10 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+        <Link to="/admin/applicants" className="inline-flex items-center mt-4 px-4 h-10 text-sm font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] transition-colors">
           Back to Applicants
         </Link>
       </div>
@@ -129,7 +129,7 @@ const ApplicantDetails = () => {
           <h1 className="text-lg font-semibold text-slate-900">Applicant Details</h1>
         </div>
         <button onClick={() => setIsStatusModalOpen(true)}
-          className="inline-flex items-center gap-2 px-4 h-10 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+          className="inline-flex items-center gap-2 px-4 h-10 text-sm font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] transition-colors">
           <Edit size={16} /> Update Status
         </button>
       </div>
@@ -137,7 +137,7 @@ const ApplicantDetails = () => {
       {/* Basic Information */}
       <Panel title={
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2"><User size={16} className="text-blue-600" /> Basic Information</div>
+          <div className="flex items-center gap-2"><User size={16} className="text-slate-900" /> Basic Information</div>
           <InlineStatusBadge status={applicant.status} />
         </div>
       }>
@@ -154,7 +154,7 @@ const ApplicantDetails = () => {
           <Field label="LinkedIn Profile">
             {applicant.linkedinProfileUrl && (
               <a href={applicant.linkedinProfileUrl} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800">
+                className="inline-flex items-center gap-1 text-slate-900 hover:text-blue-800">
                 <span className="underline">{applicant.linkedinProfileUrl}</span>
                 <ExternalLink size={14} />
               </a>
@@ -182,8 +182,8 @@ const ApplicantDetails = () => {
                   )}
                   <div className="relative flex space-x-3">
                     <div>
-                      <span className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center ring-8 ring-white">
-                        <span className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+                      <span className="h-8 w-8 rounded-full bg-slate-50 flex items-center justify-center ring-8 ring-white">
+                        <span className="h-2.5 w-2.5 rounded-full bg-slate-900" />
                       </span>
                     </div>
                     <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
@@ -207,7 +207,7 @@ const ApplicantDetails = () => {
 
       {/* Skill Assessment */}
       {skillAssessment && (
-        <Panel title={<div className="flex items-center gap-2"><FileText size={16} className="text-blue-600" /> Skill Assessment</div>}>
+        <Panel title={<div className="flex items-center gap-2"><FileText size={16} className="text-slate-900" /> Skill Assessment</div>}>
           <div className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <Field label="Current Employer">{skillAssessment.currentEmployer}</Field>
@@ -249,7 +249,7 @@ const ApplicantDetails = () => {
 
       {/* Interviewer Information */}
       {interviewer && (
-        <Panel title={<div className="flex items-center gap-2"><User size={16} className="text-blue-600" /> Interviewer Information</div>}>
+        <Panel title={<div className="flex items-center gap-2"><User size={16} className="text-slate-900" /> Interviewer Information</div>}>
           <div className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <Field label="Name">{interviewer.user?.firstName} {interviewer.user?.lastName}</Field>

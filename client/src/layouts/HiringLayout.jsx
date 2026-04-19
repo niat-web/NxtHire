@@ -1,22 +1,22 @@
 import React, { memo } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 import { Users, Linkedin, Briefcase, FileText } from 'lucide-react';
 import { useDashboardStats } from '@/hooks/useAdminQueries';
 import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
+
+const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
 
 const hiringNavItems = [
-  { label: 'Applicants', path: '/admin/hiring/applicants', icon: <Users className="w-5 h-5" /> },
-  { label: 'LinkedIn Review', path: '/admin/hiring/linkedin-review', icon: <Linkedin className="w-5 h-5" />, countKey: 'pendingLinkedInReviews' },
-  { label: 'Skills Review', path: '/admin/hiring/skill-categorization', icon: <Briefcase className="w-5 h-5" />, countKey: 'pendingSkillsReview' },
-  { label: 'Guidelines Review', path: '/admin/hiring/guidelines', icon: <FileText className="w-5 h-5" />, countKey: 'pendingGuidelinesReview' },
+  { label: 'Applicants', path: '/admin/hiring/applicants', icon: <Users className="w-4 h-4" /> },
+  { label: 'LinkedIn Review', path: '/admin/hiring/linkedin-review', icon: <Linkedin className="w-4 h-4" />, countKey: 'pendingLinkedInReviews' },
+  { label: 'Skills Review', path: '/admin/hiring/skill-categorization', icon: <Briefcase className="w-4 h-4" />, countKey: 'pendingSkillsReview' },
+  { label: 'Guidelines Review', path: '/admin/hiring/guidelines', icon: <FileText className="w-4 h-4" />, countKey: 'pendingGuidelinesReview' },
 ];
 
-// Memoized sidebar — only re-renders when counts change, NOT on route change
 const HiringSidebar = memo(({ counts }) => (
-  <aside className="w-56 flex-shrink-0 bg-[#f0f4fa] border-r border-slate-200/80 flex flex-col">
-    <div className="px-5 py-4 border-b border-slate-200/60">
-      <h2 className="text-base font-semibold text-slate-900">Interviewer Hiring</h2>
+  <aside className="w-60 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col">
+    <div className="px-6 py-5 border-b border-slate-100">
+      <h2 style={DISPLAY} className="text-[20px] font-semibold text-slate-900 tracking-tight">Interviewer Hiring</h2>
     </div>
     <nav className="flex-1 p-3 space-y-0.5">
       {hiringNavItems.map(item => {
@@ -27,19 +27,29 @@ const HiringSidebar = memo(({ counts }) => (
             to={item.path}
             className={({ isActive }) =>
               cn(
-                'flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200',
+                'group flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium rounded-xl transition-colors',
                 isActive
-                  ? 'bg-white text-blue-700 shadow-sm border border-slate-200/60'
-                  : 'text-slate-600 hover:bg-white/70 hover:text-slate-900'
+                  ? 'bg-slate-900 text-white'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               )
             }
           >
-            {item.icon}
-            <span className="ml-3 flex-1">{item.label}</span>
-            {count > 0 && (
-              <Badge className="ml-auto bg-red-500 text-white border-transparent blinking-count">
-                {count}
-              </Badge>
+            {({ isActive }) => (
+              <>
+                {item.icon}
+                <span className="flex-1">{item.label}</span>
+                {count > 0 && (
+                  <span
+                    className={cn(
+                      'inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 text-[10px] font-semibold rounded-full',
+                      isActive ? 'bg-white text-slate-900' : 'text-white'
+                    )}
+                    style={!isActive ? { backgroundColor: '#FF4800' } : undefined}
+                  >
+                    {count}
+                  </span>
+                )}
+              </>
             )}
           </NavLink>
         );
@@ -51,7 +61,6 @@ const HiringSidebar = memo(({ counts }) => (
 HiringSidebar.displayName = 'HiringSidebar';
 
 const HiringLayout = () => {
-  // Use React Query — already cached from AdminLayout, no extra API call
   const { data: counts = {} } = useDashboardStats({
     staleTime: 60 * 1000,
     refetchInterval: 60 * 1000,
@@ -60,7 +69,7 @@ const HiringLayout = () => {
   return (
     <div className="flex h-full w-full overflow-hidden">
       <HiringSidebar counts={counts} />
-      <main className="flex-1 overflow-y-auto bg-[#f5f7fb]">
+      <main className="flex-1 overflow-y-auto bg-[#FAFAF9]">
         <Outlet />
       </main>
     </div>

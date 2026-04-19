@@ -97,7 +97,7 @@ const InterviewerDetails = () => {
         <p className="text-gray-500">Interviewer not found</p>
         <Link
           to="/admin/interviewers"
-          className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors mt-4"
+          className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-slate-900 text-white hover:bg-[#FF4800] transition-colors mt-4"
         >
           Back to Interviewers
         </Link>
@@ -121,7 +121,7 @@ const InterviewerDetails = () => {
 
           <button
             onClick={() => setIsStatusModalOpen(true)}
-            className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-slate-900 text-white hover:bg-[#FF4800] transition-colors"
           >
             <Edit className="h-4 w-4 mr-2" />
             Update Status

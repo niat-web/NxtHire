@@ -98,13 +98,13 @@ const BookingSlots = () => {
                 <div className="relative w-52">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                     <input type="text" value={searchFilter} onChange={e => setSearchFilter(e.target.value)} placeholder="Search by name or email..."
-                        className="w-full pl-9 pr-3 h-8 bg-slate-50 border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all" />
+                        className="w-full pl-9 pr-3 h-8 bg-slate-50 border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all" />
                 </div>
                 <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 z-10 pointer-events-none" />
                     <DatePicker selected={dateFilter} onChange={setDateFilter} isClearable placeholderText="Filter by date"
                         portalId="datepicker-portal" popperClassName="!z-[9999]" popperProps={{ strategy: 'fixed' }}
-                        className="pl-9 pr-3 h-8 bg-white border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 w-36" />
+                        className="pl-9 pr-3 h-8 bg-white border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 w-36" />
                 </div>
 
                 <div className="flex-1" />
@@ -114,7 +114,7 @@ const BookingSlots = () => {
                     <Plus size={13} /> Manual Add Slot
                 </button>
                 <button onClick={handleCreatePublicLink} disabled={selectedSlotsCount === 0 || isCreatingLink}
-                    className="inline-flex items-center gap-1.5 h-8 px-3 text-[12px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-40 transition-colors">
+                    className="inline-flex items-center gap-1.5 h-8 px-3 text-[12px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] disabled:opacity-40 transition-colors">
                     <Link size={13} /> Create Link {selectedSlotsCount > 0 && `(${selectedSlotsCount})`}
                 </button>
             </div>
@@ -142,7 +142,7 @@ const BookingSlots = () => {
                                                 setSelectedSlots(all);
                                             } else setSelectedSlots({});
                                         }}
-                                        className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                                        className="w-3.5 h-3.5 rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
                                 </th>
                                 <th className="sticky top-0 px-4 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Interviewer</th>
                                 <th className="sticky top-0 px-4 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10 w-28">Date</th>
@@ -158,7 +158,7 @@ const BookingSlots = () => {
                                     <tr key={row.submissionId} className="hover:bg-slate-50/60 transition-colors">
                                         <td className="px-4 py-2.5">
                                             <input type="checkbox" checked={isAllSelected || false} onChange={() => handleSelectAllForRow(row)}
-                                                className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                                                className="w-3.5 h-3.5 rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
                                         </td>
                                         <td className="px-4 py-2.5">
                                             <p className="text-[13px] font-medium text-slate-900">{row.fullName}</p>
@@ -172,7 +172,7 @@ const BookingSlots = () => {
                                                     return (
                                                         <button key={idx} type="button" onClick={() => handleSlotSelection(row, slot)}
                                                             className={cn('inline-flex items-center gap-1 h-6 px-2 text-[10px] font-medium rounded-md border transition-colors',
-                                                                isSelected ? 'bg-blue-50 text-blue-700 border-blue-300' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300')}>
+                                                                isSelected ? 'bg-slate-50 text-slate-900 border-blue-300' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300')}>
                                                             {isSelected && <Check size={10} />}
                                                             {formatTime(slot.startTime)}-{formatTime(slot.endTime)}
                                                         </button>

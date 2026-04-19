@@ -1,4 +1,3 @@
-// client/src/components/common/DashboardStat.jsx
 import React from 'react';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,7 +15,7 @@ const DashboardStat = ({
   className = ''
 }) => {
   const getChangeColor = () => {
-    if (changeType === 'neutral') return 'text-muted-foreground';
+    if (changeType === 'neutral') return 'text-slate-500';
     return changeType === 'increase' ? 'text-emerald-600' : 'text-red-600';
   };
 
@@ -31,18 +30,18 @@ const DashboardStat = ({
 
   return (
     <Card className={cn('h-full', className)}>
-      <CardContent className="p-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
+      <CardContent className="p-5 pt-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-slate-500">{title}</p>
             {isLoading ? (
-              <Skeleton className="h-8 w-24 mt-1" />
+              <Skeleton className="h-9 w-28 mt-2" />
             ) : (
-              <p className="mt-1 text-2xl font-semibold text-foreground">{value}</p>
+              <p className="mt-2 text-[30px] font-semibold text-slate-900 tracking-tight leading-none" style={{ fontFamily: 'Fraunces, Georgia, serif' }}>{value}</p>
             )}
           </div>
           {icon && (
-            <div className="p-3 bg-primary/10 rounded-full">
+            <div className="h-10 w-10 inline-flex items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700">
               {icon}
             </div>
           )}
@@ -50,9 +49,9 @@ const DashboardStat = ({
 
         {(change !== undefined || changeText) && (
           <div className="mt-4">
-            <div className={cn('flex items-center text-sm', getChangeColor())}>
+            <div className={cn('flex items-center text-[12.5px]', getChangeColor())}>
               {getChangeIcon()}
-              <span className="font-medium ml-1">
+              <span className="font-semibold ml-1">
                 {change !== undefined && `${Math.abs(change)}%`}
                 {changeText && (change !== undefined ? ' ' : '')}{changeText}
               </span>

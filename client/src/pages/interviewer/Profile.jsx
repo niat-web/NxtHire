@@ -48,7 +48,7 @@ const InputField = React.forwardRef(({ label, name, error, register, ...props },
                 "w-full px-3 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-1 transition-colors",
                 error
                     ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                    : "border-slate-200 focus:ring-blue-500 focus:border-blue-500"
+                    : "border-slate-200 focus:ring-slate-900 focus:border-slate-900"
             )}
         />
         {error && <p className="mt-1.5 text-xs text-red-600 font-medium">{error.message}</p>}
@@ -67,7 +67,7 @@ const SelectField = React.forwardRef(({ label, name, error, register, options, .
                 "w-full px-3 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-1 transition-colors appearance-none",
                 error
                     ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                    : "border-slate-200 focus:ring-blue-500 focus:border-blue-500"
+                    : "border-slate-200 focus:ring-slate-900 focus:border-slate-900"
             )}
         >
             {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
@@ -94,7 +94,7 @@ const PasswordInputField = ({ label, name, error, register }) => {
                         "w-full pl-10 pr-10 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-1 transition-colors",
                         error
                             ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                            : "border-slate-200 focus:ring-blue-500 focus:border-blue-500"
+                            : "border-slate-200 focus:ring-slate-900 focus:border-slate-900"
                     )}
                 />
                 <button type="button" onClick={() => setShow(!show)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors">
@@ -378,14 +378,14 @@ const Profile = () => {
   );
 
   return (
-    <div className="flex h-full bg-[#f5f7fb] overflow-hidden">
+    <div className="flex h-full bg-[#FAFAF9] overflow-hidden">
 
         {/* ─── LEFT: Profile Sidebar ─────────────────────────────────── */}
-        <div className="w-72 shrink-0 bg-[#f0f4fa] border-r border-slate-200/80 flex flex-col overflow-y-auto hidden lg:flex">
+        <div className="w-72 shrink-0 bg-white border-r border-slate-200/80 flex flex-col overflow-y-auto hidden lg:flex">
             {/* Avatar & Info */}
             <div className="p-6 text-center border-b border-slate-100">
                 <div className="relative inline-block">
-                    <div className="h-20 w-20 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-semibold mx-auto shadow-sm">
+                    <div className="h-20 w-20 rounded-full bg-slate-900 flex items-center justify-center text-white text-2xl font-semibold mx-auto shadow-sm">
                         {currentUser?.firstName?.charAt(0)}
                     </div>
                     <span className={`absolute bottom-1 right-1 w-4 h-4 ${statusColor} rounded-full border-2 border-white`} title={profile?.status} />
@@ -432,7 +432,7 @@ const Profile = () => {
                             className={cn(
                                 "flex items-center gap-2.5 w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-colors",
                                 activeTab === tab.id
-                                    ? "bg-white text-blue-700 shadow-sm border border-slate-200/60"
+                                    ? "bg-white text-slate-900 shadow-sm border border-slate-200/60"
                                     : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
                             )}>
                             <Icon className={cn("w-4 h-4", activeTab === tab.id ? "text-white" : "text-slate-400")} />
@@ -450,7 +450,7 @@ const Profile = () => {
                         <span className="text-xs font-medium text-slate-600">{Math.round(profile.profileCompleteness)}%</span>
                     </div>
                     <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div className={cn("h-full rounded-full transition-all", profile.profileCompleteness === 100 ? "bg-emerald-500" : "bg-blue-500")}
+                        <div className={cn("h-full rounded-full transition-all", profile.profileCompleteness === 100 ? "bg-emerald-500" : "bg-slate-500")}
                             style={{ width: `${profile.profileCompleteness}%` }} />
                     </div>
                 </div>
@@ -462,7 +462,7 @@ const Profile = () => {
             {/* Mobile header (visible only on sm) */}
             <div className="lg:hidden bg-white border-b border-slate-200 p-4">
                 <div className="flex items-center gap-3 mb-4">
-                    <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center text-white text-lg font-semibold">
+                    <div className="h-12 w-12 rounded-full bg-slate-900 flex items-center justify-center text-white text-lg font-semibold">
                         {currentUser?.firstName?.charAt(0)}
                     </div>
                     <div>
@@ -475,7 +475,7 @@ const Profile = () => {
                         <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                             className={cn(
                                 "px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors",
-                                activeTab === tab.id ? "bg-white text-blue-700 shadow-sm border border-slate-200" : "bg-slate-100 text-slate-600"
+                                activeTab === tab.id ? "bg-white text-slate-900 shadow-sm border border-slate-200" : "bg-slate-100 text-slate-600"
                             )}>
                             {tab.label}
                         </button>
@@ -523,7 +523,7 @@ const Profile = () => {
                                                 <p className="text-slate-600 font-medium">{exp.company}</p>
                                             </div>
                                             <div className="flex gap-2">
-                                                <Button variant="ghost" size="icon" onClick={() => { setEditingExperience(exp); setIsExperienceModalOpen(true); }} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><Edit className="h-4 w-4"/></Button>
+                                                <Button variant="ghost" size="icon" onClick={() => { setEditingExperience(exp); setIsExperienceModalOpen(true); }} className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-lg"><Edit className="h-4 w-4"/></Button>
                                                 <Button variant="ghost" size="icon" onClick={() => handleDeleteRequest(exp, 'Experience')} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><Trash2 className="h-4 w-4"/></Button>
                                             </div>
                                         </div>
@@ -573,7 +573,7 @@ const Profile = () => {
                                             </Badge>
                                         </div>
                                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Button variant="ghost" size="icon" onClick={() => { setEditingSkill(skill); setIsSkillModalOpen(true); }} className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg"><Edit /></Button>
+                                            <Button variant="ghost" size="icon" onClick={() => { setEditingSkill(skill); setIsSkillModalOpen(true); }} className="p-1.5 text-slate-400 hover:text-slate-900 rounded-lg"><Edit /></Button>
                                             <Button variant="ghost" size="icon" onClick={() => handleDeleteRequest(skill, 'Skill')} className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg"><Trash2 /></Button>
                                         </div>
                                     </div>

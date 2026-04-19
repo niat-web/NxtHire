@@ -26,14 +26,14 @@ const EmailStep = ({ onSubmit, register, errors, isSubmitting }) => (
                             <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                             <input type="email" placeholder="you@example.com"
                                 {...register('email', { required: 'Email is required', pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Invalid email' } })}
-                                className={cn('w-full pl-11 pr-4 h-12 border rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all',
+                                className={cn('w-full pl-11 pr-4 h-12 border rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-blue-400 transition-all',
                                     errors.email ? 'border-red-300' : 'border-slate-200')} />
                         </div>
                         {errors.email && <p className="mt-1.5 text-xs text-red-500">{errors.email.message}</p>}
                     </div>
 
                     <button type="submit" disabled={isSubmitting}
-                        className="w-full inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all shadow-sm shadow-blue-600/20">
+                        className="w-full inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-[#FF4800] disabled:opacity-50 transition-all shadow-sm shadow-blue-600/20">
                         {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <>Continue <ArrowRight size={16} /></>}
                     </button>
                 </form>
@@ -77,13 +77,13 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
             <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 border-b border-slate-100 lg:hidden">
                 <button type="button" onClick={() => setMobileView('details')}
                     className={cn('flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all',
-                        mobileView === 'details' ? 'bg-blue-600 text-white' : 'bg-white text-slate-500 border border-slate-200')}>
+                        mobileView === 'details' ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200')}>
                     <User size={12} /> Details
                 </button>
                 <div className="w-4 h-px bg-slate-300" />
                 <button type="button" onClick={handleContinue}
                     className={cn('flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all',
-                        mobileView === 'slots' ? 'bg-blue-600 text-white' : 'bg-white text-slate-500 border border-slate-200')}>
+                        mobileView === 'slots' ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200')}>
                     <Calendar size={12} /> Slots ({totalSlots})
                 </button>
             </div>
@@ -116,7 +116,7 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                                     <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                     <input type="text" placeholder="Enter your full name"
                                         {...register('studentName', { required: "Name is required" })}
-                                        className={cn('w-full pl-11 pr-4 h-12 border rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400',
+                                        className={cn('w-full pl-11 pr-4 h-12 border rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-blue-400',
                                             errors.studentName ? 'border-red-300' : 'border-slate-200')} />
                                 </div>
                                 {errors.studentName && <p className="mt-1.5 text-xs text-red-500">{errors.studentName.message}</p>}
@@ -128,7 +128,7 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                                     <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                     <input type="tel" placeholder="10-digit phone number"
                                         {...register('studentPhone', { required: "Phone is required" })}
-                                        className={cn('w-full pl-11 pr-4 h-12 border rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400',
+                                        className={cn('w-full pl-11 pr-4 h-12 border rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-blue-400',
                                             errors.studentPhone ? 'border-red-300' : 'border-slate-200')} />
                                 </div>
                                 {errors.studentPhone && <p className="mt-1.5 text-xs text-red-500">{errors.studentPhone.message}</p>}
@@ -139,7 +139,7 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                     {/* Desktop confirm button */}
                     <div className="p-5 border-t border-slate-100 hidden lg:block">
                         <button type="submit" disabled={isSubmitting}
-                            className="w-full inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all shadow-sm shadow-blue-600/20">
+                            className="w-full inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-[#FF4800] disabled:opacity-50 transition-all shadow-sm shadow-blue-600/20">
                             {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <>Confirm Booking <Check size={16} /></>}
                         </button>
                     </div>
@@ -166,8 +166,8 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                             availableSlots.map((interviewerSlot) => (
                                 <div key={interviewerSlot._id}>
                                     <div className="flex items-center gap-2 mb-3">
-                                        <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                                            <Calendar size={14} className="text-blue-600" />
+                                        <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
+                                            <Calendar size={14} className="text-slate-900" />
                                         </div>
                                         <h3 className="text-sm font-semibold text-slate-900">{formatDate(interviewerSlot.date)}</h3>
                                     </div>
@@ -179,8 +179,8 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                                                     value={`${interviewerSlot.interviewer._id}|${slot.startTime}|${slot.endTime}`} />
                                                 <div className="inline-flex items-center gap-1.5 h-9 px-3.5 border border-slate-200 rounded-lg text-[13px] font-medium text-slate-600 bg-white
                                                     transition-all duration-150
-                                                    hover:border-blue-300 hover:bg-blue-50
-                                                    peer-checked:border-blue-600 peer-checked:bg-blue-600 peer-checked:text-white">
+                                                    hover:border-blue-300 hover:bg-slate-50
+                                                    peer-checked:border-blue-600 peer-checked:bg-slate-900 peer-checked:text-white">
                                                     {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
                                                 </div>
                                             </label>
@@ -205,7 +205,7 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
             <div className="p-4 border-t border-slate-200 bg-white lg:hidden shrink-0 safe-area-bottom">
                 {mobileView === 'details' ? (
                     <button type="button" onClick={handleContinue}
-                        className="w-full inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-all shadow-sm shadow-blue-600/20">
+                        className="w-full inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-[#FF4800] transition-all shadow-sm shadow-blue-600/20">
                         Choose Time Slot <ArrowRight size={16} />
                     </button>
                 ) : (
@@ -215,7 +215,7 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                             <ArrowLeft size={18} />
                         </button>
                         <button type="submit" disabled={isSubmitting}
-                            className="flex-1 inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all shadow-sm shadow-blue-600/20">
+                            className="flex-1 inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-[#FF4800] disabled:opacity-50 transition-all shadow-sm shadow-blue-600/20">
                             {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <>Confirm Booking <Check size={16} /></>}
                         </button>
                     </div>
@@ -337,7 +337,7 @@ const PublicBookingPage = () => {
                     </div>
                     <h2 className="text-xl font-bold text-slate-900 mb-1">Something went wrong</h2>
                     <p className="text-sm text-slate-500">{pageError}</p>
-                    <button onClick={() => { setPageError(null); }} className="mt-5 inline-flex items-center gap-2 h-10 px-5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors">
+                    <button onClick={() => { setPageError(null); }} className="mt-5 inline-flex items-center gap-2 h-10 px-5 text-sm font-medium text-white bg-slate-900 rounded-xl hover:bg-[#FF4800] transition-colors">
                         Try Again
                     </button>
                 </div>

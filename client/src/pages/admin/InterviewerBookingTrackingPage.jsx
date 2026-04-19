@@ -31,7 +31,7 @@ const InterviewerBookingTrackingPage = () => {
 
     if (loading) {
         return (
-            <div className="min-h-[60vh] flex items-center justify-center bg-[#f5f7fb]">
+            <div className="min-h-[60vh] flex items-center justify-center bg-[#FAFAF9]">
                 <Loader size="lg" />
             </div>
         );
@@ -40,9 +40,9 @@ const InterviewerBookingTrackingPage = () => {
     const interviewers = bookingDetails?.interviewers || [];
 
     return (
-        <div className="min-h-screen bg-[#f5f7fb] space-y-6">
+        <div className="min-h-screen bg-[#FAFAF9] space-y-6">
             <div className="flex items-center">
-                <Link to="/admin/bookings/interviewer-bookings" className="text-blue-600 hover:text-blue-800 flex items-center font-medium transition-colors">
+                <Link to="/admin/bookings/interviewer-bookings" className="text-slate-900 hover:text-blue-800 flex items-center font-medium transition-colors">
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back to Bookings
                 </Link>
             </div>

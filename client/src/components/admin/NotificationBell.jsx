@@ -6,13 +6,13 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 const typeConfig = {
-  interviewer_submitted_slots: { icon: UserCheck,     color: 'bg-blue-50 text-blue-600' },
-  student_booked_slot:         { icon: Calendar,      color: 'bg-emerald-50 text-emerald-600' },
-  meet_link_generated:         { icon: Video,         color: 'bg-amber-50 text-amber-600' },
-  new_applicant:               { icon: UserCheck,     color: 'bg-sky-50 text-sky-600' },
-  payment_confirmed:           { icon: CheckCheck,    color: 'bg-green-50 text-green-600' },
-  skill_assessment_submitted:  { icon: FileText,      color: 'bg-violet-50 text-violet-600' },
-  guidelines_submitted:        { icon: ClipboardCheck, color: 'bg-orange-50 text-orange-600' },
+  interviewer_submitted_slots: { icon: UserCheck },
+  student_booked_slot:         { icon: Calendar },
+  meet_link_generated:         { icon: Video },
+  new_applicant:               { icon: UserCheck },
+  payment_confirmed:           { icon: CheckCheck },
+  skill_assessment_submitted:  { icon: FileText },
+  guidelines_submitted:        { icon: ClipboardCheck },
 };
 
 const timeAgo = (date) => {
@@ -38,43 +38,42 @@ const NotificationBell = () => {
 
   return (
     <div className="relative" ref={ref}>
-      {/* Bell button */}
       <button
         onClick={() => setOpen(!open)}
-        className="relative p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+        className="relative h-10 w-10 inline-flex items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
       >
-        <Bell size={20} />
+        <Bell size={18} />
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center px-1 text-[10px] font-bold text-white bg-red-500 rounded-full leading-none animate-pulse">
+          <span
+            className="absolute top-1 right-1 min-w-[16px] h-[16px] flex items-center justify-center px-1 text-[9.5px] font-semibold text-white rounded-full leading-none"
+            style={{ backgroundColor: '#FF4800' }}
+          >
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
-      {/* Dropdown */}
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-[70]">
-          {/* Header */}
-          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+        <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden z-[70]">
+          <div className="px-4 py-3.5 border-b border-slate-100 flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
+              <h3 className="text-[13px] font-semibold text-slate-900 tracking-tight">Notifications</h3>
               {unreadCount > 0 && (
-                <p className="text-[10px] text-gray-400">{unreadCount} unread</p>
+                <p className="text-[10.5px] text-slate-500 mt-0.5">{unreadCount} unread</p>
               )}
             </div>
             {unreadCount > 0 && (
-              <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs text-blue-600 hover:text-blue-800 h-7">
-                <CheckCheck size={13} className="mr-1" /> Mark all read
+              <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-[11.5px] text-slate-700 hover:text-slate-900 h-7 px-2.5">
+                <CheckCheck size={12} className="mr-1" /> Mark all read
               </Button>
             )}
           </div>
 
-          {/* List */}
           <div className="max-h-[360px] overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 text-gray-400">
-                <Bell size={24} className="mb-2 opacity-30" />
-                <p className="text-xs">No notifications yet</p>
+              <div className="flex flex-col items-center justify-center py-10 text-slate-300">
+                <Bell size={22} className="mb-2" />
+                <p className="text-[12px] text-slate-500">No notifications yet</p>
               </div>
             ) : (
               notifications.map((n) => {
@@ -85,22 +84,22 @@ const NotificationBell = () => {
                     key={n._id}
                     onClick={() => { if (!n.isRead) markAsRead(n._id); }}
                     className={cn(
-                      'w-full flex items-start gap-3 px-4 py-3 text-left transition-colors border-b border-gray-50 last:border-0',
-                      n.isRead ? 'bg-white hover:bg-gray-50' : 'bg-blue-50/30 hover:bg-blue-50/50'
+                      'w-full flex items-start gap-3 px-4 py-3 text-left transition-colors border-b border-slate-100 last:border-0',
+                      n.isRead ? 'bg-white hover:bg-slate-50/60' : 'bg-slate-50/50 hover:bg-slate-50'
                     )}
                   >
-                    <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5', config.color)}>
-                      <Icon size={14} />
+                    <div className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center shrink-0 mt-0.5 text-slate-700">
+                      <Icon size={13} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className={cn('text-xs font-semibold truncate', n.isRead ? 'text-gray-700' : 'text-gray-900')}>
+                        <p className={cn('text-[12.5px] font-semibold truncate', n.isRead ? 'text-slate-700' : 'text-slate-900')}>
                           {n.title}
                         </p>
-                        {!n.isRead && <span className="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0" />}
+                        {!n.isRead && <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: '#FF4800' }} />}
                       </div>
-                      <p className="text-[11px] text-gray-500 truncate mt-0.5">{n.message}</p>
-                      <p className="text-[10px] text-gray-400 mt-1 flex items-center gap-1">
+                      <p className="text-[11.5px] text-slate-500 truncate mt-0.5">{n.message}</p>
+                      <p className="text-[10.5px] text-slate-400 mt-1 flex items-center gap-1">
                         <Clock size={9} /> {timeAgo(n.createdAt)}
                       </p>
                     </div>
@@ -110,13 +109,12 @@ const NotificationBell = () => {
             )}
           </div>
 
-          {/* View All link */}
           <Link
             to="/admin/notifications-inbox"
             onClick={() => setOpen(false)}
-            className="flex items-center justify-center gap-1.5 px-4 py-2.5 border-t border-gray-100 text-xs font-semibold text-blue-600 hover:bg-blue-50/50 transition-colors"
+            className="flex items-center justify-center gap-1.5 px-4 py-3 border-t border-slate-100 text-[12px] font-semibold text-slate-900 hover:bg-slate-50/60 transition-colors"
           >
-            View All Notifications <ArrowRight size={13} />
+            View All Notifications <ArrowRight size={12} />
           </Link>
         </div>
       )}

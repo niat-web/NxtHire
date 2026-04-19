@@ -51,7 +51,7 @@ const SlotRow = ({ register, index, remove, errors, isOneLeft }) => {
     return (
         <div className="group relative flex items-center gap-3 p-3 mb-3 bg-white border border-slate-200 rounded-xl shadow-md hover:border-blue-300 hover:shadow-lg transition-all duration-200">
             {/* Number Badge */}
-            <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 text-xs font-semibold group-hover:bg-blue-50 group-hover:text-blue-600">
+            <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 text-xs font-semibold group-hover:bg-slate-50 group-hover:text-slate-900">
                 {index + 1}
             </div>
 
@@ -60,7 +60,7 @@ const SlotRow = ({ register, index, remove, errors, isOneLeft }) => {
                     <label className="block text-xs uppercase font-medium text-slate-400 mb-1 ml-1">Start</label>
                     <select 
                         {...register(`slots.${index}.startTime`, { required: true })} 
-                        className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 outline-none transition-colors"
+                        className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-slate-900 focus:border-slate-900 block p-2.5 outline-none transition-colors"
                     >
                         <option value="" disabled>Select time</option>
                         {TIME_SLOTS.map(slot => <option key={slot.value} value={slot.value}>{slot.label}</option>)}
@@ -70,7 +70,7 @@ const SlotRow = ({ register, index, remove, errors, isOneLeft }) => {
                     <label className="block text-xs uppercase font-medium text-slate-400 mb-1 ml-1">End</label>
                     <select 
                         {...register(`slots.${index}.endTime`, { required: true })} 
-                        className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 outline-none transition-colors"
+                        className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-slate-900 focus:border-slate-900 block p-2.5 outline-none transition-colors"
                     >
                         <option value="" disabled>Select time</option>
                         {TIME_SLOTS.map(slot => <option key={slot.value} value={slot.value}>{slot.label}</option>)}
@@ -154,7 +154,7 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
 
                     {/* Interviewer Info */}
                     <div className="flex items-center gap-4 mb-8 p-5 bg-white rounded-xl border border-slate-100 shadow-md">
-                        <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-lg">
+                        <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-slate-900 font-semibold text-lg">
                             {currentUser?.firstName?.[0]}
                         </div>
                         <div>
@@ -167,11 +167,11 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
                     <div className="mb-6">
                         <p className="text-xs text-slate-400 uppercase font-medium mb-3">Interview Date</p>
                         <div className="bg-white rounded-xl overflow-hidden shadow-md border border-slate-200 text-center w-full max-w-[200px]">
-                            <div className="bg-blue-600 text-white py-2 font-semibold uppercase tracking-widest text-sm">
+                            <div className="bg-slate-900 text-white py-2 font-semibold uppercase tracking-widest text-sm">
                                 {monthName}
                             </div>
                             <div className="py-4">
-                                <span className="block text-5xl font-black text-slate-800">{dayNumber}</span>
+                                <span className="block font-display text-[48px] font-semibold text-slate-900 tracking-tight leading-none">{dayNumber}</span>
                                 <span className="block text-sm font-medium text-slate-500 mt-1">{dayName}, {year}</span>
                             </div>
                         </div>
@@ -203,7 +203,7 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
                             type="button"
                             variant="outline"
                             onClick={() => append({ startTime: '', endTime: '' })}
-                            className="bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200"
+                            className="bg-slate-50 text-slate-900 hover:bg-blue-100 border-slate-200"
                         >
                             <Plus className="mr-2 h-4 w-4" /> Add Slot
                         </Button>
@@ -229,7 +229,7 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
                                 {...register('remarks')}
                                 rows="3"
                                 placeholder="Any specific notes regarding your availability..."
-                                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white transition-all resize-none"
+                                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-900 focus:border-transparent focus:bg-white transition-all resize-none"
                             />
                         </div>
                     </form>
@@ -250,7 +250,7 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
                         type="submit"
                         form="slot-form"
                         isLoading={isSubmitting}
-                        className="rounded-xl bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200 hover:shadow-blue-300 px-8"
+                        className="rounded-xl bg-slate-900 hover:bg-[#FF4800] shadow-md shadow-blue-200 hover:shadow-blue-300 px-8"
                     >
                         {!isSubmitting && <Save className="mr-2 h-4 w-4" />}
                         {isSubmitting ? 'Saving...' : (isUpdateMode ? 'Update Slots' : 'Confirm Slots')}

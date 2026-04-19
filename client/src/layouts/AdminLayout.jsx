@@ -70,7 +70,7 @@ const AdminLayout = () => {
   const useFullPageLayout = fullPageLayoutPaths.some(path => location.pathname.startsWith(path));
 
   return (
-    <div className="flex h-screen bg-[#f5f7fb]">
+    <div className="flex h-screen bg-[#FAFAF9] antialiased">
       <Sidebar
         navItems={adminNavItemsWithCounts}
         variant="admin"
@@ -79,13 +79,19 @@ const AdminLayout = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top bar — only on dashboard */}
         {location.pathname === '/admin/dashboard' && (
-          <header className="bg-[#f0f4fa] border-b border-slate-200/80 h-12 flex items-center justify-between px-6 shrink-0">
-            <h1 className="text-sm font-semibold text-slate-900">Dashboard</h1>
+          <header className="bg-white border-b border-slate-200 h-14 flex items-center justify-between px-6 lg:px-10 shrink-0">
+            <div className="flex items-center gap-3">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-600">
+                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: '#FF4800' }} />
+                Admin
+              </span>
+              <h1 style={{ fontFamily: 'Fraunces, Georgia, serif' }} className="text-[18px] font-semibold text-slate-900 tracking-tight leading-none">Dashboard</h1>
+            </div>
             <NotificationBell />
           </header>
         )}
 
-        <main className={cn('flex-1 bg-[#f5f7fb]', useFullPageLayout ? 'overflow-hidden' : 'overflow-y-auto')}>
+        <main className={cn('flex-1 bg-[#FAFAF9]', useFullPageLayout ? 'overflow-hidden' : 'overflow-y-auto')}>
           {useFullPageLayout ? (
             <div className="h-full flex flex-col">
                 <PageTransition className="h-full flex flex-col">

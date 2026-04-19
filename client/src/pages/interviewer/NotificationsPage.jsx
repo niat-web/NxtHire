@@ -16,7 +16,7 @@ const Toggle = ({ enabled, onChange, disabled }) => (
     onClick={() => onChange(!enabled)}
     className={cn(
       'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-40',
-      enabled ? 'bg-blue-600' : 'bg-gray-200'
+      enabled ? 'bg-slate-900' : 'bg-gray-200'
     )}>
     <span className={cn('pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 mt-0.5',
       enabled ? 'translate-x-[18px]' : 'translate-x-0.5'
@@ -86,7 +86,7 @@ const InterviewerNotificationsPage = () => {
       </div>
 
       {saving && (
-        <div className="flex items-center gap-1.5 text-xs text-blue-600 mb-4">
+        <div className="flex items-center gap-1.5 text-xs text-slate-900 mb-4">
           <Loader2 size={12} className="animate-spin" /> Saving…
         </div>
       )}
@@ -94,7 +94,7 @@ const InterviewerNotificationsPage = () => {
       {/* Email Notifications */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-xl border border-gray-100 overflow-hidden mb-5">
         <div className="flex items-center gap-2.5 px-5 py-3 border-b border-gray-100 bg-gray-50/50">
-          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center">
             <Mail size={15} className="text-white" />
           </div>
           <div>
@@ -104,7 +104,7 @@ const InterviewerNotificationsPage = () => {
         </div>
         <div className="px-2 py-1">
           <GroupLabel label="Interviews" color="text-blue-500" />
-          <Row icon={Briefcase} color="bg-blue-50 text-blue-600" title="Booking Request" desc="New interview request notification" settingKey="emailBookingRequest" settings={settings} onToggle={handleToggle} saving={saving} />
+          <Row icon={Briefcase} color="bg-slate-50 text-slate-900" title="Booking Request" desc="New interview request notification" settingKey="emailBookingRequest" settings={settings} onToggle={handleToggle} saving={saving} />
           <Row icon={AlertCircle} color="bg-red-50 text-red-500" title="Interview Cancelled" desc="When an interview is cancelled" settingKey="emailInterviewCancelled" settings={settings} onToggle={handleToggle} saving={saving} />
 
           <GroupLabel label="Account" color="text-emerald-500" />
@@ -113,7 +113,7 @@ const InterviewerNotificationsPage = () => {
 
           <GroupLabel label="Payments" color="text-violet-500" />
           <Row icon={CreditCard} color="bg-violet-50 text-violet-600" title="Payment Confirmation" desc="Payment details from admin" settingKey="emailPaymentConfirmation" settings={settings} onToggle={handleToggle} saving={saving} />
-          <Row icon={FileText} color="bg-blue-50 text-blue-500" title="Invoice Email" desc="Payment invoice" settingKey="emailInvoice" settings={settings} onToggle={handleToggle} saving={saving} />
+          <Row icon={FileText} color="bg-slate-50 text-blue-500" title="Invoice Email" desc="Payment invoice" settingKey="emailInvoice" settings={settings} onToggle={handleToggle} saving={saving} />
           <Row icon={CreditCard} color="bg-green-50 text-green-600" title="Payment Received" desc="Confirm payment receipt" settingKey="emailPaymentReceived" settings={settings} onToggle={handleToggle} saving={saving} />
         </div>
       </motion.div>

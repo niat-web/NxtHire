@@ -1,87 +1,128 @@
 import { Link } from 'react-router-dom';
-import { Mail, MapPin, Phone, ArrowRight } from 'lucide-react';
+import { Mail, MapPin, Phone, ArrowUpRight } from 'lucide-react';
 import logoSrc from '/logo.svg';
+
+const ACCENT = '#FF4800';
+const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const quickLinks = [
     { name: 'Home', path: '/' },
-    { name: 'Apply Now', path: '/applicationform' },
-    { name: 'About Us', path: '/about' },
+    { name: 'Apply now', path: '/applicationform' },
+    { name: 'About', path: '/about' },
     { name: 'FAQ', path: '/faq' },
   ];
 
   const legalLinks = [
-    { name: 'Privacy Policy', path: '/privacy-policy' },
-    { name: 'Terms of Service', path: '/terms-of-service' },
-    { name: 'Cookie Policy', path: '/cookie-policy' },
-    { name: 'Contact Us', path: '/contact-us' },
+    { name: 'Privacy policy', path: '/privacy-policy' },
+    { name: 'Terms of service', path: '/terms-of-service' },
+    { name: 'Cookie policy', path: '/cookie-policy' },
+    { name: 'Contact us', path: '/contact-us' },
   ];
 
   return (
     <footer className="bg-white border-t border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-          {/* Brand — logo kept as-is */}
-          <div className="lg:col-span-2">
-            <Link to="/" className="inline-block mb-4">
-              <img src={logoSrc} alt="NxtWave" className="h-10 w-auto" />
+      {/* Masthead callout */}
+      <div className="border-b border-slate-200 bg-[#FBFAF7]">
+        <div className="max-w-7xl mx-auto px-5 lg:px-8 py-14 lg:py-16">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+            <div className="max-w-2xl">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-slate-600">
+                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: ACCENT }} />
+                Become an interviewer
+              </span>
+              <h3 style={DISPLAY} className="mt-5 text-[34px] sm:text-[40px] font-semibold text-slate-900 tracking-tight leading-[1.08]">
+                Interview work, <em className="italic" style={{ color: ACCENT }}>considered</em>.
+              </h3>
+              <p className="mt-3 text-[14.5px] text-slate-600 leading-relaxed">
+                Join NxtWave's community of senior engineers conducting structured, paid interviews — on your own schedule.
+              </p>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <Link
+                to="/applicationform"
+                className="inline-flex h-11 items-center gap-2 rounded-full bg-slate-900 px-6 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#FF4800]"
+              >
+                Apply now <ArrowUpRight size={14} />
+              </Link>
+              <Link
+                to="/faq"
+                className="inline-flex h-11 items-center rounded-full border border-slate-900 px-5 text-[12.5px] font-semibold text-slate-900 transition-colors hover:bg-slate-900 hover:text-white"
+              >
+                Read FAQ
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main footer grid */}
+      <div className="max-w-7xl mx-auto px-5 lg:px-8 py-16 lg:py-20">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-14">
+          <div className="md:col-span-5">
+            <Link to="/" className="inline-flex items-center mb-6" aria-label="NxtHire home">
+              <img src={logoSrc} alt="NxtHire" className="h-8 w-auto" />
             </Link>
-            <p className="text-slate-500 text-sm leading-relaxed max-w-sm mb-6">
-              Empowering industry experts to shape the future of tech talent. Join our platform to conduct interviews, earn competitive pay, and make a lasting impact.
+            <p className="text-slate-600 text-[14.5px] leading-relaxed max-w-md mb-8">
+              Empowering industry experts to shape the future of tech talent. Conduct interviews, earn competitively, and make a lasting impact.
             </p>
 
-            <div className="space-y-2.5 text-sm text-slate-500">
-              <a href="mailto:interviewercommunity@nxtwave.in" className="flex items-center gap-3 hover:text-blue-600 transition-colors">
-                <Mail size={16} className="text-slate-400" />
+            <div className="space-y-3 text-[13.5px] text-slate-600">
+              <a href="mailto:interviewercommunity@nxtwave.in" className="flex items-center gap-3 hover:text-slate-900 transition-colors group">
+                <span className="h-8 w-8 rounded-full border border-slate-200 bg-white inline-flex items-center justify-center text-slate-500 group-hover:border-slate-900 group-hover:text-slate-900 transition-colors">
+                  <Mail size={13} />
+                </span>
                 interviewercommunity@nxtwave.in
               </a>
               <div className="flex items-center gap-3">
-                <Phone size={16} className="text-slate-400" />
+                <span className="h-8 w-8 rounded-full border border-slate-200 bg-white inline-flex items-center justify-center text-slate-500">
+                  <Phone size={13} />
+                </span>
                 +91 XXX XXX XXXX
               </div>
               <div className="flex items-center gap-3">
-                <MapPin size={16} className="text-slate-400" />
+                <span className="h-8 w-8 rounded-full border border-slate-200 bg-white inline-flex items-center justify-center text-slate-500">
+                  <MapPin size={13} />
+                </span>
                 Hyderabad, India
               </div>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-[11px] font-semibold text-slate-900 uppercase tracking-wider mb-4">
-              Quick Links
-            </h3>
-            <ul className="space-y-2.5">
+          <div className="md:col-span-3 md:col-start-7">
+            <h4 className="text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-5">
+              Navigate
+            </h4>
+            <ul className="space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.path}
-                    className="text-sm text-slate-500 hover:text-blue-600 transition-colors inline-flex items-center gap-1.5 group"
+                    className="text-[14px] text-slate-700 hover:text-[#FF4800] transition-colors inline-flex items-center gap-1.5 group"
                   >
-                    <ArrowRight size={14} className="opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all" />
-                    {link.name}
+                    <span>{link.name}</span>
+                    <ArrowUpRight size={12} className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Legal */}
-          <div>
-            <h3 className="text-[11px] font-semibold text-slate-900 uppercase tracking-wider mb-4">
+          <div className="md:col-span-3">
+            <h4 className="text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-5">
               Legal
-            </h3>
-            <ul className="space-y-2.5">
+            </h4>
+            <ul className="space-y-3">
               {legalLinks.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.path}
-                    className="text-sm text-slate-500 hover:text-blue-600 transition-colors inline-flex items-center gap-1.5 group"
+                    className="text-[14px] text-slate-700 hover:text-[#FF4800] transition-colors inline-flex items-center gap-1.5 group"
                   >
-                    <ArrowRight size={14} className="opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all" />
-                    {link.name}
+                    <span>{link.name}</span>
+                    <ArrowUpRight size={12} className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                   </Link>
                 </li>
               ))}
@@ -90,15 +131,18 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Bottom bar */}
-      <div className="border-t border-slate-200" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p className="text-xs text-slate-400">
-          &copy; {currentYear} NxtWave. All rights reserved.
-        </p>
-        <p className="text-xs text-slate-400">
-          Built with care for the interviewer community.
-        </p>
+      {/* Bottom bar — colophon */}
+      <div className="border-t border-slate-200">
+        <div className="max-w-7xl mx-auto px-5 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-3 text-[11.5px] text-slate-500">
+            <span>&copy; {currentYear} NxtWave.</span>
+            <span className="w-1 h-1 rounded-full bg-slate-300" />
+            <span>All rights reserved.</span>
+          </div>
+          <p className="text-[11.5px] text-slate-500 italic">
+            Built with care for the interviewer community.
+          </p>
+        </div>
       </div>
     </footer>
   );

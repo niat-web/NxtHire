@@ -315,8 +315,8 @@ const InterviewerDomainEvaluationPage = () => {
         { key: 'interviewId', title: 'ID', minWidth: '100px' }, 
         { key: 'mobileNumber', title: 'Mobile', minWidth: '120px' }, 
         { key: 'mailId', title: 'Email', minWidth: '200px' }, 
-        { key: 'candidateResume', title: 'Resume', minWidth: '100px', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"><ExternalLink /> Link</a> : '-' },
-        { key: 'meetingLink', title: 'Link', minWidth: '180px', render: (row) => row.meetingLink ? <a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate block max-w-[180px] text-xs" title={row.meetingLink}>{row.meetingLink}</a> : '-' }, 
+        { key: 'candidateResume', title: 'Resume', minWidth: '100px', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-slate-900 hover:text-blue-800 font-medium"><ExternalLink /> Link</a> : '-' },
+        { key: 'meetingLink', title: 'Link', minWidth: '180px', render: (row) => row.meetingLink ? <a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-slate-900 hover:underline truncate block max-w-[180px] text-xs" title={row.meetingLink}>{row.meetingLink}</a> : '-' }, 
         { key: 'interviewDate', title: 'Date', minWidth: '110px', render: (row) => formatDate(row.interviewDate)}, 
         { 
             key: 'interviewTime', 
@@ -370,13 +370,13 @@ const InterviewerDomainEvaluationPage = () => {
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     placeholder="Search candidate..."
-                                    className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                                    className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-colors"
                                 />
                             </div>
 
                             {/* Filter Dropdown - z-50 ensures it's above table headers */}
                             <div className="relative z-50" ref={filterMenuRef}>
-                                <Button variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} className={cn((activeFilters.interviewDate || activeFilters.interviewStatus) && "border-blue-500 text-blue-600 bg-blue-50")}>
+                                <Button variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} className={cn((activeFilters.interviewDate || activeFilters.interviewStatus) && "border-blue-500 text-slate-900 bg-slate-50")}>
                                     <Filter className="h-4 w-4 mr-2" />Filter
                                 </Button>
                                 {isFilterMenuOpen && (
@@ -386,13 +386,13 @@ const InterviewerDomainEvaluationPage = () => {
                                             <div>
                                                 <label className="block text-xs font-medium text-gray-700 mb-1.5">Interview Date</label>
                                                 <div className="relative">
-                                                    <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(p => ({ ...p, interviewDate: date }))} isClearable placeholderText="Select date" className="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-blue-500" portalId="datepicker-portal" popperClassName="!z-[9999]" popperProps={{ strategy: 'fixed' }} />
+                                                    <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(p => ({ ...p, interviewDate: date }))} isClearable placeholderText="Select date" className="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-slate-900" portalId="datepicker-portal" popperClassName="!z-[9999]" popperProps={{ strategy: 'fixed' }} />
                                                     <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                                                 </div>
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-medium text-gray-700 mb-1.5">Status</label>
-                                                <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(p => ({ ...p, interviewStatus: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-1 focus:ring-blue-500">
+                                                <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(p => ({ ...p, interviewStatus: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-1 focus:ring-slate-900">
                                                     <option value="">All Statuses</option>
                                                     {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                                 </select>
@@ -421,7 +421,7 @@ const InterviewerDomainEvaluationPage = () => {
                             <div className="flex h-full items-center justify-center"><Loader size="lg" /></div>
                         ) : (
                             <table className="min-w-full text-sm">
-                                <thead className="bg-blue-50 sticky top-0 z-10">
+                                <thead className="bg-slate-50 sticky top-0 z-10">
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Domain</th>
                                         <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Help Doc</th>
@@ -433,16 +433,16 @@ const InterviewerDomainEvaluationPage = () => {
                                 </thead>
                                 <tbody className="divide-y divide-gray-50 bg-white">
                                     {summaryData.map(item => (
-                                        <tr key={item.domainName} className="hover:bg-blue-50/50 transition-colors group">
+                                        <tr key={item.domainName} className="hover:bg-slate-50/50 transition-colors group">
                                             <td className="px-6 py-4">
-                                                <button onClick={() => setSelectedDomain({ value: item.domainName, label: item.domainName })} className="font-semibold text-gray-900 group-hover:text-blue-600 flex items-center gap-2">
+                                                <button onClick={() => setSelectedDomain({ value: item.domainName, label: item.domainName })} className="font-semibold text-gray-900 group-hover:text-slate-900 flex items-center gap-2">
                                                     {item.domainName}
                                                     <ArrowLeft className="rotate-180 opacity-0 group-hover:opacity-100 transition-opacity" />
                                                 </button>
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 {item.interviewHelpDoc ? (
-                                                    <a href={item.interviewHelpDoc} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline font-medium text-xs">
+                                                    <a href={item.interviewHelpDoc} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-slate-900 hover:underline font-medium text-xs">
                                                         View <ExternalLink />
                                                     </a>
                                                 ) : <span className="text-gray-300">-</span>}
@@ -465,12 +465,12 @@ const InterviewerDomainEvaluationPage = () => {
                         ) : (
                             <table className="min-w-full text-sm border-separate border-spacing-0">
                                 {/* Fixed Table Header */}
-                                <thead className="bg-blue-50 sticky top-0 z-20">
+                                <thead className="bg-slate-50 sticky top-0 z-20">
                                     <tr>
                                         {staticColumns.map(col => (
                                             <th
                                                 key={col.key}
-                                                className={cn("px-4 py-3 border-b border-r border-gray-200 text-left text-xs font-medium text-gray-600 bg-blue-50 sticky top-0", col.isSticky ? "z-30" : "z-20")} 
+                                                className={cn("px-4 py-3 border-b border-r border-gray-200 text-left text-xs font-medium text-gray-600 bg-slate-50 sticky top-0", col.isSticky ? "z-30" : "z-20")} 
                                                 style={{ 
                                                     minWidth: col.minWidth, 
                                                     left: col.isSticky ? col.left : 'auto',
@@ -487,7 +487,7 @@ const InterviewerDomainEvaluationPage = () => {
                                                 { bg: 'bg-sky-100', text: 'text-sky-800', border: 'border-sky-200' },
                                                 { bg: 'bg-violet-100', text: 'text-violet-800', border: 'border-violet-200' },
                                                 { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-200' },
-                                                { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200' },
+                                                { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-slate-200' },
                                                 { bg: 'bg-rose-100', text: 'text-rose-800', border: 'border-rose-200' },
                                                 { bg: 'bg-teal-100', text: 'text-teal-800', border: 'border-teal-200' },
                                                 { bg: 'bg-fuchsia-100', text: 'text-fuchsia-800', border: 'border-fuchsia-200' },
@@ -514,7 +514,7 @@ const InterviewerDomainEvaluationPage = () => {
                                                 { bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-100' },
                                                 { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-100' },
                                                 { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100' },
-                                                { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-100' },
+                                                { bg: 'bg-slate-50', text: 'text-slate-900', border: 'border-slate-200' },
                                                 { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-100' },
                                                 { bg: 'bg-teal-50', text: 'text-teal-700', border: 'border-teal-100' },
                                                 { bg: 'bg-fuchsia-50', text: 'text-fuchsia-700', border: 'border-fuchsia-100' },

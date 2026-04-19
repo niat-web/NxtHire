@@ -72,7 +72,7 @@ function App() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#f5f7fb]">
+      <div className="flex items-center justify-center min-h-screen bg-[#FAFAF9]">
         <Loader size="xl" />
       </div>
     );

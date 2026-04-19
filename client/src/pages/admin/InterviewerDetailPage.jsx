@@ -72,7 +72,7 @@ const InterviewerDetailPage = () => {
         </div>
         <h2 className="text-lg font-bold text-slate-900">Interviewer not found</h2>
         <p className="text-sm text-slate-500">The record may have been deleted or the ID is invalid.</p>
-        <button onClick={() => navigate('/admin/interviewers')} className="text-sm font-semibold text-blue-600 hover:text-blue-800">
+        <button onClick={() => navigate('/admin/interviewers')} className="text-sm font-semibold text-slate-900 hover:text-blue-800">
           <ArrowLeft className="inline h-4 w-4 mr-1" /> Back to Interviewers
         </button>
       </div>
@@ -163,7 +163,7 @@ const InterviewerDetailPage = () => {
                   {interviewer.status}
                 </span>
                 <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
-                  interviewer.source === 'Internal' ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                  interviewer.source === 'Internal' ? 'bg-slate-50 text-slate-900 border-slate-200' : 'bg-emerald-50 text-emerald-700 border-emerald-100'
                 }`}>
                   {interviewer.source || 'External'}
                 </span>
@@ -178,7 +178,7 @@ const InterviewerDetailPage = () => {
                 value={interviewer.status}
                 onChange={(e) => handleStatusChange(e.target.value)}
                 disabled={updatingStatus}
-                className={`text-xs font-semibold pl-3 pr-7 py-2 rounded-xl appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-100 border transition-colors ${statusColors[interviewer.status] || 'bg-slate-100 text-slate-600 border-slate-200'}`}
+                className={`text-xs font-semibold pl-3 pr-7 py-2 rounded-xl appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-900/10 border transition-colors ${statusColors[interviewer.status] || 'bg-slate-100 text-slate-600 border-slate-200'}`}
               >
                 {Object.values(INTERVIEWER_STATUS).map(s => <option key={s} value={s}>{s}</option>)}
               </select>
@@ -208,7 +208,7 @@ const InterviewerDetailPage = () => {
                 value={interviewer.domains?.length ? (
                   <div className="flex flex-wrap gap-1.5 mt-1">
                     {interviewer.domains.map(d => (
-                      <span key={d} className="inline-flex px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-wider border border-blue-100">
+                      <span key={d} className="inline-flex px-2 py-0.5 rounded-md bg-slate-50 text-slate-900 text-[10px] font-bold uppercase tracking-wider border border-slate-200">
                         {d}
                       </span>
                     ))}
@@ -241,7 +241,7 @@ const InterviewerDetailPage = () => {
                 <button
                   onClick={() => handleAction('welcome')}
                   disabled={actionLoading === 'welcome'}
-                  className="w-full h-10 inline-flex items-center justify-center gap-2 text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 shadow-lg transition-all disabled:opacity-50"
+                  className="w-full h-10 inline-flex items-center justify-center gap-2 text-sm font-semibold rounded-xl text-white bg-slate-900 hover:bg-[#FF4800] shadow-lg transition-all disabled:opacity-50"
                 >
                   {actionLoading === 'welcome' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   {interviewer.welcomeEmailSentAt ? 'Resend Welcome Email' : 'Send Welcome Email'}

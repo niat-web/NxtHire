@@ -83,11 +83,28 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Google login
+  // Google login — popup/credential flow (ID token JWT)
   const googleLogin = async (credential) => {
     try {
       setError(null);
       const response = await api.post('/api/auth/google', { credential });
+      const { token, user } = response.data;
+
+      localStorage.setItem('token', token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      setCurrentUser(user);
+      return user;
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  // Google login — full-page redirect / authorization-code flow
+  const googleLoginWithCode = async (code, redirect_uri) => {
+    try {
+      setError(null);
+      const response = await api.post('/api/auth/google/callback', { code, redirect_uri });
       const { token, user } = response.data;
 
       localStorage.setItem('token', token);
@@ -202,6 +219,7 @@ export const AuthProvider = ({ children }) => {
     error,
     login,
     googleLogin,
+    googleLoginWithCode,
     logout,
     updateProfile,
     changePassword,

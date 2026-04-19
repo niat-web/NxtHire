@@ -150,7 +150,7 @@ const AuthorizeStudentsPage = () => {
           </Link>
           <h1 className="text-sm font-semibold text-slate-900">Authorize Students</h1>
           {bookingDetails?.title && (
-            <span className="text-[11px] font-medium text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">
+            <span className="text-[11px] font-medium text-slate-900 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-full">
               {bookingDetails.title}
             </span>
           )}
@@ -171,12 +171,12 @@ const AuthorizeStudentsPage = () => {
           <div className="flex border-b border-slate-200 shrink-0">
             <button onClick={() => setInputMode('paste')}
               className={cn('flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[12px] font-semibold border-b-2 transition-colors',
-                inputMode === 'paste' ? 'border-blue-500 text-blue-600 bg-white' : 'border-transparent text-slate-400 hover:text-slate-600')}>
+                inputMode === 'paste' ? 'border-blue-500 text-slate-900 bg-white' : 'border-transparent text-slate-400 hover:text-slate-600')}>
               <FileText size={13} /> Paste Data
             </button>
             <button onClick={() => setInputMode('upload')}
               className={cn('flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[12px] font-semibold border-b-2 transition-colors',
-                inputMode === 'upload' ? 'border-blue-500 text-blue-600 bg-white' : 'border-transparent text-slate-400 hover:text-slate-600')}>
+                inputMode === 'upload' ? 'border-blue-500 text-slate-900 bg-white' : 'border-transparent text-slate-400 hover:text-slate-600')}>
               <Upload size={13} /> Import File
             </button>
           </div>
@@ -187,12 +187,12 @@ const AuthorizeStudentsPage = () => {
                 value={pastedText}
                 onChange={e => processText(e.target.value)}
                 placeholder={`Paste student data here...\n\nSupported Columns:\n${columnsHelp.join(', ')}`}
-                className="flex-1 w-full p-3 bg-white border border-slate-200 rounded-lg text-[12px] font-mono text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 resize-none"
+                className="flex-1 w-full p-3 bg-white border border-slate-200 rounded-lg text-[12px] font-mono text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 resize-none"
                 spellCheck={false}
               />
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <button onClick={handleTemplateDownload} className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+                  <button onClick={handleTemplateDownload} className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-900 hover:text-blue-800 transition-colors">
                     <Download size={11} /> Template
                   </button>
                 </div>
@@ -206,13 +206,13 @@ const AuthorizeStudentsPage = () => {
           ) : (
             <div className="flex-1 flex flex-col p-3 gap-3">
               <div ref={dropRef} onClick={() => fileInputRef.current?.click()}
-                className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 hover:border-blue-400 hover:bg-blue-50/30 rounded-lg cursor-pointer transition-all">
+                className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 hover:border-blue-400 hover:bg-slate-50/30 rounded-lg cursor-pointer transition-all">
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv,.xlsx,.xls,.xlsm" className="hidden" />
                 <Upload size={24} className="text-slate-300 mb-2" />
                 <p className="text-[12px] font-medium text-slate-600">Click to upload or drag and drop</p>
                 <p className="text-[10px] text-slate-400 mt-0.5">CSV, Excel files (max 10MB)</p>
               </div>
-              <button onClick={handleTemplateDownload} className="inline-flex items-center justify-center gap-1.5 h-8 text-[11px] font-medium text-blue-600 border border-blue-200 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors">
+              <button onClick={handleTemplateDownload} className="inline-flex items-center justify-center gap-1.5 h-8 text-[11px] font-medium text-slate-900 border border-slate-200 bg-slate-50 rounded-md hover:bg-blue-100 transition-colors">
                 <Download size={12} /> Download Template
               </button>
             </div>
@@ -226,10 +226,10 @@ const AuthorizeStudentsPage = () => {
             <div className="relative w-52">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
               <input type="text" value={q} onChange={e => setQ(e.target.value)} placeholder="Search students..."
-                className="w-full pl-9 pr-3 h-8 bg-slate-50 border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all" />
+                className="w-full pl-9 pr-3 h-8 bg-slate-50 border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all" />
             </div>
             <label className="flex items-center gap-1.5 cursor-pointer select-none">
-              <input type="checkbox" className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-3.5 w-3.5" checked={showInvalidOnly} onChange={e => setShowInvalidOnly(e.target.checked)} />
+              <input type="checkbox" className="rounded border-slate-300 text-slate-900 focus:ring-slate-900 h-3.5 w-3.5" checked={showInvalidOnly} onChange={e => setShowInvalidOnly(e.target.checked)} />
               <span className="text-[11px] text-slate-600 font-medium">Show Invalid</span>
             </label>
           </div>
@@ -274,7 +274,7 @@ const AuthorizeStudentsPage = () => {
                       <td className="px-3 py-2">
                         {s.resumeLink ? (
                           <a href={/^https?:\/\//i.test(s.resumeLink) ? s.resumeLink : `https://${s.resumeLink}`} target="_blank" rel="noopener noreferrer"
-                            className="text-[11px] font-medium text-blue-600 hover:text-blue-800">View</a>
+                            className="text-[11px] font-medium text-slate-900 hover:text-blue-800">View</a>
                         ) : <span className="text-[11px] text-slate-300">—</span>}
                       </td>
                     </tr>
@@ -294,7 +294,7 @@ const AuthorizeStudentsPage = () => {
                 </button>
               )}
               <button onClick={handleSave} disabled={validCount === 0 || isSaving}
-                className="inline-flex items-center gap-2 h-8 px-4 text-[12px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-40 transition-colors">
+                className="inline-flex items-center gap-2 h-8 px-4 text-[12px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] disabled:opacity-40 transition-colors">
                 {isSaving ? <Loader size="sm" /> : <Send size={13} />}
                 Authorize & Invite {validCount} Students
               </button>

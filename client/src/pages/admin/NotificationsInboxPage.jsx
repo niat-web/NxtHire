@@ -11,7 +11,7 @@ import Loader from '@/components/common/Loader';
 
 // ── Type config for icons & colors ──
 const typeConfig = {
-  interviewer_submitted_slots: { icon: UserCheck,      color: 'bg-blue-50 text-blue-600', label: 'Slot Submission' },
+  interviewer_submitted_slots: { icon: UserCheck,      color: 'bg-slate-50 text-slate-900', label: 'Slot Submission' },
   student_booked_slot:         { icon: Calendar,       color: 'bg-emerald-50 text-emerald-600', label: 'Student Booking' },
   meet_link_generated:         { icon: Video,          color: 'bg-amber-50 text-amber-600', label: 'Meet Link' },
   new_applicant:               { icon: Users,          color: 'bg-sky-50 text-sky-600', label: 'New Applicant' },
@@ -76,14 +76,14 @@ const NotificationsInboxPage = () => {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
-                <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-bold text-white bg-blue-600 rounded-full">
+                <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-bold text-white bg-slate-900 rounded-full">
                   {unreadCount}
                 </span>
               )}
             </div>
             {unreadCount > 0 && (
               <button onClick={markAllAsRead}
-                className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+                className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-900 hover:text-blue-800 transition-colors">
                 <CheckCheck size={13} /> Mark all read
               </button>
             )}
@@ -124,7 +124,7 @@ const NotificationsInboxPage = () => {
                   onClick={() => handleSelect(n)}
                   className={cn(
                     'w-full flex items-start gap-3 px-4 py-3 text-left transition-colors border-b border-slate-100 last:border-0',
-                    isSelected ? 'bg-blue-50/60' : n.isRead ? 'bg-white hover:bg-slate-50' : 'bg-blue-50/20 hover:bg-blue-50/40'
+                    isSelected ? 'bg-slate-50/60' : n.isRead ? 'bg-white hover:bg-slate-50' : 'bg-slate-50/20 hover:bg-slate-50/40'
                   )}
                 >
                   <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5', config.color)}>
@@ -135,7 +135,7 @@ const NotificationsInboxPage = () => {
                       <p className={cn('text-xs truncate', n.isRead ? 'font-medium text-slate-600' : 'font-semibold text-slate-900')}>
                         {n.title}
                       </p>
-                      {!n.isRead && <span className="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0" />}
+                      {!n.isRead && <span className="w-1.5 h-1.5 bg-slate-500 rounded-full shrink-0" />}
                     </div>
                     <p className="text-[11px] text-slate-400 truncate mt-0.5">{n.message}</p>
                     <p className="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
@@ -151,7 +151,7 @@ const NotificationsInboxPage = () => {
       </div>
 
       {/* ═══ RIGHT: Detail panel ═══ */}
-      <div className="flex-1 bg-[#f5f7fb] overflow-y-auto">
+      <div className="flex-1 bg-[#FAFAF9] overflow-y-auto">
         {selectedNotification ? (
           <NotificationDetail notification={selectedNotification} />
         ) : (
@@ -190,8 +190,8 @@ const NotificationDetail = ({ notification }) => {
                     <Check size={10} /> Read
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 text-[10px] text-blue-600 font-semibold">
-                    <span className="w-1.5 h-1.5 bg-blue-500 rounded-full" /> Unread
+                  <span className="inline-flex items-center gap-1 text-[10px] text-slate-900 font-semibold">
+                    <span className="w-1.5 h-1.5 bg-slate-500 rounded-full" /> Unread
                   </span>
                 )}
               </div>

@@ -54,7 +54,7 @@ const NewInterviewBooking = () => {
                     <h1 className="text-sm font-semibold text-slate-900">{isEditMode ? 'Edit Booking' : 'New Booking Request'}</h1>
                 </div>
                 <button type="submit" form="booking-form" disabled={isSubmitting}
-                    className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                    className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] disabled:opacity-50 transition-colors">
                     {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                     {isSubmitting ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Create & Notify')}
                 </button>

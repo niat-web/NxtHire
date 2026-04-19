@@ -60,7 +60,7 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
                                 {/* Header */}
                                 <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
                                     <div className="flex items-center gap-4">
-                                        <div className="h-12 w-12 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-lg font-semibold border border-blue-100">
+                                        <div className="h-12 w-12 rounded-lg bg-slate-50 text-slate-900 flex items-center justify-center text-lg font-semibold border border-slate-200">
                                             {data.user?.firstName?.[0]}{data.user?.lastName?.[0]}
                                         </div>
                                         <div>
@@ -133,7 +133,7 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
                                             </button>
                                         )}
                                     </div>
-                                    <button onClick={onClose} className="inline-flex items-center px-4 h-10 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">Close</button>
+                                    <button onClick={onClose} className="inline-flex items-center px-4 h-10 text-sm font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] transition-colors">Close</button>
                                 </div>
                             </Dialog.Panel>
                         </Transition.Child>
@@ -183,7 +183,7 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, isLoading }) => {
                 </div>
                 <div className="mt-6 flex justify-end gap-2">
                     <button onClick={onClose} className="px-4 h-10 text-sm font-medium text-slate-700 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors">Cancel</button>
-                    <button onClick={() => onUploadConfirm(parsedData)} disabled={isLoading || !parsedData.length} className="inline-flex items-center gap-2 px-4 h-10 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-40 transition-colors">
+                    <button onClick={() => onUploadConfirm(parsedData)} disabled={isLoading || !parsedData.length} className="inline-flex items-center gap-2 px-4 h-10 text-sm font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] disabled:opacity-40 transition-colors">
                         {isLoading && <Loader2 size={14} className="animate-spin" />} Upload
                     </button>
                 </div>
@@ -310,14 +310,14 @@ const Interviewers = () => {
     const renderCell = (col, r) => {
         switch (col.key) {
             case 'select':
-                return <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" checked={selectedRows.includes(r._id)} onChange={() => setSelectedRows(p => p.includes(r._id) ? p.filter(id => id !== r._id) : [...p, r._id])} />;
+                return <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900" checked={selectedRows.includes(r._id)} onChange={() => setSelectedRows(p => p.includes(r._id) ? p.filter(id => id !== r._id) : [...p, r._id])} />;
             case 'user.firstName':
                 return (
                     <div className="flex flex-col">
-                        <button onClick={() => navigate(`/admin/interviewers/${r._id}`)} className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline text-left transition-colors">
+                        <button onClick={() => navigate(`/admin/interviewers/${r._id}`)} className="text-[13px] font-semibold text-slate-900 hover:text-[#FF4800] text-left transition-colors">
                             {r.user.firstName} {r.user.lastName}
                         </button>
-                        <span className="text-xs text-slate-500">{r.jobTitle || 'N/A'}</span>
+                        <span className="text-[12px] text-slate-500">{r.jobTitle || 'N/A'}</span>
                     </div>
                 );
             case 'user.email':
@@ -352,7 +352,7 @@ const Interviewers = () => {
             case 'source': {
                 const isInternal = r.source === 'Internal';
                 return (
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${isInternal ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-emerald-50 text-emerald-700 border-emerald-100'}`}>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide border border-slate-200 bg-slate-50 text-slate-700">
                         {isInternal ? 'Internal' : 'External'}
                     </span>
                 );
@@ -361,9 +361,9 @@ const Interviewers = () => {
                 return (
                     <div className="relative">
                         <select value={r.status} onChange={(e) => handleStatusChange(r._id, e.target.value)} disabled={updatingId === r._id}
-                            className={`w-full text-xs font-semibold pl-2 pr-6 py-1.5 rounded-full appearance-none cursor-pointer focus:outline-none border ${
+                            className={`w-full text-[11px] font-semibold uppercase tracking-wide pl-3 pr-7 py-1.5 rounded-full appearance-none cursor-pointer focus:outline-none border ${
                                 r.status === 'Active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                                r.status === 'On Probation' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                r.status === 'On Probation' ? 'bg-amber-50 text-amber-800 border-amber-200' :
                                 'bg-slate-50 text-slate-600 border-slate-200'
                             }`}>
                             {Object.values(INTERVIEWER_STATUS).map(s => <option key={s} value={s}>{s}</option>)}
@@ -377,76 +377,83 @@ const Interviewers = () => {
     };
 
     return (
-        <div className="flex flex-col h-full overflow-hidden bg-white rounded-xl border border-slate-200">
+        <div className="flex flex-col h-full overflow-hidden bg-white">
 
-            {/* Header Bar */}
-            <div className="bg-white border-b border-slate-200 px-6 py-4 flex-shrink-0">
-                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
-                    <div className="flex flex-wrap items-center gap-2 flex-1">
-                        <div className="relative w-full sm:w-56">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                            <input type="text" value={filters.search} onChange={(e) => setFilters(p => ({ ...p, search: e.target.value }))} placeholder="Search by name, email..."
-                                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all" />
-                        </div>
-                        <div className="relative">
-                            <select value={filters.status} onChange={(e) => setFilters(p => ({ ...p, status: e.target.value }))}
-                                className="appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 block py-2 pl-3 pr-8 cursor-pointer hover:border-slate-300 transition-colors">
-                                <option value="">All Status</option>
-                                {Object.values(INTERVIEWER_STATUS).map(s => (<option key={s} value={s}>{s}</option>))}
-                            </select>
-                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-                        </div>
-                        <div className="relative">
-                            <select value={filters.domain} onChange={(e) => setFilters(p => ({ ...p, domain: e.target.value }))}
-                                className="appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 block py-2 pl-3 pr-8 cursor-pointer hover:border-slate-300 transition-colors">
-                                <option value="">All Domains</option>
-                                {DOMAINS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
-                            </select>
-                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-                        </div>
-                        {(filters.search || filters.status || filters.domain) && (
-                            <button onClick={resetFilters} className="text-xs text-slate-500 hover:text-slate-900 font-medium px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors">Clear</button>
-                        )}
+            {/* Header hero */}
+            <section className="border-b border-slate-200 bg-white px-6 lg:px-10 pt-8 pb-6 shrink-0">
+                <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-6 max-w-7xl w-full mx-auto">
+                    <div>
+                        <h1 style={{ fontFamily: 'Fraunces, Georgia, serif' }} className="text-[32px] sm:text-[38px] font-semibold text-slate-900 tracking-tight leading-none">Interviewers</h1>
+                        <p className="mt-2 text-[13.5px] text-slate-500">{totalDocs} total</p>
                     </div>
-
                     <div className="flex items-center gap-2 shrink-0">
                         {selectedRows.length > 0 && (
-                            <div className="flex items-center gap-2 bg-slate-800 text-white px-3 py-1.5 rounded-lg mr-1">
-                                <span className="text-xs font-semibold">{selectedRows.length} selected</span>
+                            <div className="flex items-center gap-2 bg-slate-900 text-white px-3 h-10 rounded-full mr-1">
+                                <span className="text-[12px] font-semibold">{selectedRows.length} selected</span>
                                 {selectedRows.length === 1 && (
-                                    <button onClick={() => setModalState({ type: 'edit', data: interviewers.find(i => i._id === selectedRows[0]) })} className="h-7 w-7 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors" title="Edit">
+                                    <button onClick={() => setModalState({ type: 'edit', data: interviewers.find(i => i._id === selectedRows[0]) })} className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors" title="Edit">
                                         <Edit className="w-3.5 h-3.5" />
                                     </button>
                                 )}
-                                <button onClick={() => setDeleteDialog({ isOpen: true, ids: selectedRows, isBulk: true })} className="h-7 w-7 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors" title="Delete">
+                                <button onClick={() => setDeleteDialog({ isOpen: true, ids: selectedRows, isBulk: true })} className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors" title="Delete">
                                     <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                             </div>
                         )}
-                        <button onClick={() => setIsUploadModalOpen(true)} className="inline-flex items-center gap-2 px-4 h-10 text-sm font-medium text-slate-700 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors">
+                        <button onClick={() => setIsUploadModalOpen(true)} className="inline-flex h-10 items-center gap-1.5 rounded-full border border-slate-900 px-4 text-[12.5px] font-semibold text-slate-900 transition-colors hover:bg-slate-900 hover:text-white">
                             <Upload className="h-4 w-4" /> Import
                         </button>
-                        <button onClick={() => setModalState({ type: 'add', data: null })} className="inline-flex items-center gap-2 px-4 h-10 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
-                            <Plus className="h-4 w-4" /> Add Interviewer
+                        <button onClick={() => setModalState({ type: 'add', data: null })} className="inline-flex h-10 items-center gap-2 rounded-full bg-slate-900 px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#FF4800]">
+                            <Plus className="h-4 w-4" /> Add interviewer
                         </button>
                     </div>
+                </div>
+            </section>
+
+            {/* Sticky filter bar */}
+            <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/90 backdrop-blur px-6 lg:px-10 py-3 shrink-0">
+                <div className="flex flex-wrap items-center gap-3 max-w-7xl w-full mx-auto">
+                    <div className="relative w-full sm:w-72">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <input type="text" value={filters.search} onChange={(e) => setFilters(p => ({ ...p, search: e.target.value }))} placeholder="Search by name or email"
+                            className="w-full h-10 pl-10 pr-4 bg-white border border-slate-200 rounded-full text-[13px] placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 transition-colors" />
+                    </div>
+                    <div className="relative">
+                        <select value={filters.status} onChange={(e) => setFilters(p => ({ ...p, status: e.target.value }))}
+                            className="appearance-none bg-white border border-slate-200 text-slate-700 text-[13px] rounded-full focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 h-10 pl-4 pr-9 cursor-pointer transition-colors">
+                            <option value="">All status</option>
+                            {Object.values(INTERVIEWER_STATUS).map(s => (<option key={s} value={s}>{s}</option>))}
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                    </div>
+                    <div className="relative">
+                        <select value={filters.domain} onChange={(e) => setFilters(p => ({ ...p, domain: e.target.value }))}
+                            className="appearance-none bg-white border border-slate-200 text-slate-700 text-[13px] rounded-full focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 h-10 pl-4 pr-9 cursor-pointer transition-colors">
+                            <option value="">All domains</option>
+                            {DOMAINS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                    </div>
+                    {(filters.search || filters.status || filters.domain) && (
+                        <button onClick={resetFilters} className="text-[12px] text-slate-500 hover:text-slate-900 font-medium px-3 h-8 rounded-full hover:bg-slate-100 transition-colors">Clear</button>
+                    )}
                 </div>
             </div>
 
             {/* Table — local inline implementation */}
             <div className="flex-1 overflow-hidden flex flex-col">
                 <div className="flex-1 overflow-auto">
-                    <table className="min-w-full">
+                    <table className="min-w-full text-[13px]">
                         <thead>
                             <tr>
                                 {columns.map((col) => (
                                     <th key={col.key} scope="col"
-                                        className={`sticky top-0 px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em] whitespace-nowrap border-b border-slate-200 bg-slate-50/90 backdrop-blur-sm z-10 ${col.sortable ? 'cursor-pointer hover:text-slate-900' : ''}`}
+                                        className={`sticky top-0 px-5 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] whitespace-nowrap border-b border-slate-200 bg-slate-50/70 backdrop-blur z-10 ${col.sortable ? 'cursor-pointer hover:text-slate-900' : ''}`}
                                         style={{ minWidth: col.minWidth }}
                                         onClick={() => col.sortable && handleSort(col.key)}>
                                         <div className="flex items-center gap-1.5">
                                             {col.key === 'select' ? (
-                                                <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" onChange={(e) => setSelectedRows(e.target.checked ? interviewers.map(i => i._id) : [])} checked={selectedRows.length === interviewers.length && interviewers.length > 0} />
+                                                <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900" onChange={(e) => setSelectedRows(e.target.checked ? interviewers.map(i => i._id) : [])} checked={selectedRows.length === interviewers.length && interviewers.length > 0} />
                                             ) : col.title}
                                             {col.sortable && (
                                                 <span className="text-[10px]">
@@ -468,12 +475,12 @@ const Interviewers = () => {
                                     </tr>
                                 ))
                             ) : interviewers.length === 0 ? (
-                                <tr><td colSpan={columns.length} className="px-6 py-14 text-center text-sm text-slate-400">No interviewers found</td></tr>
+                                <tr><td colSpan={columns.length} className="px-6 py-14 text-center text-[13px] text-slate-500">No interviewers found</td></tr>
                             ) : (
                                 interviewers.map((r) => (
-                                    <tr key={r._id} className="hover:bg-slate-50/70 transition-colors group">
+                                    <tr key={r._id} className="hover:bg-slate-50/60 transition-colors group">
                                         {columns.map((col) => (
-                                            <td key={col.key} className="px-5 py-2.5 whitespace-nowrap text-sm text-slate-700 align-middle">
+                                            <td key={col.key} className="px-5 py-3 whitespace-nowrap text-[13px] text-slate-700 align-middle">
                                                 {renderCell(col, r)}
                                             </td>
                                         ))}
@@ -484,19 +491,18 @@ const Interviewers = () => {
                     </table>
                 </div>
 
-                {/* Pagination */}
                 {!loading && totalDocs > 0 && (
-                    <div className="px-6 py-3 border-t border-slate-200 bg-white flex items-center justify-between shrink-0">
-                        <p className="text-xs text-slate-500 font-medium">
-                            Page <span className="font-bold text-slate-900">{currentPage}</span> of {totalPages} ({totalDocs} total)
+                    <div className="px-6 lg:px-10 py-3.5 border-t border-slate-200 bg-white flex items-center justify-between shrink-0">
+                        <p className="text-[12px] text-slate-500">
+                            Page <span className="font-semibold text-slate-900">{currentPage}</span> of {totalPages} · <span className="font-semibold text-slate-900">{totalDocs}</span> total
                         </p>
                         <div className="flex items-center gap-1.5">
                             <button onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage === 1}
-                                className="h-9 w-9 rounded-md flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                                className="h-9 w-9 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors">
                                 <ChevronLeft className="w-4 h-4" />
                             </button>
                             <button onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage === totalPages}
-                                className="h-9 w-9 rounded-md flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                                className="h-9 w-9 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors">
                                 <ChevronRight className="w-4 h-4" />
                             </button>
                         </div>

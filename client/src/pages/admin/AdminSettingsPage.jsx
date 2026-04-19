@@ -42,7 +42,7 @@ const SettingSection = ({ title, description, items, category, onAdd, onUpdate, 
                 </div>
                 {!addMode && (
                     <button onClick={() => { setAddMode(true); setNewValue(''); setNewAmount(''); }}
-                        className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+                        className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-900 hover:text-blue-800 transition-colors">
                         <Plus size={12} /> Add
                     </button>
                 )}
@@ -51,7 +51,7 @@ const SettingSection = ({ title, description, items, category, onAdd, onUpdate, 
             <div className="border border-slate-200 rounded-lg overflow-hidden bg-white">
                 {/* Add row */}
                 {addMode && (
-                    <div className="flex items-center gap-2 px-3 py-2 bg-blue-50/40 border-b border-slate-200">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-slate-50/40 border-b border-slate-200">
                         <input type="text" value={newValue} onChange={e => setNewValue(e.target.value)} placeholder="Enter name..." autoFocus
                             onKeyDown={e => e.key === 'Enter' && handleAdd()}
                             className="flex-1 h-7 px-2 border border-slate-200 rounded text-[12px] bg-white focus:outline-none focus:ring-1 focus:ring-blue-300" />
@@ -97,7 +97,7 @@ const SettingSection = ({ title, description, items, category, onAdd, onUpdate, 
                                         {showAmount && item.amount !== undefined && <span className="text-[11px] font-mono text-slate-400">₹{item.amount}</span>}
                                         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button onClick={() => { setEditId(item._id); setEditValue(item.value || item.name); setEditAmount(item.amount || ''); }}
-                                                className="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50">
+                                                className="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-50">
                                                 <Edit size={11} />
                                             </button>
                                             <button onClick={() => onDelete(item._id, item.value || item.name)}
@@ -189,7 +189,7 @@ const AdminSettingsPage = () => {
                 </div>
                 {hasEmptySections && (
                     <button onClick={handleSeedAll} disabled={seeding}
-                        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] disabled:opacity-50 transition-colors">
                         {seeding ? <Loader2 size={14} className="animate-spin" /> : <Database size={14} />}
                         Seed All Defaults
                     </button>

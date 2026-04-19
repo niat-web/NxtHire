@@ -37,7 +37,7 @@ const LocalSearchInput = ({ value, onChange, placeholder }) => (
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            className="w-full pl-10 pr-3 h-10 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 text-sm text-slate-900 placeholder:text-slate-400 transition-colors"
+            className="w-full pl-10 pr-3 h-10 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 text-sm text-slate-900 placeholder:text-slate-400 transition-colors"
         />
     </div>
 );
@@ -182,7 +182,7 @@ const ActionsMenu = ({ onAddEntries, onReload, onExport, onImport, isRefreshing,
                 >
                     {items.map((item, i) => (
                         <button key={item.label} onClick={item.onClick} disabled={item.disabled}
-                            className={`flex items-center gap-2.5 w-full px-4 py-2.5 text-sm font-medium disabled:opacity-40 transition-colors ${i === 0 ? 'text-blue-600 hover:bg-blue-50' : 'text-slate-700 hover:bg-slate-50'}`}>
+                            className={`flex items-center gap-2.5 w-full px-4 py-2.5 text-sm font-medium disabled:opacity-40 transition-colors ${i === 0 ? 'text-slate-900 hover:bg-slate-50' : 'text-slate-700 hover:bg-slate-50'}`}>
                             <item.icon className="h-4 w-4" />
                             {item.label}
                         </button>
@@ -353,7 +353,7 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, title, instructions, re
             <div className="relative w-full max-w-4xl bg-white rounded-xl shadow-lg flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                 <div className="p-4 border-b"><h3 className="text-lg font-semibold text-gray-800">{title}</h3></div>
                 <div className="p-6 flex-grow overflow-y-auto space-y-4">
-                    <div className="flex items-center gap-4"><input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>{error && <p className="text-red-600 text-sm font-semibold">{error}</p>}</div>
+                    <div className="flex items-center gap-4"><input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-slate-50 file:text-slate-900 hover:file:bg-blue-100"/>{error && <p className="text-red-600 text-sm font-semibold">{error}</p>}</div>
                     {parsedData.length > 0 && (<div className="border border-gray-200 rounded-xl max-h-80 overflow-auto"><table className="min-w-full text-xs"><thead className="bg-gray-100 sticky top-0"><tr className="text-left font-semibold text-gray-600">{Object.keys(parsedData[0]).map(h => <th key={h} className="p-2 border-b">{h}</th>)}</tr></thead><tbody>{parsedData.slice(0, 10).map((row, i) => (<tr key={i} className="bg-white border-b">{Object.values(row).map((val, j) => <td key={j} className="p-2 truncate" title={val}>{String(val)}</td>)}</tr>))}</tbody></table>{parsedData.length > 10 && <div className="p-2 text-center text-sm bg-gray-50">...and {parsedData.length - 10} more rows</div>}</div>)}
                 </div>
                 <div className="bg-gray-50 p-4 flex justify-between items-center border-t">
@@ -638,10 +638,10 @@ const MainSheet = () => {
         { key: 'uid', title: 'UID', minWidth: '120px' },
         { key: 'mobileNumber', title: 'Mobile', minWidth: '120px' },
         { key: 'mailId', title: "Mail ID", minWidth: '200px' },
-        { key: 'candidateResume', title: 'Resume', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition-colors" title={row.candidateResume}>Link <ExternalLink className="h-3 w-3" /></a> : <span className="text-gray-300">—</span> },
-        { key: 'meetingLink', title: 'Meeting Link', minWidth: '110px', render: (row) => row.meetingLink ? (<a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition-colors" title={row.meetingLink}>Link <ExternalLink className="h-3 w-3" /></a>) : <span className="text-gray-300">—</span> },
-        { key: 'recordingLink', title: 'Recording Link', minWidth: '120px', render: (row) => row.recordingLink ? (<a href={row.recordingLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition-colors" title={row.recordingLink}>Link <ExternalLink className="h-3 w-3" /></a>) : <span className="text-gray-300">—</span> },
-        { key: 'transcriptLink', title: 'Transcript Link', minWidth: '120px', render: (row) => row.transcriptLink ? (<a href={row.transcriptLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition-colors" title={row.transcriptLink}>Link <ExternalLink className="h-3 w-3" /></a>) : <span className="text-gray-300">—</span> },
+        { key: 'candidateResume', title: 'Resume', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-50 text-slate-900 text-xs font-semibold hover:bg-blue-100 transition-colors" title={row.candidateResume}>Link <ExternalLink className="h-3 w-3" /></a> : <span className="text-gray-300">—</span> },
+        { key: 'meetingLink', title: 'Meeting Link', minWidth: '110px', render: (row) => row.meetingLink ? (<a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-50 text-slate-900 text-xs font-semibold hover:bg-blue-100 transition-colors" title={row.meetingLink}>Link <ExternalLink className="h-3 w-3" /></a>) : <span className="text-gray-300">—</span> },
+        { key: 'recordingLink', title: 'Recording Link', minWidth: '120px', render: (row) => row.recordingLink ? (<a href={row.recordingLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-50 text-slate-900 text-xs font-semibold hover:bg-blue-100 transition-colors" title={row.recordingLink}>Link <ExternalLink className="h-3 w-3" /></a>) : <span className="text-gray-300">—</span> },
+        { key: 'transcriptLink', title: 'Transcript Link', minWidth: '120px', render: (row) => row.transcriptLink ? (<a href={row.transcriptLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-50 text-slate-900 text-xs font-semibold hover:bg-blue-100 transition-colors" title={row.transcriptLink}>Link <ExternalLink className="h-3 w-3" /></a>) : <span className="text-gray-300">—</span> },
         { key: 'interviewDate', title: 'Date', render: (row) => row.interviewDate ? formatDate(row.interviewDate) : '' },
         { 
             key: 'interviewTime', 
@@ -661,7 +661,7 @@ const MainSheet = () => {
             const statusColors = {
                 'Completed': 'bg-emerald-50 text-emerald-700',
                 'Scheduled': 'bg-amber-50 text-amber-700',
-                'InProgress': 'bg-blue-50 text-blue-700',
+                'InProgress': 'bg-slate-50 text-slate-900',
                 'Cancelled': 'bg-red-50 text-red-700',
             };
             return (
@@ -709,7 +709,7 @@ const MainSheet = () => {
             return (
                 <div className="flex items-center overflow-hidden p-2">
                     <span className="truncate" title={remarks}>{remarks.substring(0, charLimit)}...</span>
-                    <ShadcnButton variant="link" size="sm" onClick={() => openRemarksModal(remarks)} className="ml-1 text-blue-600 hover:text-blue-800 text-xs font-semibold flex-shrink-0 p-0 h-auto">more</ShadcnButton>
+                    <ShadcnButton variant="link" size="sm" onClick={() => openRemarksModal(remarks)} className="ml-1 text-slate-900 hover:text-blue-800 text-xs font-semibold flex-shrink-0 p-0 h-auto">more</ShadcnButton>
                 </div>
             );
         }},
@@ -732,7 +732,7 @@ const MainSheet = () => {
     const showingTo = Math.min(pagination.currentPage * rowsPerPage, pagination.totalItems);
 
     return (
-        <div className="h-full w-full flex flex-col overflow-hidden bg-[#f5f7fb]">
+        <div className="h-full w-full flex flex-col overflow-hidden bg-[#FAFAF9]">
             {/* Header */}
             <div className="bg-white border-b border-slate-200 px-6 py-4 flex-shrink-0">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -751,7 +751,7 @@ const MainSheet = () => {
                         <button
                             ref={filterButtonRef}
                             onClick={toggleFilterMenu}
-                            className={`h-10 inline-flex items-center gap-2 px-4 text-sm font-semibold rounded-xl border transition-colors ${isFilterActive ? 'border-blue-200 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                            className={`h-10 inline-flex items-center gap-2 px-4 text-sm font-semibold rounded-xl border transition-colors ${isFilterActive ? 'border-slate-200 bg-slate-50 text-slate-900' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
                         >
                             <Filter className="h-3.5 w-3.5" />
                             Filter
@@ -760,7 +760,7 @@ const MainSheet = () => {
                                     onClick={(e) => { e.stopPropagation(); handleClearFilters(); }}
                                     className="ml-0.5 p-0.5 rounded-full hover:bg-blue-100"
                                 >
-                                    <X className="h-3 w-3 text-blue-600" />
+                                    <X className="h-3 w-3 text-slate-900" />
                                 </span>
                             )}
                         </button>
@@ -778,7 +778,7 @@ const MainSheet = () => {
                                             onChange={(date) => setTempFilters(prev => ({ ...prev, interviewDate: date }))}
                                             isClearable
                                             placeholderText="Select a date"
-                                            className="w-full h-10 px-3 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-colors"
+                                            className="w-full h-10 px-3 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors"
                                             portalId="datepicker-portal"
                                             popperClassName="!z-[10000]"
                                             popperProps={{ strategy: 'fixed' }}
@@ -789,7 +789,7 @@ const MainSheet = () => {
                                         <select
                                             value={tempFilters.interviewStatus}
                                             onChange={(e) => setTempFilters(prev => ({ ...prev, interviewStatus: e.target.value }))}
-                                            className="w-full h-10 px-3 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 cursor-pointer transition-colors"
+                                            className="w-full h-10 px-3 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 cursor-pointer transition-colors"
                                         >
                                             <option value="">All Statuses</option>
                                             {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
@@ -805,7 +805,7 @@ const MainSheet = () => {
                                     </button>
                                     <button
                                         onClick={handleApplyFilters}
-                                        className="h-9 px-4 text-xs font-medium text-white rounded-md bg-blue-600 hover:bg-blue-700 transition-all"
+                                        className="h-9 px-4 text-xs font-medium text-white rounded-md bg-slate-900 hover:bg-[#FF4800] transition-all"
                                     >
                                         Apply
                                     </button>
@@ -886,7 +886,7 @@ const MainSheet = () => {
                                             onClick={() => setCurrentPage(p)}
                                             className={`h-9 min-w-[36px] px-2.5 rounded-md text-xs font-medium transition-all ${
                                                 p === current
-                                                    ? 'text-white bg-blue-600'
+                                                    ? 'text-white bg-slate-900'
                                                     : 'text-slate-600 border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300'
                                             }`}
                                         >

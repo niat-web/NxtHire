@@ -24,14 +24,14 @@ const OptionsEditorModal = ({ isOpen, onClose, path, control, register }) => {
                             <input
                                 {...register(`${path}.${index}.label`)}
                                 placeholder="e.g., Confident & Fluent"
-                                className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
+                                className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
                             />
                         </div>
                         <div className="col-span-5">
                              <input
                                 {...register(`${path}.${index}.value`)}
                                 placeholder="e.g., 5"
-                                className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
+                                className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
                             />
                         </div>
                         <div className="col-span-1">
@@ -57,7 +57,7 @@ const OptionsEditorModal = ({ isOpen, onClose, path, control, register }) => {
             <div className="flex justify-end pt-4 mt-4 border-t">
                  <button
                     onClick={onClose}
-                    className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                    className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-slate-900 text-white hover:bg-[#FF4800] transition-colors"
                  >
                     Done
                  </button>

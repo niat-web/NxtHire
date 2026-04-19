@@ -6,9 +6,9 @@ import PageTransition from '../components/common/PageTransition';
 
 const PublicLayout = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-[#f5f7fb]">
+    <div className="flex flex-col min-h-screen bg-white antialiased">
       <Navbar />
-      <main className="flex-grow">
+      <main className="flex-grow pt-16">
         <PageTransition>
           <Outlet />
         </PageTransition>

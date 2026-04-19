@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 // Self-contained loader
 const Loader = ({ text }) => (
     <div className="flex flex-col items-center justify-center text-center">
-        <Loader2 className="h-10 w-10 text-blue-600 animate-spin" />
+        <Loader2 className="h-10 w-10 text-slate-900 animate-spin" />
         <p className="mt-4 text-gray-600">{text}</p>
     </div>
 );
@@ -94,8 +94,8 @@ const PaymentConfirmationPage = () => {
         return (
              <>
                 <div className="text-center mb-6">
-                    <h1 className="text-3xl font-semibold text-gray-900">Payment Confirmation</h1>
-                    <p className="mt-2 text-gray-600">For {confirmationData.monthYear}</p>
+                    <h1 className="font-display text-[30px] font-semibold text-slate-900 tracking-tight">Payment confirmation.</h1>
+                    <p className="mt-2 text-[14px] text-slate-600">For {confirmationData.monthYear}</p>
                 </div>
                 <div className="bg-gray-50 p-5 rounded-xl border border-gray-200 mb-6 space-y-2">
                      <p><strong>Name:</strong> {confirmationData.name}</p>

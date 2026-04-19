@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 const StatusBadge = ({ status }) => {
     const styles = {
         Completed: 'bg-emerald-50 text-emerald-700', Scheduled: 'bg-amber-50 text-amber-700',
-        InProgress: 'bg-blue-50 text-blue-700', Cancelled: 'bg-red-50 text-red-700',
+        InProgress: 'bg-slate-50 text-slate-900', Cancelled: 'bg-red-50 text-red-700',
     };
     return <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${styles[status] || 'bg-slate-100 text-slate-600'}`}>{status || '—'}</span>;
 };
@@ -52,7 +52,7 @@ const PublicLinkEvaluationPage = () => {
         { key: 'uid', title: 'UID', minWidth: '160px' },
         { key: 'mobileNumber', title: 'Mobile', minWidth: '120px' },
         { key: 'mailId', title: 'Email', minWidth: '200px' },
-        { key: 'candidateResume', title: 'Resume', minWidth: '80px', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="text-[11px] font-medium text-blue-600 hover:text-blue-800 inline-flex items-center gap-0.5"><ExternalLink size={10} /> Link</a> : '—' },
+        { key: 'candidateResume', title: 'Resume', minWidth: '80px', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="text-[11px] font-medium text-slate-900 hover:text-blue-800 inline-flex items-center gap-0.5"><ExternalLink size={10} /> Link</a> : '—' },
         { key: 'interviewDate', title: 'Date', minWidth: '100px', render: (row) => row.interviewDate ? formatDate(row.interviewDate) : '—' },
         { key: 'interviewTime', title: 'Time', minWidth: '120px', render: (row) => row.interviewTime ? row.interviewTime.split('-').map(t => formatTime(t.trim())).join(' - ') : '—' },
         { key: 'interviewStatus', title: 'Status', minWidth: '110px', render: (row) => <StatusBadge status={row.interviewStatus} /> },
@@ -107,7 +107,7 @@ const PublicLinkEvaluationPage = () => {
             <div className="h-full flex flex-col items-center justify-center text-slate-400">
                 <p className="text-sm font-medium text-slate-500">No evaluation data found for this public link</p>
                 <p className="text-[11px] text-slate-400 mt-1">No matching candidates found in the main sheet</p>
-                <Link to="/admin/bookings/student-bookings" className="mt-4 inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                <Link to="/admin/bookings/student-bookings" className="mt-4 inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] transition-colors">
                     <ArrowLeft size={14} /> Back to Public Links
                 </Link>
             </div>
@@ -131,7 +131,7 @@ const PublicLinkEvaluationPage = () => {
                     {domains.length > 0 && (
                         <div className="relative">
                             <select value={selectedDomain} onChange={e => setSelectedDomain(e.target.value)}
-                                className="appearance-none h-9 pl-3 pr-8 bg-white border border-slate-200 rounded-md text-[13px] font-medium text-slate-700 cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-colors">
+                                className="appearance-none h-9 pl-3 pr-8 bg-white border border-slate-200 rounded-md text-[13px] font-medium text-slate-700 cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors">
                                 {domains.map(d => <option key={d} value={d}>{d}</option>)}
                             </select>
                             <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
@@ -142,7 +142,7 @@ const PublicLinkEvaluationPage = () => {
                     <div className="relative w-48">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                         <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..."
-                            className="w-full pl-9 pr-3 h-9 bg-slate-50 border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all" />
+                            className="w-full pl-9 pr-3 h-9 bg-slate-50 border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all" />
                     </div>
 
                     {/* Export */}
@@ -175,7 +175,7 @@ const PublicLinkEvaluationPage = () => {
                         { bg: 'bg-sky-100', text: 'text-sky-800', border: 'border-sky-200' },
                         { bg: 'bg-violet-100', text: 'text-violet-800', border: 'border-violet-200' },
                         { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-200' },
-                        { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200' },
+                        { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-slate-200' },
                         { bg: 'bg-rose-100', text: 'text-rose-800', border: 'border-rose-200' },
                         { bg: 'bg-teal-100', text: 'text-teal-800', border: 'border-teal-200' },
                         { bg: 'bg-fuchsia-100', text: 'text-fuchsia-800', border: 'border-fuchsia-200' },
@@ -185,7 +185,7 @@ const PublicLinkEvaluationPage = () => {
                         { bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-100' },
                         { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-100' },
                         { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100' },
-                        { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-100' },
+                        { bg: 'bg-slate-50', text: 'text-slate-900', border: 'border-slate-200' },
                         { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-100' },
                         { bg: 'bg-teal-50', text: 'text-teal-700', border: 'border-teal-100' },
                         { bg: 'bg-fuchsia-50', text: 'text-fuchsia-700', border: 'border-fuchsia-100' },

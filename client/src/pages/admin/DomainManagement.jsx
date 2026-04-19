@@ -27,7 +27,7 @@ const DomainManagement = () => {
 
     if (loading) {
         return (
-            <div className="flex h-full items-center justify-center bg-[#f5f7fb]">
+            <div className="flex h-full items-center justify-center bg-[#FAFAF9]">
                 <Loader size="lg" />
             </div>
         );
@@ -36,7 +36,7 @@ const DomainManagement = () => {
     return (
         <div className="flex h-full w-full overflow-hidden">
             {/* Left sidebar */}
-            <aside className="w-56 shrink-0 bg-[#f0f4fa] border-r border-slate-200/80 flex flex-col">
+            <aside className="w-56 shrink-0 bg-white border-r border-slate-200/80 flex flex-col">
                 <nav className="flex-1 p-3 space-y-1">
                     {navItems.map(({ id, label, icon: Icon }) => (
                         <button
@@ -45,7 +45,7 @@ const DomainManagement = () => {
                             className={cn(
                                 'group relative flex items-center w-full gap-2.5 px-3 py-2.5 text-[13px] font-medium rounded-lg transition-all duration-200',
                                 activeTab === id
-                                    ? 'bg-white text-blue-700 shadow-sm border border-slate-200/60'
+                                    ? 'bg-white text-slate-900 shadow-sm border border-slate-200/60'
                                     : 'text-slate-600 hover:bg-white/70 hover:text-slate-900'
                             )}
                         >
@@ -57,7 +57,7 @@ const DomainManagement = () => {
             </aside>
 
             {/* Right content */}
-            <main className="flex-1 overflow-y-auto bg-[#f5f7fb] custom-scrollbar">
+            <main className="flex-1 overflow-y-auto bg-[#FAFAF9] custom-scrollbar">
                 <div className="h-full">
                     {activeTab === 'domains' && (
                         <DomainsTab domains={domains} onUpdate={fetchDomains} onDomainClick={handleDomainClick} />

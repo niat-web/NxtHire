@@ -77,7 +77,7 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                                     render={({ field }) => (
                                         <DatePicker selected={field.value} onChange={field.onChange} minDate={new Date()} dateFormat="EEE, MMM d, yyyy"
                                             portalId="datepicker-portal" popperClassName="!z-[9999]" popperProps={{ strategy: 'fixed' }}
-                                            className="w-full pl-9 pr-3 h-9 border border-slate-200 rounded-md text-[13px] font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 bg-white" />
+                                            className="w-full pl-9 pr-3 h-9 border border-slate-200 rounded-md text-[13px] font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 bg-white" />
                                     )} />
                             </div>
                         </div>
@@ -88,7 +88,7 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                         <div className="flex items-center justify-between mb-2">
                             <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Time Slots</label>
                             <button type="button" onClick={() => append({ startTime: '', endTime: '' })}
-                                className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+                                className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-900 hover:text-blue-800 transition-colors">
                                 <Plus size={12} /> Add Slot
                             </button>
                         </div>
@@ -98,7 +98,7 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                                 <div key={field.id} className="flex items-center gap-2">
                                     <div className="flex-1">
                                         <select {...register(`slots.${index}.startTime`, { required: true })}
-                                            className="w-full h-9 pl-3 pr-7 bg-white border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 appearance-none cursor-pointer">
+                                            className="w-full h-9 pl-3 pr-7 bg-white border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 appearance-none cursor-pointer">
                                             <option value="">Start Time</option>
                                             {TIME_SLOTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                                         </select>
@@ -107,7 +107,7 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                                     <div className="flex-1">
                                         <select {...register(`slots.${index}.endTime`, { required: true, validate: v => validateEndTime(v, index) })}
                                             className={cn('w-full h-9 pl-3 pr-7 bg-white border rounded-md text-[12px] focus:outline-none focus:ring-2 appearance-none cursor-pointer',
-                                                errors.slots?.[index]?.endTime ? 'border-red-300 focus:ring-red-100 focus:border-red-300' : 'border-slate-200 focus:ring-blue-100 focus:border-blue-300')}>
+                                                errors.slots?.[index]?.endTime ? 'border-red-300 focus:ring-red-100 focus:border-red-300' : 'border-slate-200 focus:ring-slate-900/10 focus:border-slate-900')}>
                                             <option value="">End Time</option>
                                             {TIME_SLOTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                                         </select>
@@ -123,7 +123,7 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                     </div>
 
                     {/* Info */}
-                    <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-100 rounded-md text-[11px] text-blue-800">
+                    <div className="flex items-start gap-2 p-3 bg-slate-50 border border-slate-200 rounded-md text-[11px] text-blue-800">
                         <Clock size={13} className="text-blue-500 mt-0.5 shrink-0" />
                         <span>Slots will be added to the interviewer's availability for the selected date.</span>
                     </div>
@@ -133,7 +133,7 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                 <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-slate-200 shrink-0">
                     <button type="button" onClick={onClose} className="h-9 px-4 text-[13px] font-medium text-slate-700 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors">Cancel</button>
                     <button type="submit" form="manual-slot-form" disabled={isSubmitting}
-                        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] disabled:opacity-50 transition-colors">
                         {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
                         Save Slots
                     </button>

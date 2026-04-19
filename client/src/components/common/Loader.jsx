@@ -19,7 +19,7 @@ const Loader = ({ size = 'md', text, fullScreen = false, className }) => {
         {/* Spinning arc */}
         <div
           className={cn(
-            'absolute inset-0 rounded-full border-transparent border-t-blue-600 border-r-blue-600 animate-spin',
+            'absolute inset-0 rounded-full border-transparent border-t-slate-900 border-r-slate-900 animate-spin',
             s.spinner,
             s.border
           )}

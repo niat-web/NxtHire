@@ -12,7 +12,7 @@ import { useApplicants, useInvalidateAdmin } from '../../hooks/useAdminQueries';
 
 const getStatusBadge = (status) => {
   const map = {
-    [APPLICATION_STATUS.SUBMITTED]: { label: 'Submitted', cls: 'bg-blue-50 text-blue-700 border-blue-100' },
+    [APPLICATION_STATUS.SUBMITTED]: { label: 'Submitted', cls: 'bg-slate-50 text-slate-900 border-slate-200' },
     [APPLICATION_STATUS.PROFILE_APPROVED]: { label: 'Profile Approved', cls: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
     [APPLICATION_STATUS.PROFILE_REJECTED]: { label: 'Profile Rejected', cls: 'bg-red-50 text-red-700 border-red-100' },
   };
@@ -119,7 +119,7 @@ const LinkedInReviewPage = () => {
         return <span className="text-sm text-slate-600">{row.email}</span>;
       case 'linkedinProfileUrl':
         return (
-          <a href={row.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center text-sm">
+          <a href={row.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-slate-900 hover:underline flex items-center text-sm">
             View <ExternalLink className="ml-1 h-3.5 w-3.5" />
           </a>
         );
@@ -137,7 +137,7 @@ const LinkedInReviewPage = () => {
 
         if (isReviewed) {
           return (
-            <Link to={`/admin/applicants/${row._id}`} className="text-blue-600 hover:underline text-sm flex items-center">
+            <Link to={`/admin/applicants/${row._id}`} className="text-slate-900 hover:underline text-sm flex items-center">
               <Eye className="mr-1 h-3.5 w-3.5" />
               View Details
             </Link>
@@ -178,7 +178,7 @@ const LinkedInReviewPage = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by name or email..."
-              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all"
+              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all"
             />
             {searchTerm && (
               <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -191,7 +191,7 @@ const LinkedInReviewPage = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 block py-2 pl-3 pr-8 cursor-pointer hover:border-slate-300 transition-colors"
+                className="appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 block py-2 pl-3 pr-8 cursor-pointer hover:border-slate-300 transition-colors"
               >
                 {statusOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>

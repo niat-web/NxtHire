@@ -188,19 +188,19 @@ const PaymentRequestsView = () => {
 
     const cols = useMemo(() => [
         { k: 'name', t: 'Interviewer', w: 180, sticky: true, r: (r) => <div><p className="font-bold text-slate-900 text-xs">{r.fullName}</p><p className="text-[10px] text-slate-400 font-mono">{r.interviewerId}</p></div> },
-        { k: 'count', t: 'Count', w: 60, r: (r) => <span className="inline-flex px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-xs font-bold border border-blue-100">{r.interviewsCompleted}</span> },
+        { k: 'count', t: 'Count', w: 60, r: (r) => <span className="inline-flex px-2 py-0.5 rounded-md bg-slate-50 text-slate-900 text-xs font-bold border border-slate-200">{r.interviewsCompleted}</span> },
         { k: 'bonus', t: 'Bonus', w: 100, r: (r) => <BonusCell value={bonusAmounts[r._id]} onChange={e => setBonusAmounts(p => ({ ...p, [r._id]: e.target.value }))} onSave={() => saveBonus(r)} loading={actionLoading[`${r._id}-bonus`]} /> },
         { k: 'total', t: 'Total', w: 100, r: (r) => <span className="font-bold text-emerald-700 text-xs">{formatCurrency(r.totalAmount + Number(bonusAmounts[r._id] || 0))}</span> },
         { k: 'payStatus', t: 'Pay Status', w: 110, r: (r) => <Badge variant={r.emailSentStatus === 'Sent' ? 'success' : 'gray'}>{r.emailSentStatus}</Badge> },
         { k: 'payAction', t: 'Pay Action', w: 90, r: (r) => <Btn onClick={() => action(r._id, 'email', sendPaymentEmail, { interviewerId: r._id, email: r.email, name: r.fullName, monthYear: startDate.toLocaleString('default', { month: 'long', year: 'numeric' }), payPerInterview: r.paymentAmount, interviewCount: r.interviewsCompleted, totalAmount: r.totalAmount, bonusAmount: Number(bonusAmounts[r._id]||0), startDate: startDate.toISOString(), endDate: endDate.toISOString() }, 'Sent!')} loading={actionLoading[`${r._id}-email`]}>{r.emailSentStatus === 'Sent' ? 'Resend' : 'Send'}</Btn> },
         { k: 'userConf', t: 'User Conf.', w: 110, r: (r) => <Badge variant={r.confirmationStatus === 'Confirmed' ? 'success' : r.confirmationStatus === 'Disputed' ? 'danger' : 'warning'}>{r.confirmationStatus}</Badge> },
-        { k: 'confRem', t: 'Remarks', w: 90, r: (r) => r.confirmationRemarks ? <button onClick={() => setRemarksModal({ isOpen: true, content: r.confirmationRemarks })} className="text-xs font-semibold text-blue-600 hover:text-blue-800">View</button> : <span className="text-slate-300 text-xs">—</span> },
+        { k: 'confRem', t: 'Remarks', w: 90, r: (r) => r.confirmationRemarks ? <button onClick={() => setRemarksModal({ isOpen: true, content: r.confirmationRemarks })} className="text-xs font-semibold text-slate-900 hover:text-blue-800">View</button> : <span className="text-slate-300 text-xs">—</span> },
         { k: 'invReq', t: 'Invoice', w: 100, r: (r) => <Badge variant={r.invoiceEmailSentStatus === 'Sent' ? 'success' : 'gray'}>{r.invoiceEmailSentStatus}</Badge> },
         { k: 'invAction', t: 'Inv. Action', w: 80, r: (r) => <Btn variant="yellow" onClick={() => action(r._id, 'invoice', sendInvoiceEmail, { interviewerId: r._id, email: r.email, name: r.fullName, interviewCount: r.interviewsCompleted, interviewAmount: r.totalAmount, bonusAmount: Number(bonusAmounts[r._id]||0), startDate: startDate.toISOString(), endDate: endDate.toISOString() }, 'Sent!')} loading={actionLoading[`${r._id}-invoice`]}>Send</Btn> },
         { k: 'paidConf', t: 'Paid', w: 90, r: (r) => <Badge variant={r.paymentReceivedEmailSentAt ? 'success' : 'gray'}>{r.paymentReceivedEmailSentAt ? 'Sent' : 'No'}</Badge> },
         { k: 'paidAction', t: 'Paid Action', w: 80, r: (r) => <Btn variant="outline" onClick={() => action(r._id, 'paid', sendPaymentReceivedEmail, { interviewerId: r._id, email: r.email, name: r.fullName, startDate: startDate.toISOString(), endDate: endDate.toISOString(), totalAmount: r.totalAmount + Number(bonusAmounts[r._id]||0), interviewCount: r.interviewsCompleted }, 'Sent!')} loading={actionLoading[`${r._id}-paid`]}>Send</Btn> },
         { k: 'recStatus', t: 'Received', w: 100, r: (r) => <Badge variant={r.paymentReceivedStatus === 'Received' ? 'success' : 'warning'}>{r.paymentReceivedStatus}</Badge> },
-        { k: 'recRem', t: 'Rec. Remarks', w: 90, r: (r) => r.paymentReceivedRemarks ? <button onClick={() => setRemarksModal({ isOpen: true, content: r.paymentReceivedRemarks })} className="text-xs font-semibold text-blue-600 hover:text-blue-800">View</button> : <span className="text-slate-300 text-xs">—</span> },
+        { k: 'recRem', t: 'Rec. Remarks', w: 90, r: (r) => r.paymentReceivedRemarks ? <button onClick={() => setRemarksModal({ isOpen: true, content: r.paymentReceivedRemarks })} className="text-xs font-semibold text-slate-900 hover:text-blue-800">View</button> : <span className="text-slate-300 text-xs">—</span> },
     ], [bonusAmounts, actionLoading, startDate, endDate]);
 
     return (
@@ -271,7 +271,7 @@ const PayoutSheetView = () => {
     const cols = useMemo(() => [
         { k: 'id', t: 'Interviewer ID', w: 260, sticky: true, r: (r) => <EditableIDCell row={r} onSave={handleIdSave} /> },
         { k: 'assoc', t: 'Association', w: 160, r: (r) => <span className="font-semibold text-slate-800 text-xs">{r.associationName}</span> },
-        { k: 'act', t: 'Activity', w: 130, r: (r) => <span className="inline-flex px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-xs font-bold border border-blue-100">{r.activityName}</span> },
+        { k: 'act', t: 'Activity', w: 130, r: (r) => <span className="inline-flex px-2 py-0.5 rounded-md bg-slate-50 text-slate-900 text-xs font-bold border border-slate-200">{r.activityName}</span> },
         { k: 'ref', t: 'Ref ID', w: 140, r: (r) => <span className="font-mono text-xs text-slate-500">{r.activityReferenceId}</span> },
         { k: 'date', t: 'Date', w: 150, r: (r) => <span className="text-slate-600 text-xs font-medium">{formatDateTime(r.activityDatetime)}</span> },
         { k: 'pts', t: 'Points', w: 80, r: (r) => <span className="font-bold text-emerald-600 text-xs">+{r.points}</span> },
@@ -284,7 +284,7 @@ const PayoutSheetView = () => {
                     <div className="relative w-64">
                         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                         <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by ID..."
-                            className="w-full pl-10 pr-3 h-10 bg-slate-50/60 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 focus:bg-white transition-colors" />
+                            className="w-full pl-10 pr-3 h-10 bg-slate-50/60 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white transition-colors" />
                     </div>
                     <div className="flex items-center gap-2.5">
                         <div className="flex items-center gap-2 border border-slate-200 rounded-xl px-3 h-10">
@@ -349,7 +349,7 @@ const ReportsView = () => {
                         </h2>
                     </div>
                     <select value={year} onChange={e => setYear(+e.target.value)}
-                        className="h-10 border border-slate-200 rounded-xl px-3 text-sm font-semibold text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 hover:border-slate-300 transition-colors bg-white">
+                        className="h-10 border border-slate-200 rounded-xl px-3 text-sm font-semibold text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 hover:border-slate-300 transition-colors bg-white">
                         {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(y => <option key={y} value={y}>{y}</option>)}
                     </select>
                 </div>
@@ -377,7 +377,7 @@ const tabComponents = {
 const BASE = '/admin/earnings-report';
 
 const EarningsSidebar = memo(({ activeTab, onTabClick }) => (
-    <aside className="w-56 flex-shrink-0 bg-[#f0f4fa] border-r border-slate-200/80 flex flex-col">
+    <aside className="w-56 flex-shrink-0 bg-white border-r border-slate-200/80 flex flex-col">
         <nav className="flex-1 p-3 space-y-0.5">
             {tabs.map(t => {
                 const isActive = activeTab === t.id;
@@ -386,7 +386,7 @@ const EarningsSidebar = memo(({ activeTab, onTabClick }) => (
                         className={cn(
                             'group relative flex items-center w-full px-3 py-2.5 text-[13px] font-medium rounded-lg transition-all duration-200',
                             isActive
-                                ? 'bg-white text-blue-700 shadow-sm border border-slate-200/60'
+                                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/60'
                                 : 'text-slate-600 hover:bg-white/70 hover:text-slate-900'
                         )}>
                         <t.icon className="w-4 h-4" />
@@ -419,7 +419,7 @@ const EarningsReportPage = () => {
     return (
         <div className="flex h-full w-full overflow-hidden">
             <EarningsSidebar activeTab={activeTab} onTabClick={handleTabClick} />
-            <main className="flex-1 overflow-hidden flex flex-col bg-[#f5f7fb]">
+            <main className="flex-1 overflow-hidden flex flex-col bg-[#FAFAF9]">
                 <ActiveComponent key={activeTab} />
             </main>
         </div>

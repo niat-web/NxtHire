@@ -91,7 +91,7 @@ const ImportModal = ({ isOpen, onClose, onImportOptions, onImportAllOptions, onI
                                     {filteredDomains.map(domain => (
                                         <li key={domain.domainName}>
                                             <button type="button" onClick={() => { setSelectedDomain(domain); setSelectedParameter(null); }}
-                                                className={cn('w-full text-left px-3 py-2 text-sm rounded-lg font-medium transition-colors', selectedDomain?.domainName === domain.domainName ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100')}
+                                                className={cn('w-full text-left px-3 py-2 text-sm rounded-lg font-medium transition-colors', selectedDomain?.domainName === domain.domainName ? 'bg-slate-50 text-slate-900' : 'text-gray-700 hover:bg-gray-100')}
                                             >
                                                 {domain.domainName}
                                             </button>

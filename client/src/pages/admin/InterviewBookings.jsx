@@ -131,7 +131,7 @@ const InterviewBookings = () => {
                     </div>
                     <div className="flex-1" />
                     <button onClick={() => navigate('/admin/bookings/new')}
-                        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors shrink-0">
+                        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] transition-colors shrink-0">
                         <Plus size={15} /> New Request
                     </button>
                 </div>
@@ -142,10 +142,10 @@ const InterviewBookings = () => {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                         <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
                             placeholder="Search..."
-                            className="w-full pl-9 pr-3 h-8 bg-slate-50 border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all" />
+                            className="w-full pl-9 pr-3 h-8 bg-slate-50 border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all" />
                     </div>
                     <select value={creatorFilter} onChange={e => setCreatorFilter(e.target.value)}
-                        className="h-8 pl-3 pr-7 bg-white border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 appearance-none cursor-pointer hover:border-slate-300 transition-colors">
+                        className="h-8 pl-3 pr-7 bg-white border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 appearance-none cursor-pointer hover:border-slate-300 transition-colors">
                         <option value="">All Creators</option>
                         {creatorOptions.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                     </select>
@@ -179,7 +179,7 @@ const InterviewBookings = () => {
                         <p className="text-sm font-medium text-slate-500">{searchTerm || creatorFilter ? 'No bookings match your filters.' : 'No booking requests yet.'}</p>
                         {!searchTerm && !creatorFilter && (
                             <button onClick={() => navigate('/admin/bookings/new')}
-                                className="mt-3 inline-flex items-center gap-1.5 px-4 h-9 text-[13px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                                className="mt-3 inline-flex items-center gap-1.5 px-4 h-9 text-[13px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] transition-colors">
                                 <Plus size={14} /> New Request
                             </button>
                         )}
@@ -263,10 +263,10 @@ const BookingRow = ({ booking, onEdit, onDelete, onTrack, onStatusChange }) => {
             <div className="flex-1 max-w-[160px] hidden md:block">
                 <div className="flex items-center gap-2">
                     <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div className={cn('h-full rounded-full transition-all duration-500', progress === 100 ? 'bg-emerald-500' : 'bg-blue-500')}
+                        <div className={cn('h-full rounded-full transition-all duration-500', progress === 100 ? 'bg-emerald-500' : 'bg-slate-500')}
                             style={{ width: `${progress}%` }} />
                     </div>
-                    <span className={cn('text-[11px] font-bold w-8 text-right', progress === 100 ? 'text-emerald-600' : 'text-blue-600')}>
+                    <span className={cn('text-[11px] font-bold w-8 text-right', progress === 100 ? 'text-emerald-600' : 'text-slate-900')}>
                         {progress}%
                     </span>
                 </div>

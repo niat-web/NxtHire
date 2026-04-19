@@ -123,7 +123,7 @@ const AvailabilityForm = ({ onSubmit, bookingDate, isSubmitting }) => {
                             type="button"
                             variant="outline"
                             onClick={() => append({ startTime: null, endTime: null })}
-                            className="w-full border-2 border-dashed border-slate-300 text-blue-600 hover:bg-blue-50 hover:border-blue-500"
+                            className="w-full border-2 border-dashed border-slate-300 text-slate-900 hover:bg-slate-50 hover:border-blue-500"
                         >
                             <Plus className="w-4 h-4 mr-2" />
                             Add Another Slot
@@ -139,7 +139,7 @@ const AvailabilityForm = ({ onSubmit, bookingDate, isSubmitting }) => {
                         placeholder="Add any notes for the admin regarding your availability..."
                         rows="4"
                         {...register('remarks')}
-                        className="w-full px-4 py-3 border border-slate-300 rounded-lg shadow-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-lg shadow-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-colors"
                     />
                 </div>
             </div>

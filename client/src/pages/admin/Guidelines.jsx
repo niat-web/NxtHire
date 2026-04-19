@@ -16,7 +16,7 @@ function classNames(...classes) {
 
 const InlineBadge = ({ variant = 'primary', children }) => {
     const colorMap = {
-        primary: 'bg-blue-50 text-blue-700 border-blue-100',
+        primary: 'bg-slate-50 text-slate-900 border-slate-200',
         success: 'bg-emerald-50 text-emerald-700 border-emerald-100',
         danger: 'bg-red-50 text-red-700 border-red-100',
         warning: 'bg-amber-50 text-amber-700 border-amber-100',
@@ -206,7 +206,7 @@ const Guidelines = () => {
                     <div className="relative w-full md:w-64">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                         <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search by name..."
-                            className="w-full pl-9 pr-9 h-9 bg-slate-50 border border-slate-200 rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all" />
+                            className="w-full pl-9 pr-9 h-9 bg-slate-50 border border-slate-200 rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all" />
                         {searchTerm && (
                             <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700">
                                 <X className="h-3.5 w-3.5" />
@@ -216,14 +216,14 @@ const Guidelines = () => {
                     <div className="flex gap-2 items-center">
                         <div className="relative">
                             <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-                                className="appearance-none bg-white border border-slate-200 text-slate-700 text-[13px] rounded-lg h-9 pl-3 pr-8 cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-colors">
+                                className="appearance-none bg-white border border-slate-200 text-slate-700 text-[13px] rounded-lg h-9 pl-3 pr-8 cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors">
                                 {statusOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                             </select>
                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
                         </div>
                         <div className="relative">
                             <select value={domainFilter} onChange={(e) => setDomainFilter(e.target.value)}
-                                className="appearance-none bg-white border border-slate-200 text-slate-700 text-[13px] rounded-lg h-9 pl-3 pr-8 cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-colors">
+                                className="appearance-none bg-white border border-slate-200 text-slate-700 text-[13px] rounded-lg h-9 pl-3 pr-8 cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors">
                                 {domainOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                             </select>
                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
@@ -261,7 +261,7 @@ const Guidelines = () => {
                                     return (
                                         <tr key={row._id} className="hover:bg-slate-50/60 transition-colors">
                                             <td className="px-5 py-2.5">
-                                                <button onClick={() => setSelectedGuideline(row)} className="text-[13px] font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                                                <button onClick={() => setSelectedGuideline(row)} className="text-[13px] font-medium text-slate-900 hover:text-blue-800 hover:underline">
                                                     {row.applicant.fullName}
                                                 </button>
                                             </td>

@@ -17,8 +17,8 @@ const statusColors = {
     'Under Review': 'bg-amber-50 text-amber-700',
     'Profile Approved': 'bg-emerald-50 text-emerald-700',
     'Profile Rejected': 'bg-red-50 text-red-700',
-    'Skills Assessment Sent': 'bg-blue-50 text-blue-700',
-    'Skills Assessment Completed': 'bg-blue-50 text-blue-700',
+    'Skills Assessment Sent': 'bg-slate-50 text-slate-900',
+    'Skills Assessment Completed': 'bg-slate-50 text-slate-900',
     'Guidelines Sent': 'bg-violet-50 text-violet-700',
     'Guidelines Reviewed': 'bg-violet-50 text-violet-700',
     'Guidelines Failed': 'bg-red-50 text-red-700',
@@ -133,13 +133,13 @@ const Applicants = () => {
             case 'fullName': return <span className="text-sm font-semibold text-slate-900">{row.fullName}</span>;
             case 'email': return <span className="text-sm text-slate-600">{row.email}</span>;
             case 'phoneNumber': return <span className="text-sm text-slate-600">{row.phoneNumber}</span>;
-            case 'linkedinProfileUrl': return row.linkedinProfileUrl ? <a href={row.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">View Profile</a> : <span className="text-slate-300">—</span>;
+            case 'linkedinProfileUrl': return row.linkedinProfileUrl ? <a href={row.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-slate-900 hover:underline">View Profile</a> : <span className="text-slate-300">—</span>;
             case 'interestedInJoining': return row.interestedInJoining ? <CheckCircle className="text-emerald-500" size={16} /> : <span className="text-slate-300">—</span>;
             case 'sourcingChannel': return <span className="text-sm text-slate-600">{row.sourcingChannel}</span>;
             case 'status': return <InlineStatusBadge status={row.status} />;
             case 'history': return (
                 <button onClick={() => setHistoryView({ data: row.statusHistory || [], name: row.fullName, email: row.email })}
-                    className="text-sm font-medium text-blue-600 hover:text-blue-800">View</button>
+                    className="text-sm font-medium text-slate-900 hover:text-blue-800">View</button>
             );
             case 'createdAt': return <span className="text-xs text-slate-500 font-medium">{formatDateTime(row.createdAt)}</span>;
             case 'actions': return (
@@ -218,14 +218,14 @@ const Applicants = () => {
                     <div className="relative w-56">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                         <input type="text" defaultValue={filters.search} onChange={(e) => debouncedFilterChange('search', e.target.value)}
-                            placeholder="Search..." className="w-full pl-9 pr-4 h-9 bg-slate-50 border border-slate-200 rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all" />
+                            placeholder="Search..." className="w-full pl-9 pr-4 h-9 bg-slate-50 border border-slate-200 rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all" />
                     </div>
 
                         {/* Inline status filter */}
                     {/* Status filter */}
                     <div className="relative">
                         <select value={filters.status} onChange={(e) => { setFilters(p => ({ ...p, status: e.target.value })); setPagination(p => ({ ...p, currentPage: 1 })); }}
-                            className="appearance-none bg-white border border-slate-200 text-slate-700 text-[13px] rounded-lg h-9 pl-3 pr-8 cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-colors">
+                            className="appearance-none bg-white border border-slate-200 text-slate-700 text-[13px] rounded-lg h-9 pl-3 pr-8 cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors">
                             <option value="">All Statuses</option>
                             {Object.values(APPLICATION_STATUS).map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
@@ -240,7 +240,7 @@ const Applicants = () => {
                         <Download size={16} />
                     </button>
                     <button onClick={() => setModalState({ type: 'add', data: null })}
-                        className="inline-flex items-center gap-2 px-4 h-9 text-[13px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors shrink-0">
+                        className="inline-flex items-center gap-2 px-4 h-9 text-[13px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] transition-colors shrink-0">
                         <Plus size={16} /> Add
                     </button>
                 </div>
