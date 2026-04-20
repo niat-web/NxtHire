@@ -18,7 +18,7 @@ const getStatusBadge = (status) => {
   };
   const config = map[status] || { label: status || 'Unknown', cls: 'bg-slate-50 text-slate-600 border-slate-100' };
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] border ${config.cls}`}>
+    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.15em] border ${config.cls}`}>
       {config.label}
     </span>
   );
@@ -211,7 +211,7 @@ const LinkedInReviewPage = () => {
                   <th
                     key={col.key}
                     scope="col"
-                    className="sticky top-0 px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em] whitespace-nowrap border-b border-slate-200 bg-slate-50/90 backdrop-blur-sm z-10"
+                    className="sticky top-0 px-5 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] whitespace-nowrap border-b border-slate-200 bg-slate-50/70 backdrop-blur z-10"
                     style={{ minWidth: col.minWidth }}
                   >
                     {col.title}
@@ -255,7 +255,7 @@ const LinkedInReviewPage = () => {
         {!loading && pagination.totalItems > 0 && (
           <div className="px-6 py-3 border-t border-slate-200 bg-white flex items-center justify-between shrink-0">
             <p className="text-xs text-slate-500 font-medium">
-              Page <span className="font-bold text-slate-900">{pagination.currentPage}</span> of {pagination.totalPages} ({pagination.totalItems} total)
+              Page <span className="font-semibold text-slate-900">{pagination.currentPage}</span> of {pagination.totalPages} ({pagination.totalItems} total)
             </p>
             <div className="flex items-center gap-1.5">
               <button

@@ -181,7 +181,7 @@ const UserManagement = () => {
                             <tr>
                                 {columns.map((col) => (
                                     <th key={col.key} scope="col"
-                                        className={`sticky top-0 px-5 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] whitespace-nowrap border-b border-slate-100 bg-slate-50/80 backdrop-blur-sm z-10 ${col.sortable ? 'cursor-pointer hover:text-slate-600' : ''}`}
+                                        className={`sticky top-0 px-5 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] whitespace-nowrap border-b border-slate-100 bg-slate-50/80 backdrop-blur-sm z-10 ${col.sortable ? 'cursor-pointer hover:text-slate-600' : ''}`}
                                         style={{ minWidth: col.minWidth }}
                                         onClick={() => col.sortable && handleSort(col.key)}>
                                         <div className="flex items-center gap-1">

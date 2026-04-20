@@ -107,19 +107,19 @@ const getQualityColor = (value, options) => {
         const index = options.findIndex(o => String(o.value) === String(value));
         const total = options.length;
         if (index !== -1) {
-            if (index === 0) return 'text-green-700 bg-green-50 font-bold border-green-200';
+            if (index === 0) return 'text-green-700 bg-green-50 font-semibold border-green-200';
             if (index === 1 && total > 3) return 'text-green-600 bg-green-50 font-medium';
-            if (index === total - 1) return 'text-red-700 bg-red-50 font-bold border-red-200';
+            if (index === total - 1) return 'text-red-700 bg-red-50 font-semibold border-red-200';
             if (index === total - 2) return 'text-emerald-600 bg-emerald-50 font-medium';
             return 'text-yellow-600 bg-yellow-50 font-medium';
         }
     }
 
     const lower = String(value).toLowerCase();
-    if (lower.includes('excellent') || lower.includes('well-organized') || lower === '5') return 'text-green-700 bg-green-50 font-bold';
+    if (lower.includes('excellent') || lower.includes('well-organized') || lower === '5') return 'text-green-700 bg-green-50 font-semibold';
     if (lower.includes('good') || lower === '4') return 'text-green-600 bg-green-50';
     if (lower.includes('average') || lower.includes('fair') || lower === '3') return 'text-yellow-600 bg-yellow-50';
-    if (lower.includes('poor') || lower.includes('lacks') || lower === '1') return 'text-red-700 bg-red-50 font-bold';
+    if (lower.includes('poor') || lower.includes('lacks') || lower === '1') return 'text-red-700 bg-red-50 font-semibold';
     
     return 'text-gray-900 bg-white';
 };

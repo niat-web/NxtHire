@@ -28,7 +28,7 @@ const InfoField = ({ label, value, icon: Icon }) => (
       </div>
     )}
     <div className="min-w-0 flex-1">
-      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.12em] mb-0.5">{label}</p>
+      <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] mb-0.5">{label}</p>
       <p className="text-sm font-medium text-slate-900 break-all">{value || <span className="text-slate-300 italic">Not set</span>}</p>
     </div>
   </div>
@@ -37,7 +37,7 @@ const InfoField = ({ label, value, icon: Icon }) => (
 const SectionCard = ({ title, children, className = '' }) => (
   <div className={`bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden ${className}`}>
     <div className="px-6 py-4 border-b border-slate-100">
-      <h3 className="text-sm font-bold text-slate-900 tracking-tight">{title}</h3>
+      <h3 className="text-sm font-semibold text-slate-900 tracking-tight">{title}</h3>
     </div>
     <div className="px-6 py-4">{children}</div>
   </div>
@@ -156,11 +156,11 @@ const InterviewerDetailPage = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">{fullName}</h1>
-                <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${statusColors[interviewer.status] || 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                <h1 className="font-display text-[28px] font-semibold text-slate-900 tracking-tight leading-none">{fullName}</h1>
+                <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-widest border ${statusColors[interviewer.status] || 'bg-slate-100 text-slate-600 border-slate-200'}`}>
                   {interviewer.status}
                 </span>
-                <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
+                <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-widest border ${
                   interviewer.source === 'Internal' ? 'bg-slate-50 text-slate-900 border-slate-200' : 'bg-emerald-50 text-emerald-700 border-emerald-100'
                 }`}>
                   {interviewer.source || 'External'}
@@ -206,7 +206,7 @@ const InterviewerDetailPage = () => {
                 value={interviewer.domains?.length ? (
                   <div className="flex flex-wrap gap-1.5 mt-1">
                     {interviewer.domains.map(d => (
-                      <span key={d} className="inline-flex px-2 py-0.5 rounded-md bg-slate-50 text-slate-900 text-[10px] font-bold uppercase tracking-wider border border-slate-200">
+                      <span key={d} className="inline-flex px-2 py-0.5 rounded-md bg-slate-50 text-slate-900 text-[10px] font-semibold uppercase tracking-wider border border-slate-200">
                         {d}
                       </span>
                     ))}

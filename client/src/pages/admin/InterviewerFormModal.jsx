@@ -92,7 +92,7 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
 
     const reactSelectStyles = { menuPortal: base => ({ ...base, zIndex: 100 }) };
 
-    const inputClass = (hasError) => `h-10 w-full rounded-lg border ${hasError ? 'border-red-300' : 'border-slate-200'} bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900`;
+    const inputClass = (hasError) => `h-10 w-full rounded-lg border ${hasError ? 'border-red-300' : 'border-slate-200'} bg-white px-4 text-[13px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors`;
 
     return createPortal(
         <AnimatePresence>
@@ -111,9 +111,9 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
                     >
                         {/* Header */}
                         <div className="flex justify-between items-center px-5 py-4 border-b border-slate-200 flex-shrink-0">
-                            <h2 className="text-base font-semibold text-slate-900">{isEditMode ? 'Edit Interviewer' : 'Add New Interviewer'}</h2>
-                            <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
-                                <X className="h-5 w-5" />
+                            <h2 className="font-display text-[22px] font-semibold text-slate-900 tracking-tight leading-none">{isEditMode ? 'Edit interviewer' : 'Add new interviewer'}</h2>
+                            <button aria-label="Close" onClick={onClose} className="h-8 w-8 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors">
+                                <X className="h-4 w-4" aria-hidden="true" />
                             </button>
                         </div>
 
@@ -128,7 +128,7 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
                                 {/* Source selector — only on create */}
                                 {!isEditMode && (
                                     <div>
-                                        <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Source Type</label>
+                                        <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1.5">Source Type</label>
                                         <div className="flex rounded-lg border border-slate-200 p-0.5 bg-slate-100">
                                             <button type="button" onClick={() => changeSource('Internal')}
                                                 className={`flex-1 py-2 text-[13px] font-semibold rounded-md transition-all ${source === 'Internal' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
@@ -151,31 +151,31 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
                                 {/* ── Common fields (both Internal & External) ── */}
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">First Name *</label>
+                                        <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1.5">First Name *</label>
                                         <input type="text" {...register('firstName', { required: 'Required' })} className={inputClass(errors.firstName)} />
                                         {errors.firstName && <p className="mt-1 text-xs text-red-600">{errors.firstName.message}</p>}
                                     </div>
                                     <div>
-                                        <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Last Name *</label>
+                                        <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1.5">Last Name *</label>
                                         <input type="text" {...register('lastName', { required: 'Required' })} className={inputClass(errors.lastName)} />
                                         {errors.lastName && <p className="mt-1 text-xs text-red-600">{errors.lastName.message}</p>}
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Email *</label>
+                                    <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1.5">Email *</label>
                                     <input type="email" {...register('email', { required: 'Required' })} className={inputClass(errors.email)} />
                                     {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}
                                 </div>
 
                                 <div>
-                                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Phone Number *</label>
+                                    <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1.5">Phone Number *</label>
                                     <input type="text" {...register('phoneNumber', { required: 'Required' })} className={inputClass(errors.phoneNumber)} />
                                     {errors.phoneNumber && <p className="mt-1 text-xs text-red-600">{errors.phoneNumber.message}</p>}
                                 </div>
 
                                 <div>
-                                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Domain(s) *</label>
+                                    <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1.5">Domain(s) *</label>
                                     <Controller
                                         name="domains"
                                         control={control}
@@ -196,57 +196,57 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
                                 {/* ── External-only fields (or always show in edit mode) ── */}
                                 {(source === 'External' || isEditMode) && (
                                     <>
-                                        <div className="pt-2 border-t border-slate-100">
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-3">Professional Details</p>
+                                        <div className="pt-3 border-t border-slate-100">
+                                            <p className="text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-3">Professional details</p>
                                         </div>
 
                                         <div>
-                                            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Current Employer {source === 'External' && !isEditMode ? '*' : ''}</label>
+                                            <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1.5">Current Employer {source === 'External' && !isEditMode ? '*' : ''}</label>
                                             <input type="text" {...register('currentEmployer', source === 'External' && !isEditMode ? { required: 'Required' } : {})} className={inputClass(errors.currentEmployer)} />
                                             {errors.currentEmployer && <p className="mt-1 text-xs text-red-600">{errors.currentEmployer.message}</p>}
                                         </div>
 
                                         <div>
-                                            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Job Title {source === 'External' && !isEditMode ? '*' : ''}</label>
+                                            <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1.5">Job Title {source === 'External' && !isEditMode ? '*' : ''}</label>
                                             <input type="text" {...register('jobTitle', source === 'External' && !isEditMode ? { required: 'Required' } : {})} className={inputClass(errors.jobTitle)} />
                                             {errors.jobTitle && <p className="mt-1 text-xs text-red-600">{errors.jobTitle.message}</p>}
                                         </div>
 
                                         <div>
-                                            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Years of Experience {source === 'External' && !isEditMode ? '*' : ''}</label>
+                                            <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1.5">Years of Experience {source === 'External' && !isEditMode ? '*' : ''}</label>
                                             <input type="number" step="0.1" {...register('yearsOfExperience', source === 'External' && !isEditMode ? { required: 'Required', valueAsNumber: true } : { valueAsNumber: true })} className={inputClass(errors.yearsOfExperience)} />
                                             {errors.yearsOfExperience && <p className="mt-1 text-xs text-red-600">{errors.yearsOfExperience.message}</p>}
                                         </div>
 
                                         <div>
-                                            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Company Type</label>
-                                            <select {...register('companyType')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900">
+                                            <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1.5">Company Type</label>
+                                            <select {...register('companyType')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-4 text-[13px] text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors">
                                                 {companyTypeOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                             </select>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Interviewer ID</label>
-                                                <input type="text" {...register('interviewerId')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900" />
+                                                <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1.5">Interviewer ID</label>
+                                                <input type="text" {...register('interviewerId')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-4 text-[13px] text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors" />
                                             </div>
                                             <div>
-                                                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Payout ID</label>
-                                                <input type="text" {...register('payoutId')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900" />
+                                                <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1.5">Payout ID</label>
+                                                <input type="text" {...register('payoutId')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-4 text-[13px] text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors" />
                                             </div>
                                         </div>
 
                                         <div>
-                                            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Payment Amount (₹ per interview)</label>
-                                            <input type="number" placeholder="e.g. 500" {...register('paymentAmount')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900" />
+                                            <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1.5">Payment Amount (₹ per interview)</label>
+                                            <input type="number" placeholder="e.g. 500" {...register('paymentAmount')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-4 text-[13px] text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors" />
                                         </div>
                                     </>
                                 )}
 
                                 {/* Status — always show */}
                                 <div>
-                                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Status</label>
-                                    <select {...register('status')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900">
+                                    <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1.5">Status</label>
+                                    <select {...register('status')} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-4 text-[13px] text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors">
                                         {statusOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                     </select>
                                 </div>

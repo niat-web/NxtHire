@@ -80,7 +80,7 @@ const StatCard = ({ label, value, icon: Icon, color = 'blue', active, onClick })
           <Icon size={14} />
         </div>
       </div>
-      <p className="text-xl font-bold text-gray-900">{value}</p>
+      <p className="font-display text-[26px] font-semibold text-slate-900 tracking-tight leading-none">{value}</p>
     </button>
   );
 };
@@ -99,7 +99,7 @@ const InterviewCard = ({ interview, onClick }) => {
       )}>
       <div className="flex items-center gap-4">
         {/* Avatar */}
-        <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold shrink-0', config.bg, config.text)}>
+        <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center text-xs font-semibold shrink-0', config.bg, config.text)}>
           {getInitials(interview.candidateName)}
         </div>
 
@@ -109,7 +109,7 @@ const InterviewCard = ({ interview, onClick }) => {
             <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-slate-900 transition-colors">
               {interview.candidateName}
             </p>
-            <span className={cn('inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-bold uppercase', config.pill)}>
+            <span className={cn('inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-semibold uppercase', config.pill)}>
               {config.label}
             </span>
           </div>
@@ -174,7 +174,7 @@ const InterviewDetailsModal = ({ isOpen, onClose, interview, onStatusChange }) =
                     <X size={18} />
                   </Button>
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center text-lg font-bold">
+                    <div className="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center text-lg font-semibold">
                       {getInitials(interview.candidateName)}
                     </div>
                     <div>
@@ -183,7 +183,7 @@ const InterviewDetailsModal = ({ isOpen, onClose, interview, onStatusChange }) =
                     </div>
                   </div>
                   <div className="mt-3 flex gap-2">
-                    <span className={cn("inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold", config.bg, config.text)}>{config.label}</span>
+                    <span className={cn("inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold", config.bg, config.text)}>{config.label}</span>
                     {interview.techStack && (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-white/15 text-white text-xs font-medium">{interview.techStack}</span>
                     )}
@@ -390,8 +390,8 @@ const InterviewEvaluation = () => {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div className="flex items-center gap-4">
             <div>
-              <h1 className="text-lg font-semibold text-gray-900">Scheduled Interviews</h1>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <h1 className="font-display text-[26px] font-semibold text-slate-900 tracking-tight leading-none">Scheduled interviews</h1>
+              <p className="text-[12.5px] text-slate-500 mt-2">
                 {formatDateFns(weekDays[0], 'MMM d')} – {formatDateFns(weekDays[6], 'MMM d, yyyy')}
               </p>
             </div>
@@ -461,7 +461,7 @@ const InterviewEvaluation = () => {
                       'w-10 h-10 rounded-xl flex flex-col items-center justify-center shrink-0 border',
                       isToday(date) ? 'bg-slate-900 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-200'
                     )}>
-                      <span className="text-[9px] font-bold uppercase leading-none">{formatDateFns(date, 'EEE')}</span>
+                      <span className="text-[9px] font-semibold uppercase leading-none">{formatDateFns(date, 'EEE')}</span>
                       <span className="text-sm font-black leading-none">{formatDateFns(date, 'd')}</span>
                     </div>
                     <div>

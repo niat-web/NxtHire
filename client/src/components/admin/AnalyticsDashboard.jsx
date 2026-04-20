@@ -31,7 +31,7 @@ const ChartTooltip = ({ active, payload, label }) => {
             <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: p.fill }} />
             {p.name}
           </span>
-          <span className="font-bold text-gray-900">{p.value}</span>
+          <span className="font-semibold text-gray-900">{p.value}</span>
         </div>
       ))}
     </div>
@@ -155,7 +155,7 @@ const AnalyticsDashboard = () => {
                     )}>
                     <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: hidden ? '#d1d5db' : c.color }} />
                     {status === 'InProgress' ? 'In Progress' : status}
-                    <span className={cn('font-bold ml-0.5', hidden ? 'text-gray-400' : '')}>{totals[status]}</span>
+                    <span className={cn('font-semibold ml-0.5', hidden ? 'text-gray-400' : '')}>{totals[status]}</span>
                   </button>
                 );
               })}

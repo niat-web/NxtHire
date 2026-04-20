@@ -62,7 +62,7 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                     {/* Interviewer + Date — side by side */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Interviewer *</label>
+                            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Interviewer *</label>
                             <Controller name="interviewerId" control={control} rules={{ required: true }}
                                 render={({ field }) => (
                                     <ReactSelect {...field} options={interviewers} placeholder="Search name..." styles={selectStyles} menuPortalTarget={document.body} />
@@ -70,7 +70,7 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                             {errors.interviewerId && <p className="mt-1 text-[11px] text-red-500">Required</p>}
                         </div>
                         <div>
-                            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Date *</label>
+                            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Date *</label>
                             <div className="relative">
                                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 z-10 pointer-events-none" />
                                 <Controller name="date" control={control} rules={{ required: true }}
@@ -86,7 +86,7 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                     {/* Time slots */}
                     <div>
                         <div className="flex items-center justify-between mb-2">
-                            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Time Slots</label>
+                            <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Time Slots</label>
                             <button type="button" onClick={() => append({ startTime: '', endTime: '' })}
                                 className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-900 hover:text-blue-800 transition-colors">
                                 <Plus size={12} /> Add Slot

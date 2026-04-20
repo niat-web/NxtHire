@@ -23,7 +23,7 @@ class ErrorBoundary extends React.Component {
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-5">
               <AlertTriangle className="w-8 h-8 text-red-600" />
             </div>
-            <h1 className="text-xl font-bold text-gray-900 mb-2">Something went wrong</h1>
+            <h1 className="text-xl font-semibold text-gray-900 mb-2">Something went wrong</h1>
             <p className="text-sm text-gray-500 mb-6">
               An unexpected error occurred. Please try refreshing the page.
             </p>

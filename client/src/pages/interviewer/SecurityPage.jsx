@@ -53,9 +53,9 @@ const SecurityPage = () => {
 
   return (
     <div className="p-6 max-w-xl">
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-gray-900">Security</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Manage your password and account security</p>
+      <div className="mb-8">
+        <h1 className="font-display text-[28px] font-semibold text-slate-900 tracking-tight leading-none">Security</h1>
+        <p className="text-[13.5px] text-slate-500 mt-2">Manage your password and account security.</p>
       </div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}

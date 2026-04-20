@@ -28,7 +28,7 @@ const statusColors = {
 };
 
 const InlineStatusBadge = ({ status }) => (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${statusColors[status] || 'bg-slate-100 text-slate-600'}`}>
+    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${statusColors[status] || 'bg-slate-100 text-slate-600'}`}>
         {status}
     </span>
 );
@@ -271,7 +271,7 @@ const ApplicantDetails = () => {
                 ].map((m) => (
                   <div key={m.label} className="bg-slate-50 p-3 rounded-lg border border-slate-100">
                     <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">{m.label}</p>
-                    <p className="text-lg font-bold text-slate-900 mt-0.5">{m.value}</p>
+                    <p className="text-lg font-semibold text-slate-900 mt-0.5">{m.value}</p>
                   </div>
                 ))}
               </div>

@@ -81,7 +81,7 @@ const BookingForm = ({ onSubmit, initialData = null }) => {
 
             {/* Date picker bar */}
             <div className="flex items-center gap-3 px-5 py-3 border-b border-slate-200 bg-slate-50/50 shrink-0">
-                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Interview Date</span>
+                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Interview Date</span>
                 <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 pointer-events-none" />
                     <Controller name="bookingDate" control={control} rules={{ required: 'Select a date' }}
@@ -97,7 +97,7 @@ const BookingForm = ({ onSubmit, initialData = null }) => {
 
                 {/* Selected count */}
                 <span className="text-[11px] text-slate-500">
-                    Selected: <span className="font-bold text-slate-900">{(selectedInterviewerIds || []).length}</span> / {filtered.length}
+                    Selected: <span className="font-semibold text-slate-900">{(selectedInterviewerIds || []).length}</span> / {filtered.length}
                 </span>
                 {errors.interviewerIds && <span className="text-[11px] text-red-500 font-medium">Select at least one</span>}
             </div>
@@ -171,10 +171,10 @@ const BookingForm = ({ onSubmit, initialData = null }) => {
                                     <thead>
                                         <tr>
                                             <th className="sticky top-0 w-10 px-5 py-2 bg-slate-50 border-b border-slate-200 z-10" />
-                                            <th className="sticky top-0 px-3 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Name</th>
-                                            <th className="sticky top-0 px-3 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Email</th>
-                                            <th className="sticky top-0 px-3 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Status</th>
-                                            <th className="sticky top-0 px-3 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Domains</th>
+                                            <th className="sticky top-0 px-3 py-2 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">Name</th>
+                                            <th className="sticky top-0 px-3 py-2 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">Email</th>
+                                            <th className="sticky top-0 px-3 py-2 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">Status</th>
+                                            <th className="sticky top-0 px-3 py-2 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">Domains</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100">
@@ -192,7 +192,7 @@ const BookingForm = ({ onSubmit, initialData = null }) => {
                                                     <td className="px-3 py-2.5 text-[13px] font-medium text-slate-900">{interviewer.label}</td>
                                                     <td className="px-3 py-2.5 text-[12px] text-slate-500">{interviewer.email}</td>
                                                     <td className="px-3 py-2.5">
-                                                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${getStatusClass(interviewer.status)}`}>
+                                                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${getStatusClass(interviewer.status)}`}>
                                                             {interviewer.status}
                                                         </span>
                                                     </td>

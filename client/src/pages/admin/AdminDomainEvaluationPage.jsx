@@ -302,24 +302,24 @@ const AdminDomainEvaluationPage = () => {
                             </Button>
                             {isFilterMenuOpen && (
                                 <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 p-4 z-50">
-                                    <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Filter Records</h4>
+                                    <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-3">Filter Records</h4>
                                     <div className="space-y-3">
                                         <div>
-                                            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Public Link</label>
+                                            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Public Link</label>
                                             <select value={tempFilters.hiringName} onChange={(e) => setTempFilters(p => ({ ...p, hiringName: e.target.value }))} className="w-full h-9 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900">
                                                 <option value="">All Public Links</option>
                                                 {hiringNameOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Interview Date</label>
+                                            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Interview Date</label>
                                             <div className="relative">
                                                 <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(p => ({ ...p, interviewDate: date }))} isClearable placeholderText="Select date" className="w-full h-9 pl-3 pr-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900" portalId="datepicker-portal" popperClassName="!z-[9999]" popperProps={{ strategy: 'fixed' }} />
                                                 <Calendar size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Status</label>
+                                            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Status</label>
                                             <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(p => ({ ...p, interviewStatus: e.target.value }))} className="w-full h-9 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900">
                                                 <option value="">All Statuses</option>
                                                 {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}

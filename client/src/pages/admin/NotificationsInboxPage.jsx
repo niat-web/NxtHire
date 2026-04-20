@@ -76,7 +76,7 @@ const NotificationsInboxPage = () => {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
-                <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-bold text-white bg-slate-900 rounded-full">
+                <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-semibold text-white bg-slate-900 rounded-full">
                   {unreadCount}
                 </span>
               )}
@@ -182,7 +182,7 @@ const NotificationDetail = ({ notification }) => {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide', config.color)}>
+                <span className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide', config.color)}>
                   {config.label}
                 </span>
                 {notification.isRead ? (

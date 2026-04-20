@@ -201,7 +201,7 @@ const LocalEmptyState = ({ message, icon: Icon }) => (
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/60 shadow-sm mb-4">
             <Icon className="h-6 w-6 text-slate-400" />
         </div>
-        <h3 className="text-sm font-bold text-slate-900">No entries yet</h3>
+        <h3 className="text-sm font-semibold text-slate-900">No entries yet</h3>
         <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">{message}</p>
     </div>
 );
@@ -216,7 +216,7 @@ const LocalTable = ({ columns, data, isLoading, emptyMessage, emptyIcon, sortCon
                            key={col.key}
                            scope="col"
                            onClick={() => col.sortable && onSort && onSort(col.key)}
-                           className={`sticky top-0 z-10 px-4 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em] whitespace-nowrap border-b border-slate-200 ${col.sortable ? 'cursor-pointer hover:text-slate-900' : ''} ${col.isSticky ? 'left-0 z-20' : ''} bg-slate-50/90 backdrop-blur-sm`}
+                           className={`sticky top-0 z-10 px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] whitespace-nowrap border-b border-slate-200 ${col.sortable ? 'cursor-pointer hover:text-slate-900' : ''} ${col.isSticky ? 'left-0 z-20' : ''} bg-slate-50/70 backdrop-blur`}
                            style={{ minWidth: col.minWidth }}
                         >
                             <div className="flex items-center gap-1.5">
@@ -634,37 +634,77 @@ const MainSheet = () => {
     
     const hiringNamesOptions = useMemo(() => hiringNames.map(name => ({ label: name, value: name })), [hiringNames]);
 
+    // Reusable link-pill cell with clear resource color-coding so rows scan fast.
+    // Palette is strictly semantic: orange accent = actionable artefact, slate = neutral.
+    const renderLinkPill = (href, label, tone = 'neutral') => {
+        if (!href) return <span className="text-slate-300">—</span>;
+        const tones = {
+            // Orange accent border — asset that leads to candidate material
+            accent: 'border-[#FF4800]/30 text-[#FF4800] hover:bg-[#FF4800] hover:text-white hover:border-[#FF4800]',
+            // Neutral — meeting / generic links
+            neutral: 'border-slate-200 text-slate-700 hover:border-slate-900 hover:text-slate-900',
+            // Emerald — recording / artefact-of-record (completed)
+            emerald: 'border-emerald-200 text-emerald-700 hover:bg-emerald-50',
+        };
+        return (
+            <a href={href} target="_blank" rel="noopener noreferrer"
+                className={`inline-flex items-center gap-1 h-7 px-2.5 rounded-full border text-[11.5px] font-semibold transition-colors ${tones[tone]}`}
+                title={href}>
+                {label} <ExternalLink className="h-3 w-3" aria-hidden="true" />
+            </a>
+        );
+    };
+
     const columns = useMemo(() => [
-        { key: 'candidateName', title: 'Candidate Name', minWidth: '200px', isSticky: true },
-        { key: 'interviewId', title: 'Interview ID', minWidth: '150px', sortable: true},
-        { key: 'uid', title: 'UID', minWidth: '120px' },
-        { key: 'mobileNumber', title: 'Mobile', minWidth: '120px' },
-        { key: 'mailId', title: "Mail ID", minWidth: '200px' },
-        { key: 'candidateResume', title: 'Resume', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-50 text-slate-900 text-xs font-semibold hover:bg-blue-100 transition-colors" title={row.candidateResume}>Link <ExternalLink className="h-3 w-3" /></a> : <span className="text-gray-300">—</span> },
-        { key: 'meetingLink', title: 'Meeting Link', minWidth: '110px', render: (row) => row.meetingLink ? (<a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-50 text-slate-900 text-xs font-semibold hover:bg-blue-100 transition-colors" title={row.meetingLink}>Link <ExternalLink className="h-3 w-3" /></a>) : <span className="text-gray-300">—</span> },
-        { key: 'recordingLink', title: 'Recording Link', minWidth: '120px', render: (row) => row.recordingLink ? (<a href={row.recordingLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-50 text-slate-900 text-xs font-semibold hover:bg-blue-100 transition-colors" title={row.recordingLink}>Link <ExternalLink className="h-3 w-3" /></a>) : <span className="text-gray-300">—</span> },
-        { key: 'transcriptLink', title: 'Transcript Link', minWidth: '120px', render: (row) => row.transcriptLink ? (<a href={row.transcriptLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-50 text-slate-900 text-xs font-semibold hover:bg-blue-100 transition-colors" title={row.transcriptLink}>Link <ExternalLink className="h-3 w-3" /></a>) : <span className="text-gray-300">—</span> },
-        { key: 'interviewDate', title: 'Date', render: (row) => row.interviewDate ? formatDate(row.interviewDate) : '' },
-        { 
-            key: 'interviewTime', 
+        // Primary anchor — slate-900 semibold, sticky
+        { key: 'candidateName', title: 'Candidate Name', minWidth: '200px', isSticky: true, render: (row) => (
+            <span className="font-semibold text-slate-900">{row.candidateName || <span className="text-slate-300">—</span>}</span>
+        ) },
+        // Identifier — mono, tabular-nums, slate-900 semibold (reads as code/system-generated)
+        { key: 'interviewId', title: 'Interview ID', minWidth: '140px', sortable: true, render: (row) => (
+            <span className="font-mono text-[12px] font-semibold text-slate-900 tabular-nums">{row.interviewId || '—'}</span>
+        )},
+        // Secondary identifier — mono but muted (signals "system, not human-entered")
+        { key: 'uid', title: 'UID', minWidth: '180px', render: (row) => (
+            <span className="font-mono text-[11.5px] text-slate-500">{row.uid || <span className="text-slate-300">—</span>}</span>
+        ) },
+        // Contact columns — slate-600 (secondary reading hierarchy)
+        { key: 'mobileNumber', title: 'Mobile', minWidth: '130px', render: (row) => (
+            <span className="text-slate-700 tabular-nums">{row.mobileNumber || <span className="text-slate-300">—</span>}</span>
+        ) },
+        { key: 'mailId', title: 'Mail ID', minWidth: '220px', render: (row) => (
+            <span className="text-slate-600">{row.mailId || <span className="text-slate-300">—</span>}</span>
+        ) },
+        // Candidate resource — accent orange, clearly actionable
+        { key: 'candidateResume', title: 'Resume', render: (row) => renderLinkPill(row.candidateResume, 'Resume', 'accent') },
+        // Neutral meeting link (live session)
+        { key: 'meetingLink', title: 'Meeting', minWidth: '110px', render: (row) => renderLinkPill(row.meetingLink, 'Meet', 'neutral') },
+        // Completed artefacts → emerald (signals "recorded/preserved")
+        { key: 'recordingLink', title: 'Recording', minWidth: '110px', render: (row) => renderLinkPill(row.recordingLink, 'Play', 'emerald') },
+        { key: 'transcriptLink', title: 'Transcript', minWidth: '110px', render: (row) => renderLinkPill(row.transcriptLink, 'Read', 'emerald') },
+        // Date — tabular-nums for vertical alignment across rows
+        { key: 'interviewDate', title: 'Date', render: (row) => (
+            <span className="text-slate-700 tabular-nums whitespace-nowrap">{row.interviewDate ? formatDate(row.interviewDate) : <span className="text-slate-300">—</span>}</span>
+        ) },
+        {
+            key: 'interviewTime',
             title: 'Time',
-            // --- MODIFICATION START ---
             render: (row) => {
                 const timeSlot = row.interviewTime;
-                if (!timeSlot || !timeSlot.includes('-')) return timeSlot || '';
-
+                if (!timeSlot || !timeSlot.includes('-')) return <span className="text-slate-700 tabular-nums whitespace-nowrap">{timeSlot || <span className="text-slate-300">—</span>}</span>;
                 const [startTimeStr, endTimeStr] = timeSlot.split('-').map(t => t.trim());
-                return `${formatTime(startTimeStr)} - ${formatTime(endTimeStr)}`;
+                return <span className="text-slate-700 tabular-nums whitespace-nowrap">{formatTime(startTimeStr)} – {formatTime(endTimeStr)}</span>;
             }
-            // --- MODIFICATION END ---
         },
-        { key: 'interviewDuration', title: 'Duration' },
-        { key: 'interviewStatus', title: 'Status', minWidth: '140px', isCustomCell: true, render: (row) => {
+        { key: 'interviewDuration', title: 'Duration', render: (row) => (
+            <span className="text-slate-700 tabular-nums">{row.interviewDuration || <span className="text-slate-300">—</span>}</span>
+        ) },
+        { key: 'interviewStatus', title: 'Status', minWidth: '150px', isCustomCell: true, render: (row) => {
             const statusColors = {
-                'Completed': 'bg-emerald-50 text-emerald-700',
-                'Scheduled': 'bg-amber-50 text-amber-700',
-                'InProgress': 'bg-slate-50 text-slate-900',
-                'Cancelled': 'bg-red-50 text-red-700',
+                'Completed':  'bg-emerald-50 text-emerald-700',
+                'Scheduled':  'bg-amber-50 text-amber-800',
+                'InProgress': 'bg-slate-100 text-slate-800',
+                'Cancelled':  'bg-red-50 text-red-700',
             };
             return (
                 <div className="relative h-full">
@@ -672,7 +712,7 @@ const MainSheet = () => {
                         value={row.interviewStatus || ''}
                         onChange={(e) => handleStatusChange(row._id, e.target.value)}
                         disabled={updatingId === row._id}
-                        className={`block w-full h-full min-h-[28px] text-xs font-semibold pl-3 pr-7 py-2 border-0 rounded-none cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-inset focus:ring-blue-400 transition-colors ${statusColors[row.interviewStatus] || 'bg-white text-gray-500'}`}
+                        className={`block w-full h-full min-h-[36px] text-[11px] font-semibold uppercase tracking-wide pl-3 pr-7 py-2 border-0 rounded-none cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-inset focus:ring-slate-900 transition-colors ${statusColors[row.interviewStatus] || 'bg-white text-slate-500'}`}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <option value="" disabled>Select</option>
@@ -680,45 +720,51 @@ const MainSheet = () => {
                             <option key={status.value} value={status.value}>{status.label}</option>
                         ))}
                     </select>
-                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-500 pointer-events-none" aria-hidden="true" />
                 </div>
             );
         } },
         { key: 'remarks', title: 'Remarks', minWidth: '250px', isCustomCell: true, render: (row) => <EditableCell value={row.remarks} onSave={handleCellSave} fieldName="remarks" rowId={row._id} isLoading={updatingId === row._id} /> },
-        { key: 'interviewerName', title: 'Interviewer', minWidth: '200px', isCustomCell: true, render: (row) => (
-            <div className="relative h-full">
-                <select
-                    value={row.interviewer?._id || ''}
-                    onChange={(e) => handleInterviewerChange(row._id, e.target.value)}
-                    disabled={updatingId === row._id}
-                    className="block w-full h-full min-h-[28px] pl-3 pr-7 py-2 text-xs border-0 rounded-none bg-white cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-inset focus:ring-blue-400 text-gray-700 transition-colors"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <option value="">Unassigned</option>
-                    {interviewerOptions.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                </select>
-                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
-            </div>
+        // Interviewer assignment — semibold when assigned, muted+italic when unassigned
+        { key: 'interviewerName', title: 'Interviewer', minWidth: '200px', isCustomCell: true, render: (row) => {
+            const isAssigned = !!row.interviewer?._id;
+            return (
+                <div className="relative h-full">
+                    <select
+                        value={row.interviewer?._id || ''}
+                        onChange={(e) => handleInterviewerChange(row._id, e.target.value)}
+                        disabled={updatingId === row._id}
+                        className={`block w-full h-full min-h-[36px] pl-3 pr-7 py-2 text-[12.5px] border-0 rounded-none bg-white cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-inset focus:ring-slate-900 transition-colors ${isAssigned ? 'text-slate-900 font-semibold' : 'text-slate-400 italic'}`}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <option value="">Unassigned</option>
+                        {interviewerOptions.map(opt => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                    </select>
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" aria-hidden="true" />
+                </div>
+            );
+        } },
+        { key: 'interviewerMail', title: 'Interviewer Mail', minWidth: '220px', render: (row) => (
+            <span className="text-slate-500">{row.interviewer?.user?.email || <span className="text-slate-300">—</span>}</span>
         ) },
-        { key: 'interviewerMail', title: "Interviewer Mail", minWidth: '200px', render: (row) => row.interviewer?.user?.email || '' },
-        { key: 'interviewerRemarks', title: 'Interviewer Remarks', minWidth: '250px', render: (row) => {
+        { key: 'interviewerRemarks', title: 'Interviewer Remarks', minWidth: '260px', render: (row) => {
             const remarks = row.interviewerRemarks;
             const charLimit = 50;
-            if (!remarks) { return <span className="text-gray-400"></span>; }
-            if (remarks.length <= charLimit) { return <div className="p-2 whitespace-normal break-words" title={remarks}></div>; }
+            if (!remarks) return <span className="text-slate-300">—</span>;
+            if (remarks.length <= charLimit) return <div className="whitespace-normal break-words text-slate-700" title={remarks}>{remarks}</div>;
             return (
-                <div className="flex items-center overflow-hidden p-2">
-                    <span className="truncate" title={remarks}>{remarks.substring(0, charLimit)}...</span>
-                    <ShadcnButton variant="link" size="sm" onClick={() => openRemarksModal(remarks)} className="ml-1 text-slate-900 hover:text-blue-800 text-xs font-semibold flex-shrink-0 p-0 h-auto">more</ShadcnButton>
+                <div className="flex items-center overflow-hidden">
+                    <span className="truncate text-slate-700" title={remarks}>{remarks.substring(0, charLimit)}…</span>
+                    <button onClick={() => openRemarksModal(remarks)} className="ml-1 text-slate-900 hover:text-[#FF4800] text-[11.5px] font-semibold flex-shrink-0 underline underline-offset-2 transition-colors">more</button>
                 </div>
             );
         }},
-        { key: 'hiringName', title: 'Hiring Name', minWidth: '150px', render: (row) => <EditableHiringName entry={row} options={hiringNamesOptions} onSave={handleCellSave} /> },
-        { key: 'techStack', title: 'Tech Stack', minWidth: '150px', render: (row) => <EditableDomainCell entry={row} domainOptions={domainOptions} onSave={handleCellSave} /> },
-        { key: 'actions', title: 'Actions', minWidth: '60px', render: (row) => (<LocalDropdownMenu options={[{ label: 'Edit', icon: Edit, onClick: () => navigate(`/admin/main-sheet/edit/${row._id}`) }, { label: 'Delete', icon: Trash2, isDestructive: true, onClick: () => handleDeleteRequest(row) },]}/>)}
-    ], [navigate, handleDeleteRequest, handleStatusChange, handleInterviewerChange, updatingId, interviewerOptions, hiringNamesOptions, handleCellSave, domainOptions, openRemarksModal]);
+        { key: 'hiringName', title: 'Hiring Name', minWidth: '170px', render: (row) => <EditableHiringName entry={row} options={hiringNamesOptions} onSave={handleCellSave} /> },
+        { key: 'techStack', title: 'Tech Stack', minWidth: '160px', render: (row) => <EditableDomainCell entry={row} domainOptions={domainOptions} onSave={handleCellSave} /> },
+        { key: 'actions', title: '', minWidth: '56px', render: (row) => (<LocalDropdownMenu options={[{ label: 'Edit', icon: Edit, onClick: () => navigate(`/admin/main-sheet/edit/${row._id}`) }, { label: 'Delete', icon: Trash2, isDestructive: true, onClick: () => handleDeleteRequest(row) },]}/>)}
+    ], [navigate, handleDeleteRequest, handleStatusChange, handleInterviewerChange, updatingId, interviewerOptions, hiringNamesOptions, handleCellSave, domainOptions, openRemarksModal, MAIN_SHEET_INTERVIEW_STATUSES]);
     
     const mainSheetUploadProps = {
         isOpen: isUploadModalOpen,
@@ -741,7 +787,7 @@ const MainSheet = () => {
                     <div className="flex items-center gap-3">
                         <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">Main Sheet</h1>
                         {pagination.totalItems > 0 && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-widest uppercase border border-slate-200 bg-white text-slate-700 border border-emerald-100 px-2.5 py-0.5 rounded-full">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold tracking-widest uppercase border border-slate-200 bg-white text-slate-700 border border-emerald-100 px-2.5 py-0.5 rounded-full">
                                 {pagination.totalItems} records
                             </span>
                         )}
@@ -774,7 +820,7 @@ const MainSheet = () => {
                             >
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em] mb-2">Date</label>
+                                        <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] mb-2">Date</label>
                                         <DatePicker
                                             selected={tempFilters.interviewDate}
                                             onChange={(date) => setTempFilters(prev => ({ ...prev, interviewDate: date }))}
@@ -787,7 +833,7 @@ const MainSheet = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em] mb-2">Status</label>
+                                        <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] mb-2">Status</label>
                                         <select
                                             value={tempFilters.interviewStatus}
                                             onChange={(e) => setTempFilters(prev => ({ ...prev, interviewStatus: e.target.value }))}
@@ -855,7 +901,7 @@ const MainSheet = () => {
                             </select>
                         </div>
                         <p className="text-[12px] text-slate-500">
-                            Showing <span className="font-bold text-slate-900">{showingFrom}</span>–<span className="font-bold text-slate-900">{showingTo}</span> of <span className="font-bold text-slate-900">{pagination.totalItems}</span>
+                            Showing <span className="font-semibold text-slate-900">{showingFrom}</span>–<span className="font-semibold text-slate-900">{showingTo}</span> of <span className="font-semibold text-slate-900">{pagination.totalItems}</span>
                         </p>
                     </div>
                     <div className="flex items-center gap-1.5">

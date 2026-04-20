@@ -321,14 +321,26 @@ const Interviewers = () => {
                     </div>
                 );
             case 'user.email':
-                return <span className="text-slate-600 text-sm">{r.user.email}</span>;
+                return <span className="text-slate-600 text-[13px]">{r.user.email}</span>;
             case 'user.phoneNumber':
-                return <div className="flex items-center gap-2 text-slate-700 text-[13px]"><Phone className="h-3 w-3 text-slate-400" aria-hidden="true" /> {r.user.phoneNumber}</div>;
+                return <div className="flex items-center gap-2 text-slate-700 text-[13px] tabular-nums"><Phone className="h-3 w-3 text-slate-400" aria-hidden="true" /> {r.user.phoneNumber}</div>;
             case 'user.whatsappNumber':
-                return <div className="flex items-center gap-2 text-slate-700 text-[13px]"><MessageCircle className="h-3 w-3 text-slate-400" aria-hidden="true" /> {r.user.whatsappNumber || <span className="text-slate-300">—</span>}</div>;
-            case 'yearsOfExperience':
-                return <span className="text-slate-900 font-medium text-[13px]">{r.yearsOfExperience} yrs</span>;
+                return <div className="flex items-center gap-2 text-[13px] tabular-nums"><MessageCircle className="h-3 w-3 text-emerald-500" aria-hidden="true" /> {r.user.whatsappNumber ? <span className="text-slate-700">{r.user.whatsappNumber}</span> : <span className="text-slate-300">—</span>}</div>;
+            case 'yearsOfExperience': {
+                // Experience read as a tiny metric chip; seasoned interviewers (5+ years)
+                // pick up an orange-accent dot so senior folks are scannable at a glance.
+                const years = Number(r.yearsOfExperience || 0);
+                const senior = years >= 5;
+                return (
+                    <span className="inline-flex items-center gap-1.5 text-[13px] text-slate-900 tabular-nums font-semibold">
+                        {senior && <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: '#FF4800' }} aria-hidden="true" title="5+ years" />}
+                        {years} <span className="text-slate-500 font-normal">yrs</span>
+                    </span>
+                );
+            }
             case 'paymentAmount': {
+                // Payment cell uses semantic emerald for positive rates (interviewer is billable)
+                // and muted slate-300 for zero (action needed). The ₹ glyph mirrors the colour.
                 const EditablePayment = () => {
                     const [val, setVal] = useState(String(r.paymentAmount || '').replace(/[^0-9]/g, ''));
                     const [saving, setSaving] = useState(false);
@@ -342,18 +354,19 @@ const Interviewers = () => {
                     const isZero = !val || val === '0';
                     return (
                         <div className="relative">
-                            <span className={`absolute left-2.5 top-1/2 -translate-y-1/2 text-[12px] ${isZero ? 'text-slate-300' : 'text-slate-500'}`} aria-hidden="true">₹</span>
+                            <span className={`absolute left-2.5 top-1/2 -translate-y-1/2 text-[12px] font-semibold ${isZero ? 'text-slate-300' : 'text-emerald-600'}`} aria-hidden="true">₹</span>
                             <input type="text" value={val} onChange={e => setVal(e.target.value.replace(/[^0-9]/g, ''))} onBlur={save} disabled={saving} placeholder="0"
-                                className={`w-24 pl-6 pr-2 py-1.5 text-[13px] font-semibold border border-transparent rounded-lg bg-transparent hover:border-slate-200 focus:bg-white focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 text-right transition-colors ${isZero ? 'text-slate-400' : 'text-slate-900'}`} />
+                                className={`w-24 pl-6 pr-2 py-1.5 text-[13px] font-semibold border border-transparent rounded-lg bg-transparent hover:border-slate-200 focus:bg-white focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 text-right tabular-nums transition-colors ${isZero ? 'text-slate-400' : 'text-emerald-700'}`} />
                         </div>
                     );
                 };
                 return <EditablePayment />;
             }
             case 'source': {
+                // Internal = solid slate-900 (staff, emphasized); External = neutral outline.
                 const isInternal = r.source === 'Internal';
                 return (
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold uppercase tracking-wide border ${isInternal ? 'border-slate-900 bg-white text-slate-900' : 'border-slate-200 bg-white text-slate-600'}`}>
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold uppercase tracking-wide border ${isInternal ? 'bg-slate-900 text-white border-slate-900' : 'border-slate-200 bg-white text-slate-600'}`}>
                         {isInternal ? 'Internal' : 'External'}
                     </span>
                 );

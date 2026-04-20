@@ -75,18 +75,22 @@ const PaymentConfirmationPage = () => {
         if (error) {
             return (
                 <div className="text-center">
-                    <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-                    <h2 className="text-2xl font-semibold text-gray-800">An Error Occurred</h2>
-                    <p className="mt-2 text-gray-600">{error}</p>
+                    <span className="inline-flex items-center justify-center h-14 w-14 rounded-full border border-red-200 bg-white text-red-600 mx-auto mb-4">
+                        <AlertTriangle className="h-6 w-6" aria-hidden="true" />
+                    </span>
+                    <h2 className="font-display text-[28px] font-semibold text-slate-900 tracking-tight">An error occurred.</h2>
+                    <p className="mt-2 text-[14px] text-slate-600">{error}</p>
                 </div>
             );
         }
         if (isSubmitted || !confirmationData) {
             return (
                  <div className="text-center">
-                    <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                    <h2 className="text-2xl font-semibold text-gray-800">Thank You</h2>
-                    <p className="mt-2 text-gray-600">Your response has been recorded. You may now close this page.</p>
+                    <span className="inline-flex items-center justify-center h-14 w-14 rounded-full border border-slate-200 bg-white text-slate-700 mx-auto mb-4">
+                        <CheckCircle className="h-6 w-6" aria-hidden="true" />
+                    </span>
+                    <h2 className="font-display text-[28px] font-semibold text-slate-900 tracking-tight">Thank you.</h2>
+                    <p className="mt-2 text-[14px] text-slate-600">Your response has been recorded. You may now close this page.</p>
                 </div>
             );
         }

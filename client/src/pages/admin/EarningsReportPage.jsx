@@ -27,7 +27,7 @@ const badgeColorMap = {
 const Badge = ({ children, variant = 'gray' }) => {
     const colorClass = badgeColorMap[variant] || badgeColorMap.gray;
     return (
-        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${colorClass}`}>
+        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${colorClass}`}>
             {children}
         </span>
     );
@@ -81,7 +81,7 @@ const DataTable = ({ cols, rows, loading, error, empty, page, totalPages, totalI
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/60 flex items-center justify-center mb-4 shadow-sm">
                 <Inbox className="w-6 h-6 text-slate-400" />
             </div>
-            <p className="text-sm font-bold text-slate-900">No entries yet</p>
+            <p className="text-sm font-semibold text-slate-900">No entries yet</p>
             <p className="text-xs text-slate-500 mt-1 max-w-xs">{empty}</p>
         </div>
     );
@@ -94,7 +94,7 @@ const DataTable = ({ cols, rows, loading, error, empty, page, totalPages, totalI
                         <tr>
                             {cols.map(c => (
                                 <th key={c.k} style={{ minWidth: c.w, ...(c.sticky ? { position: 'sticky', left: 0, zIndex: 20, boxShadow: '2px 0 4px -2px rgba(0,0,0,0.06)' } : {}) }}
-                                    className="px-4 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em] border-b border-slate-200 bg-slate-50/90 backdrop-blur-sm whitespace-nowrap">
+                                    className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] border-b border-slate-200 bg-slate-50/70 backdrop-blur whitespace-nowrap">
                                     {c.t}
                                 </th>
                             ))}
@@ -123,7 +123,7 @@ const DataTable = ({ cols, rows, loading, error, empty, page, totalPages, totalI
                             className="h-9 w-9 rounded-md flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                             <ChevronLeft size={14} />
                         </button>
-                        <span className="text-xs font-semibold text-slate-600 px-3">Page <span className="font-bold text-slate-900">{page}</span> of <span className="font-bold text-slate-900">{totalPages}</span></span>
+                        <span className="text-xs font-semibold text-slate-600 px-3">Page <span className="font-semibold text-slate-900">{page}</span> of <span className="font-semibold text-slate-900">{totalPages}</span></span>
                         <button onClick={() => onPage(page + 1)} disabled={page >= totalPages}
                             className="h-9 w-9 rounded-md flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                             <ChevronRight size={14} />
@@ -139,7 +139,7 @@ const Modal = ({ title, onClose, children }) => (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={onClose}>
         <div className="w-full max-w-lg bg-white rounded-xl shadow-xl shadow-slate-900/10 border border-slate-200" onClick={e => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-                <h3 className="text-sm font-bold text-slate-900">{title}</h3>
+                <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
                 <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"><X size={16} /></button>
             </div>
             <div className="p-6 max-h-[60vh] overflow-y-auto">{children}</div>
@@ -187,10 +187,10 @@ const PaymentRequestsView = () => {
     }, [rows, bonusAmounts]);
 
     const cols = useMemo(() => [
-        { k: 'name', t: 'Interviewer', w: 180, sticky: true, r: (r) => <div><p className="font-bold text-slate-900 text-xs">{r.fullName}</p><p className="text-[10px] text-slate-400 font-mono">{r.interviewerId}</p></div> },
-        { k: 'count', t: 'Count', w: 60, r: (r) => <span className="inline-flex px-2 py-0.5 rounded-md bg-slate-50 text-slate-900 text-xs font-bold border border-slate-200">{r.interviewsCompleted}</span> },
+        { k: 'name', t: 'Interviewer', w: 180, sticky: true, r: (r) => <div><p className="font-semibold text-slate-900 text-xs">{r.fullName}</p><p className="text-[10px] text-slate-400 font-mono">{r.interviewerId}</p></div> },
+        { k: 'count', t: 'Count', w: 60, r: (r) => <span className="inline-flex px-2 py-0.5 rounded-md bg-slate-50 text-slate-900 text-xs font-semibold border border-slate-200">{r.interviewsCompleted}</span> },
         { k: 'bonus', t: 'Bonus', w: 100, r: (r) => <BonusCell value={bonusAmounts[r._id]} onChange={e => setBonusAmounts(p => ({ ...p, [r._id]: e.target.value }))} onSave={() => saveBonus(r)} loading={actionLoading[`${r._id}-bonus`]} /> },
-        { k: 'total', t: 'Total', w: 100, r: (r) => <span className="font-bold text-emerald-700 text-xs">{formatCurrency(r.totalAmount + Number(bonusAmounts[r._id] || 0))}</span> },
+        { k: 'total', t: 'Total', w: 100, r: (r) => <span className="font-semibold text-emerald-700 text-xs">{formatCurrency(r.totalAmount + Number(bonusAmounts[r._id] || 0))}</span> },
         { k: 'payStatus', t: 'Pay Status', w: 110, r: (r) => <Badge variant={r.emailSentStatus === 'Sent' ? 'success' : 'gray'}>{r.emailSentStatus}</Badge> },
         { k: 'payAction', t: 'Pay Action', w: 90, r: (r) => <Btn onClick={() => action(r._id, 'email', sendPaymentEmail, { interviewerId: r._id, email: r.email, name: r.fullName, monthYear: startDate.toLocaleString('default', { month: 'long', year: 'numeric' }), payPerInterview: r.paymentAmount, interviewCount: r.interviewsCompleted, totalAmount: r.totalAmount, bonusAmount: Number(bonusAmounts[r._id]||0), startDate: startDate.toISOString(), endDate: endDate.toISOString() }, 'Sent!')} loading={actionLoading[`${r._id}-email`]}>{r.emailSentStatus === 'Sent' ? 'Resend' : 'Send'}</Btn> },
         { k: 'userConf', t: 'User Conf.', w: 110, r: (r) => <Badge variant={r.confirmationStatus === 'Confirmed' ? 'success' : r.confirmationStatus === 'Disputed' ? 'danger' : 'warning'}>{r.confirmationStatus}</Badge> },
@@ -226,9 +226,9 @@ const PaymentRequestsView = () => {
                     </div>
                     {rows.length > 0 && (
                         <div className="flex items-center gap-5 text-xs">
-                            <div className="flex items-center gap-1.5 text-slate-500"><Users size={13} /> <span className="font-bold text-slate-900">{summary.interviewers}</span></div>
-                            <div className="flex items-center gap-1.5 text-slate-500"><TrendingUp size={13} /> <span className="font-bold text-slate-900">{summary.totalInterviews}</span></div>
-                            <div className="flex items-center gap-1.5 text-slate-500"><IndianRupee size={13} /> <span className="font-bold text-emerald-600">{formatCurrency(summary.totalPayout)}</span></div>
+                            <div className="flex items-center gap-1.5 text-slate-500"><Users size={13} /> <span className="font-semibold text-slate-900">{summary.interviewers}</span></div>
+                            <div className="flex items-center gap-1.5 text-slate-500"><TrendingUp size={13} /> <span className="font-semibold text-slate-900">{summary.totalInterviews}</span></div>
+                            <div className="flex items-center gap-1.5 text-slate-500"><IndianRupee size={13} /> <span className="font-semibold text-emerald-600">{formatCurrency(summary.totalPayout)}</span></div>
                         </div>
                     )}
                 </div>
@@ -271,10 +271,10 @@ const PayoutSheetView = () => {
     const cols = useMemo(() => [
         { k: 'id', t: 'Interviewer ID', w: 260, sticky: true, r: (r) => <EditableIDCell row={r} onSave={handleIdSave} /> },
         { k: 'assoc', t: 'Association', w: 160, r: (r) => <span className="font-semibold text-slate-800 text-xs">{r.associationName}</span> },
-        { k: 'act', t: 'Activity', w: 130, r: (r) => <span className="inline-flex px-2 py-0.5 rounded-md bg-slate-50 text-slate-900 text-xs font-bold border border-slate-200">{r.activityName}</span> },
+        { k: 'act', t: 'Activity', w: 130, r: (r) => <span className="inline-flex px-2 py-0.5 rounded-md bg-slate-50 text-slate-900 text-xs font-semibold border border-slate-200">{r.activityName}</span> },
         { k: 'ref', t: 'Ref ID', w: 140, r: (r) => <span className="font-mono text-xs text-slate-500">{r.activityReferenceId}</span> },
         { k: 'date', t: 'Date', w: 150, r: (r) => <span className="text-slate-600 text-xs font-medium">{formatDateTime(r.activityDatetime)}</span> },
-        { k: 'pts', t: 'Points', w: 80, r: (r) => <span className="font-bold text-emerald-600 text-xs">+{r.points}</span> },
+        { k: 'pts', t: 'Points', w: 80, r: (r) => <span className="font-semibold text-emerald-600 text-xs">+{r.points}</span> },
     ], [handleIdSave]);
 
     return (
@@ -321,16 +321,16 @@ const ReportsView = () => {
     const err = (view === 'yearly' ? yErr : mErr) ? 'Failed to load.' : null;
 
     const yCols = useMemo(() => [
-        { k: 'month', t: 'Month', w: 120, r: (r) => <span className="font-bold text-slate-900 text-sm">{months[r.month - 1]}</span> },
-        { k: 'total', t: 'Total Payout', w: 140, r: (r) => <span className="font-mono text-emerald-700 font-bold text-sm">{formatCurrency(r.totalAmount)}</span> },
-        { k: 'interviewers', t: 'Interviewers', w: 120, r: (r) => <span className="inline-flex px-2 py-0.5 bg-slate-100 rounded-md text-xs font-bold text-slate-700">{r.totalInterviewers}</span> },
+        { k: 'month', t: 'Month', w: 120, r: (r) => <span className="font-semibold text-slate-900 text-sm">{months[r.month - 1]}</span> },
+        { k: 'total', t: 'Total Payout', w: 140, r: (r) => <span className="font-mono text-emerald-700 font-semibold text-sm">{formatCurrency(r.totalAmount)}</span> },
+        { k: 'interviewers', t: 'Interviewers', w: 120, r: (r) => <span className="inline-flex px-2 py-0.5 bg-slate-100 rounded-md text-xs font-semibold text-slate-700">{r.totalInterviewers}</span> },
         { k: 'conf', t: 'Confirmations', w: 200, r: (r) => <span className="text-xs text-slate-600 font-medium">{r.receivedCount} Received / {r.pendingCount} Pending</span> },
     ], []);
 
     const mCols = useMemo(() => [
-        { k: 'name', t: 'Name', w: 200, r: (r) => <span className="font-bold text-slate-900 text-sm">{r.interviewerName}</span> },
+        { k: 'name', t: 'Name', w: 200, r: (r) => <span className="font-semibold text-slate-900 text-sm">{r.interviewerName}</span> },
         { k: 'id', t: 'ID', w: 150, r: (r) => <span className="text-xs font-mono text-slate-500">{r.interviewerId}</span> },
-        { k: 'amt', t: 'Amount', w: 140, r: (r) => <span className="font-bold text-emerald-600 text-sm">{formatCurrency(r.monthPayment)}</span> },
+        { k: 'amt', t: 'Amount', w: 140, r: (r) => <span className="font-semibold text-emerald-600 text-sm">{formatCurrency(r.monthPayment)}</span> },
         { k: 'status', t: 'Status', w: 140, r: (r) => <Badge variant={r.confirmationStatus === 'Received' ? 'success' : 'warning'}>{r.confirmationStatus}</Badge> },
     ], []);
 
@@ -344,7 +344,7 @@ const ReportsView = () => {
                                 <ArrowLeft size={16} />
                             </button>
                         )}
-                        <h2 className="text-base font-bold text-slate-900 tracking-tight">
+                        <h2 className="text-base font-semibold text-slate-900 tracking-tight">
                             {view === 'yearly' ? `Earnings ${year}` : `${month?.name} ${year}`}
                         </h2>
                     </div>

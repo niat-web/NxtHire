@@ -26,7 +26,7 @@ const statusColors = {
 };
 
 const InlineStatusBadge = ({ status }) => (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${statusColors[status] || 'bg-slate-100 text-slate-600'}`}>
+    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${statusColors[status] || 'bg-slate-100 text-slate-600'}`}>
         {status}
     </span>
 );
@@ -176,10 +176,10 @@ const Applicants = () => {
                     <table className="min-w-full">
                         <thead>
                             <tr>
-                                <th className="sticky top-0 w-12 px-5 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">#</th>
-                                <th className="sticky top-0 px-5 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Status</th>
-                                <th className="sticky top-0 px-5 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Date & Time</th>
-                                <th className="sticky top-0 px-5 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Notes</th>
+                                <th className="sticky top-0 w-12 px-5 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">#</th>
+                                <th className="sticky top-0 px-5 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">Status</th>
+                                <th className="sticky top-0 px-5 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">Date & Time</th>
+                                <th className="sticky top-0 px-5 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">Notes</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -253,7 +253,7 @@ const Applicants = () => {
                         <tr>
                             {columns.map((col) => (
                                 <th key={col.key} scope="col"
-                                    className={`sticky top-0 px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em] whitespace-nowrap border-b border-slate-200 bg-slate-50/90 backdrop-blur-sm z-10 ${col.sortable ? 'cursor-pointer hover:text-slate-900' : ''}`}
+                                    className={`sticky top-0 px-5 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] whitespace-nowrap border-b border-slate-200 bg-slate-50/70 backdrop-blur z-10 ${col.sortable ? 'cursor-pointer hover:text-slate-900' : ''}`}
                                     style={{ minWidth: col.minWidth }}
                                     onClick={() => col.sortable && handleSort(col.key)}>
                                     <div className="flex items-center gap-1.5">
@@ -298,7 +298,7 @@ const Applicants = () => {
             {totalItems > 15 && (
                 <div className="flex items-center justify-between border-t border-slate-200 bg-white px-6 py-3 flex-shrink-0">
                     <p className="text-xs text-slate-500 font-medium">
-                        Page <span className="font-bold text-slate-900">{pagination.currentPage}</span> of <span className="font-bold text-slate-900">{totalPages}</span>
+                        Page <span className="font-semibold text-slate-900">{pagination.currentPage}</span> of <span className="font-semibold text-slate-900">{totalPages}</span>
                     </p>
                     <div className="flex items-center gap-1.5">
                         <button onClick={() => handlePageChange(pagination.currentPage - 1)} disabled={pagination.currentPage <= 1}

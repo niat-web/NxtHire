@@ -151,7 +151,7 @@ const PaymentDetails = () => {
             {isLoading ? (
               <Skeleton className="h-9 w-24" />
             ) : (
-              <p className="text-3xl font-bold text-gray-900">{fmt(paymentData.totalAmount)}</p>
+              <p className="text-3xl font-semibold text-gray-900">{fmt(paymentData.totalAmount)}</p>
             )}
             <p className="text-xs text-gray-400 mt-1">Gross amount earned</p>
           </div>
@@ -195,7 +195,7 @@ const PaymentDetails = () => {
               {/* Total row */}
               <div className="flex items-center justify-between px-5 py-3.5 bg-gray-50/80">
                 <p className="text-sm font-semibold text-gray-700">Total</p>
-                <p className="text-sm font-bold text-slate-900">{fmt(paymentData.totalAmount)}</p>
+                <p className="text-sm font-semibold text-slate-900">{fmt(paymentData.totalAmount)}</p>
               </div>
             </div>
           ) : (

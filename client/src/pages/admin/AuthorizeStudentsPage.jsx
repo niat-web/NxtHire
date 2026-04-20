@@ -156,9 +156,9 @@ const AuthorizeStudentsPage = () => {
           )}
         </div>
         <div className="flex items-center gap-3 text-[11px]">
-          <span className="text-slate-400">Total <span className="font-bold text-slate-900">{students.length}</span></span>
-          <span className="text-emerald-600">Valid <span className="font-bold">{validCount}</span></span>
-          {invalidCount > 0 && <span className="text-red-500">Invalid <span className="font-bold">{invalidCount}</span></span>}
+          <span className="text-slate-400">Total <span className="font-semibold text-slate-900">{students.length}</span></span>
+          <span className="text-emerald-600">Valid <span className="font-semibold">{validCount}</span></span>
+          {invalidCount > 0 && <span className="text-red-500">Invalid <span className="font-semibold">{invalidCount}</span></span>}
         </div>
       </div>
 
@@ -246,14 +246,14 @@ const AuthorizeStudentsPage = () => {
               <table className="min-w-full">
                 <thead>
                   <tr>
-                    <th className="sticky top-0 w-12 px-3 py-2 text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10" />
-                    <th className="sticky top-0 px-3 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Hiring</th>
-                    <th className="sticky top-0 px-3 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Domain</th>
-                    <th className="sticky top-0 px-3 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">User ID</th>
-                    <th className="sticky top-0 px-3 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Full Name</th>
-                    <th className="sticky top-0 px-3 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Email</th>
-                    <th className="sticky top-0 px-3 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Mobile</th>
-                    <th className="sticky top-0 px-3 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Resume</th>
+                    <th className="sticky top-0 w-12 px-3 py-2 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10" />
+                    <th className="sticky top-0 px-3 py-2 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">Hiring</th>
+                    <th className="sticky top-0 px-3 py-2 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">Domain</th>
+                    <th className="sticky top-0 px-3 py-2 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">User ID</th>
+                    <th className="sticky top-0 px-3 py-2 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">Full Name</th>
+                    <th className="sticky top-0 px-3 py-2 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">Email</th>
+                    <th className="sticky top-0 px-3 py-2 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">Mobile</th>
+                    <th className="sticky top-0 px-3 py-2 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">Resume</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">

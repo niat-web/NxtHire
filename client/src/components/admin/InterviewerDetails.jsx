@@ -19,7 +19,7 @@ const getStatusBadgeClass = (status) => {
 };
 
 const InlineStatusBadge = ({ status }) => (
-  <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${getStatusBadgeClass(status)}`}>
+  <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${getStatusBadgeClass(status)}`}>
     {status}
   </span>
 );
@@ -114,7 +114,7 @@ const InterviewerDetails = () => {
           <Link to="/admin/interviewers" className="mr-4">
             <ArrowLeft className="h-5 w-5 text-gray-500 hover:text-gray-700" />
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Interviewer Details</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">Interviewer Details</h1>
         </div>
 
         <div className="flex space-x-4">

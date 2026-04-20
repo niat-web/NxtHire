@@ -58,7 +58,7 @@ const SkillCategorization = ({ applicant, skillAssessment, onCategorizeComplete 
       {/* --- Profile Header --- */}
       <div className="mb-10">
         <div className="flex items-start justify-between">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">{applicant.fullName}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-900">{applicant.fullName}</h1>
           <StatusBadge status={applicant.status} />
         </div>
         <div className="mt-3 flex items-center flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">

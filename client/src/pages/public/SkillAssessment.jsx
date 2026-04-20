@@ -148,14 +148,14 @@ const SkillAssessment = () => {
     return (
       <div className="h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md text-center p-8">
-          <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="w-7 h-7 text-red-600" />
-          </div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-sm text-gray-500 mb-6">{error}</p>
+          <span className="inline-flex items-center justify-center h-14 w-14 rounded-full border border-red-200 bg-white text-red-600 mx-auto mb-5">
+            <AlertCircle className="h-6 w-6" aria-hidden="true" />
+          </span>
+          <h2 className="font-display text-[26px] font-semibold text-slate-900 tracking-tight mb-2">Access denied.</h2>
+          <p className="text-[13.5px] text-slate-500 mb-6 leading-relaxed">{error}</p>
           <Button onClick={() => navigate('/')}
-            className="px-5 h-10 bg-slate-900 text-white text-sm font-medium rounded-md hover:bg-black transition-colors">
-            Return Home
+            className="px-5 h-10 bg-slate-900 text-white text-[13px] font-semibold rounded-full hover:bg-[#FF4800] transition-colors">
+            Return home
           </Button>
         </div>
       </div>
@@ -232,8 +232,8 @@ const SkillAssessment = () => {
             {step === 1 && (
               <div>
                 <div className="mb-8">
-                  <h2 className="text-xl font-semibold text-gray-900">Professional Background</h2>
-                  <p className="text-sm text-gray-500 mt-1">Tell us about your current role and experience</p>
+                  <h2 className="font-display text-[26px] font-semibold text-slate-900 tracking-tight leading-none">Professional background</h2>
+                  <p className="text-[13.5px] text-slate-500 mt-2">Tell us about your current role and experience.</p>
                 </div>
 
                 <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-5">
@@ -302,8 +302,8 @@ const SkillAssessment = () => {
               <div className="flex-1 flex flex-col">
                 <div className="mb-4 flex items-start justify-between shrink-0">
                   <div>
-                    <h2 className="text-xl font-semibold text-gray-900">Technical Expertise</h2>
-                    <p className="text-sm text-gray-500 mt-1">Select the technologies you're proficient in</p>
+                    <h2 className="font-display text-[26px] font-semibold text-slate-900 tracking-tight leading-none">Technical expertise</h2>
+                    <p className="text-[13.5px] text-slate-500 mt-2">Select the technologies you're proficient in.</p>
                   </div>
                   {totalSelected > 0 && (
                     <span className="px-3 py-1 bg-blue-100 text-slate-900 text-xs font-semibold rounded-full shrink-0">

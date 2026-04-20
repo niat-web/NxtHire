@@ -11,7 +11,7 @@ const InfoBox = ({ children, title, icon }) => (
       <div className="flex items-start">
         <div className="flex-shrink-0 text-blue-500">{icon}</div>
         <div className="ml-3">
-          <h4 className="text-md font-bold text-blue-800">{title}</h4>
+          <h4 className="text-md font-semibold text-blue-800">{title}</h4>
           <div className="mt-1 text-sm text-slate-900 space-y-2">{children}</div>
         </div>
       </div>
@@ -23,7 +23,7 @@ const WarningBox = ({ children, title, icon }) => (
       <div className="flex items-start">
         <div className="flex-shrink-0 text-yellow-500">{icon}</div>
         <div className="ml-3">
-          <h4 className="text-md font-bold text-yellow-800">{title}</h4>
+          <h4 className="text-md font-semibold text-yellow-800">{title}</h4>
           <div className="mt-1 text-sm text-yellow-700 space-y-2">{children}</div>
         </div>
       </div>
@@ -1513,7 +1513,7 @@ const DocsPage = () => {
             <div className="container mx-auto flex flex-col lg:flex-row">
                 {/* Sticky Sidebar */}
                 <aside className="w-full lg:w-1/4 h-auto lg:h-screen lg:sticky top-0 bg-white border-r border-gray-200 p-6 lg:p-8 overflow-y-auto">
-                    <h2 className="text-sm font-bold uppercase text-gray-500 tracking-wider mb-6">Contents</h2>
+                    <h2 className="text-sm font-semibold uppercase text-gray-500 tracking-wider mb-6">Contents</h2>
                     <nav>
                         <ul>
                             {documentationContent.sections.map((section) => (
@@ -1525,7 +1525,7 @@ const DocsPage = () => {
                                             document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth' });
                                         }}
                                         className={`flex items-center text-gray-600 hover:text-slate-900 transition-colors text-sm py-1 rounded-md ${
-                                            activeSection === section.id ? 'font-bold text-slate-900 bg-slate-50' : ''
+                                            activeSection === section.id ? 'font-semibold text-slate-900 bg-slate-50' : ''
                                         }`}
                                     >
                                         {section.icon && <span className="mr-2 opacity-80">{section.icon}</span>}

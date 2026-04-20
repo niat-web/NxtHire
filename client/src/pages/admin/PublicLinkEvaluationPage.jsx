@@ -16,7 +16,7 @@ const StatusBadge = ({ status }) => {
         Completed: 'bg-emerald-50 text-emerald-700', Scheduled: 'bg-amber-50 text-amber-700',
         InProgress: 'bg-slate-50 text-slate-900', Cancelled: 'bg-red-50 text-red-700',
     };
-    return <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${styles[status] || 'bg-slate-100 text-slate-600'}`}>{status || '—'}</span>;
+    return <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${styles[status] || 'bg-slate-100 text-slate-600'}`}>{status || '—'}</span>;
 };
 
 const PublicLinkEvaluationPage = () => {
@@ -155,10 +155,10 @@ const PublicLinkEvaluationPage = () => {
 
             {/* Stats bar */}
             <div className="flex items-center gap-4 px-5 py-2 border-b border-slate-100 shrink-0 text-[11px]">
-                <span className="text-slate-400">Domain: <span className="font-bold text-slate-900">{selectedDomain || '—'}</span></span>
-                <span className="text-slate-400">Candidates: <span className="font-bold text-slate-900">{interviews.length}</span></span>
-                <span className="text-slate-400">Completed: <span className="font-bold text-emerald-600">{interviews.filter(i => i.interviewStatus === 'Completed').length}</span></span>
-                <span className="text-slate-400">Pending: <span className="font-bold text-amber-600">{interviews.filter(i => !i.interviewStatus || i.interviewStatus === 'Scheduled').length}</span></span>
+                <span className="text-slate-400">Domain: <span className="font-semibold text-slate-900">{selectedDomain || '—'}</span></span>
+                <span className="text-slate-400">Candidates: <span className="font-semibold text-slate-900">{interviews.length}</span></span>
+                <span className="text-slate-400">Completed: <span className="font-semibold text-emerald-600">{interviews.filter(i => i.interviewStatus === 'Completed').length}</span></span>
+                <span className="text-slate-400">Pending: <span className="font-semibold text-amber-600">{interviews.filter(i => !i.interviewStatus || i.interviewStatus === 'Scheduled').length}</span></span>
             </div>
 
             {/* Table */}
@@ -202,7 +202,7 @@ const PublicLinkEvaluationPage = () => {
                                     {staticColumns.map(col => (
                                         <th key={col.key}
                                             className={cn(
-                                                'sticky top-0 px-4 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] border-b border-slate-200 bg-slate-50 whitespace-nowrap',
+                                                'sticky top-0 px-4 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] border-b border-slate-200 bg-slate-50 whitespace-nowrap',
                                                 col.isSticky ? 'z-30 bg-slate-50' : 'z-10'
                                             )}
                                             style={{ minWidth: col.minWidth, ...(col.isSticky ? { position: 'sticky', left: 0 } : {}) }}

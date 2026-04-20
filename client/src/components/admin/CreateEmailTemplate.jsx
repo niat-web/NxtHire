@@ -167,7 +167,7 @@ const CreateEmailTemplate = ({ refreshTemplates }) => {
 
                         <div className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-md">
                              <div className="flex justify-between items-center px-4 py-2 border-b border-gray-100 bg-gray-50">
-                                 <label className="text-xs font-bold text-gray-700 uppercase tracking-wide">Content Editor</label>
+                                 <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Content Editor</label>
                                 <div className="flex gap-1 bg-white p-1 rounded-lg border border-gray-200">
                                     <button type="button" onClick={() => setViewMode('editor')} className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${viewMode === 'editor' ? 'bg-gray-900 text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}><Edit /> Edit</button>
                                     <button type="button" onClick={() => setViewMode('preview')} className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${viewMode === 'preview' ? 'bg-gray-900 text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}><Eye /> Preview</button>

@@ -14,9 +14,9 @@ const EmailStep = ({ onSubmit, register, errors, isSubmitting }) => (
 
         <div className="flex-1 flex items-center justify-center px-4 py-10">
             <div className="w-full max-w-[380px]">
-                <div className="text-center mb-6">
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Book Your Interview</h1>
-                    <p className="text-sm text-slate-500 mt-1.5">Verify your email to see available time slots</p>
+                <div className="text-center mb-7">
+                    <h1 className="font-display text-[30px] font-semibold text-slate-900 tracking-tight leading-none">Book your interview.</h1>
+                    <p className="text-[13.5px] text-slate-500 mt-2">Verify your email to see available time slots.</p>
                 </div>
 
                 <form onSubmit={onSubmit} className="space-y-4">
@@ -95,7 +95,7 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                     mobileView === 'details' ? 'flex' : 'hidden lg:flex'
                 )}>
                     <div className="flex-1 p-5 sm:p-6 overflow-y-auto">
-                        <h2 className="text-lg font-bold text-slate-900 mb-0.5">Your Details</h2>
+                        <h2 className="text-lg font-semibold text-slate-900 mb-0.5">Your Details</h2>
                         <p className="text-xs text-slate-400 mb-6">We need a few details to confirm your booking</p>
 
                         <div className="space-y-5">
@@ -151,7 +151,7 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                     mobileView === 'slots' ? 'flex' : 'hidden lg:flex'
                 )}>
                     <div className="p-5 sm:p-6 border-b border-slate-100 shrink-0 bg-white">
-                        <h2 className="text-lg font-bold text-slate-900">Choose a Time Slot</h2>
+                        <h2 className="text-lg font-semibold text-slate-900">Choose a Time Slot</h2>
                         <p className="text-xs text-slate-400 mt-0.5">{totalSlots} slot{totalSlots !== 1 ? 's' : ''} available</p>
                     </div>
 
@@ -235,11 +235,11 @@ const ConfirmationStep = ({ step, bookingDetails }) => (
                 <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto mb-5">
                     <CheckCircle size={28} className="text-emerald-600" />
                 </div>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-                    {step === 'already_booked' ? 'Already Booked' : 'You\'re All Set!'}
+                <h1 className="font-display text-[30px] font-semibold text-slate-900 tracking-tight leading-none">
+                    {step === 'already_booked' ? 'Already booked.' : "You're all set."}
                 </h1>
-                <p className="text-sm text-slate-500 mt-1.5">
-                    A confirmation email with meeting details has been sent to you shortly.
+                <p className="text-[13.5px] text-slate-500 mt-2 leading-relaxed">
+                    A confirmation email with meeting details has been sent to you.
                 </p>
 
                 {bookingDetails && (
@@ -335,7 +335,7 @@ const PublicBookingPage = () => {
                     <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-4">
                         <AlertTriangle size={24} className="text-red-500" />
                     </div>
-                    <h2 className="text-xl font-bold text-slate-900 mb-1">Something went wrong</h2>
+                    <h2 className="text-xl font-semibold text-slate-900 mb-1">Something went wrong</h2>
                     <p className="text-sm text-slate-500">{pageError}</p>
                     <button onClick={() => { setPageError(null); }} className="mt-5 inline-flex items-center gap-2 h-10 px-5 text-sm font-medium text-white bg-slate-900 rounded-xl hover:bg-[#FF4800] transition-colors">
                         Try Again

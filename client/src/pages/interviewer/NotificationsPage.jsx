@@ -80,9 +80,9 @@ const InterviewerNotificationsPage = () => {
 
   return (
     <div className="p-6 max-w-2xl">
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-gray-900">Notifications</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Control which notifications you receive</p>
+      <div className="mb-8">
+        <h1 className="font-display text-[28px] font-semibold text-slate-900 tracking-tight leading-none">Notifications</h1>
+        <p className="text-[13.5px] text-slate-500 mt-2">Control which notifications you receive.</p>
       </div>
 
       {saving && (

@@ -23,7 +23,7 @@ const InlineBadge = ({ variant = 'primary', children }) => {
         info: 'bg-sky-50 text-sky-700 border-sky-100',
     };
     return (
-        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide border ${colorMap[variant] || colorMap.primary}`}>
+        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide border ${colorMap[variant] || colorMap.primary}`}>
             {children}
         </span>
     );
@@ -73,16 +73,16 @@ const GuidelinesDetailView = ({ guideline, onBack }) => {
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-5 text-[12px]">
                         <div className="text-center">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Score</p>
-                            <p className="text-lg font-bold text-slate-900">{guideline.score}%</p>
+                            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Score</p>
+                            <p className="font-display text-[20px] font-semibold text-slate-900 tracking-tight">{guideline.score}%</p>
                         </div>
                         <div className="text-center">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Correct</p>
-                            <p className="text-lg font-bold text-slate-900">{correctCount}/{answers.length}</p>
+                            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Correct</p>
+                            <p className="font-display text-[20px] font-semibold text-slate-900 tracking-tight">{correctCount}/{answers.length}</p>
                         </div>
                         <div className="text-center">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Time</p>
-                            <p className="text-lg font-bold text-slate-900">{guideline.completionTime}s</p>
+                            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Time</p>
+                            <p className="font-display text-[20px] font-semibold text-slate-900 tracking-tight">{guideline.completionTime}s</p>
                         </div>
                     </div>
                     <InlineBadge variant={guideline.passed ? 'success' : 'danger'}>
@@ -96,10 +96,10 @@ const GuidelinesDetailView = ({ guideline, onBack }) => {
                 <table className="min-w-full">
                     <thead>
                         <tr>
-                            <th className="sticky top-0 w-12 px-4 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">#</th>
-                            <th className="sticky top-0 px-4 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Question</th>
-                            <th className="sticky top-0 px-4 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Selected Option</th>
-                            <th className="sticky top-0 w-20 px-4 py-2.5 text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Correct</th>
+                            <th className="sticky top-0 w-12 px-4 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">#</th>
+                            <th className="sticky top-0 px-4 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">Question</th>
+                            <th className="sticky top-0 px-4 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">Selected Option</th>
+                            <th className="sticky top-0 w-20 px-4 py-2.5 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] bg-slate-50 border-b border-slate-200 z-10">Correct</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -236,13 +236,13 @@ const Guidelines = () => {
                     <table className="min-w-full">
                         <thead>
                             <tr>
-                                <th className="sticky top-0 px-5 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] border-b border-slate-100 bg-slate-50/80 z-10">Applicant</th>
-                                <th className="sticky top-0 px-5 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] border-b border-slate-100 bg-slate-50/80 z-10">Domain(s)</th>
-                                <th className="sticky top-0 px-5 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] border-b border-slate-100 bg-slate-50/80 z-10">Score</th>
-                                <th className="sticky top-0 px-5 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] border-b border-slate-100 bg-slate-50/80 z-10">Result</th>
-                                <th className="sticky top-0 px-5 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] border-b border-slate-100 bg-slate-50/80 z-10">Status</th>
-                                <th className="sticky top-0 px-5 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] border-b border-slate-100 bg-slate-50/80 z-10" style={{minWidth:'180px'}}>Submitted</th>
-                                <th className="sticky top-0 px-5 py-2.5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] border-b border-slate-100 bg-slate-50/80 z-10">Actions</th>
+                                <th className="sticky top-0 px-5 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] border-b border-slate-100 bg-slate-50/80 z-10">Applicant</th>
+                                <th className="sticky top-0 px-5 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] border-b border-slate-100 bg-slate-50/80 z-10">Domain(s)</th>
+                                <th className="sticky top-0 px-5 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] border-b border-slate-100 bg-slate-50/80 z-10">Score</th>
+                                <th className="sticky top-0 px-5 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] border-b border-slate-100 bg-slate-50/80 z-10">Result</th>
+                                <th className="sticky top-0 px-5 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] border-b border-slate-100 bg-slate-50/80 z-10">Status</th>
+                                <th className="sticky top-0 px-5 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] border-b border-slate-100 bg-slate-50/80 z-10" style={{minWidth:'180px'}}>Submitted</th>
+                                <th className="sticky top-0 px-5 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] border-b border-slate-100 bg-slate-50/80 z-10">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
