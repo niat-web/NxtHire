@@ -17,17 +17,20 @@ import { formatDate, formatTime, formatDateTime } from '@/utils/formatters';
 import { Button } from '@/components/ui/button';
 import Loader from '@/components/common/Loader';
 
+const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
+const ACCENT = '#FF4800';
+
 // --- SELF-CONTAINED UI COMPONENTS ---
 
 const LocalSearchInput = ({ value, onChange, placeholder }) => (
     <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
         <input
             type="text"
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-gray-400 text-sm transition-all"
+            className="w-full pl-10 pr-4 h-9 bg-white border border-slate-200 rounded-full text-[13px] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors"
         />
     </div>
 );
@@ -39,34 +42,36 @@ const LocalLoader = () => (
 );
 
 const LocalEmptyState = ({ message, icon: Icon }) => (
-    <div className="text-center py-20 text-gray-500">
-        <Icon className="mx-auto h-10 w-10 text-gray-400 mb-2" />
-        <h3 className="font-semibold text-gray-700">No Data Found</h3>
-        <p className="text-sm">{message}</p>
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+        <span className="inline-flex items-center justify-center h-12 w-12 rounded-full border border-slate-200 bg-white text-slate-400 mb-4">
+            <Icon className="h-5 w-5" aria-hidden="true" />
+        </span>
+        <h3 style={DISPLAY} className="text-[20px] font-semibold text-slate-900 tracking-tight">No data found</h3>
+        <p className="mt-1 text-[13px] text-slate-500 max-w-sm">{message}</p>
     </div>
 );
 
 const LocalTable = ({ columns, data, isLoading, emptyMessage, emptyIcon }) => (
-    <table className="min-w-full bg-white divide-y divide-gray-200">
+    <table className="min-w-full bg-white text-[13px]">
         <thead>
             <tr>
                 {columns.map(col => (
-                    <th key={col.key} scope="col" className="sticky top-0 px-4 py-2.5 text-left text-[10px] font-bold text-slate-500 uppercase tracking-[0.1em] border-b border-slate-200 bg-slate-50 z-10" style={{ minWidth: col.minWidth }}>
+                    <th key={col.key} scope="col" className="sticky top-0 px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] border-b border-slate-200 bg-slate-50/70 backdrop-blur z-10" style={{ minWidth: col.minWidth }}>
                         {col.title}
                     </th>
                 ))}
             </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200">
+        <tbody className="divide-y divide-slate-100">
             {isLoading ? (
                 <tr><td colSpan={columns.length}><LocalLoader /></td></tr>
             ) : data.length === 0 ? (
                 <tr><td colSpan={columns.length}><LocalEmptyState message={emptyMessage} icon={emptyIcon} /></td></tr>
             ) : (
                 data.map((row, rowIndex) => (
-                    <tr key={row._id || rowIndex} className="hover:bg-gray-50 transition-colors">
+                    <tr key={row._id || rowIndex} className="hover:bg-slate-50/60 transition-colors">
                         {columns.map(col => (
-                            <td key={col.key} className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 align-middle">
+                            <td key={col.key} className="px-4 py-2.5 whitespace-nowrap text-slate-700 align-middle">
                                 {col.render ? col.render(row, rowIndex) : row[col.key]}
                             </td>
                         ))}
@@ -87,7 +92,52 @@ const PaginationControls = ({ currentPage, totalPages, onPageChange, totalItems,
     if (totalPages <= maxVisiblePages) { for (let i = 1; i <= totalPages; i++) pageButtons.push(i); } else { pageButtons.push(1); if (currentPage > 3) pageButtons.push('...'); let startPage = Math.max(2, currentPage - 1); let endPage = Math.min(totalPages - 1, currentPage + 1); if (currentPage <= 2) { startPage = 2; endPage = 3; } if (currentPage >= totalPages - 1) { startPage = totalPages - 2; endPage = totalPages - 1; } for (let i = startPage; i <= endPage; i++) { if (!pageButtons.includes(i)) pageButtons.push(i); } if (currentPage < totalPages - 2) pageButtons.push('...'); if (!pageButtons.includes(totalPages)) pageButtons.push(totalPages); }
     let finalCleanedButtons = pageButtons.filter((item, index) => item !== '...' || pageButtons[index - 1] !== '...');
 
-    return (<div className="flex items-center justify-between p-4 border-t border-gray-200 bg-white flex-shrink-0"><div className="flex items-center space-x-2 text-sm text-gray-700"><span>Rows per page</span><select value={itemsPerPage} onChange={onItemsPerPageChange} className="bg-white border border-gray-300 rounded-lg px-2 py-1 text-gray-800">{[15, 20, 50, 100].map(size => (<option key={size} value={size}>{size}</option>))}</select></div><div className="text-sm text-gray-700">{`${showingFrom}-${showingTo} of ${totalItems} rows`}</div><div className="flex items-center space-x-1"><Button variant="ghost" size="icon" onClick={() => onPageChange(1)} disabled={currentPage === 1} className="h-8 w-8"><ChevronsLeft size={16} /></Button><Button variant="ghost" size="icon" onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1} className="h-8 w-8"><ChevronLeft size={16} /></Button><div className="flex -space-x-px">{finalCleanedButtons.map((pageNum, index) => { if (pageNum === '...') return <span key={`ellipsis-${index}`} className="px-3 py-1 text-gray-500">...</span>; return (<Button key={pageNum} variant={currentPage === pageNum ? "default" : "ghost"} onClick={() => onPageChange(pageNum)} size="sm" className="!px-3">{pageNum}</Button>); })}</div><Button variant="ghost" size="icon" onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages} className="h-8 w-8"><ChevronRight size={16} /></Button><Button variant="ghost" size="icon" onClick={() => onPageChange(totalPages)} disabled={currentPage === totalPages} className="h-8 w-8"><ChevronsRight size={16} /></Button></div></div>);
+    return (
+        <div className="flex items-center justify-between px-6 lg:px-8 py-3 border-t border-slate-200 bg-white flex-shrink-0">
+            <div className="flex items-center gap-2 text-[12px] text-slate-500">
+                <span>Rows</span>
+                <div className="relative">
+                    <select value={itemsPerPage} onChange={onItemsPerPageChange}
+                        className="appearance-none h-8 pl-3 pr-7 bg-white border border-slate-200 rounded-full text-[12px] text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors">
+                        {[15, 20, 50, 100].map(size => (<option key={size} value={size}>{size}</option>))}
+                    </select>
+                </div>
+            </div>
+            <p className="text-[12px] text-slate-500">
+                <span className="font-semibold text-slate-900">{showingFrom}</span>–<span className="font-semibold text-slate-900">{showingTo}</span> of <span className="font-semibold text-slate-900">{totalItems}</span>
+            </p>
+            <div className="flex items-center gap-1">
+                <button aria-label="First page" onClick={() => onPageChange(1)} disabled={currentPage === 1}
+                    className="h-8 w-8 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors">
+                    <ChevronsLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                </button>
+                <button aria-label="Previous page" onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1}
+                    className="h-8 w-8 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors">
+                    <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                </button>
+                <div className="flex items-center gap-0.5 mx-1">
+                    {finalCleanedButtons.map((pageNum, index) => {
+                        if (pageNum === '...') return <span key={`ellipsis-${index}`} className="px-1.5 text-[12px] text-slate-400">…</span>;
+                        const active = currentPage === pageNum;
+                        return (
+                            <button key={pageNum} onClick={() => onPageChange(pageNum)}
+                                className={`h-8 min-w-[32px] px-2.5 rounded-full text-[12px] font-semibold transition-colors ${active ? 'text-white bg-slate-900' : 'text-slate-700 border border-slate-200 bg-white hover:border-slate-900 hover:text-slate-900'}`}>
+                                {pageNum}
+                            </button>
+                        );
+                    })}
+                </div>
+                <button aria-label="Next page" onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages}
+                    className="h-8 w-8 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors">
+                    <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </button>
+                <button aria-label="Last page" onClick={() => onPageChange(totalPages)} disabled={currentPage === totalPages}
+                    className="h-8 w-8 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors">
+                    <ChevronsRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </button>
+            </div>
+        </div>
+    );
 };
 
 const EditableDomainCell = ({ booking, domainOptions, onSave }) => {
@@ -96,7 +146,14 @@ const EditableDomainCell = ({ booking, domainOptions, onSave }) => {
     const [isLoading, setIsLoading] = useState(false);
     useEffect(() => { setCurrentValue(booking.domain || ''); }, [booking.domain]);
     const handleSave = async (newDomain) => { if (newDomain === currentValue) return; setIsLoading(true); setCurrentValue(newDomain); try { await updateStudentBooking(booking._id, { domain: newDomain }); onSave(booking._id, 'domain', newDomain); showSuccess("Domain updated successfully."); } catch (err) { showError("Failed to update domain."); setCurrentValue(booking.domain || ''); } finally { setIsLoading(false); } };
-    return (<select value={currentValue} onChange={(e) => handleSave(e.target.value)} disabled={isLoading} className={`w-full text-xs font-semibold px-2 py-1.5 border rounded-lg shadow-sm focus:outline-none focus:ring-1 transition-colors cursor-pointer bg-gray-50 hover:bg-gray-100 ${isLoading ? 'opacity-50' : ''}`} onClick={(e) => e.stopPropagation()}><option value="" disabled>Select Domain</option>{domainOptions.map(opt => (opt.value && <option key={opt.value} value={opt.value}>{opt.label}</option>))}</select>);
+    return (
+        <select value={currentValue} onChange={(e) => handleSave(e.target.value)} disabled={isLoading}
+            className={`w-full text-[12px] font-semibold px-3 h-8 border border-slate-200 rounded-full bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 cursor-pointer transition-colors ${isLoading ? 'opacity-50' : ''}`}
+            onClick={(e) => e.stopPropagation()}>
+            <option value="" disabled>Select domain</option>
+            {domainOptions.map(opt => (opt.value && <option key={opt.value} value={opt.value}>{opt.label}</option>))}
+        </select>
+    );
 };
 
 const EditableHostEmail = ({ booking, hostEmails, onSave }) => {
@@ -104,7 +161,12 @@ const EditableHostEmail = ({ booking, hostEmails, onSave }) => {
     const [isLoading, setIsLoading] = useState(false);
     const { showSuccess, showError } = useAlert();
     const options = hostEmails.map(email => ({ label: email, value: email }));
-    const selectStyles = { menuPortal: base => ({ ...base, zIndex: 9999 }), control: (base) => ({ ...base, fontSize: '0.875rem', minHeight: '38px' }), menu: base => ({ ...base, fontSize: '0.875rem' }) };
+    const selectStyles = {
+        menuPortal: base => ({ ...base, zIndex: 9999 }),
+        control: (base, s) => ({ ...base, fontSize: '13px', minHeight: '34px', borderRadius: '9999px', borderColor: s.isFocused ? '#0f172a' : '#e2e8f0', boxShadow: s.isFocused ? '0 0 0 2px rgba(15,23,42,0.1)' : 'none', '&:hover': { borderColor: '#0f172a' } }),
+        menu: base => ({ ...base, fontSize: '13px', borderRadius: '16px', overflow: 'hidden' }),
+        option: (base, s) => ({ ...base, backgroundColor: s.isSelected ? '#0f172a' : s.isFocused ? '#f8fafc' : 'white', color: s.isSelected ? 'white' : '#0f172a' }),
+    };
     
     useEffect(() => {
         setValue(booking.hostEmail ? { label: booking.hostEmail, value: booking.hostEmail } : null);
@@ -157,7 +219,10 @@ const EditableInputCell = ({ booking, fieldKey, value, onSave, placeholder = "Ed
             setCurrentValue(originalValue);
         } finally { setIsLoading(false); }
     };
-    return (<input type="text" value={currentValue} onChange={(e) => setCurrentValue(e.target.value)} onBlur={handleSave} disabled={isLoading} placeholder={placeholder} className="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-900 text-sm disabled:bg-gray-100" />);
+    return (
+        <input type="text" value={currentValue} onChange={(e) => setCurrentValue(e.target.value)} onBlur={handleSave} disabled={isLoading} placeholder={placeholder}
+            className="w-full h-9 px-4 border border-slate-200 rounded-full bg-white text-[13px] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 disabled:bg-slate-50 transition-colors" />
+    );
 };
 
 const MeetLinkCell = ({ booking, onLinkGenerated }) => {
@@ -179,11 +244,15 @@ const MeetLinkCell = ({ booking, onLinkGenerated }) => {
 
 const StatusBadge = ({ status }) => {
     const statusMap = {
-        Booked: { text: 'Booked', icon: CheckCircle, color: 'bg-green-100 text-green-800' },
-        Pending: { text: 'Pending', icon: Clock, color: 'bg-yellow-100 text-yellow-800' },
+        Booked:  { text: 'Booked',  Icon: CheckCircle, cls: 'border-emerald-200 bg-emerald-50/60 text-emerald-700' },
+        Pending: { text: 'Pending', Icon: Clock,       cls: 'border-amber-200 bg-amber-50/60 text-amber-800' },
     };
-    const { text, icon: Icon, color } = statusMap[status] || {};
-    return (<span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${color}`}><Icon className="h-3.5 w-3.5" /> {text}</span>);
+    const { text, Icon, cls } = statusMap[status] || { text: status, Icon: Clock, cls: 'border-slate-200 bg-slate-50 text-slate-600' };
+    return (
+        <span className={`inline-flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-wide px-2.5 py-0.5 rounded-full border ${cls}`}>
+            <Icon className="h-3 w-3" aria-hidden="true" /> {text}
+        </span>
+    );
 };
 
 const ManualBookingControls = ({ row, onBooking, publicBookingDetails, onInterviewerSelect }) => {
@@ -251,12 +320,14 @@ const ManualBookingControls = ({ row, onBooking, publicBookingDetails, onIntervi
 
     return (
         <div className="flex items-center gap-2">
-            <select value={bookingState.date} onChange={e => setBookingState({ date: e.target.value, slot: '' })} className="p-2 border border-gray-300 rounded-lg text-sm w-36">
-                <option value="">Select Date</option>
+            <select value={bookingState.date} onChange={e => setBookingState({ date: e.target.value, slot: '' })}
+                className="h-9 px-3 border border-slate-200 rounded-full text-[12.5px] text-slate-700 bg-white w-36 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors">
+                <option value="">Select date</option>
                 {availableDates.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
             </select>
-            <select value={bookingState.slot} onChange={handleSlotChange} disabled={!bookingState.date} className="p-2 border border-gray-300 rounded-lg text-sm w-48">
-                <option value="">Select Time & Interviewer</option>
+            <select value={bookingState.slot} onChange={handleSlotChange} disabled={!bookingState.date}
+                className="h-9 px-3 border border-slate-200 rounded-full text-[12.5px] text-slate-700 bg-white w-52 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 disabled:bg-slate-50 transition-colors">
+                <option value="">Select time & interviewer</option>
                 {availableSlotsAndInterviewers.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
             <Button variant="default" onClick={handleSave} isLoading={isLoading} disabled={!canBook}>Book</Button>
@@ -402,65 +473,102 @@ const ConfirmedSlotsView = () => {
     ], [publicBookingDetailsCache, handleCellSave, handleManualBooking, hostEmails]);
 
     return (
-       <div className="h-full flex flex-col">
-            {/* Header with search, filter, and tabs */}
-            <div className="bg-white border-b border-gray-200 shrink-0 shadow-sm">
-                <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex-1 max-w-sm"><LocalSearchInput value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search students..."/></div>
-                    <div className="relative" ref={filterMenuRef}>
-                        <Button variant="outline" size="sm" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} className="rounded-lg">
-                            <Filter className="h-3.5 w-3.5 mr-1.5" /> Filter
-                            {isFilterActive && (
-                                <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-1.5 p-0.5 rounded-full hover:bg-gray-200">
-                                    <X className="h-3 w-3 text-gray-500" />
-                                </span>
+       <div className="h-full flex flex-col bg-[#FAFAF9]">
+            {/* Hero + toolbar + tabs — one slab */}
+            <section className="bg-white border-b border-slate-200 shrink-0">
+                <div className="px-6 lg:px-8 pt-5 pb-3">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <h1 style={DISPLAY} className="text-[26px] sm:text-[30px] font-semibold text-slate-900 tracking-tight leading-none">
+                                Confirmed slots
+                            </h1>
+                            <p className="mt-2 text-[13px] text-slate-500">
+                                {confirmedBookings.length} confirmed · {pendingInvitations.length} pending
+                            </p>
+                        </div>
+
+                        {/* Search + filter aligned top-right */}
+                        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                            <div className="w-full sm:w-72"><LocalSearchInput value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search name, email, domain, interviewer…"/></div>
+                            <div className="relative" ref={filterMenuRef}>
+                                <button onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
+                                    className={`h-9 inline-flex items-center gap-2 px-4 text-[13px] font-semibold rounded-full border transition-colors ${isFilterActive ? 'border-slate-900 bg-slate-900 text-white hover:bg-[#FF4800] hover:border-[#FF4800]' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-900 hover:text-slate-900'}`}>
+                                    <Filter className="h-3.5 w-3.5" aria-hidden="true" /> Filter
+                                    {isFilterActive && (
+                                        <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-0.5 p-0.5 rounded-full hover:bg-white/15" role="button" aria-label="Clear filters">
+                                            <X className="h-3 w-3 text-white" aria-hidden="true" />
+                                        </span>
+                                    )}
+                                </button>
+                            {isFilterMenuOpen && (
+                                <div className="absolute top-full right-0 mt-2 w-[480px] bg-white rounded-2xl shadow-xl border border-slate-200 z-50 p-5">
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-2">Interview date</label>
+                                                <DatePicker selected={tempFilters.date} onChange={(date) => setTempFilters(prev => ({ ...prev, date }))} isClearable placeholderText="Select a date"
+                                                    portalId="datepicker-portal" popperClassName="!z-[10000]" popperProps={{ strategy: 'fixed' }}
+                                                    className="w-full h-10 px-4 border border-slate-200 rounded-full bg-white text-[13px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-2">Invited on</label>
+                                                <DatePicker selected={tempFilters.invitedOnDate} onChange={(date) => setTempFilters(prev => ({ ...prev, invitedOnDate: date }))} isClearable placeholderText="Select a date"
+                                                    portalId="datepicker-portal" popperClassName="!z-[10000]" popperProps={{ strategy: 'fixed' }}
+                                                    className="w-full h-10 px-4 border border-slate-200 rounded-full bg-white text-[13px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-2">Domain</label>
+                                            <select value={tempFilters.domain} onChange={(e) => setTempFilters(prev => ({...prev, domain: e.target.value}))}
+                                                className="w-full h-10 px-4 border border-slate-200 rounded-full bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 cursor-pointer transition-colors">
+                                                {domainOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-2">Public ID</label>
+                                            <Select options={publicBookingOptions} value={publicBookingOptions.find(opt => opt.value === tempFilters.publicId) || null}
+                                                onChange={(selectedOption) => setTempFilters(prev => ({ ...prev, publicId: selectedOption ? selectedOption.value : '' }))}
+                                                isClearable isSearchable placeholder="Search or select…"
+                                                styles={{
+                                                    menuPortal: base => ({ ...base, zIndex: 9999 }),
+                                                    control: (base, s) => ({ ...base, fontSize: '13px', minHeight: '40px', borderRadius: '9999px', borderColor: s.isFocused ? '#0f172a' : '#e2e8f0', boxShadow: s.isFocused ? '0 0 0 2px rgba(15,23,42,0.1)' : 'none', '&:hover': { borderColor: '#0f172a' } }),
+                                                    menu: base => ({ ...base, fontSize: '13px', borderRadius: '16px', overflow: 'hidden' }),
+                                                    option: (base, s) => ({ ...base, backgroundColor: s.isSelected ? '#0f172a' : s.isFocused ? '#f8fafc' : 'white', color: s.isSelected ? 'white' : '#0f172a' }),
+                                                }}
+                                                menuPortalTarget={document.body} menuPosition={'fixed'} />
+                                        </div>
+                                    </div>
+                                    <div className="mt-5 pt-4 border-t border-slate-100 flex justify-end gap-2">
+                                        <button onClick={handleClearFilters} className="h-9 px-4 text-[12px] font-semibold text-slate-700 rounded-full border border-slate-200 hover:border-slate-900 hover:text-slate-900 transition-colors">Clear</button>
+                                        <button onClick={handleApplyFilters} className="h-9 px-4 text-[12px] font-semibold text-white rounded-full bg-slate-900 hover:bg-[#FF4800] transition-colors">Apply</button>
+                                    </div>
+                                </div>
                             )}
-                        </Button>
-                        {isFilterMenuOpen && (
-                            <div className="absolute top-full right-0 mt-2 w-[480px] bg-white rounded-xl shadow-xl border border-gray-100 z-50 p-5">
-                                <div className="space-y-4">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">Interview Date</label>
-                                            <DatePicker selected={tempFilters.date} onChange={(date) => setTempFilters(prev => ({ ...prev, date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">Invited On Date</label>
-                                            <DatePicker selected={tempFilters.invitedOnDate} onChange={(date) => setTempFilters(prev => ({ ...prev, invitedOnDate: date }))} isClearable placeholderText="Select a date" className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20" />
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">Domain</label>
-                                        <select value={tempFilters.domain} onChange={(e) => setTempFilters(prev => ({...prev, domain: e.target.value}))} className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900/20 text-sm bg-white">
-                                            {domainOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">Public ID</label>
-                                        <Select options={publicBookingOptions} value={publicBookingOptions.find(opt => opt.value === tempFilters.publicId) || null} onChange={(selectedOption) => setTempFilters(prev => ({ ...prev, publicId: selectedOption ? selectedOption.value : '' }))} isClearable isSearchable placeholder="Search or select..." styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }), control: base => ({...base, fontSize: '0.875rem', borderRadius: '0.5rem', borderColor: '#e5e7eb'}), menu: base => ({...base, fontSize: '0.875rem'})}} menuPortalTarget={document.body} menuPosition={'fixed'} />
-                                    </div>
-                                </div>
-                                <div className="mt-5 pt-4 border-t border-gray-100 flex justify-end gap-2">
-                                    <Button variant="outline" size="sm" onClick={handleClearFilters}>Clear</Button>
-                                    <Button size="sm" onClick={handleApplyFilters}>Apply Filters</Button>
-                                </div>
                             </div>
-                        )}
+                        </div>
                     </div>
                 </div>
 
                 {/* Tabs */}
-                <div className="px-6">
+                <div className="px-6 lg:px-8">
                     <nav className="-mb-px flex space-x-6">
-                        <button onClick={() => setActiveTab('confirmed')} className={`whitespace-nowrap py-3 border-b-2 text-sm font-medium transition-colors ${activeTab === 'confirmed' ? 'border-blue-500 text-slate-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
-                            Confirmed <span className={`ml-1.5 py-0.5 px-2 rounded-full text-[10px] font-bold ${activeTab === 'confirmed' ? 'bg-blue-100 text-slate-900' : 'bg-gray-100 text-gray-500'}`}>{confirmedBookings.length}</span>
+                        <button onClick={() => setActiveTab('confirmed')}
+                            className={`whitespace-nowrap py-3 border-b-2 text-[13px] font-semibold transition-colors ${activeTab === 'confirmed' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-900 hover:border-slate-300'}`}>
+                            Confirmed
+                            <span className={`ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10.5px] font-semibold ${activeTab === 'confirmed' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                                {confirmedBookings.length}
+                            </span>
                         </button>
-                        <button onClick={() => setActiveTab('pending')} className={`whitespace-nowrap py-3 border-b-2 text-sm font-medium transition-colors ${activeTab === 'pending' ? 'border-amber-500 text-amber-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
-                            Pending <span className={`ml-1.5 py-0.5 px-2 rounded-full text-[10px] font-bold ${activeTab === 'pending' ? 'bg-amber-100 text-amber-600' : 'bg-gray-100 text-gray-500'}`}>{pendingInvitations.length}</span>
+                        <button onClick={() => setActiveTab('pending')}
+                            className={`whitespace-nowrap py-3 border-b-2 text-[13px] font-semibold transition-colors ${activeTab === 'pending' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-900 hover:border-slate-300'}`}>
+                            Pending
+                            <span className={`ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10.5px] font-semibold ${activeTab === 'pending' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                                {pendingInvitations.length}
+                            </span>
                         </button>
                     </nav>
                 </div>
-            </div>
+            </section>
 
             <div className="flex-grow overflow-hidden flex flex-col">
                 {activeTab === 'confirmed' && (

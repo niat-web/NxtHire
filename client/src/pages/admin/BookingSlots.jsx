@@ -1,4 +1,3 @@
-// client/src/pages/admin/BookingSlots.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
@@ -7,12 +6,15 @@ import { format } from 'date-fns';
 import { createPublicBookingLink, resetBookingSubmission } from '@/api/admin.api';
 import { useBookingSlots, useInterviewers, useInvalidateAdmin } from '@/hooks/useAdminQueries';
 import { useAlert } from '@/hooks/useAlert';
-import { formatDate, formatTime, formatDateTime } from '@/utils/formatters';
-import { Search, Calendar, Link, Trash2, Check, Plus } from 'lucide-react';
+import { formatDate, formatTime } from '@/utils/formatters';
+import { Search, Calendar, Link as LinkIcon, Trash2, Check, Plus, Inbox } from 'lucide-react';
 import Loader from '@/components/common/Loader';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import ManualSlotFormModal from './ManualSlotFormModal';
 import { cn } from '@/lib/utils';
+
+const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
+const ACCENT = '#FF4800';
 
 const BookingSlots = () => {
     const { showSuccess, showError } = useAlert();
@@ -90,112 +92,169 @@ const BookingSlots = () => {
     };
 
     const selectedSlotsCount = Object.values(selectedSlots).reduce((c, item) => c + item.slots.length, 0);
+    const allSelected = slots.length > 0 && slots.every(row => selectedSlots[row.submissionId]?.slots.length === row.timeSlots.length);
 
     return (
-        <div className="h-full flex flex-col bg-white overflow-hidden">
-            {/* Toolbar */}
-            <div className="flex items-center gap-2 px-5 py-2.5 border-b border-slate-200 shrink-0">
-                <div className="relative w-52">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-                    <input type="text" value={searchFilter} onChange={e => setSearchFilter(e.target.value)} placeholder="Search by name or email..."
-                        className="w-full pl-9 pr-3 h-8 bg-slate-50 border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all" />
-                </div>
-                <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 z-10 pointer-events-none" />
-                    <DatePicker selected={dateFilter} onChange={setDateFilter} isClearable placeholderText="Filter by date"
-                        portalId="datepicker-portal" popperClassName="!z-[9999]" popperProps={{ strategy: 'fixed' }}
-                        className="pl-9 pr-3 h-8 bg-white border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 w-36" />
+        <div className="h-full flex flex-col bg-[#FAFAF9] overflow-hidden">
+            {/* Hero + toolbar */}
+            <section className="border-b border-slate-200 bg-white px-6 lg:px-8 pt-5 pb-4 shrink-0">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                        <h1 style={DISPLAY} className="text-[26px] sm:text-[30px] font-semibold text-slate-900 tracking-tight leading-none">
+                            Booking slots
+                        </h1>
+                        <p className="mt-2 text-[13px] text-slate-500">
+                            {slots.length} submitted · pick times and publish a candidate booking link
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                        <button onClick={() => setIsModalOpen(true)}
+                            className="inline-flex h-10 items-center gap-1.5 rounded-full border border-slate-900 px-4 text-[12.5px] font-semibold text-slate-900 transition-colors hover:bg-slate-900 hover:text-white">
+                            <Plus className="h-3.5 w-3.5" aria-hidden="true" /> Add slot manually
+                        </button>
+                        <button onClick={handleCreatePublicLink} disabled={selectedSlotsCount === 0 || isCreatingLink}
+                            className="inline-flex h-10 items-center gap-2 rounded-full bg-slate-900 px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#FF4800] disabled:opacity-40 disabled:cursor-not-allowed">
+                            <LinkIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                            Create link {selectedSlotsCount > 0 && <span className="ml-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-white text-slate-900 text-[10.5px]">{selectedSlotsCount}</span>}
+                        </button>
+                    </div>
                 </div>
 
-                <div className="flex-1" />
-
-                <button onClick={() => setIsModalOpen(true)}
-                    className="inline-flex items-center gap-1.5 h-8 px-3 text-[12px] font-medium text-slate-700 border border-slate-200 rounded-md bg-white hover:bg-slate-50 transition-colors">
-                    <Plus size={13} /> Manual Add Slot
-                </button>
-                <button onClick={handleCreatePublicLink} disabled={selectedSlotsCount === 0 || isCreatingLink}
-                    className="inline-flex items-center gap-1.5 h-8 px-3 text-[12px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] disabled:opacity-40 transition-colors">
-                    <Link size={13} /> Create Link {selectedSlotsCount > 0 && `(${selectedSlotsCount})`}
-                </button>
-            </div>
+                {/* Filter row */}
+                <div className="flex flex-wrap items-center gap-2.5 mt-4">
+                    <div className="relative w-full sm:w-64">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
+                        <input type="text" value={searchFilter} onChange={e => setSearchFilter(e.target.value)} placeholder="Search by name or email"
+                            className="w-full pl-10 pr-3 h-9 bg-white border border-slate-200 rounded-full text-[13px] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors" />
+                    </div>
+                    <div className="relative">
+                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 z-10 pointer-events-none" aria-hidden="true" />
+                        <DatePicker selected={dateFilter} onChange={setDateFilter} isClearable placeholderText="Filter by date"
+                            portalId="datepicker-portal" popperClassName="!z-[9999]" popperProps={{ strategy: 'fixed' }}
+                            className="pl-10 pr-4 h-9 bg-white border border-slate-200 rounded-full text-[13px] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 w-44 transition-colors" />
+                    </div>
+                    {(searchFilter || dateFilter) && (
+                        <button onClick={() => { setSearchFilter(''); setDateFilter(null); }}
+                            className="text-[12px] text-slate-500 hover:text-slate-900 font-medium px-3 h-8 rounded-full hover:bg-slate-100 transition-colors">
+                            Clear
+                        </button>
+                    )}
+                </div>
+            </section>
 
             {/* Table */}
             <div className="flex-1 overflow-auto">
                 {loading ? (
                     <div className="flex items-center justify-center h-64"><Loader size="lg" /></div>
                 ) : slots.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-64 text-slate-400">
-                        <p className="text-sm font-medium text-slate-500">No slots found</p>
-                        <p className="text-[11px] mt-0.5">{searchFilter || dateFilter ? 'Try adjusting your filters.' : ''}</p>
+                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                        <span className="inline-flex items-center justify-center h-12 w-12 rounded-full border border-slate-200 bg-white text-slate-400 mb-4">
+                            <Inbox className="h-5 w-5" aria-hidden="true" />
+                        </span>
+                        <h3 style={DISPLAY} className="text-[20px] font-semibold text-slate-900 tracking-tight">No slots yet</h3>
+                        <p className="mt-1 text-[13px] text-slate-500">{searchFilter || dateFilter ? 'Try adjusting your filters.' : 'Interviewer submissions will appear here.'}</p>
                     </div>
                 ) : (
-                    <table className="min-w-full">
-                        <thead>
-                            <tr>
-                                <th className="sticky top-0 w-10 px-4 py-2 bg-slate-50 border-b border-slate-200 z-10">
-                                    <input type="checkbox"
-                                        checked={slots.length > 0 && slots.every(row => selectedSlots[row.submissionId]?.slots.length === row.timeSlots.length)}
-                                        onChange={e => {
-                                            if (e.target.checked) {
-                                                const all = {};
-                                                slots.forEach(row => { all[row.submissionId] = { interviewerId: row.interviewerId, date: row.interviewDate, slots: row.timeSlots.map(s => ({ startTime: s.startTime, endTime: s.endTime })) }; });
-                                                setSelectedSlots(all);
-                                            } else setSelectedSlots({});
-                                        }}
-                                        className="w-3.5 h-3.5 rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
-                                </th>
-                                <th className="sticky top-0 px-4 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Interviewer</th>
-                                <th className="sticky top-0 px-4 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10 w-28">Date</th>
-                                <th className="sticky top-0 px-4 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Time Slots</th>
-                                <th className="sticky top-0 w-12 px-4 py-2 bg-slate-50 border-b border-slate-200 z-10" />
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                            {slots.map(row => {
-                                const entry = selectedSlots[row.submissionId];
-                                const isAllSelected = entry && entry.slots.length === row.timeSlots.length;
-                                return (
-                                    <tr key={row.submissionId} className="hover:bg-slate-50/60 transition-colors">
-                                        <td className="px-4 py-2.5">
-                                            <input type="checkbox" checked={isAllSelected || false} onChange={() => handleSelectAllForRow(row)}
-                                                className="w-3.5 h-3.5 rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
-                                        </td>
-                                        <td className="px-4 py-2.5">
-                                            <p className="text-[13px] font-medium text-slate-900">{row.fullName}</p>
-                                            <p className="text-[11px] text-slate-400">{row.email}</p>
-                                        </td>
-                                        <td className="px-4 py-2.5 text-[12px] text-slate-600 whitespace-nowrap">{formatDate(row.interviewDate)}</td>
-                                        <td className="px-4 py-2.5">
-                                            <div className="flex flex-wrap gap-1">
-                                                {row.timeSlots.map((slot, idx) => {
-                                                    const isSelected = entry?.slots.some(s => s.startTime === slot.startTime && s.endTime === slot.endTime);
-                                                    return (
-                                                        <button key={idx} type="button" onClick={() => handleSlotSelection(row, slot)}
-                                                            className={cn('inline-flex items-center gap-1 h-6 px-2 text-[10px] font-medium rounded-md border transition-colors',
-                                                                isSelected ? 'bg-slate-50 text-slate-900 border-blue-300' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300')}>
-                                                            {isSelected && <Check size={10} />}
-                                                            {formatTime(slot.startTime)}-{formatTime(slot.endTime)}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-2.5">
-                                            <button onClick={() => setDeleteDialog({ isOpen: true, bookingId: row.bookingId, submissionId: row.submissionId })}
-                                                className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors">
-                                                <Trash2 size={14} />
-                                            </button>
-                                        </td>
+                    <div className="px-6 lg:px-8 py-5">
+                        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                            <table className="min-w-full text-[13px]">
+                                <thead>
+                                    <tr>
+                                        <th className="sticky top-0 w-10 px-4 py-3 bg-slate-50/70 backdrop-blur border-b border-slate-200 z-10">
+                                            <input type="checkbox" aria-label="Select all rows"
+                                                checked={allSelected}
+                                                onChange={e => {
+                                                    if (e.target.checked) {
+                                                        const all = {};
+                                                        slots.forEach(row => { all[row.submissionId] = { interviewerId: row.interviewerId, date: row.interviewDate, slots: row.timeSlots.map(s => ({ startTime: s.startTime, endTime: s.endTime })) }; });
+                                                        setSelectedSlots(all);
+                                                    } else setSelectedSlots({});
+                                                }}
+                                                className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
+                                        </th>
+                                        <th className="sticky top-0 px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] bg-slate-50/70 backdrop-blur border-b border-slate-200 z-10">Interviewer</th>
+                                        <th className="sticky top-0 px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] bg-slate-50/70 backdrop-blur border-b border-slate-200 z-10 w-32">Date</th>
+                                        <th className="sticky top-0 px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] bg-slate-50/70 backdrop-blur border-b border-slate-200 z-10">Time slots</th>
+                                        <th className="sticky top-0 w-12 px-4 py-3 bg-slate-50/70 backdrop-blur border-b border-slate-200 z-10" />
                                     </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {slots.map(row => {
+                                        const entry = selectedSlots[row.submissionId];
+                                        const isAllSelected = entry && entry.slots.length === row.timeSlots.length;
+                                        const selectedCountInRow = entry?.slots.length || 0;
+                                        return (
+                                            <tr key={row.submissionId} className="hover:bg-slate-50/60 transition-colors">
+                                                <td className="px-4 py-3 align-middle">
+                                                    <input type="checkbox" aria-label={`Select all slots for ${row.fullName}`} checked={isAllSelected || false} onChange={() => handleSelectAllForRow(row)}
+                                                        className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
+                                                </td>
+                                                <td className="px-4 py-3 align-middle">
+                                                    <p className="text-[13px] font-semibold text-slate-900">{row.fullName}</p>
+                                                    <p className="text-[11.5px] text-slate-500">{row.email}</p>
+                                                </td>
+                                                <td className="px-4 py-3 text-[12.5px] text-slate-700 whitespace-nowrap align-middle">{formatDate(row.interviewDate)}</td>
+                                                <td className="px-4 py-3 align-middle">
+                                                    <div className="flex flex-wrap items-center gap-1.5">
+                                                        {row.timeSlots.map((slot, idx) => {
+                                                            const isSelected = entry?.slots.some(s => s.startTime === slot.startTime && s.endTime === slot.endTime);
+                                                            return (
+                                                                <button key={idx} type="button" onClick={() => handleSlotSelection(row, slot)}
+                                                                    className={cn(
+                                                                        'inline-flex items-center gap-1 h-7 px-2.5 text-[11.5px] font-semibold rounded-full border transition-colors',
+                                                                        isSelected
+                                                                            ? 'border-slate-900 bg-slate-900 text-white'
+                                                                            : 'border-slate-200 bg-white text-slate-700 hover:border-slate-900 hover:text-slate-900'
+                                                                    )}>
+                                                                    {isSelected && <Check className="h-3 w-3" aria-hidden="true" />}
+                                                                    {formatTime(slot.startTime)}–{formatTime(slot.endTime)}
+                                                                </button>
+                                                            );
+                                                        })}
+                                                        {selectedCountInRow > 0 && (
+                                                            <span className="text-[11px] text-slate-500 ml-1">{selectedCountInRow}/{row.timeSlots.length} selected</span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3 align-middle">
+                                                    <button
+                                                        aria-label="Delete submission"
+                                                        onClick={() => setDeleteDialog({ isOpen: true, bookingId: row.bookingId, submissionId: row.submissionId })}
+                                                        className="h-8 w-8 rounded-full flex items-center justify-center text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors">
+                                                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 )}
             </div>
 
+            {/* Sticky selection bar */}
+            {selectedSlotsCount > 0 && (
+                <div className="shrink-0 border-t border-slate-200 bg-white px-6 lg:px-8 py-3 flex items-center justify-between">
+                    <p className="text-[12.5px] text-slate-700">
+                        <span className="font-semibold text-slate-900">{selectedSlotsCount}</span> slot{selectedSlotsCount === 1 ? '' : 's'} selected across <span className="font-semibold text-slate-900">{Object.keys(selectedSlots).length}</span> interviewer{Object.keys(selectedSlots).length === 1 ? '' : 's'}
+                    </p>
+                    <div className="flex items-center gap-2">
+                        <button onClick={() => setSelectedSlots({})}
+                            className="h-9 px-4 text-[12px] font-semibold text-slate-700 rounded-full border border-slate-200 hover:border-slate-900 hover:text-slate-900 transition-colors">
+                            Clear
+                        </button>
+                        <button onClick={handleCreatePublicLink} disabled={isCreatingLink}
+                            className="inline-flex h-9 items-center gap-2 rounded-full bg-slate-900 px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#FF4800] disabled:opacity-40">
+                            <LinkIcon className="h-3.5 w-3.5" aria-hidden="true" /> Create link ({selectedSlotsCount})
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <ConfirmDialog isOpen={deleteDialog.isOpen} onClose={() => setDeleteDialog({ isOpen: false, bookingId: null, submissionId: null })}
-                onConfirm={handleDeleteConfirm} title="Delete Submission" message="This will reset the interviewer's status to 'Pending'. Cannot be undone." confirmVariant="danger" />
+                onConfirm={handleDeleteConfirm} title="Delete submission" message="This will reset the interviewer's status to 'Pending'. Cannot be undone." confirmVariant="danger" />
 
             <ManualSlotFormModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}
                 onSuccess={() => { setIsModalOpen(false); invalidateBookingSlots(); showSuccess("Slot added."); }} interviewers={interviewerOptions} />
