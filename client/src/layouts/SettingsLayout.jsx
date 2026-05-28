@@ -3,7 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { User, Bell, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
 
 const settingsNavItems = [
   { label: 'Profile', path: '/interviewer/settings/profile', icon: <User className="w-4 h-4" /> },
@@ -43,7 +43,7 @@ SettingsSidebar.displayName = 'SettingsSidebar';
 const SettingsLayout = () => (
   <div className="flex h-full w-full overflow-hidden">
     <SettingsSidebar />
-    <main className="flex-1 overflow-y-auto bg-[#FAFAF9]">
+    <main className="flex-1 overflow-y-auto bg-[#fcfaf8]">
       <Outlet />
     </main>
   </div>

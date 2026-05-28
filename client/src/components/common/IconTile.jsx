@@ -31,7 +31,7 @@ const IconTile = ({ icon: Icon, size = 'md', className, iconClassName, accent = 
     >
       <Icon
         className={cn(s.icon, iconClassName)}
-        style={accent ? { color: '#FF4800' } : undefined}
+        style={accent ? { color: '#C0392B' } : undefined}
         aria-hidden="true"
       />
     </span>

@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom';
 import { Users, Target, Award, Briefcase, ArrowRight } from 'lucide-react';
 import SEO from '../../components/common/SEO';
 
-const ACCENT = '#FF4800';
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
+const ACCENT = '#C0392B';
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
 
 const Eyebrow = ({ children }) => (
   <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-slate-600">
@@ -113,7 +113,7 @@ const AboutPage = () => (
         </p>
         <Link
           to="/applicationform"
-          className="mt-8 inline-flex h-11 items-center gap-2 rounded-full bg-white px-6 text-[13px] font-semibold text-slate-900 transition-colors hover:bg-[#FF4800] hover:text-white"
+          className="mt-8 inline-flex h-11 items-center gap-2 rounded-full bg-white px-6 text-[13px] font-semibold text-slate-900 transition-colors hover:bg-[#C0392B] hover:text-white"
         >
           Apply now <ArrowRight size={15} />
         </Link>

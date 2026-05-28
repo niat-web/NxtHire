@@ -154,7 +154,7 @@ const SkillAssessment = () => {
           <h2 className="font-display text-[26px] font-semibold text-slate-900 tracking-tight mb-2">Access denied.</h2>
           <p className="text-[13.5px] text-slate-500 mb-6 leading-relaxed">{error}</p>
           <Button onClick={() => navigate('/')}
-            className="px-5 h-10 bg-slate-900 text-white text-[13px] font-semibold rounded-full hover:bg-[#FF4800] transition-colors">
+            className="px-5 h-10 bg-slate-900 text-white text-[13px] font-semibold rounded-full hover:bg-[#C0392B] transition-colors">
             Return home
           </Button>
         </div>

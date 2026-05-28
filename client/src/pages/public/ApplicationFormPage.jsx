@@ -9,8 +9,8 @@ import {
 } from 'lucide-react';
 import nxtHireLogoLight from '/logo-light.svg';
 
-const ACCENT = '#FF4800';
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
+const ACCENT = '#C0392B';
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
 
 const benefits = [
   { icon: IndianRupee, title: 'Earn up to ₹1,000', desc: 'Per interview conducted on the platform' },

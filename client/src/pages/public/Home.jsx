@@ -16,8 +16,9 @@ import {
   Shield,
 } from 'lucide-react';
 
-const ACCENT = '#FF4800';
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
+const ACCENT = '#C0392B';   // BRAVE crimson
+const AMBER  = '#EF9F27';   // BRAVE amber dot
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -29,8 +30,8 @@ const fadeUp = {
 };
 
 const Eyebrow = ({ children }) => (
-  <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-slate-600">
-    <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: ACCENT }} />
+  <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.22em] text-slate-600">
+    <span className="h-1.5 w-1.5 rounded-[2px]" style={{ backgroundColor: AMBER }} />
     {children}
   </span>
 );
@@ -58,13 +59,13 @@ const Hero = ({ onApply }) => (
           <div className="mt-9 flex flex-wrap gap-3">
             <button
               onClick={onApply}
-              className="inline-flex h-11 items-center gap-2 rounded-full bg-slate-900 px-6 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#FF4800]"
+              className="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-6 text-[13px] font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
             >
               Apply now <ArrowRight size={15} />
             </button>
             <a
               href="#how-it-works"
-              className="inline-flex h-11 items-center gap-1.5 rounded-full border border-slate-900 px-5 text-[13px] font-semibold text-slate-900 transition-colors hover:bg-slate-900 hover:text-white"
+              className="inline-flex h-11 items-center gap-1.5 rounded-md border border-primary px-5 text-[13px] font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
             >
               How it works <ChevronRight size={15} />
             </a>

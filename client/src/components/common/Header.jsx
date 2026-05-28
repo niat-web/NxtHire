@@ -1,9 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 
-const ACCENT = '#FF4800';
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
-
 const Header = () => {
   const location = useLocation();
 
@@ -27,15 +24,17 @@ const Header = () => {
   const eyebrow = getEyebrow();
 
   return (
-    <header className="bg-white border-b border-slate-200 h-14 flex items-center justify-between px-6 lg:px-10 shrink-0">
+    <header className="bg-card border-b border-border h-14 flex items-center justify-between px-6 lg:px-10 shrink-0">
       <div className="flex items-center gap-3">
         {eyebrow && (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-600">
-            <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: ACCENT }} />
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+            <span className="h-1.5 w-1.5 rounded-[2px]" style={{ backgroundColor: 'var(--brave-amber)' }} />
             {eyebrow}
           </span>
         )}
-        <h1 style={DISPLAY} className="text-[18px] font-semibold text-slate-900 tracking-tight leading-none">{getPageTitle()}</h1>
+        <h1 className="font-display text-[18px] font-bold text-foreground tracking-tight leading-none">
+          {getPageTitle()}
+        </h1>
       </div>
     </header>
   );

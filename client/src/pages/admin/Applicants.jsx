@@ -240,7 +240,7 @@ const Applicants = () => {
                         <Download className="h-4 w-4" aria-hidden="true" />
                     </button>
                     <button onClick={() => setModalState({ type: 'add', data: null })}
-                        className="inline-flex items-center gap-2 px-4 h-9 text-[13px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] transition-colors shrink-0">
+                        className="inline-flex items-center gap-2 px-4 h-9 text-[13px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#C0392B] transition-colors shrink-0">
                         <Plus size={16} /> Add
                     </button>
                 </div>

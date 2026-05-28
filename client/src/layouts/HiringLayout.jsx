@@ -4,7 +4,7 @@ import { Users, Linkedin, Briefcase, FileText } from 'lucide-react';
 import { useDashboardStats } from '@/hooks/useAdminQueries';
 import { cn } from '@/lib/utils';
 
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
 
 const hiringNavItems = [
   { label: 'Applicants', path: '/admin/hiring/applicants', icon: <Users className="w-4 h-4" /> },
@@ -44,7 +44,7 @@ const HiringSidebar = memo(({ counts }) => (
                       'inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 text-[10px] font-semibold rounded-full',
                       isActive ? 'bg-white text-slate-900' : 'text-white'
                     )}
-                    style={!isActive ? { backgroundColor: '#FF4800' } : undefined}
+                    style={!isActive ? { backgroundColor: '#C0392B' } : undefined}
                   >
                     {count}
                   </span>
@@ -69,7 +69,7 @@ const HiringLayout = () => {
   return (
     <div className="flex h-full w-full overflow-hidden">
       <HiringSidebar counts={counts} />
-      <main className="flex-1 overflow-y-auto bg-[#FAFAF9]">
+      <main className="flex-1 overflow-y-auto bg-[#fcfaf8]">
         <Outlet />
       </main>
     </div>

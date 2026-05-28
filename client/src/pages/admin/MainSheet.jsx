@@ -640,7 +640,7 @@ const MainSheet = () => {
         if (!href) return <span className="text-slate-300">—</span>;
         const tones = {
             // Orange accent border — asset that leads to candidate material
-            accent: 'border-[#FF4800]/30 text-[#FF4800] hover:bg-[#FF4800] hover:text-white hover:border-[#FF4800]',
+            accent: 'border-[#C0392B]/30 text-[#C0392B] hover:bg-[#C0392B] hover:text-white hover:border-[#C0392B]',
             // Neutral — meeting / generic links
             neutral: 'border-slate-200 text-slate-700 hover:border-slate-900 hover:text-slate-900',
             // Emerald — recording / artefact-of-record (completed)
@@ -757,7 +757,7 @@ const MainSheet = () => {
             return (
                 <div className="flex items-center overflow-hidden">
                     <span className="truncate text-slate-700" title={remarks}>{remarks.substring(0, charLimit)}…</span>
-                    <button onClick={() => openRemarksModal(remarks)} className="ml-1 text-slate-900 hover:text-[#FF4800] text-[11.5px] font-semibold flex-shrink-0 underline underline-offset-2 transition-colors">more</button>
+                    <button onClick={() => openRemarksModal(remarks)} className="ml-1 text-slate-900 hover:text-[#C0392B] text-[11.5px] font-semibold flex-shrink-0 underline underline-offset-2 transition-colors">more</button>
                 </div>
             );
         }},
@@ -780,7 +780,7 @@ const MainSheet = () => {
     const showingTo = Math.min(pagination.currentPage * rowsPerPage, pagination.totalItems);
 
     return (
-        <div className="h-full w-full flex flex-col overflow-hidden bg-[#FAFAF9]">
+        <div className="h-full w-full flex flex-col overflow-hidden bg-[#fcfaf8]">
             {/* Header */}
             <div className="bg-white border-b border-slate-200 px-6 py-4 flex-shrink-0">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -853,7 +853,7 @@ const MainSheet = () => {
                                     </button>
                                     <button
                                         onClick={handleApplyFilters}
-                                        className="h-9 px-4 text-xs font-medium text-white rounded-md bg-slate-900 hover:bg-[#FF4800] transition-all"
+                                        className="h-9 px-4 text-xs font-medium text-white rounded-md bg-slate-900 hover:bg-[#C0392B] transition-all"
                                     >
                                         Apply
                                     </button>

@@ -15,8 +15,8 @@ import SEO from '../../components/common/SEO';
 import nxtWaveLogo from '/logo.svg';
 import nxtWaveLogoLight from '/logo-light.svg';
 
-const ACCENT = '#FF4800';
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
+const ACCENT = '#C0392B';
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
 
 const Login = () => {
   const navigate = useNavigate();
@@ -240,7 +240,7 @@ const Login = () => {
                 <label htmlFor="password" className="block text-[12.5px] font-semibold text-slate-700">
                   Password
                 </label>
-                <Link to="/forgot-password" className="text-[12px] text-slate-700 hover:text-[#FF4800] font-semibold">
+                <Link to="/forgot-password" className="text-[12px] text-slate-700 hover:text-[#C0392B] font-semibold">
                   Forgot password?
                 </Link>
               </div>
@@ -268,7 +268,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full inline-flex h-11 items-center justify-center gap-2 rounded-full bg-slate-900 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#FF4800] disabled:opacity-50 mt-2"
+              className="w-full inline-flex h-11 items-center justify-center gap-2 rounded-full bg-slate-900 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#C0392B] disabled:opacity-50 mt-2"
             >
               {isSubmitting ? (
                 <><Loader2 size={14} className="animate-spin" /> Signing in…</>
@@ -280,7 +280,7 @@ const Login = () => {
 
           <p className="mt-6 text-center text-[13px] text-slate-500">
             Want to become an interviewer?{' '}
-            <Link to="/applicationform" className="text-slate-900 font-semibold hover:text-[#FF4800]">
+            <Link to="/applicationform" className="text-slate-900 font-semibold hover:text-[#C0392B]">
               Apply here
             </Link>
           </p>

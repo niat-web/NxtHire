@@ -1,7 +1,7 @@
 import SEO from '../../components/common/SEO';
 
-const ACCENT = '#FF4800';
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
+const ACCENT = '#C0392B';
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
 
 const Section = ({ title, children }) => (
   <div className="mb-10 pb-8 border-b border-slate-100 last:border-0 last:pb-0 last:mb-0">
@@ -82,7 +82,7 @@ const TermsOfServicePage = () => (
       </Section>
 
       <Section title="12. Contact">
-        <p>For questions about these Terms, contact us at <a href="mailto:interviewercommunity@nxtwave.in" className="font-semibold text-slate-900 hover:text-[#FF4800] underline">interviewercommunity@nxtwave.in</a>.</p>
+        <p>For questions about these Terms, contact us at <a href="mailto:interviewercommunity@nxtwave.in" className="font-semibold text-slate-900 hover:text-[#C0392B] underline">interviewercommunity@nxtwave.in</a>.</p>
       </Section>
     </article>
   </div>

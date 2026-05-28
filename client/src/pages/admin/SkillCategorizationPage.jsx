@@ -437,7 +437,7 @@ const SkillCategorizationPage = () => {
     };
 
     return (
-        <div className="flex h-full bg-[#FAFAF9]">
+        <div className="flex h-full bg-[#fcfaf8]">
             <SimpleSidebar
                 assessments={assessments}
                 selectedAssessment={selectedAssessment}

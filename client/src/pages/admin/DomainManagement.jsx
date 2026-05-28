@@ -27,7 +27,7 @@ const DomainManagement = () => {
 
     if (loading) {
         return (
-            <div className="flex h-full items-center justify-center bg-[#FAFAF9]">
+            <div className="flex h-full items-center justify-center bg-[#fcfaf8]">
                 <Loader size="lg" />
             </div>
         );
@@ -57,7 +57,7 @@ const DomainManagement = () => {
             </aside>
 
             {/* Right content */}
-            <main className="flex-1 overflow-y-auto bg-[#FAFAF9] custom-scrollbar">
+            <main className="flex-1 overflow-y-auto bg-[#fcfaf8] custom-scrollbar">
                 <div className="h-full">
                     {activeTab === 'domains' && (
                         <DomainsTab domains={domains} onUpdate={fetchDomains} onDomainClick={handleDomainClick} />

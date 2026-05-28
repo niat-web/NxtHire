@@ -257,7 +257,7 @@ const InterviewerFormDrawer = ({ isOpen, onClose, onSuccess, interviewerData }) 
                         {/* Footer */}
                         <div className="flex justify-end gap-3 px-5 py-4 border-t border-slate-200 bg-slate-50 flex-shrink-0">
                             <button type="button" onClick={onClose} className="px-4 h-10 text-[13px] font-medium rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors">Cancel</button>
-                            <button type="submit" form="interviewer-form" disabled={isSubmitting} className="px-4 h-10 text-[13px] font-medium rounded-md bg-slate-900 text-white hover:bg-[#FF4800] disabled:opacity-50 transition-colors inline-flex items-center">
+                            <button type="submit" form="interviewer-form" disabled={isSubmitting} className="px-4 h-10 text-[13px] font-medium rounded-md bg-slate-900 text-white hover:bg-[#C0392B] disabled:opacity-50 transition-colors inline-flex items-center">
                                 {isSubmitting ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Save className="mr-1.5 h-4 w-4" />}
                                 {isEditMode ? 'Save Changes' : 'Create Interviewer'}
                             </button>

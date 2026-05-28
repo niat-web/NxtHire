@@ -70,7 +70,7 @@ const AdminLayout = () => {
   const useFullPageLayout = fullPageLayoutPaths.some(path => location.pathname.startsWith(path));
 
   return (
-    <div className="flex h-screen bg-[#FAFAF9] antialiased">
+    <div className="flex h-screen bg-background antialiased">
       <Sidebar
         navItems={adminNavItemsWithCounts}
         variant="admin"
@@ -79,19 +79,19 @@ const AdminLayout = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top bar — only on dashboard */}
         {location.pathname === '/admin/dashboard' && (
-          <header className="bg-white border-b border-slate-200 h-14 flex items-center justify-between px-6 lg:px-10 shrink-0">
+          <header className="bg-card border-b border-border h-14 flex items-center justify-between px-6 lg:px-10 shrink-0">
             <div className="flex items-center gap-3">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-600">
-                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: '#FF4800' }} />
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                <span className="h-1.5 w-1.5 rounded-[2px]" style={{ backgroundColor: 'var(--brave-amber)' }} />
                 Admin
               </span>
-              <h1 style={{ fontFamily: 'Fraunces, Georgia, serif' }} className="text-[18px] font-semibold text-slate-900 tracking-tight leading-none">Dashboard</h1>
+              <h1 className="font-display text-[18px] font-bold text-foreground tracking-tight leading-none">Dashboard</h1>
             </div>
             <NotificationBell />
           </header>
         )}
 
-        <main className={cn('flex-1 bg-[#FAFAF9]', useFullPageLayout ? 'overflow-hidden' : 'overflow-y-auto')}>
+        <main className={cn('flex-1 bg-background', useFullPageLayout ? 'overflow-hidden' : 'overflow-y-auto')}>
           {useFullPageLayout ? (
             <div className="h-full flex flex-col">
                 <PageTransition className="h-full flex flex-col">

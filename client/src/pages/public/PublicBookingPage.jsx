@@ -33,7 +33,7 @@ const EmailStep = ({ onSubmit, register, errors, isSubmitting }) => (
                     </div>
 
                     <button type="submit" disabled={isSubmitting}
-                        className="w-full inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-[#FF4800] disabled:opacity-50 transition-all shadow-sm shadow-blue-600/20">
+                        className="w-full inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-[#C0392B] disabled:opacity-50 transition-all shadow-sm shadow-blue-600/20">
                         {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <>Continue <ArrowRight size={16} /></>}
                     </button>
                 </form>
@@ -139,7 +139,7 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                     {/* Desktop confirm button */}
                     <div className="p-5 border-t border-slate-100 hidden lg:block">
                         <button type="submit" disabled={isSubmitting}
-                            className="w-full inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-[#FF4800] disabled:opacity-50 transition-all shadow-sm shadow-blue-600/20">
+                            className="w-full inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-[#C0392B] disabled:opacity-50 transition-all shadow-sm shadow-blue-600/20">
                             {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <>Confirm Booking <Check size={16} /></>}
                         </button>
                     </div>
@@ -205,7 +205,7 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
             <div className="p-4 border-t border-slate-200 bg-white lg:hidden shrink-0 safe-area-bottom">
                 {mobileView === 'details' ? (
                     <button type="button" onClick={handleContinue}
-                        className="w-full inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-[#FF4800] transition-all shadow-sm shadow-blue-600/20">
+                        className="w-full inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-[#C0392B] transition-all shadow-sm shadow-blue-600/20">
                         Choose Time Slot <ArrowRight size={16} />
                     </button>
                 ) : (
@@ -215,7 +215,7 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                             <ArrowLeft size={18} />
                         </button>
                         <button type="submit" disabled={isSubmitting}
-                            className="flex-1 inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-[#FF4800] disabled:opacity-50 transition-all shadow-sm shadow-blue-600/20">
+                            className="flex-1 inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-[#C0392B] disabled:opacity-50 transition-all shadow-sm shadow-blue-600/20">
                             {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <>Confirm Booking <Check size={16} /></>}
                         </button>
                     </div>
@@ -337,7 +337,7 @@ const PublicBookingPage = () => {
                     </div>
                     <h2 className="text-xl font-semibold text-slate-900 mb-1">Something went wrong</h2>
                     <p className="text-sm text-slate-500">{pageError}</p>
-                    <button onClick={() => { setPageError(null); }} className="mt-5 inline-flex items-center gap-2 h-10 px-5 text-sm font-medium text-white bg-slate-900 rounded-xl hover:bg-[#FF4800] transition-colors">
+                    <button onClick={() => { setPageError(null); }} className="mt-5 inline-flex items-center gap-2 h-10 px-5 text-sm font-medium text-white bg-slate-900 rounded-xl hover:bg-[#C0392B] transition-colors">
                         Try Again
                     </button>
                 </div>

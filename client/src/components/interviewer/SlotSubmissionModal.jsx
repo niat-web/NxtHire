@@ -250,7 +250,7 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
                         type="submit"
                         form="slot-form"
                         isLoading={isSubmitting}
-                        className="rounded-xl bg-slate-900 hover:bg-[#FF4800] shadow-md shadow-blue-200 hover:shadow-blue-300 px-8"
+                        className="rounded-xl bg-slate-900 hover:bg-[#C0392B] shadow-md shadow-blue-200 hover:shadow-blue-300 px-8"
                     >
                         {!isSubmitting && <Save className="mr-2 h-4 w-4" />}
                         {isSubmitting ? 'Saving...' : (isUpdateMode ? 'Update Slots' : 'Confirm Slots')}

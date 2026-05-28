@@ -133,7 +133,7 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
                                             </button>
                                         )}
                                     </div>
-                                    <button onClick={onClose} className="inline-flex items-center px-4 h-10 text-sm font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] transition-colors">Close</button>
+                                    <button onClick={onClose} className="inline-flex items-center px-4 h-10 text-sm font-medium text-white bg-slate-900 rounded-md hover:bg-[#C0392B] transition-colors">Close</button>
                                 </div>
                             </Dialog.Panel>
                         </Transition.Child>
@@ -183,7 +183,7 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, isLoading }) => {
                 </div>
                 <div className="mt-6 flex justify-end gap-2">
                     <button onClick={onClose} className="px-4 h-10 text-sm font-medium text-slate-700 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors">Cancel</button>
-                    <button onClick={() => onUploadConfirm(parsedData)} disabled={isLoading || !parsedData.length} className="inline-flex items-center gap-2 px-4 h-10 text-sm font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] disabled:opacity-40 transition-colors">
+                    <button onClick={() => onUploadConfirm(parsedData)} disabled={isLoading || !parsedData.length} className="inline-flex items-center gap-2 px-4 h-10 text-sm font-medium text-white bg-slate-900 rounded-md hover:bg-[#C0392B] disabled:opacity-40 transition-colors">
                         {isLoading && <Loader2 size={14} className="animate-spin" />} Upload
                     </button>
                 </div>
@@ -314,7 +314,7 @@ const Interviewers = () => {
             case 'user.firstName':
                 return (
                     <div className="flex flex-col">
-                        <button onClick={() => navigate(`/admin/interviewers/${r._id}`)} className="text-[13px] font-semibold text-slate-900 hover:text-[#FF4800] text-left transition-colors">
+                        <button onClick={() => navigate(`/admin/interviewers/${r._id}`)} className="text-[13px] font-semibold text-slate-900 hover:text-[#C0392B] text-left transition-colors">
                             {r.user.firstName} {r.user.lastName}
                         </button>
                         <span className="text-[12px] text-slate-500">{r.jobTitle || 'N/A'}</span>
@@ -333,7 +333,7 @@ const Interviewers = () => {
                 const senior = years >= 5;
                 return (
                     <span className="inline-flex items-center gap-1.5 text-[13px] text-slate-900 tabular-nums font-semibold">
-                        {senior && <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: '#FF4800' }} aria-hidden="true" title="5+ years" />}
+                        {senior && <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: '#C0392B' }} aria-hidden="true" title="5+ years" />}
                         {years} <span className="text-slate-500 font-normal">yrs</span>
                     </span>
                 );
@@ -398,7 +398,7 @@ const Interviewers = () => {
             <section className="border-b border-slate-200 bg-white px-6 lg:px-8 py-4 shrink-0">
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="flex items-baseline gap-3 mr-auto">
-                        <h1 style={{ fontFamily: 'Fraunces, Georgia, serif' }} className="text-[26px] sm:text-[30px] font-semibold text-slate-900 tracking-tight leading-none">Interviewers</h1>
+                        <h1 style={{ fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' }} className="text-[26px] sm:text-[30px] font-semibold text-slate-900 tracking-tight leading-none">Interviewers</h1>
                         <span className="text-[13px] text-slate-500">{totalDocs} total</span>
                     </div>
 
@@ -443,7 +443,7 @@ const Interviewers = () => {
                     <button onClick={() => setIsUploadModalOpen(true)} className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-900 px-4 text-[12.5px] font-semibold text-slate-900 transition-colors hover:bg-slate-900 hover:text-white">
                         <Upload className="h-3.5 w-3.5" aria-hidden="true" /> Import
                     </button>
-                    <button onClick={() => setModalState({ type: 'add', data: null })} className="inline-flex h-9 items-center gap-2 rounded-full bg-slate-900 px-4 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#FF4800]">
+                    <button onClick={() => setModalState({ type: 'add', data: null })} className="inline-flex h-9 items-center gap-2 rounded-full bg-slate-900 px-4 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#C0392B]">
                         <Plus className="h-3.5 w-3.5" aria-hidden="true" /> Add interviewer
                     </button>
                 </div>

@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($f = 'c:\\\\Users\\\\NxtWave\\\\Downloads\\\\NxtHire-1\\\\client\\\\src\\\\pages\\\\public\\\\Home.jsx'; \\(Get-Content -Raw -Path $f\\).Substring\\(0, 800\\))"
+    ]
+  }
+}

@@ -107,7 +107,7 @@ const PublicLinkEvaluationPage = () => {
             <div className="h-full flex flex-col items-center justify-center text-slate-400">
                 <p className="text-sm font-medium text-slate-500">No evaluation data found for this public link</p>
                 <p className="text-[11px] text-slate-400 mt-1">No matching candidates found in the main sheet</p>
-                <Link to="/admin/bookings/student-bookings" className="mt-4 inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] transition-colors">
+                <Link to="/admin/bookings/student-bookings" className="mt-4 inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#C0392B] transition-colors">
                     <ArrowLeft size={14} /> Back to Public Links
                 </Link>
             </div>

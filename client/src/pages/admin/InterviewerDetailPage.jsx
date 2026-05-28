@@ -239,7 +239,7 @@ const InterviewerDetailPage = () => {
                 <button
                   onClick={() => handleAction('welcome')}
                   disabled={actionLoading === 'welcome'}
-                  className="w-full h-10 inline-flex items-center justify-center gap-2 text-sm font-semibold rounded-xl text-white bg-slate-900 hover:bg-[#FF4800] shadow-lg transition-all disabled:opacity-50"
+                  className="w-full h-10 inline-flex items-center justify-center gap-2 text-sm font-semibold rounded-xl text-white bg-slate-900 hover:bg-[#C0392B] shadow-lg transition-all disabled:opacity-50"
                 >
                   {actionLoading === 'welcome' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   {interviewer.welcomeEmailSentAt ? 'Resend Welcome Email' : 'Send Welcome Email'}

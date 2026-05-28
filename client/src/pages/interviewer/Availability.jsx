@@ -43,7 +43,7 @@ const DeclineModal = ({ isOpen, onClose, onSubmit, request }) => {
   );
 };
 
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
 
 // ─── Stat Card ──────────────────────────────────────────────────────────────
 const StatCard = ({ label, value, icon: Icon }) => (
@@ -106,7 +106,7 @@ const StatusIndicator = ({ req, isExpired, canEdit, onProvide, onDecline }) => {
           <button onClick={() => onDecline(req)} className="inline-flex h-8 items-center rounded-full border border-slate-200 px-3 text-[12px] font-semibold text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors">
             Decline
           </button>
-          <button onClick={() => onProvide(req)} className="inline-flex h-8 items-center gap-1.5 rounded-full bg-slate-900 px-3 text-[12px] font-semibold text-white hover:bg-[#FF4800] transition-colors">
+          <button onClick={() => onProvide(req)} className="inline-flex h-8 items-center gap-1.5 rounded-full bg-slate-900 px-3 text-[12px] font-semibold text-white hover:bg-[#C0392B] transition-colors">
             Provide slots <ArrowRight size={12} />
           </button>
         </div>
@@ -184,7 +184,7 @@ const Availability = () => {
   }
 
   return (
-    <div className="h-full flex flex-col bg-[#FAFAF9]">
+    <div className="h-full flex flex-col bg-[#fcfaf8]">
       {/* Hero */}
       <section className="border-b border-slate-200 bg-white px-6 lg:px-10 pt-8 pb-6 shrink-0">
         <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-6 max-w-7xl w-full mx-auto">

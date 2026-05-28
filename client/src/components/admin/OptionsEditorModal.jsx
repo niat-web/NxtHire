@@ -57,7 +57,7 @@ const OptionsEditorModal = ({ isOpen, onClose, path, control, register }) => {
             <div className="flex justify-end pt-4 mt-4 border-t">
                  <button
                     onClick={onClose}
-                    className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-slate-900 text-white hover:bg-[#FF4800] transition-colors"
+                    className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-slate-900 text-white hover:bg-[#C0392B] transition-colors"
                  >
                     Done
                  </button>

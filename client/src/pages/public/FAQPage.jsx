@@ -3,8 +3,8 @@ import { ChevronDown, Search, Mail, ArrowRight } from 'lucide-react';
 import SEO from '../../components/common/SEO';
 import { cn } from '@/lib/utils';
 
-const ACCENT = '#FF4800';
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
+const ACCENT = '#C0392B';
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
 
 const Eyebrow = ({ children, dark }) => (
   <span className={cn(
@@ -56,7 +56,7 @@ const faqs = [
 const AccordionItem = ({ question, answer, isOpen, onToggle }) => (
   <div className="border-b border-slate-100 last:border-0">
     <button onClick={onToggle} className="w-full flex items-center justify-between py-5 text-left group gap-4">
-      <span className={cn('text-[15px] font-semibold transition-colors', isOpen ? 'text-slate-900' : 'text-slate-900 group-hover:text-[#FF4800]')}>{question}</span>
+      <span className={cn('text-[15px] font-semibold transition-colors', isOpen ? 'text-slate-900' : 'text-slate-900 group-hover:text-[#C0392B]')}>{question}</span>
       <div className={cn(
         'flex-shrink-0 w-8 h-8 rounded-full inline-flex items-center justify-center transition-colors',
         isOpen ? 'bg-slate-900 text-white' : 'border border-slate-200 text-slate-500 group-hover:border-slate-900 group-hover:text-slate-900'
@@ -153,7 +153,7 @@ const FAQPage = () => {
           </p>
           <a
             href="mailto:interviewercommunity@nxtwave.in"
-            className="mt-8 inline-flex items-center gap-2 h-11 px-6 rounded-full text-[13px] font-semibold text-slate-900 bg-white hover:bg-[#FF4800] hover:text-white transition-colors"
+            className="mt-8 inline-flex items-center gap-2 h-11 px-6 rounded-full text-[13px] font-semibold text-slate-900 bg-white hover:bg-[#C0392B] hover:text-white transition-colors"
           >
             <Mail size={14} /> interviewercommunity@nxtwave.in <ArrowRight size={14} />
           </a>

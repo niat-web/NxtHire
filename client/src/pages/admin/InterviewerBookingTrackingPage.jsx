@@ -6,8 +6,8 @@ import { useInterviewBookingDetails } from '@/hooks/useAdminQueries';
 import { useAlert } from '@/hooks/useAlert';
 import { formatDate } from '@/utils/formatters';
 
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
-const ACCENT = '#FF4800';
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
+const ACCENT = '#C0392B';
 
 // Editorial status pill — semantic colors only, outlined style.
 const StatusBadge = ({ status }) => {
@@ -49,7 +49,7 @@ const InterviewerBookingTrackingPage = () => {
 
     if (loading) {
         return (
-            <div className="min-h-[60vh] flex items-center justify-center bg-[#FAFAF9]">
+            <div className="min-h-[60vh] flex items-center justify-center bg-[#fcfaf8]">
                 <Loader size="lg" />
             </div>
         );
@@ -72,12 +72,12 @@ const InterviewerBookingTrackingPage = () => {
     ];
 
     return (
-        <div className="min-h-full bg-[#FAFAF9]">
+        <div className="min-h-full bg-[#fcfaf8]">
             {/* Hero */}
             <section className="border-b border-slate-200 bg-white px-6 lg:px-10 pt-6 pb-6">
                 <Link
                     to="/admin/bookings/interviewer-bookings"
-                    className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-slate-700 hover:text-[#FF4800] transition-colors"
+                    className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-slate-700 hover:text-[#C0392B] transition-colors"
                 >
                     <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" /> Back to bookings
                 </Link>

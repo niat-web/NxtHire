@@ -8,8 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import Loader from '@/components/common/Loader';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const ACCENT = '#FF4800';
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
+const ACCENT = '#C0392B';
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
 
 const fadeIn = {
   hidden: { opacity: 0, y: 12 },
@@ -36,7 +36,7 @@ const StatCard = ({ title, value, icon: Icon, link, isLoading }) => {
         )}
       </div>
       {link && (
-        <div className="mt-4 inline-flex items-center gap-1 text-[12px] font-semibold text-slate-700 group-hover:text-[#FF4800] transition-colors">
+        <div className="mt-4 inline-flex items-center gap-1 text-[12px] font-semibold text-slate-700 group-hover:text-[#C0392B] transition-colors">
           View details <ArrowRight size={12} />
         </div>
       )}
@@ -60,7 +60,7 @@ const QuickAction = ({ title, description, icon: Icon, to }) => (
     <div className="h-10 w-10 rounded-full border border-slate-200 bg-white inline-flex items-center justify-center text-slate-700">
       <Icon size={15} />
     </div>
-    <h3 style={DISPLAY} className="mt-5 text-[18px] font-semibold text-slate-900 group-hover:text-[#FF4800] transition-colors tracking-tight">{title}</h3>
+    <h3 style={DISPLAY} className="mt-5 text-[18px] font-semibold text-slate-900 group-hover:text-[#C0392B] transition-colors tracking-tight">{title}</h3>
     <p className="text-[13px] text-slate-600 mt-1.5 leading-relaxed">{description}</p>
     <ArrowRight size={14} className="absolute top-6 right-6 text-slate-300 group-hover:text-slate-900 transition-colors" />
   </Link>
@@ -78,7 +78,7 @@ const Dashboard = () => {
   const upcomingInterviews = data?.upcomingInterviews ?? [];
 
   return (
-    <div className="flex flex-col h-full bg-[#FAFAF9]">
+    <div className="flex flex-col h-full bg-[#fcfaf8]">
       <div className="flex-1 overflow-y-auto px-6 py-6 lg:px-10 lg:py-8 space-y-6 max-w-7xl w-full mx-auto">
 
         <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" initial="hidden" animate="visible">
@@ -124,7 +124,7 @@ const Dashboard = () => {
                 <p className="text-[11.5px] text-slate-500 mt-0.5">Your scheduled sessions</p>
               </div>
             </div>
-            <Link to="/interviewer/interview-evaluation" className="text-[12px] font-semibold text-slate-700 hover:text-[#FF4800] flex items-center gap-0.5 transition-colors">View all <ArrowRight size={12} /></Link>
+            <Link to="/interviewer/interview-evaluation" className="text-[12px] font-semibold text-slate-700 hover:text-[#C0392B] flex items-center gap-0.5 transition-colors">View all <ArrowRight size={12} /></Link>
           </div>
 
           {isLoading ? (
@@ -165,7 +165,7 @@ const Dashboard = () => {
                       <td className="px-6 py-3.5"><StatusBadge status={interview.interviewStatus} /></td>
                       <td className="px-6 py-3.5 text-right">
                         {interview.meetingLink ? (
-                          <a href={interview.meetingLink} target="_blank" rel="noopener noreferrer" className="h-8 rounded-full bg-slate-900 text-white text-[12px] font-semibold px-3 hover:bg-[#FF4800] transition-colors inline-flex items-center gap-1">
+                          <a href={interview.meetingLink} target="_blank" rel="noopener noreferrer" className="h-8 rounded-full bg-slate-900 text-white text-[12px] font-semibold px-3 hover:bg-[#C0392B] transition-colors inline-flex items-center gap-1">
                             Join <ArrowRight size={11} />
                           </a>
                         ) : (

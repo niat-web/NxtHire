@@ -378,7 +378,7 @@ const Profile = () => {
   );
 
   return (
-    <div className="flex h-full bg-[#FAFAF9] overflow-hidden">
+    <div className="flex h-full bg-[#fcfaf8] overflow-hidden">
 
         {/* ─── LEFT: Profile Sidebar ─────────────────────────────────── */}
         <div className="w-72 shrink-0 bg-white border-r border-slate-200/80 flex flex-col overflow-y-auto hidden lg:flex">
@@ -491,7 +491,7 @@ const Profile = () => {
                     <div className="space-y-6">
                         <div className="flex justify-between items-center">
                              <h2 className="text-lg font-semibold text-slate-900">Work Experience</h2>
-                             <Button variant="secondary" onClick={() => { setEditingExperience(null); setIsExperienceModalOpen(true); }} className="bg-slate-900 text-white hover:bg-[#FF4800] border border-slate-900"><Plus className="mr-2 h-4 w-4" />Add Experience</Button>
+                             <Button variant="secondary" onClick={() => { setEditingExperience(null); setIsExperienceModalOpen(true); }} className="bg-slate-900 text-white hover:bg-[#C0392B] border border-slate-900"><Plus className="mr-2 h-4 w-4" />Add Experience</Button>
                         </div>
                         
                         {/* Current Role Card */}
@@ -548,7 +548,7 @@ const Profile = () => {
                     <div className="space-y-6">
                         <div className="flex justify-between items-center">
                             <h2 className="text-lg font-semibold text-slate-900">Technical Skills</h2>
-                            <Button variant="secondary" onClick={() => { setEditingSkill(null); setIsSkillModalOpen(true); }} className="bg-slate-900 text-white hover:bg-[#FF4800] border border-slate-900"><Plus className="mr-2 h-4 w-4" />Add Skill</Button>
+                            <Button variant="secondary" onClick={() => { setEditingSkill(null); setIsSkillModalOpen(true); }} className="bg-slate-900 text-white hover:bg-[#C0392B] border border-slate-900"><Plus className="mr-2 h-4 w-4" />Add Skill</Button>
                         </div>
                         {profile?.skills?.length === 0 ? (
                             <div className="text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">

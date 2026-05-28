@@ -23,7 +23,7 @@ const Stepper = ({ steps, currentStep }) => {
                   <div className="h-0.5 w-full bg-slate-200" />
                 </div>
                 <div className="relative flex h-9 w-9 items-center justify-center rounded-full border-2 border-slate-900 bg-white" aria-current="step">
-                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: '#FF4800' }} />
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: '#C0392B' }} />
                 </div>
                 <span className="absolute -bottom-7 w-max text-[12px] font-semibold text-slate-900">{step.name}</span>
               </>

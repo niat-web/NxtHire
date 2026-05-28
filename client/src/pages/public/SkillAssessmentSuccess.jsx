@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { CheckCircle, Home } from 'lucide-react';
 
-const ACCENT = '#FF4800';
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
+const ACCENT = '#C0392B';
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
 
 const SkillAssessmentSuccess = () => {
   return (
@@ -40,7 +40,7 @@ const SkillAssessmentSuccess = () => {
           </div>
 
           <div className="mt-8">
-            <Link to="/" className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full bg-slate-900 text-[13px] font-semibold text-white hover:bg-[#FF4800] transition-colors">
+            <Link to="/" className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full bg-slate-900 text-[13px] font-semibold text-white hover:bg-[#C0392B] transition-colors">
               <Home className="h-4 w-4" />
               Back to home
             </Link>

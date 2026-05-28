@@ -189,7 +189,7 @@ const AdminSettingsPage = () => {
                 </div>
                 {hasEmptySections && (
                     <button onClick={handleSeedAll} disabled={seeding}
-                        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] disabled:opacity-50 transition-colors">
+                        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#C0392B] disabled:opacity-50 transition-colors">
                         {seeding ? <Loader2 size={14} className="animate-spin" /> : <Database size={14} />}
                         Seed All Defaults
                     </button>

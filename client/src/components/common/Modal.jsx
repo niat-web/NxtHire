@@ -63,7 +63,7 @@ const Modal = ({
             )}>
               {title && (
                 <div className={cn('flex-shrink-0 px-6 py-4 border-b flex justify-between items-center', currentTheme.header)}>
-                  <DialogTitle as="h3" className={cn('text-[15px] font-semibold leading-6 tracking-tight', currentTheme.title)} style={{ fontFamily: 'Fraunces, Georgia, serif' }}>
+                  <DialogTitle as="h3" className={cn('text-[15px] font-semibold leading-6 tracking-tight', currentTheme.title)} style={{ fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' }}>
                     {title}
                   </DialogTitle>
                   {showCloseButton && (

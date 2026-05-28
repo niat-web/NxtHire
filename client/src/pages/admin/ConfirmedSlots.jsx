@@ -17,8 +17,8 @@ import { formatDate, formatTime, formatDateTime } from '@/utils/formatters';
 import { Button } from '@/components/ui/button';
 import Loader from '@/components/common/Loader';
 
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
-const ACCENT = '#FF4800';
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
+const ACCENT = '#C0392B';
 
 // --- SELF-CONTAINED UI COMPONENTS ---
 
@@ -473,7 +473,7 @@ const ConfirmedSlotsView = () => {
     ], [publicBookingDetailsCache, handleCellSave, handleManualBooking, hostEmails]);
 
     return (
-       <div className="h-full flex flex-col bg-[#FAFAF9]">
+       <div className="h-full flex flex-col bg-[#fcfaf8]">
             {/* Hero + toolbar + tabs — one slab */}
             <section className="bg-white border-b border-slate-200 shrink-0">
                 <div className="px-6 lg:px-8 pt-5 pb-3">
@@ -492,7 +492,7 @@ const ConfirmedSlotsView = () => {
                             <div className="w-full sm:w-72"><LocalSearchInput value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search name, email, domain, interviewer…"/></div>
                             <div className="relative" ref={filterMenuRef}>
                                 <button onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
-                                    className={`h-9 inline-flex items-center gap-2 px-4 text-[13px] font-semibold rounded-full border transition-colors ${isFilterActive ? 'border-slate-900 bg-slate-900 text-white hover:bg-[#FF4800] hover:border-[#FF4800]' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-900 hover:text-slate-900'}`}>
+                                    className={`h-9 inline-flex items-center gap-2 px-4 text-[13px] font-semibold rounded-full border transition-colors ${isFilterActive ? 'border-slate-900 bg-slate-900 text-white hover:bg-[#C0392B] hover:border-[#C0392B]' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-900 hover:text-slate-900'}`}>
                                     <Filter className="h-3.5 w-3.5" aria-hidden="true" /> Filter
                                     {isFilterActive && (
                                         <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-0.5 p-0.5 rounded-full hover:bg-white/15" role="button" aria-label="Clear filters">
@@ -540,7 +540,7 @@ const ConfirmedSlotsView = () => {
                                     </div>
                                     <div className="mt-5 pt-4 border-t border-slate-100 flex justify-end gap-2">
                                         <button onClick={handleClearFilters} className="h-9 px-4 text-[12px] font-semibold text-slate-700 rounded-full border border-slate-200 hover:border-slate-900 hover:text-slate-900 transition-colors">Clear</button>
-                                        <button onClick={handleApplyFilters} className="h-9 px-4 text-[12px] font-semibold text-white rounded-full bg-slate-900 hover:bg-[#FF4800] transition-colors">Apply</button>
+                                        <button onClick={handleApplyFilters} className="h-9 px-4 text-[12px] font-semibold text-white rounded-full bg-slate-900 hover:bg-[#C0392B] transition-colors">Apply</button>
                                     </div>
                                 </div>
                             )}

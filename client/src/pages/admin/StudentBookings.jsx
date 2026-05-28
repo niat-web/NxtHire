@@ -12,8 +12,8 @@ import ConfirmDialog from '@/components/common/ConfirmDialog';
 import Loader from '@/components/common/Loader';
 import { cn } from '@/lib/utils';
 
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
-const ACCENT = '#FF4800';
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
+const ACCENT = '#C0392B';
 
 // ── Add Slots Modal ──
 const AddSlotsModal = ({ isOpen, onClose, publicBookingId, onSuccess }) => {
@@ -131,7 +131,7 @@ const AddSlotsModal = ({ isOpen, onClose, publicBookingId, onSuccess }) => {
                     <div className="flex gap-2">
                         <button onClick={onClose} className="h-9 px-4 text-[12.5px] font-semibold text-slate-700 border border-slate-200 rounded-full hover:border-slate-900 hover:text-slate-900 transition-colors">Cancel</button>
                         <button onClick={handleSave} disabled={selectedCount === 0 || saving}
-                            className="inline-flex items-center gap-1.5 h-9 px-5 text-[13px] font-semibold text-white bg-slate-900 rounded-full hover:bg-[#FF4800] disabled:opacity-40 transition-colors">
+                            className="inline-flex items-center gap-1.5 h-9 px-5 text-[13px] font-semibold text-white bg-slate-900 rounded-full hover:bg-[#C0392B] disabled:opacity-40 transition-colors">
                             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <Plus className="h-3.5 w-3.5" aria-hidden="true" />}
                             Add {selectedCount > 0 ? selectedCount : ''} slot{selectedCount === 1 ? '' : 's'}
                         </button>
@@ -198,7 +198,7 @@ const StudentBookings = () => {
     if (loading) return <div className="flex items-center justify-center h-64"><Loader size="lg" /></div>;
 
     return (
-        <div className="h-full flex flex-col bg-[#FAFAF9] overflow-hidden">
+        <div className="h-full flex flex-col bg-[#fcfaf8] overflow-hidden">
             {/* Hero — title on the left, search + filters + CTA on the right in one row */}
             <section className="border-b border-slate-200 bg-white px-6 lg:px-8 pt-5 pb-4 shrink-0">
                 <div className="flex flex-wrap items-center justify-between gap-3">
@@ -241,7 +241,7 @@ const StudentBookings = () => {
                             </button>
                         )}
                         <button onClick={() => navigate('/admin/bookings/booking-slots')}
-                            className="inline-flex h-9 items-center gap-2 rounded-full bg-slate-900 px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#FF4800]">
+                            className="inline-flex h-9 items-center gap-2 rounded-full bg-slate-900 px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#C0392B]">
                             <Plus className="h-4 w-4" aria-hidden="true" /> New link
                         </button>
                     </div>

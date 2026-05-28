@@ -294,7 +294,7 @@ const AuthorizeStudentsPage = () => {
                 </button>
               )}
               <button onClick={handleSave} disabled={validCount === 0 || isSaving}
-                className="inline-flex items-center gap-2 h-8 px-4 text-[12px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] disabled:opacity-40 transition-colors">
+                className="inline-flex items-center gap-2 h-8 px-4 text-[12px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#C0392B] disabled:opacity-40 transition-colors">
                 {isSaving ? <Loader size="sm" /> : <Send size={13} />}
                 Authorize & Invite {validCount} Students
               </button>

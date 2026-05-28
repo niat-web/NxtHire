@@ -111,7 +111,7 @@ const ApplicantDetails = () => {
     return (
       <div className="text-center py-12">
         <p className="text-slate-500">Applicant not found</p>
-        <Link to="/admin/applicants" className="inline-flex items-center mt-4 px-4 h-10 text-sm font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] transition-colors">
+        <Link to="/admin/applicants" className="inline-flex items-center mt-4 px-4 h-10 text-sm font-medium text-white bg-slate-900 rounded-md hover:bg-[#C0392B] transition-colors">
           Back to Applicants
         </Link>
       </div>
@@ -129,7 +129,7 @@ const ApplicantDetails = () => {
           <h1 className="text-lg font-semibold text-slate-900">Applicant Details</h1>
         </div>
         <button onClick={() => setIsStatusModalOpen(true)}
-          className="inline-flex items-center gap-2 px-4 h-10 text-sm font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] transition-colors">
+          className="inline-flex items-center gap-2 px-4 h-10 text-sm font-medium text-white bg-slate-900 rounded-md hover:bg-[#C0392B] transition-colors">
           <Edit size={16} /> Update Status
         </button>
       </div>

@@ -133,7 +133,7 @@ const ManualSlotFormModal = ({ isOpen, onClose, onSuccess, interviewers }) => {
                 <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-slate-200 shrink-0">
                     <button type="button" onClick={onClose} className="h-9 px-4 text-[13px] font-medium text-slate-700 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors">Cancel</button>
                     <button type="submit" form="manual-slot-form" disabled={isSubmitting}
-                        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#FF4800] disabled:opacity-50 transition-colors">
+                        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#C0392B] disabled:opacity-50 transition-colors">
                         {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
                         Save Slots
                     </button>

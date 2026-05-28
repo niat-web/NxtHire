@@ -17,7 +17,7 @@ const EmptyState = ({
       <div className="flex justify-center mb-5 text-slate-300">
         {icon}
       </div>
-      <h3 className="text-[18px] font-semibold text-slate-900 mb-1.5 tracking-tight" style={{ fontFamily: 'Fraunces, Georgia, serif' }}>{title}</h3>
+      <h3 className="text-[18px] font-semibold text-slate-900 mb-1.5 tracking-tight" style={{ fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' }}>{title}</h3>
       <p className="text-[13.5px] text-slate-500 max-w-md mx-auto leading-relaxed">{description}</p>
 
       {(actionText && (actionUrl || onActionClick)) && (

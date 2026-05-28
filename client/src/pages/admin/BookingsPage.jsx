@@ -8,8 +8,8 @@ import BookingSlots from './BookingSlots';
 import StudentBookings from './StudentBookings';
 import ConfirmedSlots from './ConfirmedSlots';
 
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
-const ACCENT = '#FF4800';
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
+const ACCENT = '#C0392B';
 
 const tabs = [
   { id: 'interviewer-bookings', label: 'Interviewer bookings', icon: Calendar, countKey: 'openBookings' },
@@ -97,7 +97,7 @@ const BookingsPage = () => {
   const ActiveComponent = tabComponents[activeTab];
 
   return (
-    <div className="flex h-full w-full overflow-hidden bg-[#FAFAF9]">
+    <div className="flex h-full w-full overflow-hidden bg-[#fcfaf8]">
       <BookingsSidebar activeTab={activeTab} onTabClick={handleTabClick} counts={counts} />
       <main className="flex-1 flex flex-col overflow-hidden">
         <ActiveComponent key={activeTab} />

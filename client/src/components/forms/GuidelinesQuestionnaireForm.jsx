@@ -138,7 +138,7 @@ const GuidelinesQuestionnaireForm = () => {
               <div className={`h-full rounded-full transition-all ${progress === 100 ? 'bg-slate-500' : 'bg-slate-500'}`} style={{ width: `${progress}%` }} />
             </div>
             <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
-              <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#FF4800' }} /> Answered</div>
+              <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#C0392B' }} /> Answered</div>
               <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-slate-200" /> Unanswered</div>
             </div>
           </div>

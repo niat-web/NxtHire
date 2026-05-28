@@ -60,14 +60,14 @@ const ProvideAvailabilityPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAFAF9] flex items-center justify-center">
+      <div className="min-h-screen bg-[#fcfaf8] flex items-center justify-center">
         <Loader size="xl" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAF9]">
+    <div className="min-h-screen bg-[#fcfaf8]">
       {/* Enhanced Header with Glassmorphism Effect */}
         <div className="sticky top-0 z-30 bg-white border-b border-gray-200">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -204,7 +204,7 @@ const ProvideAvailabilityPage = () => {
                     ].map((tip, index) => (
                       <li key={index} className="flex items-start space-x-3">
                         <span className="w-6 h-6 rounded-full border border-slate-200 bg-white flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#FF4800' }} />
+                          <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#C0392B' }} />
                         </span>
                         <span className="text-[13.5px] text-slate-700 leading-relaxed">{tip}</span>
                       </li>

@@ -167,7 +167,7 @@ const UserManagement = () => {
 
                     {/* Add button */}
                     <button onClick={() => setModalState({ type: 'add', data: null })}
-                        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white rounded-md bg-slate-900 hover:bg-[#FF4800] transition-colors shrink-0">
+                        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white rounded-md bg-slate-900 hover:bg-[#C0392B] transition-colors shrink-0">
                         <Plus className="w-3.5 h-3.5" /> Add User
                     </button>
                 </div>

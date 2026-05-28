@@ -15,8 +15,8 @@ import AnalyticsDashboard from '../../components/admin/AnalyticsDashboard';
 import { cn } from '@/lib/utils';
 import Loader from '@/components/common/Loader';
 
-const ACCENT = '#FF4800';
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
+const ACCENT = '#C0392B';
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
 
 const statusMeaningMap = {
   'Profile Approved': 'success',
@@ -58,39 +58,60 @@ const InlineStatusBadge = ({ status }) => {
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = { hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0, transition: { duration: 0.35 } } };
 
-const MetricCard = ({ label, value, icon: Icon, href, isLoading, isSensitive }) => {
+const MetricCard = ({ label, value, icon: Icon, href, isLoading, isSensitive, accent = false }) => {
   const [show, setShow] = useState(!isSensitive);
 
   const Wrapper = href ? Link : 'div';
   const wrapperProps = href ? { to: href } : {};
 
   return (
-    <Wrapper {...wrapperProps} className="group relative rounded-2xl bg-white border border-slate-200 px-5 py-5 transition-colors hover:border-slate-900 block">
+    <Wrapper
+      {...wrapperProps}
+      className={cn(
+        'group relative rounded-lg px-5 py-5 transition-colors block shadow-brave-card',
+        accent
+          ? 'bg-primary/5 border-2 border-primary/40 hover:border-primary'
+          : 'bg-card border border-border hover:border-primary/40'
+      )}
+    >
       <div className="flex items-center justify-between mb-4">
-        <div className="h-9 w-9 rounded-full border border-slate-200 bg-white inline-flex items-center justify-center text-slate-700">
-          <Icon size={15} strokeWidth={2} />
+        <p className={cn(
+          'text-[12px] font-semibold uppercase tracking-[0.15em]',
+          accent ? 'text-primary' : 'text-muted-foreground'
+        )}>
+          {label}
+        </p>
+        <div className={cn(
+          'h-7 w-7 rounded-md inline-flex items-center justify-center',
+          accent ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+        )}>
+          <Icon size={14} strokeWidth={2} />
         </div>
-        {href && (
-          <ArrowUpRight size={14} className="text-slate-300 group-hover:text-slate-900 transition-colors" />
-        )}
       </div>
 
       {isLoading ? (
-        <div className="h-8 w-20 mb-1 bg-slate-100 rounded animate-pulse" />
+        <div className="h-8 w-20 mb-1 bg-muted rounded animate-pulse" />
       ) : (
         <div className="flex items-baseline gap-1.5">
-          <span style={DISPLAY} className="text-[28px] font-semibold text-slate-900 tracking-tight leading-none">
+          <span
+            style={DISPLAY}
+            className={cn(
+              'text-[32px] font-bold tracking-tight leading-none tabular-nums',
+              accent ? 'text-primary' : 'text-foreground'
+            )}
+          >
             {isSensitive && !show ? '••••' : value}
           </span>
           {isSensitive && (
-            <button onClick={(e) => { e.preventDefault(); setShow(v => !v); }} className="text-slate-300 hover:text-slate-700">
+            <button onClick={(e) => { e.preventDefault(); setShow(v => !v); }} className="text-muted-foreground/60 hover:text-foreground">
               {show ? <EyeOff size={12} /> : <Eye size={12} />}
             </button>
           )}
+          {href && (
+            <ArrowUpRight size={14} className="ml-auto text-muted-foreground/40 group-hover:text-foreground transition-colors" />
+          )}
         </div>
       )}
-
-      <p className="text-[10.5px] font-semibold text-slate-500 mt-3 uppercase tracking-[0.15em]">{label}</p>
     </Wrapper>
   );
 };
@@ -201,7 +222,7 @@ const Panel = ({ title, subtitle, href, linkLabel, icon: Icon, children, classNa
         </div>
       </div>
       {href && (
-        <Link to={href} className="text-[12px] font-semibold text-slate-700 hover:text-[#FF4800] flex items-center gap-0.5 transition-colors">
+        <Link to={href} className="text-[12px] font-semibold text-slate-700 hover:text-[#C0392B] flex items-center gap-0.5 transition-colors">
           {linkLabel || 'View all'} <ChevronRight size={13} />
         </Link>
       )}
@@ -244,7 +265,7 @@ const Dashboard = () => {
 
   return (
     <motion.div
-      className="flex-1 flex flex-col overflow-y-auto bg-[#FAFAF9]"
+      className="flex-1 flex flex-col overflow-y-auto bg-[#fcfaf8]"
       initial="hidden"
       animate="visible"
       variants={stagger}
@@ -261,7 +282,7 @@ const Dashboard = () => {
           <MetricCard label="Total Applicants"    value={stats.totalApplicants ?? 0}        icon={Users}          href="/admin/hiring/applicants"    isLoading={loading} />
           <MetricCard label="Active Interviewers" value={stats.activeInterviewers ?? 0}     icon={UserCheck}      href="/admin/interviewers"         isLoading={loading} />
           <MetricCard label="Pending Reviews"     value={stats.pendingReviews ?? 0}         icon={ClipboardCheck} href="/admin/hiring/linkedin-review" isLoading={loading} />
-          <MetricCard label="Platform Earnings"   value={formatCurrency(stats.totalPlatformEarnings || 0)} icon={IndianRupee} href="/admin/earnings-report" isLoading={loading} isSensitive />
+          <MetricCard label="Platform Earnings"   value={formatCurrency(stats.totalPlatformEarnings || 0)} icon={IndianRupee} href="/admin/earnings-report" isLoading={loading} isSensitive accent />
           <MetricCard label="Interviews"          value={upcomingInterviews.length}          icon={Calendar}       href="/admin/main-sheet"           isLoading={loading} />
           <MetricCard label="On Probation"        value={stats.probationInterviewers ?? 0}  icon={TrendingUp}                                        isLoading={loading} />
         </motion.div>

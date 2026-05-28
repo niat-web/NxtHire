@@ -151,7 +151,7 @@ const NotificationsInboxPage = () => {
       </div>
 
       {/* ═══ RIGHT: Detail panel ═══ */}
-      <div className="flex-1 bg-[#FAFAF9] overflow-y-auto">
+      <div className="flex-1 bg-[#fcfaf8] overflow-y-auto">
         {selectedNotification ? (
           <NotificationDetail notification={selectedNotification} />
         ) : (

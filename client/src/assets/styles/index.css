@@ -4,26 +4,108 @@
 
 @layer base {
   :root {
-    --background: 220 20% 97%;
-    --foreground: 222 28% 12%;
+    /* ───────────── BRAVE — light theme ─────────────
+       Warm cream background, deep crimson primary,
+       ember amber accent, deep maroon sidebar. */
+
+    --background: 45 60% 98%;             /* warm cream */
+    --foreground: 0 55% 12%;              /* deep maroon text */
+
     --card: 0 0% 100%;
-    --card-foreground: 222 28% 12%;
+    --card-foreground: 0 55% 12%;
+    --card-border: 40 35% 88%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 222 28% 12%;
-    --primary: 221 83% 54%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 220 16% 96%;
-    --secondary-foreground: 220 10% 38%;
-    --muted: 220 16% 96%;
-    --muted-foreground: 220 9% 46%;
-    --accent: 220 16% 96%;
-    --accent-foreground: 222 28% 12%;
-    --destructive: 0 72% 55%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 220 16% 90%;
-    --input: 220 16% 90%;
-    --ring: 221 83% 54%;
-    --radius: 0.75rem;
+    --popover-foreground: 0 55% 12%;
+
+    --primary: 0 75% 45%;                 /* deep crimson #C0392B-ish */
+    --primary-foreground: 45 60% 98%;
+
+    --secondary: 45 90% 90%;              /* pale yellow */
+    --secondary-foreground: 0 55% 18%;
+
+    --muted: 40 40% 95%;
+    --muted-foreground: 20 15% 38%;
+
+    --accent: 45 90% 88%;                 /* golden yellow surface */
+    --accent-foreground: 0 55% 18%;
+
+    --destructive: 0 80% 50%;
+    --destructive-foreground: 45 60% 98%;
+
+    --border: 40 35% 88%;
+    --input: 40 35% 88%;
+    --ring: 0 75% 45%;
+
+    /* Signature deep maroon sidebar */
+    --sidebar: 0 65% 22%;
+    --sidebar-foreground: 45 80% 96%;
+    --sidebar-border: 0 50% 30%;
+    --sidebar-primary: 45 95% 55%;        /* amber highlight */
+    --sidebar-primary-foreground: 0 65% 18%;
+    --sidebar-accent: 0 55% 32%;
+    --sidebar-accent-foreground: 45 80% 96%;
+    --sidebar-ring: 45 95% 55%;
+    --sidebar-muted-foreground: 40 30% 78%;
+
+    /* Charts (red / amber spectrum) */
+    --chart-1: 0 75% 50%;
+    --chart-2: 45 95% 55%;
+    --chart-3: 15 85% 55%;
+    --chart-4: 35 90% 50%;
+    --chart-5: 0 60% 35%;
+
+    --radius: 0.5rem;
+
+    /* Raw BRAVE brand tokens (for inline / svg use) */
+    --brave-red: #C0392B;
+    --brave-amber: #EF9F27;
+    --brave-cream: #fcfaf8;
+    --brave-ink: #19191b;
+    --brave-ink-soft: #1e0d01;
+    --brave-coral: #fa8484;
+    --brave-magenta: #fe83f2;
+    --brave-accent: #db4750;
+    --brave-footer: #070a11;
+  }
+
+  .dark {
+    --background: 0 30% 8%;
+    --foreground: 45 60% 96%;
+
+    --card: 0 30% 12%;
+    --card-foreground: 45 60% 96%;
+    --card-border: 0 25% 22%;
+
+    --popover: 0 30% 12%;
+    --popover-foreground: 45 60% 96%;
+
+    --primary: 0 80% 58%;
+    --primary-foreground: 45 60% 98%;
+
+    --secondary: 0 25% 18%;
+    --secondary-foreground: 45 60% 96%;
+    --muted: 0 20% 16%;
+    --muted-foreground: 40 25% 70%;
+
+    --accent: 45 70% 22%;
+    --accent-foreground: 45 60% 96%;
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 45 60% 96%;
+
+    --border: 0 25% 22%;
+    --input: 0 25% 22%;
+    --ring: 0 80% 58%;
+
+    --sidebar: 0 40% 10%;
+    --sidebar-foreground: 45 70% 95%;
+    --sidebar-border: 0 30% 20%;
+    --sidebar-primary: 45 95% 58%;
+    --sidebar-primary-foreground: 0 65% 18%;
+    --sidebar-accent: 0 35% 22%;
+    --sidebar-accent-foreground: 45 70% 95%;
+    --sidebar-ring: 45 95% 58%;
+    --sidebar-muted-foreground: 40 25% 70%;
   }
 
   * {
@@ -31,19 +113,31 @@
   }
 
   html {
-    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
 
   body {
-    @apply bg-white text-slate-900 antialiased;
+    @apply bg-background text-foreground antialiased;
     overscroll-behavior-x: none;
+    font-feature-settings: 'cv11', 'ss01';
   }
 
   #root {
     min-height: 100vh;
+  }
+
+  /* Display / headline typography */
+  h1, h2, h3, .font-display {
+    font-family: 'Supreme', 'Plus Jakarta Sans', system-ui, sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  /* Monospaced numbers / tickers */
+  .font-mono, code, kbd, samp, pre {
+    font-family: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
   }
 }
 
@@ -55,7 +149,6 @@
     animation: blink-fade 1.8s ease-in-out infinite;
   }
 
-  /* Skeleton pulse for loading states */
   @keyframes skeleton-pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.4; }
@@ -69,6 +162,17 @@
 
   .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
   .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-  .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 9999px; }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: hsl(40 35% 78%); border-radius: 9999px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: hsl(40 25% 60%); }
+
+  /* Sidebar scrollbar (on maroon) */
+  .sidebar-scrollbar::-webkit-scrollbar { width: 6px; }
+  .sidebar-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar-scrollbar::-webkit-scrollbar-thumb { background: hsl(0 30% 35%); border-radius: 9999px; }
+  .sidebar-scrollbar::-webkit-scrollbar-thumb:hover { background: hsl(0 30% 45%); }
+
+  .font-display { font-family: 'Supreme', 'Plus Jakarta Sans', system-ui, sans-serif; }
+  .font-marketing { font-family: 'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif; }
+  .font-numeric { font-family: 'Geist Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
 }

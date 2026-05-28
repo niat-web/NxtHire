@@ -81,7 +81,7 @@ const Guidelines = () => {
             <div className="flex justify-center">
               <Button
                 onClick={() => navigate('/')}
-                className="flex items-center justify-center px-6 h-10 border border-transparent text-base font-medium rounded-md text-white bg-slate-900 hover:bg-[#FF4800] shadow-md transition-colors"
+                className="flex items-center justify-center px-6 h-10 border border-transparent text-base font-medium rounded-md text-white bg-slate-900 hover:bg-[#C0392B] shadow-md transition-colors"
               >
                 <ArrowLeft className="mr-2 h-5 w-5" />
                 Back to Home

@@ -46,7 +46,7 @@ const NotificationBell = () => {
         {unreadCount > 0 && (
           <span
             className="absolute top-1 right-1 min-w-[16px] h-[16px] flex items-center justify-center px-1 text-[9.5px] font-semibold text-white rounded-full leading-none"
-            style={{ backgroundColor: '#FF4800' }}
+            style={{ backgroundColor: '#C0392B' }}
           >
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
@@ -96,7 +96,7 @@ const NotificationBell = () => {
                         <p className={cn('text-[12.5px] font-semibold truncate', n.isRead ? 'text-slate-700' : 'text-slate-900')}>
                           {n.title}
                         </p>
-                        {!n.isRead && <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: '#FF4800' }} />}
+                        {!n.isRead && <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: '#C0392B' }} />}
                       </div>
                       <p className="text-[11.5px] text-slate-500 truncate mt-0.5">{n.message}</p>
                       <p className="text-[10.5px] text-slate-400 mt-1 flex items-center gap-1">

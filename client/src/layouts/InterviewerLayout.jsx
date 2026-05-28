@@ -101,7 +101,7 @@ const InterviewerLayout = () => {
   const useFullPageLayout = fullPageLayoutPaths.some(path => location.pathname.startsWith(path));
 
   return (
-    <div className="flex h-screen bg-[#FAFAF9] antialiased">
+    <div className="flex h-screen bg-background antialiased">
       <Sidebar
         navItems={interviewerNavItems}
         variant="interviewer"
@@ -112,7 +112,7 @@ const InterviewerLayout = () => {
           <Header />
         )}
 
-        <main className={cn('flex-1', useFullPageLayout ? 'overflow-hidden' : 'overflow-y-auto')}>
+        <main className={cn('flex-1 bg-background', useFullPageLayout ? 'overflow-hidden' : 'overflow-y-auto')}>
           {useFullPageLayout ? (
              <PageTransition className="h-full">
                 <Outlet />

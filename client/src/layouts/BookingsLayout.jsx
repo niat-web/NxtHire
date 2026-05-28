@@ -3,7 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { Calendar, Clock, Link2, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
 
 const bookingsNavItems = [
   { label: 'Interviewer Bookings', path: '/admin/bookings/interviewer-bookings', icon: <Calendar className="w-4 h-4" /> },
@@ -44,7 +44,7 @@ BookingsSidebar.displayName = 'BookingsSidebar';
 const BookingsLayout = () => (
   <div className="flex h-full w-full overflow-hidden">
     <BookingsSidebar />
-    <main className="flex-1 overflow-y-auto bg-[#FAFAF9]">
+    <main className="flex-1 overflow-y-auto bg-[#fcfaf8]">
       <Outlet />
     </main>
   </div>

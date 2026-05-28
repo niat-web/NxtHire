@@ -419,7 +419,7 @@ const EarningsReportPage = () => {
     return (
         <div className="flex h-full w-full overflow-hidden">
             <EarningsSidebar activeTab={activeTab} onTabClick={handleTabClick} />
-            <main className="flex-1 overflow-hidden flex flex-col bg-[#FAFAF9]">
+            <main className="flex-1 overflow-hidden flex flex-col bg-[#fcfaf8]">
                 <ActiveComponent key={activeTab} />
             </main>
         </div>

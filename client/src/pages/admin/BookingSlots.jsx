@@ -13,8 +13,8 @@ import ConfirmDialog from '@/components/common/ConfirmDialog';
 import ManualSlotFormModal from './ManualSlotFormModal';
 import { cn } from '@/lib/utils';
 
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
-const ACCENT = '#FF4800';
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
+const ACCENT = '#C0392B';
 
 const BookingSlots = () => {
     const { showSuccess, showError } = useAlert();
@@ -95,7 +95,7 @@ const BookingSlots = () => {
     const allSelected = slots.length > 0 && slots.every(row => selectedSlots[row.submissionId]?.slots.length === row.timeSlots.length);
 
     return (
-        <div className="h-full flex flex-col bg-[#FAFAF9] overflow-hidden">
+        <div className="h-full flex flex-col bg-[#fcfaf8] overflow-hidden">
             {/* Hero + toolbar */}
             <section className="border-b border-slate-200 bg-white px-6 lg:px-8 pt-5 pb-4 shrink-0">
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -113,7 +113,7 @@ const BookingSlots = () => {
                             <Plus className="h-3.5 w-3.5" aria-hidden="true" /> Add slot manually
                         </button>
                         <button onClick={handleCreatePublicLink} disabled={selectedSlotsCount === 0 || isCreatingLink}
-                            className="inline-flex h-10 items-center gap-2 rounded-full bg-slate-900 px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#FF4800] disabled:opacity-40 disabled:cursor-not-allowed">
+                            className="inline-flex h-10 items-center gap-2 rounded-full bg-slate-900 px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#C0392B] disabled:opacity-40 disabled:cursor-not-allowed">
                             <LinkIcon className="h-3.5 w-3.5" aria-hidden="true" />
                             Create link {selectedSlotsCount > 0 && <span className="ml-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-white text-slate-900 text-[10.5px]">{selectedSlotsCount}</span>}
                         </button>
@@ -246,7 +246,7 @@ const BookingSlots = () => {
                             Clear
                         </button>
                         <button onClick={handleCreatePublicLink} disabled={isCreatingLink}
-                            className="inline-flex h-9 items-center gap-2 rounded-full bg-slate-900 px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#FF4800] disabled:opacity-40">
+                            className="inline-flex h-9 items-center gap-2 rounded-full bg-slate-900 px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#C0392B] disabled:opacity-40">
                             <LinkIcon className="h-3.5 w-3.5" aria-hidden="true" /> Create link ({selectedSlotsCount})
                         </button>
                     </div>

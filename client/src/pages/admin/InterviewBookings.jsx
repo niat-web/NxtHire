@@ -13,8 +13,8 @@ import {
 import Loader from '@/components/common/Loader';
 import { cn } from '@/lib/utils';
 
-const DISPLAY = { fontFamily: 'Fraunces, Georgia, serif' };
-const ACCENT = '#FF4800';
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
+const ACCENT = '#C0392B';
 
 // ─── Inline Dropdown ────────────────────────────────────────────────────────
 const InlineDropdownMenu = ({ options }) => {
@@ -123,7 +123,7 @@ const InterviewBookings = () => {
     const hasFilters = !!(searchTerm || creatorFilter || filter);
 
     return (
-        <div className="h-full flex flex-col bg-[#FAFAF9] overflow-hidden">
+        <div className="h-full flex flex-col bg-[#fcfaf8] overflow-hidden">
 
             {/* Header — hero + stats + toolbar in one tight slab */}
             <section className="border-b border-slate-200 bg-white px-6 lg:px-8 pt-5 pb-4 shrink-0">
@@ -137,7 +137,7 @@ const InterviewBookings = () => {
                         </p>
                     </div>
                     <button onClick={() => navigate('/admin/bookings/new')}
-                        className="inline-flex h-10 items-center gap-2 rounded-full bg-slate-900 px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#FF4800]">
+                        className="inline-flex h-10 items-center gap-2 rounded-full bg-slate-900 px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#C0392B]">
                         <Plus className="h-4 w-4" aria-hidden="true" /> New request
                     </button>
                 </div>
@@ -212,7 +212,7 @@ const InterviewBookings = () => {
                         </p>
                         {!hasFilters && (
                             <button onClick={() => navigate('/admin/bookings/new')}
-                                className="mt-5 inline-flex h-10 items-center gap-2 rounded-full bg-slate-900 px-5 text-[13px] font-semibold text-white hover:bg-[#FF4800] transition-colors">
+                                className="mt-5 inline-flex h-10 items-center gap-2 rounded-full bg-slate-900 px-5 text-[13px] font-semibold text-white hover:bg-[#C0392B] transition-colors">
                                 <Plus className="h-4 w-4" aria-hidden="true" /> New request
                             </button>
                         )}
