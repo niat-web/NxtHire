@@ -124,8 +124,9 @@ const InterviewerLayout = () => {
         onMobileClose={() => setMobileSidebarOpen(false)}
       />
 
+      {/* Switch button visibility: ONLY on the interviewer Dashboard page */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        {/* Mobile top bar — hamburger + brand + (optional) dual-role switch. Hidden at lg+. */}
+        {/* Mobile top bar — hamburger + brand + (only-on-dashboard) dual-role switch. Hidden at lg+. */}
         <header className="lg:hidden bg-card border-b border-border h-14 flex items-center justify-between px-4 shrink-0">
           <div className="flex items-center gap-3">
             <button
@@ -141,7 +142,7 @@ const InterviewerLayout = () => {
               <span className="inline-block h-1.5 w-1.5 rounded-[2px]" style={{ backgroundColor: 'var(--brave-amber)' }} aria-hidden="true" />
             </div>
           </div>
-          {isDualRoleAdmin && (
+          {isDualRoleAdmin && location.pathname === '/interviewer/dashboard' && (
             <button
               type="button"
               onClick={() => navigate('/admin/dashboard')}
@@ -157,7 +158,8 @@ const InterviewerLayout = () => {
         {!useFullPageLayout && (
           <div className="hidden lg:block relative">
             <Header />
-            {isDualRoleAdmin && (
+            {/* Desktop switch button — ONLY on the dashboard */}
+            {isDualRoleAdmin && location.pathname === '/interviewer/dashboard' && (
               <button
                 type="button"
                 onClick={() => navigate('/admin/dashboard')}
@@ -168,21 +170,6 @@ const InterviewerLayout = () => {
                 Switch to Admin
               </button>
             )}
-          </div>
-        )}
-
-        {/* For full-page-layout interviewer routes, dock the switch button at the top-right floating */}
-        {isDualRoleAdmin && useFullPageLayout && (
-          <div className="hidden lg:flex justify-end px-6 lg:px-10 pt-3 pb-1 shrink-0 bg-background">
-            <button
-              type="button"
-              onClick={() => navigate('/admin/dashboard')}
-              className="inline-flex items-center gap-2 h-8 px-3 rounded-md border border-primary/30 bg-primary/5 text-[12px] font-semibold text-primary hover:bg-primary/10 transition-colors"
-              title="Switch to Admin view"
-            >
-              <ArrowRightLeft className="h-3.5 w-3.5" />
-              Switch to Admin
-            </button>
           </div>
         )}
 
