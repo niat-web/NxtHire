@@ -9,7 +9,8 @@ import {
 } from 'lucide-react';
 import nxtHireLogoLight from '/logo-light.svg';
 
-const ACCENT = '#C0392B';
+const ACCENT = '#C0392B';   // brand red — used on light surfaces only
+const AMBER  = '#EF9F27';   // BRAVE amber — used as the accent on the dark red panel
 const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
 
 const benefits = [
@@ -35,20 +36,20 @@ const ApplicationFormPage = () => {
             <Link to="/" aria-label="NxtHire home">
               <img src={nxtHireLogoLight} alt="NxtHire" className="h-7" />
             </Link>
-            <Link to="/" className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground/70 hover:text-white transition-colors font-medium">
+            <Link to="/" className="inline-flex items-center gap-1.5 text-[12px] text-white/75 hover:text-white transition-colors font-medium">
               <ArrowLeft size={13} /> Back
             </Link>
           </div>
 
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/5 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/40 mb-5">
-            <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: ACCENT }} />
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-white/90 mb-5">
+            <span className="h-1.5 w-1.5 rounded-[2px]" style={{ backgroundColor: AMBER }} />
             Apply
           </span>
 
-          <h2 style={DISPLAY} className="text-[32px] lg:text-[38px] font-semibold leading-[1.08] tracking-tight mb-4">
-            Become a <em className="italic" style={{ color: ACCENT }}>tech interviewer</em>.
+          <h2 style={DISPLAY} className="text-[32px] lg:text-[38px] font-semibold leading-[1.08] tracking-tight mb-4 text-white">
+            Become a <em className="italic" style={{ color: AMBER }}>tech interviewer</em>.
           </h2>
-          <p className="text-muted-foreground/70 text-[13.5px] leading-relaxed mb-8 max-w-sm">
+          <p className="text-white/80 text-[13.5px] leading-relaxed mb-8 max-w-sm">
             Join our community of industry professionals conducting interviews and shaping the careers of aspiring developers.
           </p>
 
@@ -56,24 +57,24 @@ const ApplicationFormPage = () => {
             {benefits.map((item, i) => (
               <motion.div
                 key={i}
-                className="flex items-start gap-3.5 py-3 border-t border-white/10"
+                className="flex items-start gap-3.5 py-3 border-t border-white/15"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 + i * 0.05 }}
               >
-                <div className="w-8 h-8 rounded-full border border-white/15 bg-white/5 flex items-center justify-center shrink-0 text-slate-200">
+                <div className="w-8 h-8 rounded-md border border-white/20 bg-white/10 flex items-center justify-center shrink-0" style={{ color: AMBER }}>
                   <item.icon size={14} />
                 </div>
                 <div>
                   <p className="text-[13px] font-semibold text-white">{item.title}</p>
-                  <p className="text-[12px] text-muted-foreground/70 mt-0.5">{item.desc}</p>
+                  <p className="text-[12px] text-white/75 mt-0.5">{item.desc}</p>
                 </div>
               </motion.div>
             ))}
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-white/10">
+        <div className="mt-10 pt-6 border-t border-white/15">
           <div className="grid grid-cols-3 gap-4">
             {[
               { num: '500+', label: 'Interviews' },
@@ -82,7 +83,7 @@ const ApplicationFormPage = () => {
             ].map((stat, i) => (
               <div key={i}>
                 <p style={DISPLAY} className="text-[22px] font-semibold text-white tracking-tight">{stat.num}</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-semibold mt-1">{stat.label}</p>
+                <p className="text-[10px] text-white/70 uppercase tracking-[0.2em] font-semibold mt-1">{stat.label}</p>
               </div>
             ))}
           </div>
