@@ -7,7 +7,9 @@
       "PowerShell(head -50)",
       "Bash(grep -n '$regex' 'c:\\\\Users\\\\NxtWave\\\\Downloads\\\\NxtHire-1\\\\server\\\\controllers\\\\admin.controller.js')",
       "Bash(node -e \"const app = require\\('./app'\\); console.log\\('Server app loads OK'\\);\")",
-      "Bash(node -e \"const app = require\\('./app'\\); console.log\\('OK'\\);\")"
+      "Bash(node -e \"const app = require\\('./app'\\); console.log\\('OK'\\);\")",
+      "Bash(node -e \"const app = require\\('./app'\\); console.log\\('Server OK'\\);\")",
+      "Bash(node -e \"require\\('./app'\\); console.log\\('Server OK'\\);\")"
     ]
   }
 }

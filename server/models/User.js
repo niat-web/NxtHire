@@ -41,6 +41,14 @@ const UserSchema = new mongoose.Schema({
     enum: ['admin', 'interviewer'],
     required: true
   },
+  // Dual-role flag: when true on an admin, the user is ALSO an interviewer
+  // and can access both /admin/* and /interviewer/* areas. Used together with
+  // an Interviewer document that gets created on enable.
+  alsoInterviewer: {
+    type: Boolean,
+    default: false,
+    index: true,
+  },
   isActive: {
     type: Boolean,
     default: true

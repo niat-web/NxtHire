@@ -1,7 +1,6 @@
 // client/src/App.jsx
 import { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 
 // Layouts (eager — small, used on every route)
@@ -85,12 +84,14 @@ function App() {
     );
   }
 
-  const location = useLocation();
-
+  // NOTE: do NOT wrap <Routes> with AnimatePresence + key={location.pathname}.
+  // That pattern unmounts the entire route tree (including AdminLayout +
+  // Sidebar) on every navigation, causing the sidebar to "reload" / flash.
+  // Per-page transitions still happen via <PageTransition> inside each layout
+  // so child content fades in/out while the sidebar stays mounted.
   return (
-    <AnimatePresence mode="wait">
-      <Suspense fallback={<RouteFallback />}>
-        <Routes location={location} key={location.pathname}>
+    <Suspense fallback={<RouteFallback />}>
+      <Routes>
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<AboutPage />} />
@@ -162,7 +163,6 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
-    </AnimatePresence>
   );
 }
 

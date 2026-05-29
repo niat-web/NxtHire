@@ -63,6 +63,8 @@ const {
   updateOrSetPaymentBonus,
   deletePublicBooking,
   manualBookSlot,
+  adminCreateStudentBooking,
+  adminBulkCreateStudentBookings,
   manualAddBookingSlot,
   addSlotsToPublicBooking,
   getDomainsForHiringName,
@@ -181,6 +183,10 @@ router.route('/main-sheet/:id').get(getMainSheetEntryById).delete(deleteMainShee
 router.route('/public-bookings').get(getPublicBookings).post(createPublicBooking);
 router.route('/public-bookings/:id').get(getPublicBookingDetails).put(updatePublicBooking).delete(deletePublicBooking);
 router.post('/student-bookings/:id/manual-book', manualBookSlot);
+// Admin creates a fresh student booking directly on a public link
+router.post('/public-bookings/:id/manual-add-booking', adminCreateStudentBooking);
+// Admin bulk-books many students from a CSV/Excel upload, auto-assigned to free slots
+router.post('/public-bookings/:id/bulk-manual-book', adminBulkCreateStudentBookings);
 router.post('/public-bookings/:id/reminders', sendBookingReminders);
 router.put('/public-bookings/:id/add-slots', addSlotsToPublicBooking);
 router.get('/student-bookings/pipeline', getStudentPipeline);

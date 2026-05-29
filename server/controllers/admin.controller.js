@@ -1915,24 +1915,86 @@ const getGuidelinesSubmissions = asyncHandler(async (req, res) => {
 
 const getUsers = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, search, role, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
-    const query = {};
-    if (search) { const searchRegex = { $regex: search, $options: 'i' }; query.$or = [ { 'firstName': searchRegex }, { 'lastName': searchRegex }, { 'email': searchRegex }, ]; }
-    if (role) { query.role = role; }
+
+    // Build the search clause (name OR email regex) and the role clause separately,
+    // then combine them with $and. Without this, the $or for role conditions would
+    // OR-out the search filter and return every interviewer regardless of search.
+    const escapeRegex = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const conditions = [];
+
+    if (search && String(search).trim()) {
+        const searchRegex = { $regex: escapeRegex(search.trim()), $options: 'i' };
+        conditions.push({
+            $or: [
+                { firstName: searchRegex },
+                { lastName: searchRegex },
+                { email: searchRegex },
+            ],
+        });
+    }
+
+    if (role) {
+        // Interviewers tab should also include dual-role admins (alsoInterviewer === true)
+        if (role === 'interviewer') {
+            conditions.push({
+                $or: [
+                    { role: 'interviewer' },
+                    { role: 'admin', alsoInterviewer: true },
+                ],
+            });
+        } else {
+            conditions.push({ role });
+        }
+    }
+
+    const query = conditions.length === 0 ? {} : (conditions.length === 1 ? conditions[0] : { $and: conditions });
+
     const totalDocs = await User.countDocuments(query);
     const skip = (page - 1) * limit;
-    let sortKey = sortBy; if (sortBy === 'fullName') { sortKey = 'firstName'; } const sort = { [sortKey]: sortOrder === 'desc' ? -1 : 1 };
+    let sortKey = sortBy; if (sortBy === 'fullName') { sortKey = 'firstName'; }
+    const sort = { [sortKey]: sortOrder === 'desc' ? -1 : 1 };
     const users = await User.find(query).sort(sort).skip(skip).limit(parseInt(limit));
     const usersWithDetails = users.map(user => ({ ...user.toObject(), fullName: `${user.firstName} ${user.lastName}` }));
     res.json({ success: true, data: { users: usersWithDetails, page: parseInt(page), limit: parseInt(limit), totalDocs, totalPages: Math.ceil(totalDocs / parseInt(limit)) } });
 });
 
 const createUser = asyncHandler(async (req, res) => {
-    const { firstName, lastName, email, role, isActive, phoneNumber } = req.body;
+    const { firstName, lastName, email, role, isActive, phoneNumber, alsoInterviewer, interviewerDomains, interviewerPrimaryDomain } = req.body;
     const userExists = await User.findOne({ email });
     if (userExists) { res.status(400); throw new Error('User with this email already exists.'); }
 
+    // Dual-role only makes sense for admins (admin who is ALSO an interviewer)
+    const enableDual = role === 'admin' && alsoInterviewer === true;
+    if (enableDual && (!Array.isArray(interviewerDomains) || interviewerDomains.length === 0)) {
+        res.status(400);
+        throw new Error('At least one interviewer domain is required when enabling dual-role.');
+    }
+
     // Create user without password — they will set it via email link
-    const user = await User.create({ firstName, lastName, email, role, isActive: isActive !== undefined ? isActive : true, phoneNumber });
+    const user = await User.create({
+        firstName, lastName, email, role,
+        isActive: isActive !== undefined ? isActive : true,
+        phoneNumber,
+        alsoInterviewer: enableDual,
+    });
+
+    // If admin is also an interviewer, create the Interviewer doc with Active status
+    if (enableDual) {
+        try {
+            await Interviewer.create({
+                user: user._id,
+                source: 'Internal',
+                domains: interviewerDomains,
+                primaryDomain: interviewerPrimaryDomain || interviewerDomains[0],
+                status: 'Active', // dual-role admins start active (they're trusted operators)
+            });
+        } catch (err) {
+            // Rollback the user so we don't leave an admin with the flag set but no Interviewer doc
+            await User.deleteOne({ _id: user._id }).catch(() => {});
+            res.status(400);
+            throw new Error(err.message || 'Failed to create interviewer profile for dual-role user.');
+        }
+    }
 
     // Generate a 24-hour setup token
     const resetToken = user.getResetPasswordToken();
@@ -1975,7 +2037,7 @@ const getUserDetails = asyncHandler(async (req, res) => {
 const updateUser = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) { res.status(404); throw new Error('User not found'); }
-    const { firstName, lastName, email, role, isActive } = req.body;
+    const { firstName, lastName, email, role, isActive, alsoInterviewer, interviewerDomains, interviewerPrimaryDomain } = req.body;
     user.firstName = firstName || user.firstName;
     user.lastName = lastName || user.lastName;
     user.role = role || user.role;
@@ -1985,6 +2047,46 @@ const updateUser = asyncHandler(async (req, res) => {
         if (emailExists && emailExists._id.toString() !== user._id.toString()) { res.status(400); throw new Error('Email already in use'); }
         user.email = email;
     }
+
+    // Dual-role toggle (only meaningful on admin accounts)
+    if (typeof alsoInterviewer === 'boolean' && user.role === 'admin') {
+        const wasDual = user.alsoInterviewer === true;
+        const willBeDual = alsoInterviewer === true;
+        user.alsoInterviewer = willBeDual;
+
+        if (willBeDual) {
+            if (!Array.isArray(interviewerDomains) || interviewerDomains.length === 0) {
+                res.status(400);
+                throw new Error('At least one interviewer domain is required when enabling dual-role.');
+            }
+            // Create or update the linked Interviewer doc
+            const existingInterviewer = await Interviewer.findOne({ user: user._id });
+            if (existingInterviewer) {
+                existingInterviewer.domains = interviewerDomains;
+                existingInterviewer.primaryDomain = interviewerPrimaryDomain || interviewerDomains[0];
+                if (!existingInterviewer.status || existingInterviewer.status === 'Inactive') {
+                    existingInterviewer.status = 'Active';
+                }
+                await existingInterviewer.save();
+            } else {
+                await Interviewer.create({
+                    user: user._id,
+                    source: 'Internal',
+                    domains: interviewerDomains,
+                    primaryDomain: interviewerPrimaryDomain || interviewerDomains[0],
+                    status: 'Active',
+                });
+            }
+        } else if (wasDual && !willBeDual) {
+            // Disabling dual-role: mark the linked Interviewer record inactive
+            // rather than deleting (preserves any historical bookings / sheet rows).
+            await Interviewer.updateOne(
+                { user: user._id },
+                { $set: { status: 'Inactive' } }
+            );
+        }
+    }
+
     const updatedUser = await user.save();
     res.json({ success: true, data: updatedUser });
 });
@@ -3371,6 +3473,341 @@ const manualBookSlot = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Admin manually creates a fresh student booking on a public link.
+//          Use this when a student gave their info directly to the admin
+//          (phone / email / walk-in) instead of using the public booking page.
+//          Creates the allowedStudent + StudentBooking + MainSheetEntry and
+//          marks the chosen slot as taken — all atomically.
+// @route   POST /api/admin/public-bookings/:id/manual-add-booking
+// @access  Private/Admin
+const adminCreateStudentBooking = asyncHandler(async (req, res) => {
+    const { id: publicBookingId } = req.params;
+    const {
+        studentName,
+        studentEmail,
+        mobileNumber,
+        userId,
+        hiringName,
+        interviewId,
+        domain,
+        resumeLink,
+        interviewerId,
+        date,
+        slot,
+        hostEmail,
+        eventTitle,
+    } = req.body;
+
+    if (!publicBookingId) { res.status(400); throw new Error('Public booking id is required.'); }
+    if (!studentName || !studentEmail) { res.status(400); throw new Error('Student name and email are required.'); }
+    if (!interviewerId || !date || !slot?.startTime || !slot?.endTime) { res.status(400); throw new Error('Interviewer + date + slot are required.'); }
+    if (!hostEmail || !eventTitle) { res.status(400); throw new Error('Host email and event title are required.'); }
+
+    const publicBooking = await PublicBooking.findById(publicBookingId);
+    if (!publicBooking) { res.status(404); throw new Error('Public booking not found.'); }
+
+    const normalizedEmail = String(studentEmail).trim().toLowerCase();
+
+    // Reject if the student email is already booked on this link
+    const existingBooking = await StudentBooking.findOne({ publicBooking: publicBooking._id, studentEmail: normalizedEmail });
+    if (existingBooking) { res.status(400); throw new Error('This student is already booked on this link.'); }
+
+    const interviewer = await Interviewer.findById(interviewerId).populate('user', 'email');
+    if (!interviewer) { res.status(404); throw new Error('Interviewer not found.'); }
+    const interviewerEmail = interviewer.user?.email || '';
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        // Ensure the student is listed as allowed (so the existing pipeline UI knows about them)
+        const alreadyAllowed = publicBooking.allowedStudents.some(s => s.email === normalizedEmail);
+        if (!alreadyAllowed) {
+            publicBooking.allowedStudents.push({
+                fullName: studentName,
+                email: normalizedEmail,
+                mobileNumber: mobileNumber || '',
+                userId: userId || '',
+                hiringName: hiringName || '',
+                interviewId: interviewId || '',
+                domain: domain || '',
+                resumeLink: resumeLink || '',
+                hostEmail,
+                eventTitle,
+            });
+            await publicBooking.save({ session });
+        }
+
+        // Create the booked StudentBooking record
+        const newStudentBooking = new StudentBooking({
+            publicBooking: publicBooking._id,
+            studentName,
+            studentEmail: normalizedEmail,
+            studentPhone: mobileNumber || '',
+            mobileNumber: mobileNumber || '',
+            userId: userId || '',
+            hiringName: hiringName || '',
+            interviewId: interviewId || '',
+            domain: domain || '',
+            resumeLink: resumeLink || '',
+            bookedInterviewer: interviewerId,
+            interviewerEmail,
+            bookedSlot: { startTime: slot.startTime, endTime: slot.endTime },
+            bookingDate: date,
+            hostEmail,
+            eventTitle,
+        });
+        await newStudentBooking.save({ session });
+
+        // Atomically mark the chosen slot as booked. The arrayFilter on
+        // `bookedBy: null` guarantees we don't double-book a slot.
+        const updateResult = await PublicBooking.updateOne(
+            { _id: publicBooking._id },
+            { $set: { 'interviewerSlots.$[i].timeSlots.$[j].bookedBy': newStudentBooking._id } },
+            {
+                arrayFilters: [
+                    { 'i.interviewer': new mongoose.Types.ObjectId(interviewerId), 'i.date': new Date(date) },
+                    { 'j.startTime': slot.startTime, 'j.endTime': slot.endTime, 'j.bookedBy': null },
+                ],
+                session,
+            }
+        );
+        if (updateResult.modifiedCount === 0) {
+            throw new Error('That slot is no longer available (it may have been taken by someone else).');
+        }
+
+        // Mirror into the MainSheet so it shows up in the operations sheet
+        const duration = (new Date(`1970-01-01T${slot.endTime}:00Z`) - new Date(`1970-01-01T${slot.startTime}:00Z`)) / 60000;
+        await MainSheetEntry.findOneAndUpdate(
+            { interviewId: newStudentBooking.interviewId || `manual-${newStudentBooking._id}` },
+            {
+                $set: {
+                    interviewId: newStudentBooking.interviewId || `manual-${newStudentBooking._id}`,
+                    candidateName: studentName,
+                    candidateEmail: normalizedEmail,
+                    candidatePhone: mobileNumber || '',
+                    userId: userId || '',
+                    hiringName: hiringName || '',
+                    techStack: domain || '',
+                    interviewDate: newStudentBooking.bookingDate,
+                    interviewTime: `${slot.startTime} - ${slot.endTime}`,
+                    interviewDuration: `${duration} mins`,
+                    interviewStatus: 'Scheduled',
+                    interviewer: newStudentBooking.bookedInterviewer,
+                    updatedBy: req.user._id,
+                },
+            },
+            { upsert: true, new: true, session }
+        );
+
+        await session.commitTransaction();
+        session.endSession();
+
+        logEvent('admin_manual_student_booking_created', {
+            publicBookingId: publicBooking._id,
+            studentBookingId: newStudentBooking._id,
+            studentEmail: normalizedEmail,
+            adminId: req.user._id,
+        });
+
+        res.status(201).json({ success: true, message: 'Student manually booked.', data: newStudentBooking });
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        throw error;
+    }
+});
+
+// @desc    Bulk-book multiple students on a public link in one CSV upload.
+//          Each student is auto-assigned to the next available slot on the
+//          link (FIFO across dates → times). Returns a per-row summary so the
+//          UI can show which rows succeeded and which failed.
+// @route   POST /api/admin/public-bookings/:id/bulk-manual-book
+// @access  Private/Admin
+const adminBulkCreateStudentBookings = asyncHandler(async (req, res) => {
+    const { id: publicBookingId } = req.params;
+    const { hostEmail, eventTitle, students } = req.body;
+
+    if (!publicBookingId) { res.status(400); throw new Error('Public booking id is required.'); }
+    if (!hostEmail || !eventTitle) { res.status(400); throw new Error('Host email and event title template are required.'); }
+    if (!Array.isArray(students) || students.length === 0) { res.status(400); throw new Error('At least one student is required.'); }
+
+    const publicBooking = await PublicBooking.findById(publicBookingId);
+    if (!publicBooking) { res.status(404); throw new Error('Public booking not found.'); }
+
+    // Build the queue of unbooked slots in chronological order (date asc, then startTime asc).
+    // We pull from this queue one slot per student to avoid double-booking.
+    const slotQueue = [];
+    (publicBooking.interviewerSlots || []).forEach(s => {
+        const interviewerId = s.interviewer; // ObjectId
+        const date = s.date;
+        (s.timeSlots || []).forEach((t, idx) => {
+            if (t.bookedBy) return;
+            slotQueue.push({
+                interviewerId,
+                date,
+                startTime: t.startTime,
+                endTime: t.endTime,
+                slotIndex: idx,
+            });
+        });
+    });
+    slotQueue.sort((a, b) => {
+        const dateCmp = new Date(a.date) - new Date(b.date);
+        if (dateCmp !== 0) return dateCmp;
+        return a.startTime.localeCompare(b.startTime);
+    });
+
+    // Pre-cache interviewer emails (avoid N+1 lookups in the loop)
+    const uniqueInterviewerIds = [...new Set(slotQueue.map(s => String(s.interviewerId)))];
+    const interviewerDocs = await Interviewer.find({ _id: { $in: uniqueInterviewerIds } }).populate('user', 'email');
+    const interviewerEmailById = new Map(interviewerDocs.map(d => [String(d._id), d.user?.email || '']));
+
+    // Pre-check duplicates that already exist on this link to skip them early
+    const existingBookedEmails = new Set(
+        (await StudentBooking.find({ publicBooking: publicBooking._id }).select('studentEmail').lean())
+            .map(s => String(s.studentEmail || '').trim().toLowerCase())
+    );
+
+    const results = [];
+    let slotPtr = 0;
+
+    for (let i = 0; i < students.length; i++) {
+        const row = students[i] || {};
+        const studentName = String(row.fullName || row.studentName || '').trim();
+        const studentEmail = String(row.email || row.studentEmail || '').trim().toLowerCase();
+
+        // Validate basic fields per row
+        if (!studentName || !studentEmail) {
+            results.push({ row: i + 1, email: studentEmail, status: 'failed', reason: 'Missing name or email.' });
+            continue;
+        }
+        if (existingBookedEmails.has(studentEmail)) {
+            results.push({ row: i + 1, email: studentEmail, status: 'failed', reason: 'Already booked on this link.' });
+            continue;
+        }
+
+        // Get the next available slot
+        if (slotPtr >= slotQueue.length) {
+            results.push({ row: i + 1, email: studentEmail, status: 'failed', reason: 'No more available slots on this link.' });
+            continue;
+        }
+        const slot = slotQueue[slotPtr];
+        slotPtr++;
+
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        try {
+            // Add to allowedStudents if missing
+            const alreadyAllowed = publicBooking.allowedStudents.some(s => s.email === studentEmail);
+            if (!alreadyAllowed) {
+                publicBooking.allowedStudents.push({
+                    fullName: studentName,
+                    email: studentEmail,
+                    mobileNumber: row.mobileNumber || '',
+                    userId: row.userId || '',
+                    hiringName: row.hiringName || '',
+                    interviewId: row.interviewId || '',
+                    domain: row.domain || '',
+                    resumeLink: row.resumeLink || '',
+                    hostEmail,
+                    eventTitle,
+                });
+                await publicBooking.save({ session });
+            }
+
+            const renderedTitle = eventTitle
+                .replace(/\{name\}/gi, studentName)
+                .replace(/\{domain\}/gi, row.domain || '');
+
+            const newStudentBooking = new StudentBooking({
+                publicBooking: publicBooking._id,
+                studentName,
+                studentEmail,
+                studentPhone: row.mobileNumber || '',
+                mobileNumber: row.mobileNumber || '',
+                userId: row.userId || '',
+                hiringName: row.hiringName || '',
+                interviewId: row.interviewId || '',
+                domain: row.domain || '',
+                resumeLink: row.resumeLink || '',
+                bookedInterviewer: slot.interviewerId,
+                interviewerEmail: interviewerEmailById.get(String(slot.interviewerId)) || '',
+                bookedSlot: { startTime: slot.startTime, endTime: slot.endTime },
+                bookingDate: slot.date,
+                hostEmail,
+                eventTitle: renderedTitle,
+            });
+            await newStudentBooking.save({ session });
+
+            const updateResult = await PublicBooking.updateOne(
+                { _id: publicBooking._id },
+                { $set: { 'interviewerSlots.$[i].timeSlots.$[j].bookedBy': newStudentBooking._id } },
+                {
+                    arrayFilters: [
+                        { 'i.interviewer': slot.interviewerId, 'i.date': new Date(slot.date) },
+                        { 'j.startTime': slot.startTime, 'j.endTime': slot.endTime, 'j.bookedBy': null },
+                    ],
+                    session,
+                }
+            );
+            if (updateResult.modifiedCount === 0) throw new Error('Slot disappeared during booking.');
+
+            const duration = (new Date(`1970-01-01T${slot.endTime}:00Z`) - new Date(`1970-01-01T${slot.startTime}:00Z`)) / 60000;
+            await MainSheetEntry.findOneAndUpdate(
+                { interviewId: newStudentBooking.interviewId || `manual-${newStudentBooking._id}` },
+                {
+                    $set: {
+                        interviewId: newStudentBooking.interviewId || `manual-${newStudentBooking._id}`,
+                        candidateName: studentName,
+                        candidateEmail: studentEmail,
+                        candidatePhone: row.mobileNumber || '',
+                        userId: row.userId || '',
+                        hiringName: row.hiringName || '',
+                        techStack: row.domain || '',
+                        interviewDate: newStudentBooking.bookingDate,
+                        interviewTime: `${slot.startTime} - ${slot.endTime}`,
+                        interviewDuration: `${duration} mins`,
+                        interviewStatus: 'Scheduled',
+                        interviewer: newStudentBooking.bookedInterviewer,
+                        updatedBy: req.user._id,
+                    },
+                },
+                { upsert: true, new: true, session }
+            );
+
+            await session.commitTransaction();
+            session.endSession();
+
+            existingBookedEmails.add(studentEmail);
+            results.push({ row: i + 1, email: studentEmail, status: 'created', studentBookingId: newStudentBooking._id });
+        } catch (rowErr) {
+            await session.abortTransaction();
+            session.endSession();
+            // Return the slot to the pool so a later row can try it
+            slotPtr--;
+            slotQueue[slotPtr] = slot;
+            results.push({ row: i + 1, email: studentEmail, status: 'failed', reason: rowErr.message });
+        }
+    }
+
+    const createdCount = results.filter(r => r.status === 'created').length;
+    const failedCount = results.length - createdCount;
+
+    logEvent('admin_bulk_manual_student_booking', {
+        publicBookingId: publicBooking._id,
+        adminId: req.user._id,
+        created: createdCount,
+        failed: failedCount,
+    });
+
+    res.status(201).json({
+        success: true,
+        message: `${createdCount} student(s) booked, ${failedCount} failed.`,
+        data: { created: createdCount, failed: failedCount, results },
+    });
+});
+
 // @desc    Manually add interviewer slots for a specific booking date
 // @route   POST /api/admin/booking-slots/manual
 // @access  Private/Admin
@@ -3577,6 +4014,8 @@ module.exports = {
     updateOrSetPaymentBonus,
     deletePublicBooking,
     manualBookSlot,
+    adminCreateStudentBooking,
+    adminBulkCreateStudentBookings,
     manualAddBookingSlot,
     addSlotsToPublicBooking,
     getDomainsForHiringName,
