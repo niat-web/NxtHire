@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 // Self-contained loader
 const Loader = ({ text }) => (
     <div className="flex flex-col items-center justify-center text-center">
-        <Loader2 className="h-10 w-10 text-blue-600 animate-spin" />
+        <Loader2 className="h-10 w-10 text-foreground animate-spin" />
         <p className="mt-4 text-gray-600">{text}</p>
     </div>
 );
@@ -75,18 +75,22 @@ const PaymentConfirmationPage = () => {
         if (error) {
             return (
                 <div className="text-center">
-                    <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-                    <h2 className="text-2xl font-semibold text-gray-800">An Error Occurred</h2>
-                    <p className="mt-2 text-gray-600">{error}</p>
+                    <span className="inline-flex items-center justify-center h-14 w-14 rounded-full border border-red-200 bg-white text-red-600 mx-auto mb-4">
+                        <AlertTriangle className="h-6 w-6" aria-hidden="true" />
+                    </span>
+                    <h2 className="font-display text-[28px] font-semibold text-foreground tracking-tight">An error occurred.</h2>
+                    <p className="mt-2 text-[14px] text-foreground/80">{error}</p>
                 </div>
             );
         }
         if (isSubmitted || !confirmationData) {
             return (
                  <div className="text-center">
-                    <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                    <h2 className="text-2xl font-semibold text-gray-800">Thank You</h2>
-                    <p className="mt-2 text-gray-600">Your response has been recorded. You may now close this page.</p>
+                    <span className="inline-flex items-center justify-center h-14 w-14 rounded-full border border-border bg-white text-foreground/90 mx-auto mb-4">
+                        <CheckCircle className="h-6 w-6" aria-hidden="true" />
+                    </span>
+                    <h2 className="font-display text-[28px] font-semibold text-foreground tracking-tight">Thank you.</h2>
+                    <p className="mt-2 text-[14px] text-foreground/80">Your response has been recorded. You may now close this page.</p>
                 </div>
             );
         }
@@ -94,8 +98,8 @@ const PaymentConfirmationPage = () => {
         return (
              <>
                 <div className="text-center mb-6">
-                    <h1 className="text-3xl font-semibold text-gray-900">Payment Confirmation</h1>
-                    <p className="mt-2 text-gray-600">For {confirmationData.monthYear}</p>
+                    <h1 className="font-display text-[30px] font-semibold text-foreground tracking-tight">Payment confirmation.</h1>
+                    <p className="mt-2 text-[14px] text-foreground/80">For {confirmationData.monthYear}</p>
                 </div>
                 <div className="bg-gray-50 p-5 rounded-xl border border-gray-200 mb-6 space-y-2">
                      <p><strong>Name:</strong> {confirmationData.name}</p>

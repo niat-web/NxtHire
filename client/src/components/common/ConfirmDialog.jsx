@@ -40,7 +40,7 @@ const ConfirmDialog = ({
       <div className="flex items-start mb-4">
         {icon && <div className="mr-3 flex-shrink-0">{icon}</div>}
         <div>
-          <p className="text-sm text-muted-foreground">{message}</p>
+          <p className="text-[13.5px] text-foreground/80 leading-relaxed">{message}</p>
         </div>
       </div>
 

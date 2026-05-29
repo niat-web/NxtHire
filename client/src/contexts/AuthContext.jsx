@@ -1,5 +1,5 @@
 // client/src/contexts/AuthContext.jsx
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import api from '../api/axios';
 import { useAlert } from '../hooks/useAlert';
@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Google login
+  // Google login — popup/credential flow (ID token JWT)
   const googleLogin = async (credential) => {
     try {
       setError(null);
@@ -100,13 +100,30 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Google login — full-page redirect / authorization-code flow
+  const googleLoginWithCode = async (code, redirect_uri) => {
+    try {
+      setError(null);
+      const response = await api.post('/api/auth/google/callback', { code, redirect_uri });
+      const { token, user } = response.data;
+
+      localStorage.setItem('token', token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      setCurrentUser(user);
+      return user;
+    } catch (err) {
+      throw err;
+    }
+  };
+
   // Logout function
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('cachedUser');
     delete api.defaults.headers.common['Authorization'];
     setCurrentUser(null);
-  };
+  }, []);
 
   // Update user profile
   const updateProfile = async (userData) => {
@@ -196,19 +213,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const value = {
+  // Memoize the context value so every consumer doesn't re-render on every parent render.
+  const value = useMemo(() => ({
     currentUser,
     loading,
     error,
     login,
     googleLogin,
+    googleLoginWithCode,
     logout,
     updateProfile,
     changePassword,
     requestPasswordReset,
     resetPassword,
-    createPassword
-  };
+    createPassword,
+  }), [currentUser, loading, error, logout]);
 
   return (
     <AuthContext.Provider value={value}>

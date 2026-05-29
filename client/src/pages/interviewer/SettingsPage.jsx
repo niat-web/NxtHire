@@ -38,14 +38,14 @@ const SettingsPage = () => {
   return (
     <div className="h-full flex flex-col overflow-hidden bg-white">
       {/* Tab bar at top */}
-      <div className="flex items-center gap-1 px-5 py-2 border-b border-slate-200 bg-[#f8fafc] shrink-0">
+      <div className="flex items-center gap-1 px-5 py-2 border-b border-border bg-[#f8fafc] shrink-0">
         {tabs.map(tab => {
           const isActive = activeTab === tab.id;
           return (
             <button key={tab.id} onClick={() => handleTabClick(tab.id)}
               className={cn(
                 'flex items-center gap-2 px-4 py-2 text-[13px] font-medium rounded-md transition-all',
-                isActive ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700 hover:bg-white/60'
+                isActive ? 'bg-white text-foreground shadow-sm border border-border' : 'text-muted-foreground hover:text-foreground/90 hover:bg-white/60'
               )}>
               <tab.icon className="w-4 h-4" />
               {tab.label}

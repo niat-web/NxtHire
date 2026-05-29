@@ -11,34 +11,34 @@ import { formatDate, formatDateTime } from '../../utils/formatters';
 
 // ── Inline status badge ──
 const statusColors = {
-    'Application Submitted': 'bg-slate-100 text-slate-700',
+    'Application Submitted': 'bg-muted text-foreground/90',
     'Under Review': 'bg-amber-50 text-amber-700',
     'Profile Approved': 'bg-emerald-50 text-emerald-700',
     'Profile Rejected': 'bg-red-50 text-red-700',
-    'Skills Assessment Sent': 'bg-blue-50 text-blue-700',
-    'Skills Assessment Completed': 'bg-blue-50 text-blue-700',
-    'Guidelines Sent': 'bg-violet-50 text-violet-700',
-    'Guidelines Reviewed': 'bg-violet-50 text-violet-700',
+    'Skills Assessment Sent': 'bg-muted/40 text-foreground',
+    'Skills Assessment Completed': 'bg-muted/40 text-foreground',
+    'Guidelines Sent': 'bg-muted/40 text-foreground/90',
+    'Guidelines Reviewed': 'bg-muted/40 text-foreground/90',
     'Guidelines Failed': 'bg-red-50 text-red-700',
     'Onboarded': 'bg-emerald-50 text-emerald-700',
     'Active': 'bg-emerald-50 text-emerald-700',
     'On Probation': 'bg-amber-50 text-amber-700',
-    'Inactive': 'bg-slate-100 text-slate-600',
+    'Inactive': 'bg-muted text-foreground/80',
     'Suspended': 'bg-red-50 text-red-700',
 };
 
 const InlineStatusBadge = ({ status }) => (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${statusColors[status] || 'bg-slate-100 text-slate-600'}`}>
+    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${statusColors[status] || 'bg-muted text-foreground/80'}`}>
         {status}
     </span>
 );
 
 // ── Inline panel ──
 const Panel = ({ title, children }) => (
-    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <div className="bg-white rounded-xl border border-border overflow-hidden">
         {title && (
-            <div className="px-6 py-4 border-b border-slate-100">
-                <div className="text-sm font-semibold text-slate-900">{title}</div>
+            <div className="px-6 py-4 border-b border-border">
+                <div className="text-sm font-semibold text-foreground">{title}</div>
             </div>
         )}
         <div className="px-6 py-5">{children}</div>
@@ -48,8 +48,8 @@ const Panel = ({ title, children }) => (
 // ── Inline detail field ──
 const Field = ({ label, children }) => (
     <div>
-        <h4 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">{label}</h4>
-        <div className="mt-1 text-sm text-slate-900">{children || <span className="text-slate-300">—</span>}</div>
+        <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">{label}</h4>
+        <div className="mt-1 text-sm text-foreground">{children || <span className="text-muted-foreground/40">—</span>}</div>
     </div>
 );
 
@@ -110,8 +110,8 @@ const ApplicantDetails = () => {
   if (!applicant) {
     return (
       <div className="text-center py-12">
-        <p className="text-slate-500">Applicant not found</p>
-        <Link to="/admin/applicants" className="inline-flex items-center mt-4 px-4 h-10 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+        <p className="text-muted-foreground">Applicant not found</p>
+        <Link to="/admin/applicants" className="inline-flex items-center mt-4 px-4 h-10 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 transition-colors">
           Back to Applicants
         </Link>
       </div>
@@ -123,13 +123,13 @@ const ApplicantDetails = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
-          <Link to="/admin/hiring/applicants" className="w-9 h-9 rounded-lg flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors">
+          <Link to="/admin/hiring/applicants" className="w-9 h-9 rounded-lg flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-muted/40 transition-colors">
             <ArrowLeft size={16} />
           </Link>
-          <h1 className="text-lg font-semibold text-slate-900">Applicant Details</h1>
+          <h1 className="text-lg font-semibold text-foreground">Applicant Details</h1>
         </div>
         <button onClick={() => setIsStatusModalOpen(true)}
-          className="inline-flex items-center gap-2 px-4 h-10 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+          className="inline-flex items-center gap-2 px-4 h-10 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 transition-colors">
           <Edit size={16} /> Update Status
         </button>
       </div>
@@ -137,7 +137,7 @@ const ApplicantDetails = () => {
       {/* Basic Information */}
       <Panel title={
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2"><User size={16} className="text-blue-600" /> Basic Information</div>
+          <div className="flex items-center gap-2"><User size={16} className="text-foreground" /> Basic Information</div>
           <InlineStatusBadge status={applicant.status} />
         </div>
       }>
@@ -154,7 +154,7 @@ const ApplicantDetails = () => {
           <Field label="LinkedIn Profile">
             {applicant.linkedinProfileUrl && (
               <a href={applicant.linkedinProfileUrl} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800">
+                className="inline-flex items-center gap-1 text-foreground hover:text-blue-800">
                 <span className="underline">{applicant.linkedinProfileUrl}</span>
                 <ExternalLink size={14} />
               </a>
@@ -163,10 +163,10 @@ const ApplicantDetails = () => {
         </div>
 
         {applicant.additionalComments && (
-          <div className="mt-5"><Field label="Additional Comments"><p className="whitespace-pre-line text-sm text-slate-700">{applicant.additionalComments}</p></Field></div>
+          <div className="mt-5"><Field label="Additional Comments"><p className="whitespace-pre-line text-sm text-foreground/90">{applicant.additionalComments}</p></Field></div>
         )}
         {applicant.reviewNotes && (
-          <div className="mt-5"><Field label="Review Notes"><p className="whitespace-pre-line text-sm text-slate-700">{applicant.reviewNotes}</p></Field></div>
+          <div className="mt-5"><Field label="Review Notes"><p className="whitespace-pre-line text-sm text-foreground/90">{applicant.reviewNotes}</p></Field></div>
         )}
       </Panel>
 
@@ -182,18 +182,18 @@ const ApplicantDetails = () => {
                   )}
                   <div className="relative flex space-x-3">
                     <div>
-                      <span className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center ring-8 ring-white">
-                        <span className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+                      <span className="h-8 w-8 rounded-full bg-muted/40 flex items-center justify-center ring-8 ring-white">
+                        <span className="h-2.5 w-2.5 rounded-full bg-primary" />
                       </span>
                     </div>
                     <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
                       <div>
-                        <p className="text-sm text-slate-900">
+                        <p className="text-sm text-foreground">
                           Status changed to <span className="font-semibold">{statusItem.status}</span>
-                          {statusItem.notes && <span className="text-slate-500"> — {statusItem.notes}</span>}
+                          {statusItem.notes && <span className="text-muted-foreground"> — {statusItem.notes}</span>}
                         </p>
                       </div>
-                      <div className="text-right text-xs whitespace-nowrap text-slate-500 font-medium">
+                      <div className="text-right text-xs whitespace-nowrap text-muted-foreground font-medium">
                         {formatDateTime(statusItem.timestamp)}
                       </div>
                     </div>
@@ -207,7 +207,7 @@ const ApplicantDetails = () => {
 
       {/* Skill Assessment */}
       {skillAssessment && (
-        <Panel title={<div className="flex items-center gap-2"><FileText size={16} className="text-blue-600" /> Skill Assessment</div>}>
+        <Panel title={<div className="flex items-center gap-2"><FileText size={16} className="text-foreground" /> Skill Assessment</div>}>
           <div className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <Field label="Current Employer">{skillAssessment.currentEmployer}</Field>
@@ -216,7 +216,7 @@ const ApplicantDetails = () => {
               <Field label="Domain">
                 <Badge variant="default">{skillAssessment.domain}</Badge>
                 {skillAssessment.autoCategorizedDomain !== skillAssessment.domain && (
-                  <p className="mt-1 text-xs text-slate-400">Auto-categorized: {skillAssessment.autoCategorizedDomain}</p>
+                  <p className="mt-1 text-xs text-muted-foreground/70">Auto-categorized: {skillAssessment.autoCategorizedDomain}</p>
                 )}
               </Field>
               <Field label="Status">{skillAssessment.status}</Field>
@@ -224,24 +224,24 @@ const ApplicantDetails = () => {
             </div>
 
             <div>
-              <h4 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-3">Technical Skills</h4>
+              <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-3">Technical Skills</h4>
               <div className="space-y-3">
                 {skillAssessment.technicalSkills.map((skill, index) => (
-                  <div key={index} className="p-4 border border-slate-200 rounded-lg">
+                  <div key={index} className="p-4 border border-border rounded-lg">
                     <div className="flex justify-between items-center">
-                      <h4 className="text-sm font-semibold text-slate-900">{skill.skill}</h4>
+                      <h4 className="text-sm font-semibold text-foreground">{skill.skill}</h4>
                       <Badge variant={skill.proficiencyLevel === 'Expert' ? 'purple' : skill.proficiencyLevel === 'Advanced' ? 'success' : skill.proficiencyLevel === 'Intermediate' ? 'info' : 'gray'}>
                         {skill.proficiencyLevel}
                       </Badge>
                     </div>
-                    <p className="mt-1 text-xs text-slate-500">{skill.yearsOfExperience} {skill.yearsOfExperience === 1 ? 'year' : 'years'} of experience</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{skill.yearsOfExperience} {skill.yearsOfExperience === 1 ? 'year' : 'years'} of experience</p>
                   </div>
                 ))}
               </div>
             </div>
 
             {skillAssessment.additionalNotes && (
-              <Field label="Additional Notes"><p className="whitespace-pre-line text-sm text-slate-700">{skillAssessment.additionalNotes}</p></Field>
+              <Field label="Additional Notes"><p className="whitespace-pre-line text-sm text-foreground/90">{skillAssessment.additionalNotes}</p></Field>
             )}
           </div>
         </Panel>
@@ -249,7 +249,7 @@ const ApplicantDetails = () => {
 
       {/* Interviewer Information */}
       {interviewer && (
-        <Panel title={<div className="flex items-center gap-2"><User size={16} className="text-blue-600" /> Interviewer Information</div>}>
+        <Panel title={<div className="flex items-center gap-2"><User size={16} className="text-foreground" /> Interviewer Information</div>}>
           <div className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <Field label="Name">{interviewer.user?.firstName} {interviewer.user?.lastName}</Field>
@@ -261,7 +261,7 @@ const ApplicantDetails = () => {
             </div>
 
             <div>
-              <h4 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-3">Metrics</h4>
+              <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-3">Metrics</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
                   { label: 'Interviews Completed', value: interviewer.metrics?.interviewsCompleted || 0 },
@@ -269,9 +269,9 @@ const ApplicantDetails = () => {
                   { label: 'Completion Rate', value: `${(interviewer.metrics?.completionRate || 0).toFixed(1)}%` },
                   { label: 'Profile Completeness', value: `${interviewer.profileCompleteness || 0}%` },
                 ].map((m) => (
-                  <div key={m.label} className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                    <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">{m.label}</p>
-                    <p className="text-lg font-bold text-slate-900 mt-0.5">{m.value}</p>
+                  <div key={m.label} className="bg-muted/40 p-3 rounded-lg border border-border">
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">{m.label}</p>
+                    <p className="text-lg font-semibold text-foreground mt-0.5">{m.value}</p>
                   </div>
                 ))}
               </div>
@@ -279,7 +279,7 @@ const ApplicantDetails = () => {
 
             <div className="flex justify-end">
               <Link to={`/admin/interviewers/${interviewer._id}`}
-                className="inline-flex items-center px-4 h-10 text-sm font-medium text-slate-700 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors">
+                className="inline-flex items-center px-4 h-10 text-sm font-medium text-foreground/90 border border-border rounded-md hover:bg-muted/40 transition-colors">
                 View Full Interviewer Profile
               </Link>
             </div>

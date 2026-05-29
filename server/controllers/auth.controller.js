@@ -16,33 +16,10 @@ const { logEvent, logError } = require('../middleware/logger.middleware');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// @desc    Login with Google
-// @route   POST /api/auth/google
-// @access  Public
-const googleLogin = asyncHandler(async (req, res) => {
-  const { credential } = req.body;
+// Shared post-verification: takes a verified Google payload, returns the login response.
+const issueLoginFromGooglePayload = async (payload, res) => {
+  const { email } = payload;
 
-  if (!credential) {
-    res.status(400);
-    throw new Error('Google credential is required.');
-  }
-
-  // Verify Google token
-  let payload;
-  try {
-    const ticket = await googleClient.verifyIdToken({
-      idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    payload = ticket.getPayload();
-  } catch (err) {
-    res.status(401);
-    throw new Error('Invalid Google token.');
-  }
-
-  const { email, given_name, family_name } = payload;
-
-  // Find existing user by email
   const user = await User.findOne({ email });
 
   if (!user) {
@@ -55,7 +32,6 @@ const googleLogin = asyncHandler(async (req, res) => {
     throw new Error('Your account is inactive. Please contact support.');
   }
 
-  // Update last login
   user.lastLogin = Date.now();
   await user.save();
 
@@ -72,6 +48,85 @@ const googleLogin = asyncHandler(async (req, res) => {
       role: user.role,
     },
   });
+};
+
+// @desc    Login with Google (credential/ID-token popup flow)
+// @route   POST /api/auth/google
+// @access  Public
+const googleLogin = asyncHandler(async (req, res) => {
+  const { credential } = req.body;
+
+  if (!credential) {
+    res.status(400);
+    throw new Error('Google credential is required.');
+  }
+
+  let payload;
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    payload = ticket.getPayload();
+  } catch (err) {
+    res.status(401);
+    throw new Error('Invalid Google token.');
+  }
+
+  await issueLoginFromGooglePayload(payload, res);
+});
+
+// @desc    Login with Google (authorization-code redirect flow)
+// @route   POST /api/auth/google/callback
+// @access  Public
+const googleLoginCallback = asyncHandler(async (req, res) => {
+  const { code, redirect_uri } = req.body;
+
+  if (!code || !redirect_uri) {
+    res.status(400);
+    throw new Error('Authorization code and redirect_uri are required.');
+  }
+
+  if (!process.env.GOOGLE_CLIENT_SECRET) {
+    res.status(500);
+    throw new Error('Server missing GOOGLE_CLIENT_SECRET. Add it to your .env to enable redirect sign-in.');
+  }
+
+  // Build a client bound to our client_id + secret + redirect_uri for code exchange.
+  const exchangeClient = new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    redirect_uri
+  );
+
+  let tokens;
+  try {
+    const tokenResp = await exchangeClient.getToken(code);
+    tokens = tokenResp.tokens;
+  } catch (err) {
+    logError('google_code_exchange_failed', err);
+    res.status(401);
+    throw new Error('Google authorization code exchange failed.');
+  }
+
+  if (!tokens?.id_token) {
+    res.status(401);
+    throw new Error('Google did not return an ID token.');
+  }
+
+  let payload;
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: tokens.id_token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    payload = ticket.getPayload();
+  } catch (err) {
+    res.status(401);
+    throw new Error('Invalid Google ID token.');
+  }
+
+  await issueLoginFromGooglePayload(payload, res);
 });
 
 // @desc    Login user
@@ -339,6 +394,7 @@ const resetPasswordHandler = asyncHandler(async (req, res) => {
   module.exports = {
     login,
     googleLogin,
+    googleLoginCallback,
     getMe,
     updateProfile,
     createPassword,

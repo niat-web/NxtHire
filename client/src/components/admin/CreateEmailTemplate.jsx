@@ -158,7 +158,7 @@ const CreateEmailTemplate = ({ refreshTemplates }) => {
                             <label className="block text-xs font-medium text-gray-700 uppercase tracking-wide mb-2">Available Variables (Click to Copy)</label>
                             <div className="flex flex-wrap gap-2">
                                 {commonPlaceholders.map(p => (
-                                    <button key={p} type="button" onClick={() => handlePlaceholderClick(p)} className="flex items-center gap-2 bg-blue-50 text-blue-700 border border-blue-100 text-xs font-mono font-medium px-2.5 py-1.5 rounded-md hover:bg-blue-100 transition-colors">
+                                    <button key={p} type="button" onClick={() => handlePlaceholderClick(p)} className="flex items-center gap-2 bg-muted/40 text-foreground border border-border text-xs font-mono font-medium px-2.5 py-1.5 rounded-md hover:border-primary hover:bg-white transition-colors">
                                         <Clipboard size={12}/>{`{{${p}}}`}
                                     </button>
                                 ))}
@@ -167,7 +167,7 @@ const CreateEmailTemplate = ({ refreshTemplates }) => {
 
                         <div className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-md">
                              <div className="flex justify-between items-center px-4 py-2 border-b border-gray-100 bg-gray-50">
-                                 <label className="text-xs font-bold text-gray-700 uppercase tracking-wide">Content Editor</label>
+                                 <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Content Editor</label>
                                 <div className="flex gap-1 bg-white p-1 rounded-lg border border-gray-200">
                                     <button type="button" onClick={() => setViewMode('editor')} className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${viewMode === 'editor' ? 'bg-gray-900 text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}><Edit /> Edit</button>
                                     <button type="button" onClick={() => setViewMode('preview')} className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${viewMode === 'preview' ? 'bg-gray-900 text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}><Eye /> Preview</button>

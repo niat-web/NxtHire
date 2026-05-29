@@ -32,11 +32,11 @@ const GuidelinesResult = () => {
             )}
           </div>
 
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-            {passed ? 'Congratulations!' : 'Assessment Not Passed'}
+          <h2 className="font-display text-[30px] font-semibold text-foreground tracking-tight mb-3">
+            {passed ? 'Congratulations.' : 'Assessment not passed.'}
           </h2>
 
-          <p className="text-gray-600 mb-6">
+          <p className="text-[14px] text-foreground/80 mb-6 leading-relaxed">
             {passed
               ? 'You have successfully completed the interviewer guidelines assessment.'
               : 'Unfortunately, you did not meet the minimum score requirement for the assessment.'}

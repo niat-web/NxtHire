@@ -52,11 +52,11 @@ const Guidelines = () => {
   
   if (loading || authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-white px-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600 mx-auto"></div>
-          <h2 className="mt-4 text-xl font-semibold text-gray-800">Verifying application...</h2>
-          <p className="mt-2 text-gray-600">Please wait while we validate your access.</p>
+          <div className="animate-spin rounded-full h-14 w-14 border-t-2 border-b-2 border-primary mx-auto" />
+          <h2 className="font-display mt-6 text-[26px] font-semibold text-foreground tracking-tight">Verifying application…</h2>
+          <p className="mt-2 text-[13.5px] text-muted-foreground">Please wait while we validate your access.</p>
         </div>
       </div>
     );
@@ -75,13 +75,13 @@ const Guidelines = () => {
           </div>
           
           <div className="p-6 sm:p-8">
-            <h3 className="text-xl font-semibold text-gray-900 text-center mb-4">Invalid Link</h3>
+            <h3 className="font-display text-[26px] font-semibold text-foreground text-center mb-3 tracking-tight">Invalid link.</h3>
             <p className="text-gray-600 mb-6 text-center">{error}</p>
             
             <div className="flex justify-center">
               <Button
                 onClick={() => navigate('/')}
-                className="flex items-center justify-center px-6 h-10 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 shadow-md transition-colors"
+                className="flex items-center justify-center px-6 h-10 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 shadow-md transition-colors"
               >
                 <ArrowLeft className="mr-2 h-5 w-5" />
                 Back to Home
@@ -94,7 +94,7 @@ const Guidelines = () => {
   }
   
   return (
-    <div className="w-full min-h-screen bg-slate-100">
+    <div className="w-full min-h-screen bg-muted">
       <main>
         <GuidelinesQuestionnaireForm />
       </main>

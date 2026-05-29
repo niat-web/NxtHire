@@ -8,37 +8,34 @@ const Stepper = ({ steps, currentStep }) => {
         {steps.map((step, stepIdx) => (
           <li key={step.name} className={`relative ${stepIdx !== steps.length - 1 ? 'pr-40 sm:pr-80' : ''}`}>
             {currentStep > step.id ? (
-              // Completed Step
               <>
                 <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                  <div className="h-1 w-full bg-primary-600" />
+                  <div className="h-0.5 w-full bg-primary" />
                 </div>
-                <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-primary-600">
-                  <Check className="h-6 w-6 text-white" aria-hidden="true" />
+                <div className="relative flex h-9 w-9 items-center justify-center rounded-full bg-primary">
+                  <Check className="h-4 w-4 text-white" aria-hidden="true" />
                 </div>
-                <span className="absolute -bottom-8 w-max text-sm font-semibold text-primary-600">{step.name}</span>
+                <span className="absolute -bottom-7 w-max text-[12px] font-semibold text-foreground">{step.name}</span>
               </>
             ) : currentStep === step.id ? (
-              // Current Step
               <>
                 <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                  <div className="h-1 w-full bg-gray-200" />
+                  <div className="h-0.5 w-full bg-slate-200" />
                 </div>
-                <div className="relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-primary-600 bg-white" aria-current="step">
-                  <span className="h-3 w-3 rounded-full bg-primary-600" />
+                <div className="relative flex h-9 w-9 items-center justify-center rounded-full border-2 border-primary bg-white" aria-current="step">
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: '#C0392B' }} />
                 </div>
-                <span className="absolute -bottom-8 w-max text-sm font-semibold text-primary-600">{step.name}</span>
+                <span className="absolute -bottom-7 w-max text-[12px] font-semibold text-foreground">{step.name}</span>
               </>
             ) : (
-              // Upcoming Step
               <>
                 <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                  <div className="h-1 w-full bg-gray-200" />
+                  <div className="h-0.5 w-full bg-slate-200" />
                 </div>
-                <div className="relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300 bg-white">
-                    <span className="h-3 w-3 rounded-full bg-transparent" />
+                <div className="relative flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white">
+                    <span className="h-2 w-2 rounded-full bg-transparent" />
                 </div>
-                 <span className="absolute -bottom-8 w-max text-sm font-medium text-gray-500">{step.name}</span>
+                 <span className="absolute -bottom-7 w-max text-[12px] text-muted-foreground">{step.name}</span>
               </>
             )}
           </li>

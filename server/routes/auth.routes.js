@@ -3,6 +3,7 @@ const express = require('express');
 const {
   login,
   googleLogin,
+  googleLoginCallback,
   getMe,
   updateProfile,
   createPassword,
@@ -27,6 +28,7 @@ const router = express.Router();
 // Public routes (rate-limited)
 router.post('/login', authLimiter, validate(schemas.login), login);
 router.post('/google', authLimiter, googleLogin);
+router.post('/google/callback', authLimiter, googleLoginCallback);
 router.post('/create-password', authLimiter, validate(schemas.createPassword), createPassword);
 router.post('/forgot-password', authLimiter, validate(schemas.resetPassword), forgotPassword);
 router.post('/reset-password', authLimiter, validate(schemas.createPassword), resetPasswordHandler);

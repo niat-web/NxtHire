@@ -15,20 +15,20 @@ const getStatusBadgeClass = (status) => {
   if (['active', 'approved', 'completed', 'confirmed', 'onboarded'].includes(s)) return 'bg-emerald-50 text-emerald-700';
   if (['on probation', 'pending', 'under review', 'scheduled'].includes(s)) return 'bg-amber-50 text-amber-700';
   if (['inactive', 'suspended', 'rejected', 'cancelled', 'failed', 'terminated'].includes(s)) return 'bg-red-50 text-red-700';
-  return 'bg-slate-100 text-slate-600';
+  return 'bg-muted text-foreground/80';
 };
 
 const InlineStatusBadge = ({ status }) => (
-  <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${getStatusBadgeClass(status)}`}>
+  <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${getStatusBadgeClass(status)}`}>
     {status}
   </span>
 );
 
 const InlineCard = ({ title, children }) => (
-  <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+  <div className="bg-white rounded-xl border border-border overflow-hidden">
     {title && (
-      <div className="px-6 py-4 border-b border-slate-200">
-        <h3 className="text-base font-semibold text-slate-900">{typeof title === 'string' ? title : title}</h3>
+      <div className="px-6 py-4 border-b border-border">
+        <h3 className="text-base font-semibold text-foreground">{typeof title === 'string' ? title : title}</h3>
       </div>
     )}
     <div className="px-6 py-5">
@@ -97,7 +97,7 @@ const InterviewerDetails = () => {
         <p className="text-gray-500">Interviewer not found</p>
         <Link
           to="/admin/interviewers"
-          className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors mt-4"
+          className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-primary text-white hover:bg-primary/90 transition-colors mt-4"
         >
           Back to Interviewers
         </Link>
@@ -114,14 +114,14 @@ const InterviewerDetails = () => {
           <Link to="/admin/interviewers" className="mr-4">
             <ArrowLeft className="h-5 w-5 text-gray-500 hover:text-gray-700" />
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Interviewer Details</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">Interviewer Details</h1>
         </div>
 
         <div className="flex space-x-4">
 
           <button
             onClick={() => setIsStatusModalOpen(true)}
-            className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-primary text-white hover:bg-primary/90 transition-colors"
           >
             <Edit className="h-4 w-4 mr-2" />
             Update Status
@@ -433,7 +433,7 @@ const InterviewerDetails = () => {
             <div className="flex justify-end">
               <Link
                 to={`/admin/applicants/${applicant._id}`}
-                className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 transition-colors"
+                className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md border border-slate-300 text-foreground/90 bg-white hover:bg-muted/40 transition-colors"
               >
                 View Full Application
               </Link>

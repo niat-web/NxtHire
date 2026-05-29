@@ -1,28 +1,26 @@
-// client/src/pages/public/InterviewerApplication.jsx
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import InitialApplicationForm from '../../components/forms/InitialApplicationForm';
 
 const InterviewerApplication = () => {
-  const navigate = useNavigate();
-
   const handleSuccess = () => {
     // The form component handles navigation to the success page itself.
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0C1E] text-gray-200 font-sans antialiased flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
-
-        <div className="w-full max-w-3xl bg-[#14162B]/60 backdrop-blur-lg rounded-xl shadow-xl p-8 sm:p-10 border border-white/10">
-            <div className="text-center mb-8">
-                 <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl bg-gradient-to-r from-fuchsia-500 to-cyan-500 bg-clip-text text-transparent">
-                    Join Our Interviewer Community
-                </h1>
-            </div>
-            
-            <InitialApplicationForm onSuccess={handleSuccess} />
+    <div className="min-h-screen bg-white antialiased flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-3xl rounded-2xl border border-border bg-white p-8 sm:p-10">
+        <div className="text-center mb-8">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-foreground/80">
+            <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: '#C0392B' }} />
+            Apply
+          </span>
+          <h1 className="font-display mt-5 text-[32px] sm:text-[40px] font-semibold tracking-tight text-foreground leading-tight">
+            Join our interviewer community.
+          </h1>
         </div>
+
+        <InitialApplicationForm onSuccess={handleSuccess} />
+      </div>
     </div>
   );
 };

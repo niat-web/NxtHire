@@ -23,12 +23,12 @@ const DropdownMenu = ({ options }) => {
   return (
     <Menu as="div" className="relative inline-block text-left">
       <div>
-        <Menu.Button 
+        <Menu.Button
           ref={refs.setReference}
-          className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-transparent text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+          className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/10 transition-colors"
         >
           <span className="sr-only">Open options</span>
-          <MoreVertical className="h-5 w-5" aria-hidden="true" />
+          <MoreVertical className="h-4 w-4" aria-hidden="true" />
         </Menu.Button>
       </div>
       
@@ -38,23 +38,23 @@ const DropdownMenu = ({ options }) => {
         <Menu.Items
           ref={refs.setFloating}
           style={floatingStyles}
-          className="z-50 w-48 rounded-xl bg-white shadow-md ring-1 ring-black ring-opacity-5 focus:outline-none"
+          className="z-50 w-52 rounded-2xl bg-white border border-border shadow-lg focus:outline-none"
         >
-          <div className="py-1">
+          <div className="py-1.5">
             {options.map((option) => (
               <Menu.Item key={option.label} disabled={option.disabled}>
                 {({ active, disabled }) => {
                   const itemClasses = classNames(
-                    active && !disabled ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                    active && !disabled ? 'bg-muted/40 text-foreground' : 'text-foreground/90',
                     disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
-                    'group flex items-center px-4 py-2 text-sm'
+                    'group flex items-center px-4 py-2 text-[13px] transition-colors'
                   );
-                  const destructiveClasses = option.isDestructive && !disabled ? 'text-red-700' : '';
-                  const destructiveActiveClasses = option.isDestructive && active && !disabled ? 'bg-red-50' : '';
+                  const destructiveClasses = option.isDestructive && !disabled ? 'text-red-600' : '';
+                  const destructiveActiveClasses = option.isDestructive && active && !disabled ? 'bg-red-50 text-red-700' : '';
 
                   const content = (
                     <>
-                      {option.icon && <option.icon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />}
+                      {option.icon && <option.icon className="mr-3 h-4 w-4 text-muted-foreground/70 group-hover:text-foreground/90" aria-hidden="true" />}
                       <span>{option.label}</span>
                     </>
                   );

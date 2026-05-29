@@ -11,7 +11,7 @@ import { format as formatDateFns, startOfWeek } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 const STATUS_COLORS = {
-  Scheduled:  { color: '#6366f1', bg: 'bg-blue-50',  text: 'text-blue-600' },
+  Scheduled:  { color: '#6366f1', bg: 'bg-muted/40',  text: 'text-foreground' },
   Completed:  { color: '#10B981', bg: 'bg-emerald-50', text: 'text-emerald-600' },
   InProgress: { color: '#F59E0B', bg: 'bg-amber-50',   text: 'text-amber-600' },
   Cancelled:  { color: '#EF4444', bg: 'bg-red-50',     text: 'text-red-600' },
@@ -31,7 +31,7 @@ const ChartTooltip = ({ active, payload, label }) => {
             <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: p.fill }} />
             {p.name}
           </span>
-          <span className="font-bold text-gray-900">{p.value}</span>
+          <span className="font-semibold text-gray-900">{p.value}</span>
         </div>
       ))}
     </div>
@@ -98,8 +98,8 @@ const AnalyticsDashboard = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-            <BarChart3 size={15} className="text-blue-600" />
+          <div className="w-8 h-8 rounded-lg bg-muted/40 flex items-center justify-center">
+            <BarChart3 size={15} className="text-foreground" />
           </div>
           <div>
             <h2 className="text-sm font-semibold text-gray-900">Interview Analytics</h2>
@@ -155,7 +155,7 @@ const AnalyticsDashboard = () => {
                     )}>
                     <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: hidden ? '#d1d5db' : c.color }} />
                     {status === 'InProgress' ? 'In Progress' : status}
-                    <span className={cn('font-bold ml-0.5', hidden ? 'text-gray-400' : '')}>{totals[status]}</span>
+                    <span className={cn('font-semibold ml-0.5', hidden ? 'text-gray-400' : '')}>{totals[status]}</span>
                   </button>
                 );
               })}

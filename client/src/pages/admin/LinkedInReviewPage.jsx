@@ -12,13 +12,13 @@ import { useApplicants, useInvalidateAdmin } from '../../hooks/useAdminQueries';
 
 const getStatusBadge = (status) => {
   const map = {
-    [APPLICATION_STATUS.SUBMITTED]: { label: 'Submitted', cls: 'bg-blue-50 text-blue-700 border-blue-100' },
+    [APPLICATION_STATUS.SUBMITTED]: { label: 'Submitted', cls: 'bg-muted/40 text-foreground border-border' },
     [APPLICATION_STATUS.PROFILE_APPROVED]: { label: 'Profile Approved', cls: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
     [APPLICATION_STATUS.PROFILE_REJECTED]: { label: 'Profile Rejected', cls: 'bg-red-50 text-red-700 border-red-100' },
   };
-  const config = map[status] || { label: status || 'Unknown', cls: 'bg-slate-50 text-slate-600 border-slate-100' };
+  const config = map[status] || { label: status || 'Unknown', cls: 'bg-muted/40 text-foreground/80 border-border' };
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] border ${config.cls}`}>
+    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.15em] border ${config.cls}`}>
       {config.label}
     </span>
   );
@@ -114,19 +114,19 @@ const LinkedInReviewPage = () => {
   const renderCell = (col, row) => {
     switch (col.key) {
       case 'fullName':
-        return <span className="text-sm font-medium text-slate-900">{row.fullName}</span>;
+        return <span className="text-sm font-medium text-foreground">{row.fullName}</span>;
       case 'email':
-        return <span className="text-sm text-slate-600">{row.email}</span>;
+        return <span className="text-sm text-foreground/80">{row.email}</span>;
       case 'linkedinProfileUrl':
         return (
-          <a href={row.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center text-sm">
+          <a href={row.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-foreground hover:underline flex items-center text-sm">
             View <ExternalLink className="ml-1 h-3.5 w-3.5" />
           </a>
         );
       case 'status':
         return getStatusBadge(row.status);
       case 'updatedAt':
-        return <span className="text-sm text-slate-600">{formatDate(row.updatedAt)}</span>;
+        return <span className="text-sm text-foreground/80">{formatDate(row.updatedAt)}</span>;
       case 'actions': {
         const isProcessing = processingIds.has(row._id);
         const isReviewed = [APPLICATION_STATUS.PROFILE_APPROVED, APPLICATION_STATUS.PROFILE_REJECTED].includes(row.status);
@@ -137,7 +137,7 @@ const LinkedInReviewPage = () => {
 
         if (isReviewed) {
           return (
-            <Link to={`/admin/applicants/${row._id}`} className="text-blue-600 hover:underline text-sm flex items-center">
+            <Link to={`/admin/applicants/${row._id}`} className="text-foreground hover:underline text-sm flex items-center">
               <Eye className="mr-1 h-3.5 w-3.5" />
               View Details
             </Link>
@@ -170,18 +170,18 @@ const LinkedInReviewPage = () => {
     <div className="h-full flex flex-col overflow-hidden bg-white">
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header Bar with Search & Filter */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-6 py-4 border-b border-slate-200 shrink-0">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-6 py-4 border-b border-border shrink-0">
           <div className="relative w-full md:w-1/3">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by name or email..."
-              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all"
+              className="w-full pl-9 pr-4 py-2 bg-muted/40 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all"
             />
             {searchTerm && (
-              <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground/80">
                 <X className="h-4 w-4" />
               </button>
             )}
@@ -191,13 +191,13 @@ const LinkedInReviewPage = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 block py-2 pl-3 pr-8 cursor-pointer hover:border-slate-300 transition-colors"
+                className="appearance-none bg-white border border-border text-foreground/90 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary block py-2 pl-3 pr-8 cursor-pointer hover:border-primary/40 transition-colors"
               >
                 {statusOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 pointer-events-none" />
             </div>
           </div>
         </div>
@@ -211,7 +211,7 @@ const LinkedInReviewPage = () => {
                   <th
                     key={col.key}
                     scope="col"
-                    className="sticky top-0 px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em] whitespace-nowrap border-b border-slate-200 bg-slate-50/90 backdrop-blur-sm z-10"
+                    className="sticky top-0 px-5 py-3 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em] whitespace-nowrap border-b border-border bg-muted/40 backdrop-blur z-10"
                     style={{ minWidth: col.minWidth }}
                   >
                     {col.title}
@@ -219,28 +219,28 @@ const LinkedInReviewPage = () => {
                 ))}
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-slate-100">
+            <tbody className="bg-white divide-y divide-border">
               {loading ? (
                 [...Array(8)].map((_, i) => (
                   <tr key={i} className="animate-pulse">
                     {columns.map((col) => (
                       <td key={col.key} className="px-5 py-3">
-                        <div className="h-4 w-full bg-slate-100 rounded" />
+                        <div className="h-4 w-full bg-muted rounded" />
                       </td>
                     ))}
                   </tr>
                 ))
               ) : applicants.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length} className="px-6 py-14 text-center text-sm text-slate-400">
+                  <td colSpan={columns.length} className="px-6 py-14 text-center text-sm text-muted-foreground/70">
                     No applicants found for this status.
                   </td>
                 </tr>
               ) : (
                 applicants.map((row) => (
-                  <tr key={row._id} className="hover:bg-slate-50/70 transition-colors group">
+                  <tr key={row._id} className="hover:bg-muted/40 transition-colors group">
                     {columns.map((col) => (
-                      <td key={col.key} className="px-5 py-2.5 whitespace-nowrap text-sm text-slate-700 align-middle">
+                      <td key={col.key} className="px-5 py-2.5 whitespace-nowrap text-sm text-foreground/90 align-middle">
                         {renderCell(col, row)}
                       </td>
                     ))}
@@ -253,22 +253,22 @@ const LinkedInReviewPage = () => {
 
         {/* Pagination */}
         {!loading && pagination.totalItems > 0 && (
-          <div className="px-6 py-3 border-t border-slate-200 bg-white flex items-center justify-between shrink-0">
-            <p className="text-xs text-slate-500 font-medium">
-              Page <span className="font-bold text-slate-900">{pagination.currentPage}</span> of {pagination.totalPages} ({pagination.totalItems} total)
+          <div className="px-6 py-3 border-t border-border bg-white flex items-center justify-between shrink-0">
+            <p className="text-xs text-muted-foreground font-medium">
+              Page <span className="font-semibold text-foreground">{pagination.currentPage}</span> of {pagination.totalPages} ({pagination.totalItems} total)
             </p>
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => handlePageChange(pagination.currentPage - 1)}
                 disabled={pagination.currentPage === 1}
-                className="h-9 w-9 rounded-md flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="h-9 w-9 rounded-md flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-muted/40 hover:border-primary/40 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={() => handlePageChange(pagination.currentPage + 1)}
                 disabled={pagination.currentPage === pagination.totalPages}
-                className="h-9 w-9 rounded-md flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="h-9 w-9 rounded-md flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-muted/40 hover:border-primary/40 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>

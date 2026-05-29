@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 // Self-contained loader
 const Loader = ({ text }) => (
     <div className="flex flex-col items-center justify-center text-center">
-        <Loader2 className="h-10 w-10 text-blue-600 animate-spin" />
+        <Loader2 className="h-10 w-10 text-foreground animate-spin" />
         <p className="mt-4 text-gray-600">{text}</p>
     </div>
 );
@@ -97,8 +97,8 @@ const PaymentReceivedConfirmationPage = () => {
         return (
              <>
                 <div className="text-center mb-6">
-                    <h1 className="text-3xl font-semibold text-gray-900">Payment Received Confirmation</h1>
-                    <p className="mt-2 text-gray-600">Hi {pageData.name}, please confirm payment for <strong>{pageData.monthYear}</strong>.</p>
+                    <h1 className="font-display text-[30px] font-semibold text-foreground tracking-tight">Payment received.</h1>
+                    <p className="mt-2 text-[14px] text-foreground/80">Hi {pageData.name}, please confirm payment for <strong className="text-foreground">{pageData.monthYear}</strong>.</p>
                 </div>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     <div>

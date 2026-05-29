@@ -37,32 +37,32 @@ const SettingSection = ({ title, description, items, category, onAdd, onUpdate, 
         <div>
             <div className="flex items-center justify-between mb-1.5">
                 <div>
-                    <h3 className="text-[13px] font-semibold text-slate-900">{title}</h3>
-                    <p className="text-[10px] text-slate-400">{description}</p>
+                    <h3 className="text-[13px] font-semibold text-foreground">{title}</h3>
+                    <p className="text-[10px] text-muted-foreground/70">{description}</p>
                 </div>
                 {!addMode && (
                     <button onClick={() => { setAddMode(true); setNewValue(''); setNewAmount(''); }}
-                        className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:text-blue-800 transition-colors">
+                        className="inline-flex items-center gap-1 text-[11px] font-medium text-foreground hover:text-blue-800 transition-colors">
                         <Plus size={12} /> Add
                     </button>
                 )}
             </div>
 
-            <div className="border border-slate-200 rounded-lg overflow-hidden bg-white">
+            <div className="border border-border rounded-lg overflow-hidden bg-white">
                 {/* Add row */}
                 {addMode && (
-                    <div className="flex items-center gap-2 px-3 py-2 bg-blue-50/40 border-b border-slate-200">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-muted/40/40 border-b border-border">
                         <input type="text" value={newValue} onChange={e => setNewValue(e.target.value)} placeholder="Enter name..." autoFocus
                             onKeyDown={e => e.key === 'Enter' && handleAdd()}
-                            className="flex-1 h-7 px-2 border border-slate-200 rounded text-[12px] bg-white focus:outline-none focus:ring-1 focus:ring-blue-300" />
+                            className="flex-1 h-7 px-2 border border-border rounded text-[12px] bg-white focus:outline-none focus:ring-1 focus:ring-blue-300" />
                         {showAmount && (
                             <input type="number" value={newAmount} onChange={e => setNewAmount(e.target.value)} placeholder="₹ Amount"
-                                className="w-20 h-7 px-2 border border-slate-200 rounded text-[12px] bg-white focus:outline-none focus:ring-1 focus:ring-blue-300" />
+                                className="w-20 h-7 px-2 border border-border rounded text-[12px] bg-white focus:outline-none focus:ring-1 focus:ring-blue-300" />
                         )}
                         <button onClick={handleAdd} disabled={saving || !newValue.trim()} className="w-6 h-6 rounded flex items-center justify-center text-emerald-600 hover:bg-emerald-50 disabled:opacity-40">
                             {saving ? <Loader2 size={12} className="animate-spin" /> : <Check size={14} />}
                         </button>
-                        <button onClick={() => setAddMode(false)} className="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:bg-slate-100">
+                        <button onClick={() => setAddMode(false)} className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground/70 hover:bg-muted">
                             <X size={14} />
                         </button>
                     </div>
@@ -70,38 +70,38 @@ const SettingSection = ({ title, description, items, category, onAdd, onUpdate, 
 
                 {/* Items */}
                 {items.length === 0 && !addMode ? (
-                    <div className="px-3 py-4 text-center text-[11px] text-slate-400">Empty — click "Add" or seed defaults</div>
+                    <div className="px-3 py-4 text-center text-[11px] text-muted-foreground/70">Empty — click "Add" or seed defaults</div>
                 ) : (
-                    <div className="divide-y divide-slate-100">
+                    <div className="divide-y divide-border">
                         {items.map(item => (
-                            <div key={item._id} className="flex items-center gap-2 px-3 py-1.5 hover:bg-slate-50/60 transition-colors group">
+                            <div key={item._id} className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted/30 transition-colors group">
                                 {editId === item._id ? (
                                     <>
                                         <input type="text" value={editValue} onChange={e => setEditValue(e.target.value)} autoFocus
                                             onKeyDown={e => { if (e.key === 'Enter') handleUpdate(); if (e.key === 'Escape') setEditId(null); }}
-                                            className="flex-1 h-7 px-2 border border-slate-200 rounded text-[12px] bg-white focus:outline-none focus:ring-1 focus:ring-blue-300" />
+                                            className="flex-1 h-7 px-2 border border-border rounded text-[12px] bg-white focus:outline-none focus:ring-1 focus:ring-blue-300" />
                                         {showAmount && (
                                             <input type="number" value={editAmount} onChange={e => setEditAmount(e.target.value)}
-                                                className="w-20 h-7 px-2 border border-slate-200 rounded text-[12px] bg-white focus:outline-none focus:ring-1 focus:ring-blue-300" />
+                                                className="w-20 h-7 px-2 border border-border rounded text-[12px] bg-white focus:outline-none focus:ring-1 focus:ring-blue-300" />
                                         )}
                                         <button onClick={handleUpdate} disabled={saving} className="w-6 h-6 rounded flex items-center justify-center text-emerald-600 hover:bg-emerald-50 disabled:opacity-40">
                                             {saving ? <Loader2 size={11} className="animate-spin" /> : <Check size={13} />}
                                         </button>
-                                        <button onClick={() => setEditId(null)} className="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:bg-slate-100">
+                                        <button onClick={() => setEditId(null)} className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground/70 hover:bg-muted">
                                             <X size={13} />
                                         </button>
                                     </>
                                 ) : (
                                     <>
                                         <span className="flex-1 text-[12px] text-slate-800">{item.value || item.name}</span>
-                                        {showAmount && item.amount !== undefined && <span className="text-[11px] font-mono text-slate-400">₹{item.amount}</span>}
+                                        {showAmount && item.amount !== undefined && <span className="text-[11px] font-mono text-muted-foreground/70">₹{item.amount}</span>}
                                         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button onClick={() => { setEditId(item._id); setEditValue(item.value || item.name); setEditAmount(item.amount || ''); }}
-                                                className="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50">
+                                                className="w-5 h-5 rounded flex items-center justify-center text-muted-foreground/70 hover:text-foreground hover:bg-muted/40">
                                                 <Edit size={11} />
                                             </button>
                                             <button onClick={() => onDelete(item._id, item.value || item.name)}
-                                                className="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50">
+                                                className="w-5 h-5 rounded flex items-center justify-center text-muted-foreground/70 hover:text-red-500 hover:bg-red-50">
                                                 <Trash2 size={11} />
                                             </button>
                                         </div>
@@ -182,14 +182,14 @@ const AdminSettingsPage = () => {
     return (
         <div className="h-full flex flex-col overflow-hidden bg-white">
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200 shrink-0">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-border shrink-0">
                 <div>
-                    <h1 className="text-sm font-semibold text-slate-900">Settings</h1>
-                    <p className="text-[11px] text-slate-400">Manage dropdowns and options used across the app</p>
+                    <h1 className="text-sm font-semibold text-foreground">Settings</h1>
+                    <p className="text-[11px] text-muted-foreground/70">Manage dropdowns and options used across the app</p>
                 </div>
                 {hasEmptySections && (
                     <button onClick={handleSeedAll} disabled={seeding}
-                        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-primary rounded-md hover:bg-primary/90 disabled:opacity-50 transition-colors">
                         {seeding ? <Loader2 size={14} className="animate-spin" /> : <Database size={14} />}
                         Seed All Defaults
                     </button>

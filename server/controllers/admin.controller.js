@@ -1457,7 +1457,6 @@ const getInterviewers = asyncHandler(async (req, res) => {
     pipeline.push({ $skip: skip });
     pipeline.push({ $limit: parseInt(limit) });
     
-    // --- THIS IS THE CRUCIAL FIX ---
     pipeline.push({
       $project: {
           user: {
@@ -1468,12 +1467,14 @@ const getInterviewers = asyncHandler(async (req, res) => {
               phoneNumber: '$userInfo.phoneNumber',
               whatsappNumber: '$userInfo.whatsappNumber'
           },
-          _id: 1, 
+          _id: 1,
           interviewerId: 1,
           payoutId: 1,
-          status: 1, 
-          domains: 1, 
-          paymentTier: 1, 
+          status: 1,
+          source: 1,                 // include source so the badge column renders correctly
+          domains: 1,
+          primaryDomain: 1,
+          paymentTier: 1,
           paymentAmount: 1,
           currentEmployer: 1,
           jobTitle: 1,
@@ -1481,13 +1482,12 @@ const getInterviewers = asyncHandler(async (req, res) => {
           companyType: 1,
           bankDetails: 1,
           welcomeEmailSentAt: 1,
-          probationEmailSentAt: 1, // <--- ADD THIS LINE
-          'metrics.interviewsCompleted': 1, 
-          onboardingDate: 1, 
+          probationEmailSentAt: 1,
+          'metrics.interviewsCompleted': 1,
+          onboardingDate: 1,
           createdAt: 1
       }
     });
-    // --- END OF FIX ---
 
     const interviewers = await Interviewer.aggregate(pipeline);
 
@@ -1541,7 +1541,11 @@ const getInterviewerDetails = asyncHandler(async (req, res) => {
 const createInterviewer = asyncHandler(async (req, res) => {
     const { email, firstName, lastName, phoneNumber, whatsappNumber, ...interviewerData } = req.body;
 
-    const userExists = await User.findOne({ email });
+    // Normalize email so the uniqueness check matches what we'll actually persist (User schema lowercases).
+    const normalizedEmail = (email || '').trim().toLowerCase();
+    if (!normalizedEmail) { res.status(400); throw new Error('Email is required.'); }
+
+    const userExists = await User.findOne({ email: normalizedEmail });
     if (userExists) {
         res.status(400);
         throw new Error('User with this email already exists.');
@@ -1549,11 +1553,11 @@ const createInterviewer = asyncHandler(async (req, res) => {
 
     // Create user without a password — interviewer will set it via email link
     const newUser = await User.create({
-        email,
+        email: normalizedEmail,
         firstName,
         lastName,
         phoneNumber,
-        whatsappNumber,
+        whatsappNumber: whatsappNumber || undefined,
         role: 'interviewer',
         isActive: true,
     });
@@ -1563,14 +1567,48 @@ const createInterviewer = asyncHandler(async (req, res) => {
     newUser.passwordResetExpires = Date.now() + 24 * 60 * 60 * 1000;
     await newUser.save({ validateBeforeSave: false });
 
-    // Internal interviewers have no applicant record — source flag differentiates them
-    const newInterviewer = await Interviewer.create({
-        ...interviewerData,
-        user: newUser._id,
-        source: 'Internal',
-    });
+    // ── Sanitize interviewerData before create ────────────────────────────
+    // Empty strings hit unique sparse indexes (interviewerId / payoutId), which
+    // would silently succeed on the first admin-created interviewer and then
+    // block every subsequent create with a duplicate-key error. Convert blanks
+    // to undefined so the schema defaults / sparse indexes do their job.
+    const cleanData = {};
+    for (const [key, value] of Object.entries(interviewerData)) {
+        if (typeof value === 'string' && value.trim() === '') continue;
+        if (value === null) continue;
+        cleanData[key] = value;
+    }
 
-    // Fire-and-log account setup email
+    // primaryDomain is referenced by the schema's profile-completeness hook
+    // but never required in the create payload — derive it from domains[0].
+    if (cleanData.domains?.length > 0 && !cleanData.primaryDomain) {
+        cleanData.primaryDomain = cleanData.domains[0];
+    }
+
+    // Respect the form's source choice; only default to External when unspecified.
+    // (Earlier code hardcoded 'Internal' here, which made the source badge wrong
+    // for every admin-created interviewer regardless of the admin's selection.)
+    const source = cleanData.source === 'Internal' ? 'Internal' : 'External';
+
+    let newInterviewer;
+    try {
+        newInterviewer = await Interviewer.create({
+            ...cleanData,
+            user: newUser._id,
+            source,
+        });
+    } catch (err) {
+        // If Interviewer creation fails (validation, duplicate, etc.), roll back
+        // the User document so we don't leave an orphan account that blocks future
+        // creates with the same email.
+        await User.deleteOne({ _id: newUser._id }).catch(() => {});
+        res.status(400);
+        throw new Error(err.message || 'Failed to create interviewer record.');
+    }
+
+    // Fire-and-log account setup email — non-blocking. Even if email delivery
+    // fails, the interviewer + user records are already saved, so admin doesn't
+    // see a partial-success error.
     const setupLink = `${process.env.CLIENT_URL}/create-password?token=${resetToken}`;
     try {
         await sendEmail({
@@ -1597,7 +1635,7 @@ const createInterviewer = asyncHandler(async (req, res) => {
     logEvent('interviewer_created_by_admin', {
         interviewerId: newInterviewer._id,
         adminId: req.user._id,
-        source: 'Internal',
+        source,
     });
 
     res.status(201).json({
@@ -1710,12 +1748,15 @@ const processLinkedInReview = asyncHandler(async (req, res) => {
     if (!applicant) { res.status(404); throw new Error('Applicant not found'); }
     if (applicant.status !== APPLICATION_STATUS.SUBMITTED && applicant.status !== APPLICATION_STATUS.UNDER_REVIEW) { res.status(400); throw new Error('Applicant is not at the LinkedIn review stage'); }
     if (decision === 'approve') {
-        applicant.status = APPLICATION_STATUS.PROFILE_APPROVED;
+        // Single save: move directly to SKILLS_ASSESSMENT_SENT so we don't write twice or thrash the status history.
+        applicant.status = APPLICATION_STATUS.SKILLS_ASSESSMENT_SENT;
         if (notes) applicant.reviewNotes = notes;
         await applicant.save();
-        await sendEmail({ recipient: applicant._id, recipientModel: 'Applicant', recipientEmail: applicant.email, templateName: 'skillAssessmentInvitation', subject: 'Next Steps: Skills Details Form - NxtWave Interviewer', templateData: { name: applicant.fullName, skillAssessmentLink: `${process.env.CLIENT_URL}/skill-assessment/${applicant._id}` }, relatedTo: 'Skill Assessment', sentBy: req.user._id, isAutomated: false });
-        applicant.status = APPLICATION_STATUS.SKILLS_ASSESSMENT_SENT;
-        await applicant.save();
+        try {
+          await sendEmail({ recipient: applicant._id, recipientModel: 'Applicant', recipientEmail: applicant.email, templateName: 'skillAssessmentInvitation', subject: 'Next Steps: Skills Details Form - NxtWave Interviewer', templateData: { name: applicant.fullName, skillAssessmentLink: `${process.env.CLIENT_URL}/skill-assessment/${applicant._id}` }, relatedTo: 'Skill Assessment', sentBy: req.user._id, isAutomated: false });
+        } catch (err) {
+          logEvent('linkedin_review_email_failed', { applicantId: applicant._id, error: err.message });
+        }
         logEvent('linkedin_review_approved', { applicantId: applicant._id, reviewedBy: req.user._id, email: applicant.email });
     } else if (decision === 'reject') {
         if (!rejectionReason) { res.status(400); throw new Error('Rejection reason is required'); }
@@ -1785,11 +1826,18 @@ const processGuidelinesReview = asyncHandler(async (req, res) => {
       const interviewerSkills = (skillAssessment.technicalSkills || []).map(skill => ({ skill: skill.technology, proficiencyLevel: 'Advanced' }));
       const interviewer = await Interviewer.create({ user: user._id, applicant: applicant._id, currentEmployer: skillAssessment.currentEmployer, jobTitle: skillAssessment.jobTitle, yearsOfExperience: skillAssessment.yearsOfExperience, domains: skillAssessment.domains, primaryDomain: skillAssessment.domains[0] || 'Other', skills: interviewerSkills });
       applicant.status = APPLICATION_STATUS.ONBOARDED; applicant.interviewer = interviewer._id; await applicant.save();
-      await sendAccountCreationEmail(user, resetToken, applicant);
-      interviewer.welcomeEmailSentAt = new Date();
-      await interviewer.save();
-      
-      if (applicant.whatsappNumber) { await sendWelcomeWhatsApp(user, applicant); }
+      // Email + WhatsApp must NOT roll back the onboarding. If delivery fails, log and continue.
+      try {
+        await sendAccountCreationEmail(user, resetToken, applicant);
+        interviewer.welcomeEmailSentAt = new Date();
+        await interviewer.save();
+      } catch (err) {
+        logEvent('guidelines_onboard_email_failed', { applicantId: applicant._id, interviewerId: interviewer._id, error: err.message });
+      }
+      if (applicant.whatsappNumber) {
+        try { await sendWelcomeWhatsApp(user, applicant); }
+        catch (err) { logEvent('guidelines_onboard_whatsapp_failed', { applicantId: applicant._id, interviewerId: interviewer._id, error: err.message }); }
+      }
       logEvent('applicant_onboarded_by_admin', { applicantId: applicant._id, interviewerId: interviewer._id, adminId: req.user._id });
     } else if (decision === 'reject') {
       applicant.status = APPLICATION_STATUS.GUIDELINES_FAILED;
@@ -1828,11 +1876,17 @@ const manualOnboard = asyncHandler(async (req, res) => {
     newUser.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
     newUser.passwordResetExpires = Date.now() + 24 * 60 * 60 * 1000;
     await newUser.save();
-    const interviewer = await Interviewer.create({ user: newUser._id, applicant: applicant._id, currentEmployer: skillAssessment.currentEmployer, jobTitle: skillAssessment.jobTitle, yearsOfExperience: skillAssessment.yearsOfExperience, domains: skillAssessment.domains, primaryDomain: skillAssessment.domains[0] || 'Other', skills: skillAssessment.technicalSkills.map(skill => ({ skill: skill.skill, proficiencyLevel: skill.proficiencyLevel })) });
+    const manualSkills = (skillAssessment.technicalSkills || []).map(skill => ({ skill: skill.technology, proficiencyLevel: 'Advanced' }));
+    const interviewer = await Interviewer.create({ user: newUser._id, applicant: applicant._id, currentEmployer: skillAssessment.currentEmployer, jobTitle: skillAssessment.jobTitle, yearsOfExperience: skillAssessment.yearsOfExperience, domains: skillAssessment.domains, primaryDomain: skillAssessment.domains[0] || 'Other', skills: manualSkills });
     applicant.status = APPLICATION_STATUS.ONBOARDED; applicant.interviewer = interviewer._id; applicant.reviewNotes = `Manually onboarded by admin. Reason: ${reason}`;
     await applicant.save();
-    await sendAccountCreationEmail(newUser, resetToken, applicant);
-    if (applicant.whatsappNumber) { await sendWelcomeWhatsApp(newUser, applicant); }
+    // Email + WhatsApp sends are non-blocking — onboarding stays successful even if delivery fails.
+    try { await sendAccountCreationEmail(newUser, resetToken, applicant); }
+    catch (err) { logEvent('manual_onboard_email_failed', { applicantId: applicant._id, userId: newUser._id, error: err.message }); }
+    if (applicant.whatsappNumber) {
+      try { await sendWelcomeWhatsApp(newUser, applicant); }
+      catch (err) { logEvent('manual_onboard_whatsapp_failed', { applicantId: applicant._id, userId: newUser._id, error: err.message }); }
+    }
     logEvent('applicant_manually_onboarded', { applicantId: applicant._id, userId: newUser._id, interviewerId: interviewer._id, reason, adminId: req.user._id });
     res.json({ success: true, data: { id: applicant._id, status: applicant.status, interviewerId: interviewer._id, message: 'Applicant manually onboarded successfully' } });
 });

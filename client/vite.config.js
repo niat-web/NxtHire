@@ -20,4 +20,26 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    // Raise the warning threshold; we already split via React.lazy and manualChunks.
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      output: {
+        // Group big shared dependencies into their own chunks so the initial bundle
+        // only contains what's needed to render the landing page.
+        manualChunks: {
+          'vendor-react':    ['react', 'react-dom', 'react-router-dom'],
+          'vendor-query':    ['@tanstack/react-query', '@tanstack/react-query-persist-client', '@tanstack/query-sync-storage-persister'],
+          'vendor-forms':    ['react-hook-form', 'react-select', 'react-datepicker'],
+          'vendor-charts':   ['recharts'],
+          'vendor-editor':   ['react-quill', 'dompurify'],
+          'vendor-excel':    ['xlsx', 'file-saver'],
+          'vendor-motion':   ['framer-motion'],
+          'vendor-icons':    ['lucide-react'],
+          'vendor-radix':    ['@radix-ui/react-select', '@radix-ui/react-tabs', '@headlessui/react'],
+          'vendor-socket':   ['socket.io-client'],
+        },
+      },
+    },
+  },
 })

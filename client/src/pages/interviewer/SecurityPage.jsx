@@ -53,16 +53,16 @@ const SecurityPage = () => {
 
   return (
     <div className="p-6 max-w-xl">
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-gray-900">Security</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Manage your password and account security</p>
+      <div className="mb-8">
+        <h1 className="font-display text-[28px] font-semibold text-foreground tracking-tight leading-none">Security</h1>
+        <p className="text-[13.5px] text-muted-foreground mt-2">Manage your password and account security.</p>
       </div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
         className="bg-white rounded-xl border border-gray-100 overflow-hidden"
       >
         <div className="flex items-center gap-2.5 px-5 py-3 border-b border-gray-100 bg-gray-50/50">
-          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
             <Shield size={15} className="text-white" />
           </div>
           <div>

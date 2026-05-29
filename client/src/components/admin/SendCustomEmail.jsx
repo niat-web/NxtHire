@@ -50,7 +50,7 @@ const FileInput = ({ onFileParsed, requiredColumns }) => {
             <div className="flex items-center gap-4">
                 <label
                     htmlFor="file-upload"
-                    className="relative cursor-pointer bg-white rounded-lg font-medium text-slate-700 hover:text-slate-900 border border-gray-300 px-4 py-2 transition-colors hover:bg-gray-50 shadow-md"
+                    className="relative cursor-pointer bg-white rounded-lg font-medium text-foreground/90 hover:text-foreground border border-gray-300 px-4 py-2 transition-colors hover:bg-gray-50 shadow-md"
                 >
                     <span>Choose File</span>
                     <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleFileChange} accept=".csv, .xlsx" />

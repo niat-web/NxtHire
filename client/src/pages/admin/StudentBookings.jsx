@@ -1,9 +1,8 @@
-// client/src/pages/admin/StudentBookings.jsx
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    Eye, Link2, Users, Clipboard, Search, ChevronDown, ChevronRight,
-    Plus, CheckCircle, Clock, Trash2, User, ExternalLink, BarChart3, X, Check, Loader2, CalendarPlus
+    Eye, Link2, Users, Clipboard, Search, ChevronDown,
+    Plus, CheckCircle, Clock, Trash2, Inbox, BarChart3, X, Check, Loader2, CalendarPlus
 } from 'lucide-react';
 import { deletePublicBookingLink, addSlotsToPublicBooking } from '@/api/admin.api';
 import { usePublicBookings, useBookingSlots, useInvalidateAdmin } from '@/hooks/useAdminQueries';
@@ -12,6 +11,9 @@ import { formatDateTime, formatDate, formatTime } from '@/utils/formatters';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import Loader from '@/components/common/Loader';
 import { cn } from '@/lib/utils';
+
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
+const ACCENT = '#C0392B';
 
 // ── Add Slots Modal ──
 const AddSlotsModal = ({ isOpen, onClose, publicBookingId, onSuccess }) => {
@@ -59,57 +61,58 @@ const AddSlotsModal = ({ isOpen, onClose, publicBookingId, onSuccess }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
-            <div className="w-full max-w-2xl bg-white rounded-xl shadow-xl border border-slate-200 flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
-                {/* Header */}
-                <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200 shrink-0">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4" onClick={onClose}>
+            <div className="w-full max-w-2xl bg-white rounded-2xl border border-border shadow-xl flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
+                <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
                     <div>
-                        <h2 className="text-sm font-semibold text-slate-900">Add Slots to Public Link</h2>
-                        <p className="text-[11px] text-slate-400">Select available slots to add</p>
+                        <h2 style={DISPLAY} className="text-[18px] font-semibold text-foreground tracking-tight">Add slots to public link</h2>
+                        <p className="text-[12px] text-muted-foreground mt-0.5">Select available slots to append</p>
                     </div>
-                    <button onClick={onClose} className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
-                        <X size={16} />
+                    <button aria-label="Close" onClick={onClose} className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                        <X className="h-4 w-4" aria-hidden="true" />
                     </button>
                 </div>
 
-                {/* Slots list */}
                 <div className="flex-1 overflow-y-auto">
                     {isLoading ? (
                         <div className="flex items-center justify-center h-40"><Loader size="md" /></div>
                     ) : slots.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-40 text-slate-400">
-                            <p className="text-sm font-medium text-slate-500">No available slots</p>
-                            <p className="text-[11px] mt-0.5">Create booking requests first to get interviewer slots</p>
+                        <div className="flex flex-col items-center justify-center py-12 text-center">
+                            <span className="inline-flex items-center justify-center h-10 w-10 rounded-full border border-border bg-white text-muted-foreground/70 mb-3">
+                                <Inbox className="h-4 w-4" aria-hidden="true" />
+                            </span>
+                            <p className="text-[13px] font-semibold text-foreground">No available slots</p>
+                            <p className="text-[12px] text-muted-foreground mt-0.5">Create booking requests first to collect availability</p>
                         </div>
                     ) : (
-                        <table className="min-w-full">
+                        <table className="min-w-full text-[13px]">
                             <thead>
                                 <tr>
-                                    <th className="sticky top-0 px-4 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Interviewer</th>
-                                    <th className="sticky top-0 px-4 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10 w-28">Date</th>
-                                    <th className="sticky top-0 px-4 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Time Slots</th>
+                                    <th className="sticky top-0 px-4 py-2.5 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em] bg-muted/40 backdrop-blur border-b border-border z-10">Interviewer</th>
+                                    <th className="sticky top-0 px-4 py-2.5 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em] bg-muted/40 backdrop-blur border-b border-border z-10 w-32">Date</th>
+                                    <th className="sticky top-0 px-4 py-2.5 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em] bg-muted/40 backdrop-blur border-b border-border z-10">Time slots</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100">
+                            <tbody className="divide-y divide-border">
                                 {slots.map(row => {
                                     const entry = selectedSlots[row.submissionId];
                                     return (
-                                        <tr key={row.submissionId} className="hover:bg-slate-50/60 transition-colors">
-                                            <td className="px-4 py-2.5">
-                                                <p className="text-[12px] font-medium text-slate-900">{row.fullName}</p>
-                                                <p className="text-[10px] text-slate-400">{row.email}</p>
+                                        <tr key={row.submissionId} className="hover:bg-muted/30 transition-colors">
+                                            <td className="px-4 py-3 align-middle">
+                                                <p className="text-[12.5px] font-semibold text-foreground">{row.fullName}</p>
+                                                <p className="text-[11.5px] text-muted-foreground">{row.email}</p>
                                             </td>
-                                            <td className="px-4 py-2.5 text-[12px] text-slate-600">{formatDate(row.interviewDate)}</td>
-                                            <td className="px-4 py-2.5">
-                                                <div className="flex flex-wrap gap-1">
+                                            <td className="px-4 py-3 text-[12.5px] text-foreground/90 align-middle">{formatDate(row.interviewDate)}</td>
+                                            <td className="px-4 py-3 align-middle">
+                                                <div className="flex flex-wrap gap-1.5">
                                                     {row.timeSlots.map((slot, idx) => {
                                                         const isSelected = entry?.slots.some(s => s.startTime === slot.startTime && s.endTime === slot.endTime);
                                                         return (
                                                             <button key={idx} type="button" onClick={() => handleSlotToggle(row, slot)}
-                                                                className={cn('inline-flex items-center gap-1 h-6 px-2 text-[10px] font-medium rounded border transition-colors',
-                                                                    isSelected ? 'bg-blue-50 text-blue-700 border-blue-300' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300')}>
-                                                                {isSelected && <Check size={10} />}
-                                                                {formatTime(slot.startTime)}-{formatTime(slot.endTime)}
+                                                                className={cn('inline-flex items-center gap-1 h-7 px-2.5 text-[11.5px] font-semibold rounded-md border transition-colors',
+                                                                    isSelected ? 'bg-primary text-white border-primary' : 'bg-white text-foreground/90 border-border hover:border-primary hover:text-foreground')}>
+                                                                {isSelected && <Check className="h-3 w-3" aria-hidden="true" />}
+                                                                {formatTime(slot.startTime)}–{formatTime(slot.endTime)}
                                                             </button>
                                                         );
                                                     })}
@@ -123,15 +126,14 @@ const AddSlotsModal = ({ isOpen, onClose, publicBookingId, onSuccess }) => {
                     )}
                 </div>
 
-                {/* Footer */}
-                <div className="flex items-center justify-between px-5 py-3 border-t border-slate-200 shrink-0">
-                    <span className="text-[11px] text-slate-400">{selectedCount} slot(s) selected</span>
+                <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-muted/30 shrink-0 rounded-b-2xl">
+                    <span className="text-[12.5px] text-foreground/80"><span className="font-semibold text-foreground">{selectedCount}</span> slot{selectedCount === 1 ? '' : 's'} selected</span>
                     <div className="flex gap-2">
-                        <button onClick={onClose} className="h-8 px-3 text-[12px] font-medium text-slate-700 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors">Cancel</button>
+                        <button onClick={onClose} className="h-9 px-4 text-[12.5px] font-semibold text-foreground/90 border border-border rounded-md hover:border-primary hover:text-foreground transition-colors">Cancel</button>
                         <button onClick={handleSave} disabled={selectedCount === 0 || saving}
-                            className="inline-flex items-center gap-1.5 h-8 px-3 text-[12px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-40 transition-colors">
-                            {saving ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
-                            Add {selectedCount > 0 ? selectedCount : ''} Slots
+                            className="inline-flex items-center gap-1.5 h-9 px-5 text-[13px] font-semibold text-white bg-primary rounded-md hover:bg-primary/90 disabled:opacity-40 transition-colors">
+                            {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <Plus className="h-3.5 w-3.5" aria-hidden="true" />}
+                            Add {selectedCount > 0 ? selectedCount : ''} slot{selectedCount === 1 ? '' : 's'}
                         </button>
                     </div>
                 </div>
@@ -139,6 +141,15 @@ const AddSlotsModal = ({ isOpen, onClose, publicBookingId, onSuccess }) => {
         </div>
     );
 };
+
+// ── Stat chip ──
+const StatChip = ({ label, value, icon: Icon }) => (
+    <div className="flex items-center gap-2.5 rounded-md border border-border bg-white px-3 h-9">
+        <Icon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+        <span style={DISPLAY} className="text-[15px] font-semibold text-foreground leading-none tracking-tight">{value}</span>
+        <span className="text-[11.5px] text-muted-foreground">{label}</span>
+    </div>
+);
 
 const StudentBookings = () => {
     const { showSuccess, showError } = useAlert();
@@ -182,165 +193,173 @@ const StudentBookings = () => {
     const totalStudents = useMemo(() => publicBookings.reduce((s, b) => s + (b.allowedStudents?.length || 0), 0), [publicBookings]);
     const totalBooked = useMemo(() => publicBookings.reduce((s, b) => s + (b.bookedCount || 0), 0), [publicBookings]);
 
+    const hasFilters = !!(searchTerm || creatorFilter);
+
     if (loading) return <div className="flex items-center justify-center h-64"><Loader size="lg" /></div>;
 
     return (
-        <div className="h-full flex flex-col bg-white overflow-hidden">
-            {/* Toolbar */}
-            <div className="border-b border-slate-200 shrink-0">
-                {/* Stats row */}
-                <div className="flex items-center px-5 py-2 gap-5 border-b border-slate-100">
-                    <div className="flex items-center gap-5 text-[12px]">
-                        <div className="flex items-center gap-1.5 text-slate-500">
-                            <Link2 size={13} className="text-slate-400" />
-                            <span className="font-bold text-slate-900">{publicBookings.length}</span> Links
-                        </div>
-                        <div className="flex items-center gap-1.5 text-slate-500">
-                            <Users size={13} className="text-blue-500" />
-                            <span className="font-bold text-slate-900">{totalStudents}</span> Students
-                        </div>
-                        <div className="flex items-center gap-1.5 text-slate-500">
-                            <CheckCircle size={13} className="text-emerald-500" />
-                            <span className="font-bold text-slate-900">{totalBooked}</span> Booked
-                        </div>
+        <div className="h-full flex flex-col bg-card overflow-hidden">
+            {/* Hero — title on the left, search + filters + CTA on the right in one row */}
+            <section className="border-b border-border bg-card px-5 lg:px-6 pt-3 pb-3 shrink-0">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h1 style={DISPLAY} className="text-[22px] sm:text-[26px] font-semibold text-foreground tracking-tight leading-none">
+                            Public links
+                        </h1>
+                        <p className="mt-1 text-[12.5px] text-muted-foreground">
+                            {publicBookings.length} link{publicBookings.length === 1 ? '' : 's'} · {totalBooked} student{totalBooked === 1 ? '' : 's'} booked so far
+                        </p>
                     </div>
-                    <div className="flex-1" />
-                    <button onClick={() => navigate('/admin/bookings/booking-slots')}
-                        className="inline-flex items-center gap-2 h-8 px-3 text-[12px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
-                        <Plus size={13} /> New Link
-                    </button>
+
+                    <div className="flex flex-wrap items-center gap-2.5">
+                        <div className="relative w-full sm:w-56">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70" aria-hidden="true" />
+                            <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Search by public ID"
+                                className="w-full pl-10 pr-3 h-9 bg-white border border-border rounded-md text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors" />
+                        </div>
+                        <div className="relative">
+                            <select value={creatorFilter} onChange={e => setCreatorFilter(e.target.value)}
+                                className="appearance-none h-9 pl-4 pr-9 bg-white border border-border rounded-md text-[13px] text-foreground/90 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors">
+                                <option value="">All creators</option>
+                                {creatorOptions.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                            </select>
+                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70 pointer-events-none" aria-hidden="true" />
+                        </div>
+                        <div className="relative">
+                            <select value={sortOption} onChange={e => setSortOption(e.target.value)}
+                                className="appearance-none h-9 pl-4 pr-9 bg-white border border-border rounded-md text-[13px] text-foreground/90 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors">
+                                <option value="newest">Newest first</option>
+                                <option value="oldest">Oldest first</option>
+                                <option value="most_students">Most students</option>
+                            </select>
+                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70 pointer-events-none" aria-hidden="true" />
+                        </div>
+                        {hasFilters && (
+                            <button onClick={() => { setSearchTerm(''); setCreatorFilter(''); }}
+                                className="text-[12px] text-muted-foreground hover:text-foreground font-medium px-3 h-8 rounded-md hover:bg-muted transition-colors">
+                                Clear
+                            </button>
+                        )}
+                        <button onClick={() => navigate('/admin/bookings/booking-slots')}
+                            className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary/90">
+                            <Plus className="h-4 w-4" aria-hidden="true" /> New link
+                        </button>
+                    </div>
                 </div>
 
-                {/* Filter row */}
-                <div className="flex items-center gap-2 px-5 py-2">
-                    <div className="relative w-48">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-                        <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Search by ID..."
-                            className="w-full pl-9 pr-3 h-8 bg-slate-50 border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all" />
-                    </div>
-                    <div className="relative">
-                        <select value={creatorFilter} onChange={e => setCreatorFilter(e.target.value)}
-                            className="appearance-none h-8 pl-3 pr-7 bg-white border border-slate-200 rounded-md text-[12px] cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-colors">
-                            <option value="">All Creators</option>
-                            {creatorOptions.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-                        </select>
-                        <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
-                    </div>
-                    <div className="relative">
-                        <select value={sortOption} onChange={e => setSortOption(e.target.value)}
-                            className="appearance-none h-8 pl-3 pr-7 bg-white border border-slate-200 rounded-md text-[12px] cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-colors">
-                            <option value="newest">Newest First</option>
-                            <option value="oldest">Oldest First</option>
-                            <option value="most_students">Most Students</option>
-                        </select>
-                        <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
-                    </div>
+                <div className="flex flex-wrap items-center gap-2 mt-3">
+                    <StatChip label="Links" value={publicBookings.length} icon={Link2} />
+                    <StatChip label="Students" value={totalStudents} icon={Users} />
+                    <StatChip label="Booked" value={totalBooked} icon={CheckCircle} />
                 </div>
-            </div>
+            </section>
 
             {/* Table */}
             <div className="flex-1 overflow-auto">
                 {filtered.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-64 text-slate-400">
-                        <Link2 size={28} className="mb-2 opacity-20" />
-                        <p className="text-sm font-medium text-slate-500">{publicBookings.length === 0 ? 'No public links yet' : 'No links match your filters'}</p>
+                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                        <span className="inline-flex items-center justify-center h-12 w-12 rounded-full border border-border bg-white text-muted-foreground/70 mb-4">
+                            <Link2 className="h-5 w-5" aria-hidden="true" />
+                        </span>
+                        <h3 style={DISPLAY} className="text-[20px] font-semibold text-foreground tracking-tight">
+                            {publicBookings.length === 0 ? 'No public links yet' : 'No links match'}
+                        </h3>
+                        <p className="mt-1 text-[13px] text-muted-foreground max-w-sm">
+                            {publicBookings.length === 0 ? 'Create one from Booking slots to share with students.' : 'Try clearing the filters to see all links.'}
+                        </p>
                     </div>
                 ) : (
-                    <table className="min-w-full">
-                        <thead>
-                            <tr>
-                                <th className="sticky top-0 px-5 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Created</th>
-                                <th className="sticky top-0 px-5 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Public ID</th>
-                                <th className="sticky top-0 px-5 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Interviewers</th>
-                                <th className="sticky top-0 px-5 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Students</th>
-                                <th className="sticky top-0 px-5 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Booked</th>
-                                <th className="sticky top-0 px-5 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] bg-slate-50 border-b border-slate-200 z-10">Pending</th>
-                                <th className="sticky top-0 w-32 px-5 py-2 bg-slate-50 border-b border-slate-200 z-10" />
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                            {filtered.map(booking => {
-                                const uniqueInterviewers = [...new Set(
-                                    booking.interviewerSlots?.map(s => s.interviewer?.user ? `${s.interviewer.user.firstName} ${s.interviewer.user.lastName}`.trim() : null).filter(Boolean)
-                                )];
-                                const url = `${window.location.origin}/book/${booking.publicId}`;
-                                const creatorName = booking.createdBy ? `${booking.createdBy.firstName} ${booking.createdBy.lastName || ''}`.trim() : '—';
-
-                                return (
-                                    <tr key={booking._id} className="group hover:bg-slate-50/60 transition-colors cursor-pointer"
-                                        onClick={() => navigate(`/admin/public-bookings/${booking._id}/evaluation`)}>
-                                        {/* Created */}
-                                        <td className="px-5 py-2.5">
-                                            <p className="text-[12px] font-medium text-slate-900">{formatDateTime(booking.createdAt)}</p>
-                                            <p className="text-[10px] text-slate-400 mt-0.5">by {creatorName}</p>
-                                        </td>
-                                        {/* Public ID */}
-                                        <td className="px-5 py-2.5" onClick={e => e.stopPropagation()}>
-                                            <div className="flex items-center gap-1.5">
-                                                <span className="font-mono text-[11px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">{booking.publicId}</span>
-                                                <button onClick={() => { navigator.clipboard.writeText(url); showSuccess("Copied!"); }}
-                                                    className="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Copy link">
-                                                    <Clipboard size={11} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                        {/* Interviewers */}
-                                        <td className="px-5 py-2.5">
-                                            <span className="text-[12px] text-slate-600" title={uniqueInterviewers.join(', ')}>{uniqueInterviewers.length}</span>
-                                        </td>
-                                        {/* Students */}
-                                        <td className="px-5 py-2.5">
-                                            <span className="text-[12px] font-medium text-slate-900">{booking.allowedStudents?.length || 0}</span>
-                                        </td>
-                                        {/* Booked */}
-                                        <td className="px-5 py-2.5">
-                                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
-                                                <CheckCircle size={11} /> {booking.bookedCount || 0}
-                                            </span>
-                                        </td>
-                                        {/* Pending */}
-                                        <td className="px-5 py-2.5">
-                                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-500">
-                                                <Clock size={11} /> {booking.pendingCount || 0}
-                                            </span>
-                                        </td>
-                                        {/* Actions */}
-                                        <td className="px-5 py-2.5" onClick={e => e.stopPropagation()}>
-                                            <div className="flex items-center justify-end gap-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
-                                                <button onClick={() => setAddSlotsModal({ isOpen: true, bookingId: booking._id })}
-                                                    className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" title="Add Slots">
-                                                    <CalendarPlus size={14} />
-                                                </button>
-                                                <button onClick={() => navigate(`/admin/public-bookings/${booking._id}/evaluation`)}
-                                                    className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Evaluations">
-                                                    <BarChart3 size={14} />
-                                                </button>
-                                                <button onClick={() => navigate(`/admin/public-bookings/${booking._id}/tracking`)}
-                                                    className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Track">
-                                                    <Eye size={14} />
-                                                </button>
-                                                <button onClick={() => navigate(`/admin/public-bookings/${booking._id}/authorize`)}
-                                                    className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Authorize">
-                                                    <Users size={14} />
-                                                </button>
-                                                <button onClick={() => setDeleteDialog({ isOpen: true, id: booking._id })}
-                                                    className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Delete">
-                                                    <Trash2 size={14} />
-                                                </button>
-                                            </div>
-                                        </td>
+                    <div className="px-5 lg:px-6 py-3">
+                        <div className="bg-white rounded-lg border border-border overflow-hidden">
+                            <table className="min-w-full text-[13px]">
+                                <thead>
+                                    <tr>
+                                        <th className="sticky top-0 px-5 py-3 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em] bg-muted/40 backdrop-blur border-b border-border z-10">Created</th>
+                                        <th className="sticky top-0 px-5 py-3 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em] bg-muted/40 backdrop-blur border-b border-border z-10">Public ID</th>
+                                        <th className="sticky top-0 px-5 py-3 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em] bg-muted/40 backdrop-blur border-b border-border z-10">Interviewers</th>
+                                        <th className="sticky top-0 px-5 py-3 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em] bg-muted/40 backdrop-blur border-b border-border z-10">Students</th>
+                                        <th className="sticky top-0 px-5 py-3 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em] bg-muted/40 backdrop-blur border-b border-border z-10">Booked</th>
+                                        <th className="sticky top-0 px-5 py-3 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em] bg-muted/40 backdrop-blur border-b border-border z-10">Pending</th>
+                                        <th className="sticky top-0 w-40 px-5 py-3 bg-muted/40 backdrop-blur border-b border-border z-10" />
                                     </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
+                                </thead>
+                                <tbody className="divide-y divide-border">
+                                    {filtered.map(booking => {
+                                        const uniqueInterviewers = [...new Set(
+                                            booking.interviewerSlots?.map(s => s.interviewer?.user ? `${s.interviewer.user.firstName} ${s.interviewer.user.lastName}`.trim() : null).filter(Boolean)
+                                        )];
+                                        const url = `${window.location.origin}/book/${booking.publicId}`;
+                                        const creatorName = booking.createdBy ? `${booking.createdBy.firstName} ${booking.createdBy.lastName || ''}`.trim() : '—';
+
+                                        return (
+                                            <tr key={booking._id} className="group hover:bg-muted/30 transition-colors cursor-pointer"
+                                                onClick={() => navigate(`/admin/public-bookings/${booking._id}/evaluation`)}>
+                                                <td className="px-5 py-3.5 align-middle">
+                                                    <p className="text-[12.5px] font-semibold text-foreground">{formatDateTime(booking.createdAt)}</p>
+                                                    <p className="text-[11.5px] text-muted-foreground mt-0.5">by {creatorName}</p>
+                                                </td>
+                                                <td className="px-5 py-3.5 align-middle" onClick={e => e.stopPropagation()}>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span className="font-mono text-[11.5px] font-semibold text-foreground border border-border bg-muted/40 px-2 py-0.5 rounded-md">{booking.publicId}</span>
+                                                        <button aria-label="Copy link" onClick={() => { navigator.clipboard.writeText(url); showSuccess("Copied!"); }}
+                                                            className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Copy link">
+                                                            <Clipboard className="h-3 w-3" aria-hidden="true" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td className="px-5 py-3.5 align-middle">
+                                                    <span className="text-[12.5px] text-foreground/90" title={uniqueInterviewers.join(', ')}>{uniqueInterviewers.length}</span>
+                                                </td>
+                                                <td className="px-5 py-3.5 align-middle">
+                                                    <span className="text-[12.5px] font-semibold text-foreground">{booking.allowedStudents?.length || 0}</span>
+                                                </td>
+                                                <td className="px-5 py-3.5 align-middle">
+                                                    <span className="inline-flex items-center gap-1 h-6 px-2 rounded-full border border-emerald-200 bg-emerald-50/60 text-emerald-700 text-[11.5px] font-semibold">
+                                                        <CheckCircle className="h-3 w-3" aria-hidden="true" /> {booking.bookedCount || 0}
+                                                    </span>
+                                                </td>
+                                                <td className="px-5 py-3.5 align-middle">
+                                                    <span className="inline-flex items-center gap-1 h-6 px-2 rounded-full border border-amber-200 bg-amber-50/60 text-amber-800 text-[11.5px] font-semibold">
+                                                        <Clock className="h-3 w-3" aria-hidden="true" /> {booking.pendingCount || 0}
+                                                    </span>
+                                                </td>
+                                                <td className="px-5 py-3.5 align-middle" onClick={e => e.stopPropagation()}>
+                                                    <div className="flex items-center justify-end gap-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                                                        <button aria-label="Add slots" onClick={() => setAddSlotsModal({ isOpen: true, bookingId: booking._id })}
+                                                            className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Add slots">
+                                                            <CalendarPlus className="h-3.5 w-3.5" aria-hidden="true" />
+                                                        </button>
+                                                        <button aria-label="Evaluations" onClick={() => navigate(`/admin/public-bookings/${booking._id}/evaluation`)}
+                                                            className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Evaluations">
+                                                            <BarChart3 className="h-3.5 w-3.5" aria-hidden="true" />
+                                                        </button>
+                                                        <button aria-label="Track" onClick={() => navigate(`/admin/public-bookings/${booking._id}/tracking`)}
+                                                            className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Track">
+                                                            <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+                                                        </button>
+                                                        <button aria-label="Authorize" onClick={() => navigate(`/admin/public-bookings/${booking._id}/authorize`)}
+                                                            className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Authorize">
+                                                            <Users className="h-3.5 w-3.5" aria-hidden="true" />
+                                                        </button>
+                                                        <button aria-label="Delete" onClick={() => setDeleteDialog({ isOpen: true, id: booking._id })}
+                                                            className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors" title="Delete">
+                                                            <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 )}
             </div>
 
-            {/* Footer */}
             {filtered.length > 0 && (
-                <div className="px-5 py-2 border-t border-slate-100 shrink-0">
-                    <p className="text-[11px] text-slate-400">{filtered.length} of {publicBookings.length} links</p>
+                <div className="px-6 lg:px-8 py-3 border-t border-border bg-white shrink-0">
+                    <p className="text-[12px] text-muted-foreground"><span className="font-semibold text-foreground">{filtered.length}</span> of <span className="font-semibold text-foreground">{publicBookings.length}</span> links</p>
                 </div>
             )}
 
@@ -352,7 +371,7 @@ const StudentBookings = () => {
             />
 
             <ConfirmDialog isOpen={deleteDialog.isOpen} onClose={() => setDeleteDialog({ isOpen: false, id: null })}
-                onConfirm={handleDeleteConfirm} title="Delete Public Link"
+                onConfirm={handleDeleteConfirm} title="Delete public link"
                 message="All associated student invitations will be lost. This action is permanent." confirmVariant="danger" />
         </div>
     );

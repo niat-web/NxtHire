@@ -3,142 +3,148 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Users, ClipboardCheck, UserCheck, IndianRupee,
-  Eye, EyeOff, Mail, Check, Calendar, RefreshCw,
-  ArrowUpRight, TrendingUp, Loader2, Clock, Briefcase,
-  FileText, ChevronRight, ArrowRight, BarChart3, Zap,
-  AlertCircle, Plus,
+  Eye, EyeOff, Mail, Check, Calendar,
+  ArrowUpRight, TrendingUp, Loader2, Briefcase,
+  ChevronRight, AlertCircle,
 } from 'lucide-react';
 import { sendProbationEmail, markProbationAsSent } from '../../api/admin.api';
 import { useDashboardStats, useApplicants, useInvalidateAdmin } from '../../hooks/useAdminQueries';
 import { useAlert } from '../../hooks/useAlert';
 import { formatCurrency, formatDate, formatTime } from '../../utils/formatters';
-import { useAuth } from '../../hooks/useAuth';
 import AnalyticsDashboard from '../../components/admin/AnalyticsDashboard';
 import { cn } from '@/lib/utils';
 import Loader from '@/components/common/Loader';
 
-// ── inline status badge ─────────────────────────────────────────────────────
-const statusColorMap = {
-  'Application Submitted': 'bg-blue-50 text-blue-700',
-  'Under Review': 'bg-amber-50 text-amber-700',
-  'Profile Approved': 'bg-emerald-50 text-emerald-700',
-  'Profile Rejected': 'bg-red-50 text-red-700',
-  'Skills Assessment Sent': 'bg-blue-50 text-blue-700',
-  'Skills Assessment Completed': 'bg-violet-50 text-violet-700',
-  'Guidelines Sent': 'bg-blue-50 text-blue-700',
-  'Guidelines Reviewed': 'bg-violet-50 text-violet-700',
-  'Guidelines Failed': 'bg-red-50 text-red-700',
-  'Onboarded': 'bg-emerald-50 text-emerald-700',
-  'Active Interviewer': 'bg-emerald-50 text-emerald-700',
-  'On Probation': 'bg-amber-50 text-amber-700',
-  'Active': 'bg-emerald-50 text-emerald-700',
-  'Inactive': 'bg-slate-100 text-slate-600',
-  'Suspended': 'bg-red-50 text-red-700',
-  'Pending': 'bg-amber-50 text-amber-700',
-  'Completed': 'bg-emerald-50 text-emerald-700',
-  'Cancelled': 'bg-red-50 text-red-700',
+const ACCENT = '#C0392B';
+const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
+
+const statusMeaningMap = {
+  'Profile Approved': 'success',
+  'Profile Rejected': 'danger',
+  'Onboarded': 'success',
+  'Active Interviewer': 'success',
+  'Active': 'success',
+  'Under Review': 'warning',
+  'On Probation': 'warning',
+  'Pending': 'warning',
+  'Completed': 'success',
+  'Cancelled': 'danger',
+  'Guidelines Failed': 'danger',
+  'Suspended': 'danger',
+  'Inactive': 'neutral',
 };
 const statusLabelMap = {
   'Application Submitted': 'Submitted',
   'Skills Assessment Sent': 'Assessment Sent',
   'Skills Assessment Completed': 'Assessment Done',
-  'Guidelines Reviewed': 'Guidelines Reviewed',
-  'Guidelines Failed': 'Guidelines Failed',
-  'Active Interviewer': 'Active Interviewer',
-  'On Probation': 'On Probation',
   'Pending': 'Pending Review',
 };
 const InlineStatusBadge = ({ status }) => {
-  const colorClass = statusColorMap[status] || 'bg-slate-100 text-slate-600';
+  const meaning = statusMeaningMap[status] || 'neutral';
   const label = statusLabelMap[status] || status;
+  const classes = {
+    success: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+    warning: 'border-amber-200 bg-amber-50 text-amber-800',
+    danger:  'border-red-200 bg-red-50 text-red-700',
+    neutral: 'border-border bg-muted/40 text-foreground/80',
+  }[meaning];
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${colorClass}`}>
+    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${classes}`}>
       {label}
     </span>
   );
 };
 
-// ── animation ────────────────────────────────────────────────────────────────
-const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.06 } } };
-const fadeUp = { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } };
+const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
+const fadeUp = { hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0, transition: { duration: 0.35 } } };
 
-// ── Metric Card ──────────────────────────────────────────────────────────────
-const MetricCard = ({ label, value, icon: Icon, href, color, isLoading, isSensitive, change }) => {
+const MetricCard = ({ label, value, icon: Icon, href, isLoading, isSensitive, accent = false }) => {
   const [show, setShow] = useState(!isSensitive);
-  const colors = {
-    blue:    { bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-100' },
-    emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-100' },
-    amber:   { bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-100' },
-    violet:  { bg: 'bg-violet-50', text: 'text-violet-600', border: 'border-violet-100' },
-    rose:    { bg: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-100' },
-    sky:     { bg: 'bg-sky-50', text: 'text-sky-600', border: 'border-sky-100' },
-  };
-  const c = colors[color] || colors.blue;
 
   const Wrapper = href ? Link : 'div';
   const wrapperProps = href ? { to: href } : {};
 
   return (
-    <Wrapper {...wrapperProps} className="group relative rounded-xl bg-white border border-slate-200 px-5 py-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 hover:border-slate-300 block overflow-hidden">
-      <div className="flex items-center justify-between mb-3">
-        <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center border', c.bg, c.text, c.border)}>
-          <Icon size={18} strokeWidth={2} />
+    <Wrapper
+      {...wrapperProps}
+      className={cn(
+        'group relative rounded-lg px-5 py-5 transition-colors block shadow-brave-card',
+        accent
+          ? 'bg-primary/5 border-2 border-primary/40 hover:border-primary'
+          : 'bg-card border border-border hover:border-primary/40'
+      )}
+    >
+      <div className="flex items-center justify-between mb-4">
+        <p className={cn(
+          'text-[12px] font-semibold uppercase tracking-[0.15em]',
+          accent ? 'text-primary' : 'text-muted-foreground'
+        )}>
+          {label}
+        </p>
+        <div className={cn(
+          'h-7 w-7 rounded-md inline-flex items-center justify-center',
+          accent ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+        )}>
+          <Icon size={14} strokeWidth={2} />
         </div>
-        {href && (
-          <ArrowUpRight size={15} className="text-slate-300 group-hover:text-blue-500 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-all" />
-        )}
       </div>
 
       {isLoading ? (
-        <div className="h-7 w-16 mb-0.5 bg-slate-100 rounded animate-pulse" />
+        <div className="h-8 w-20 mb-1 bg-muted rounded animate-pulse" />
       ) : (
         <div className="flex items-baseline gap-1.5">
-          <span className="text-2xl font-bold text-slate-900 tracking-tight">
+          <span
+            style={DISPLAY}
+            className={cn(
+              'text-[32px] font-bold tracking-tight leading-none tabular-nums',
+              accent ? 'text-primary' : 'text-foreground'
+            )}
+          >
             {isSensitive && !show ? '••••' : value}
           </span>
           {isSensitive && (
-            <button onClick={(e) => { e.preventDefault(); setShow(v => !v); }} className="text-slate-300 hover:text-slate-500">
+            <button onClick={(e) => { e.preventDefault(); setShow(v => !v); }} className="text-muted-foreground/60 hover:text-foreground">
               {show ? <EyeOff size={12} /> : <Eye size={12} />}
             </button>
           )}
+          {href && (
+            <ArrowUpRight size={14} className="ml-auto text-muted-foreground/40 group-hover:text-foreground transition-colors" />
+          )}
         </div>
       )}
-
-      <p className="text-[11px] font-semibold text-slate-500 mt-1 uppercase tracking-wide">{label}</p>
     </Wrapper>
   );
 };
 
-// ── Activity Item ────────────────────────────────────────────────────────────
 const ActivityItem = ({ avatar, name, detail, badge, action }) => (
-  <div className="flex items-center gap-3 py-3 px-1 border-b border-slate-100 last:border-0 group">
-    <div className="h-9 w-9 shrink-0 rounded-lg bg-blue-50 flex items-center justify-center text-blue-700 text-xs font-semibold">
+  <div className="flex items-center gap-3 py-3 border-b border-border last:border-0 group">
+    <div
+      className="h-9 w-9 shrink-0 rounded-md flex items-center justify-center text-[12px] font-bold"
+      style={{ backgroundColor: 'hsl(var(--sidebar-primary))', color: 'hsl(var(--sidebar-primary-foreground))' }}
+    >
       {avatar}
     </div>
     <div className="flex-1 min-w-0">
-      <p className="text-sm font-medium text-slate-900 truncate">{name}</p>
-      <p className="text-xs text-slate-400 truncate">{detail}</p>
+      <p className="text-[13px] font-semibold text-foreground truncate">{name}</p>
+      <p className="text-[12px] text-muted-foreground truncate">{detail}</p>
     </div>
     {badge && <div className="shrink-0">{badge}</div>}
     {action && <div className="shrink-0">{action}</div>}
   </div>
 );
 
-// ── Schedule Item ────────────────────────────────────────────────────────────
 const ScheduleItem = ({ interview }) => (
-  <div className="flex items-center gap-3 py-3 px-1 border-b border-slate-100 last:border-0">
-    <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-      <Calendar size={16} />
+  <div className="flex items-center gap-3 py-3 border-b border-border last:border-0">
+    <div className="w-9 h-9 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
+      <Calendar size={14} />
     </div>
     <div className="flex-1 min-w-0">
-      <p className="text-sm font-medium text-slate-900 truncate">{interview.candidateName}</p>
-      <p className="text-xs text-slate-400">
+      <p className="text-[13px] font-semibold text-foreground truncate">{interview.candidateName}</p>
+      <p className="text-[12px] text-muted-foreground">
         {formatDate(interview.interviewDate)}
+        {interview.interviewTime && <span className="mx-1 text-muted-foreground/40">·</span>}
         {interview.interviewTime && (
-          <span className="ml-1 text-slate-300">&middot;</span>
-        )}
-        {interview.interviewTime && (
-          <span className="ml-1">{interview.interviewTime.split('-').map(t => formatTime(t.trim())).join(' – ')}</span>
+          <span>{interview.interviewTime.split('-').map(t => formatTime(t.trim())).join(' – ')}</span>
         )}
       </p>
     </div>
@@ -147,17 +153,16 @@ const ScheduleItem = ({ interview }) => (
         href={interview.meetingLink}
         target="_blank"
         rel="noopener noreferrer"
-        className="shrink-0 px-3 h-8 inline-flex items-center text-xs font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+        className="shrink-0 h-8 inline-flex items-center px-3 text-[12px] font-semibold rounded-md border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
       >
         Join
       </a>
     ) : (
-      <span className="text-xs text-slate-300 shrink-0">–</span>
+      <span className="text-[12px] text-muted-foreground/40 shrink-0">–</span>
     )}
   </div>
 );
 
-// ── Probation Row ────────────────────────────────────────────────────────────
 const ProbationRow = ({ interviewer, onRefresh }) => {
   const { showSuccess, showError } = useAlert();
   const [busy, setBusy] = useState(false);
@@ -183,71 +188,68 @@ const ProbationRow = ({ interviewer, onRefresh }) => {
   };
 
   return (
-    <div className="flex items-center gap-3 py-3 px-1 border-b border-slate-100 last:border-0">
-      <div className="h-9 w-9 shrink-0 rounded-lg bg-rose-50 flex items-center justify-center text-rose-700 text-xs font-semibold">
+    <div className="flex items-center gap-3 py-3 border-b border-border last:border-0">
+      <div
+        className="h-9 w-9 shrink-0 rounded-md flex items-center justify-center text-[12px] font-bold"
+        style={{ backgroundColor: 'hsl(var(--sidebar-primary))', color: 'hsl(var(--sidebar-primary-foreground))' }}
+      >
         {interviewer?.user?.firstName?.[0]}{interviewer?.user?.lastName?.[0]}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-slate-900 truncate">
+        <p className="text-[13px] font-semibold text-foreground truncate">
           {interviewer?.user?.firstName} {interviewer?.user?.lastName}
         </p>
-        <p className="text-xs text-slate-400">{interviewer.metrics?.interviewsCompleted} completed</p>
+        <p className="text-[12px] text-muted-foreground">{interviewer.metrics?.interviewsCompleted} completed</p>
       </div>
       <div className="flex gap-1 shrink-0">
-        <button onClick={send} disabled={busy} className="h-7 w-7 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 disabled:opacity-40 transition-colors" title="Send email">
-          {busy ? <Loader2 size={13} className="animate-spin" /> : <Mail size={13} />}
+        <button aria-label="Send probation email" onClick={send} disabled={busy} className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-primary/10 hover:text-primary disabled:opacity-40 transition-colors" title="Send email">
+          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <Mail className="h-3.5 w-3.5" aria-hidden="true" />}
         </button>
-        <button onClick={mark} disabled={busy} className="h-7 w-7 rounded-lg flex items-center justify-center text-emerald-600 hover:bg-emerald-50 disabled:opacity-40 transition-colors" title="Mark sent">
-          <Check size={13} />
+        <button aria-label="Mark probation as sent" onClick={mark} disabled={busy} className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-emerald-50 hover:text-emerald-600 disabled:opacity-40 transition-colors" title="Mark sent">
+          <Check className="h-3.5 w-3.5" aria-hidden="true" />
         </button>
       </div>
     </div>
   );
 };
 
-// ── Panel Card ───────────────────────────────────────────────────────────────
 const Panel = ({ title, subtitle, href, linkLabel, icon: Icon, children, className = '' }) => (
-  <div className={cn('bg-white rounded-xl border border-slate-200 overflow-hidden', className)}>
+  <div className={cn('bg-card text-card-foreground rounded-lg border border-border shadow-brave-card overflow-hidden', className)}>
     <div className="flex items-center justify-between px-5 py-4">
       <div className="flex items-center gap-3">
         {Icon && (
-          <div className="w-9 h-9 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center">
-            <Icon size={16} className="text-slate-500" />
+          <div className="h-9 w-9 rounded-md bg-primary/10 text-primary inline-flex items-center justify-center">
+            <Icon size={14} />
           </div>
         )}
         <div>
-          <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
-          {subtitle && <p className="text-[11px] text-slate-400 font-medium">{subtitle}</p>}
+          <h3 className="font-display text-[15px] font-semibold text-foreground tracking-tight">{title}</h3>
+          {subtitle && <p className="text-[11px] text-muted-foreground mt-0.5">{subtitle}</p>}
         </div>
       </div>
       {href && (
-        <Link to={href} className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-0.5 transition-colors">
-          {linkLabel || 'View all'} <ChevronRight size={14} />
+        <Link to={href} className="text-[12px] font-semibold text-muted-foreground hover:text-primary flex items-center gap-0.5 transition-colors">
+          {linkLabel || 'View all'} <ChevronRight size={13} />
         </Link>
       )}
     </div>
-    <div className="border-t border-slate-100 px-5 py-3">{children}</div>
+    <div className="border-t border-border px-5 py-2">{children}</div>
   </div>
 );
 
-// ── Hiring Pipeline Mini ─────────────────────────────────────────────────────
-const PipelineStat = ({ label, count, color }) => (
-  <div className="flex items-center justify-between py-2.5 px-1 border-b border-slate-100 last:border-0">
-    <div className="flex items-center gap-2">
-      <div className={cn('w-2 h-2 rounded-full', color)} />
-      <span className="text-sm text-slate-600">{label}</span>
+const PipelineStat = ({ label, count }) => (
+  <div className="flex items-center justify-between py-3 border-b border-border last:border-0">
+    <div className="flex items-center gap-2.5">
+      <span className="h-1.5 w-1.5 rounded-[2px]" style={{ backgroundColor: 'var(--brave-amber)' }} />
+      <span className="text-[13px] text-foreground/80">{label}</span>
     </div>
-    <span className="text-sm font-semibold text-slate-900">{count}</span>
+    <span className="font-display text-[20px] font-bold text-foreground tracking-tight tabular-nums">{count}</span>
   </div>
 );
 
-// ══════════════════════════════════════════════════════════════════════════════
-// ── MAIN DASHBOARD ───────────────────────────────────────────────────────────
-// ══════════════════════════════════════════════════════════════════════════════
 const Dashboard = () => {
-  const { currentUser } = useAuth();
   const { invalidateDashboard, invalidateApplicants } = useInvalidateAdmin();
-  const { data: stats = {}, isLoading: loading, error: statsError, isFetching } = useDashboardStats();
+  const { data: stats = {}, isLoading: loading, error: statsError } = useDashboardStats();
   const { data: applicantsData } = useApplicants(
     { limit: 5, sortBy: 'createdAt', sortOrder: 'desc' },
     { staleTime: 2 * 60 * 1000 }
@@ -259,7 +261,6 @@ const Dashboard = () => {
 
   const refresh = () => { invalidateDashboard(); invalidateApplicants(); };
 
-  // Full-screen loader on first load
   if (loading && !stats.totalApplicants) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -270,48 +271,44 @@ const Dashboard = () => {
 
   return (
     <motion.div
-      className="flex-1 flex flex-col overflow-y-auto bg-[#f5f7fb]"
+      className="flex-1 flex flex-col overflow-y-auto bg-background"
       initial="hidden"
       animate="visible"
       variants={stagger}
     >
-      <div className="px-5 py-5 space-y-4">
+      <div className="px-6 py-6 lg:px-10 lg:py-8 space-y-5 max-w-7xl w-full mx-auto">
 
         {statsError && (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-100 text-sm text-red-600">
-            <AlertCircle size={16} /> Failed to load dashboard data.
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200 text-[13px] text-red-700">
+            <AlertCircle size={14} /> Failed to load dashboard data.
           </div>
         )}
 
-        {/* ── Metric Cards ─────────────────────────────────────────────────── */}
         <motion.div variants={fadeUp} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          <MetricCard label="Total Applicants"    value={stats.totalApplicants ?? 0}        icon={Users}          href="/admin/hiring/applicants"    color="blue"  isLoading={loading} />
-          <MetricCard label="Active Interviewers" value={stats.activeInterviewers ?? 0}     icon={UserCheck}      href="/admin/interviewers"         color="emerald" isLoading={loading} />
-          <MetricCard label="Pending Reviews"     value={stats.pendingReviews ?? 0}         icon={ClipboardCheck} href="/admin/hiring/linkedin-review" color="amber" isLoading={loading} />
-          <MetricCard label="Platform Earnings"   value={formatCurrency(stats.totalPlatformEarnings || 0)} icon={IndianRupee} href="/admin/earnings-report" color="violet" isLoading={loading} isSensitive />
-          <MetricCard label="Interviews"          value={upcomingInterviews.length}          icon={Calendar}       href="/admin/main-sheet"           color="sky"     isLoading={loading} />
-          <MetricCard label="On Probation"        value={stats.probationInterviewers ?? 0}  icon={TrendingUp}                                        color="rose"    isLoading={loading} />
+          <MetricCard label="Total Applicants"    value={stats.totalApplicants ?? 0}        icon={Users}          href="/admin/hiring/applicants"    isLoading={loading} />
+          <MetricCard label="Active Interviewers" value={stats.activeInterviewers ?? 0}     icon={UserCheck}      href="/admin/interviewers"         isLoading={loading} />
+          <MetricCard label="Pending Reviews"     value={stats.pendingReviews ?? 0}         icon={ClipboardCheck} href="/admin/hiring/linkedin-review" isLoading={loading} />
+          <MetricCard label="Platform Earnings"   value={formatCurrency(stats.totalPlatformEarnings || 0)} icon={IndianRupee} href="/admin/earnings-report" isLoading={loading} isSensitive accent />
+          <MetricCard label="Interviews"          value={upcomingInterviews.length}          icon={Calendar}       href="/admin/main-sheet"           isLoading={loading} />
+          <MetricCard label="On Probation"        value={stats.probationInterviewers ?? 0}  icon={TrendingUp}                                        isLoading={loading} />
         </motion.div>
 
-        {/* ── Pipeline + Analytics ─────────────────────────────────────────── */}
         <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-12 gap-3">
-          <Panel title="Hiring Pipeline" subtitle="Review queue" icon={Briefcase} href="/admin/hiring/applicants" className="lg:col-span-4">
-            <PipelineStat label="LinkedIn Reviews"   count={stats.pendingLinkedInReviews ?? 0} color="bg-blue-500" />
-            <PipelineStat label="Skills Assessment"  count={stats.pendingSkillsReview ?? 0}    color="bg-amber-500" />
-            <PipelineStat label="Guidelines Review"  count={stats.pendingGuidelinesReview ?? 0} color="bg-violet-500" />
-            <PipelineStat label="Probation Reviews"  count={probationReviewList.length}        color="bg-rose-500" />
+          <Panel title="Hiring pipeline" subtitle="Review queue" icon={Briefcase} href="/admin/hiring/applicants" className="lg:col-span-4">
+            <PipelineStat label="LinkedIn reviews"   count={stats.pendingLinkedInReviews ?? 0} />
+            <PipelineStat label="Skills assessment"  count={stats.pendingSkillsReview ?? 0} />
+            <PipelineStat label="Guidelines review"  count={stats.pendingGuidelinesReview ?? 0} />
+            <PipelineStat label="Probation reviews"  count={probationReviewList.length} />
           </Panel>
 
-          <div className="lg:col-span-8 bg-white rounded-xl border border-slate-200 p-5 overflow-hidden">
+          <div className="lg:col-span-8 bg-card rounded-lg border border-border shadow-brave-card p-5 overflow-hidden">
             <AnalyticsDashboard />
           </div>
         </motion.div>
 
-        {/* ── Bottom: 3-column layout ──────────────────────────────────────── */}
         <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-3 gap-3">
 
-          {/* Recent Applicants */}
-          <Panel title="Recent Applicants" icon={Users} href="/admin/hiring/applicants">
+          <Panel title="Recent applicants" icon={Users} href="/admin/hiring/applicants">
             {recentApplicants.length > 0 ? (
               recentApplicants.map(a => (
                 <ActivityItem
@@ -323,32 +320,30 @@ const Dashboard = () => {
                 />
               ))
             ) : (
-              <p className="py-8 text-center text-sm text-slate-400">No recent applicants</p>
+              <p className="py-8 text-center text-[13px] text-muted-foreground">No recent applicants</p>
             )}
           </Panel>
 
-          {/* Upcoming Interviews */}
-          <Panel title="Upcoming Interviews" icon={Calendar} href="/admin/main-sheet" linkLabel="View sheet">
+          <Panel title="Upcoming interviews" icon={Calendar} href="/admin/main-sheet" linkLabel="View sheet">
             {upcomingInterviews.length > 0 ? (
               upcomingInterviews.map(iv => <ScheduleItem key={iv._id} interview={iv} />)
             ) : (
-              <p className="py-8 text-center text-sm text-slate-400">No upcoming interviews</p>
+              <p className="py-8 text-center text-[13px] text-muted-foreground">No upcoming interviews</p>
             )}
           </Panel>
 
-          {/* Probation Reviews */}
-          <Panel title="Probation Reviews" icon={AlertCircle} subtitle={`${probationReviewList.length} pending`}>
+          <Panel title="Probation reviews" icon={AlertCircle} subtitle={`${probationReviewList.length} pending`}>
             {probationReviewList.length > 0 ? (
               probationReviewList.map(i => (
                 <ProbationRow key={i._id} interviewer={i} onRefresh={refresh} />
               ))
             ) : (
               <div className="py-8 text-center">
-                <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center mx-auto mb-2">
-                  <Check size={18} className="text-emerald-600" />
+                <div className="h-10 w-10 rounded-md bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto mb-2 text-emerald-600">
+                  <Check size={16} />
                 </div>
-                <p className="text-sm font-medium text-slate-900">All clear</p>
-                <p className="text-xs text-slate-400 mt-0.5">No pending probation reviews</p>
+                <p className="text-[13px] font-semibold text-foreground">All clear</p>
+                <p className="text-[12px] text-muted-foreground mt-0.5">No pending probation reviews</p>
               </div>
             )}
           </Panel>

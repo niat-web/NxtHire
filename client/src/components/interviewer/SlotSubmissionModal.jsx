@@ -18,7 +18,7 @@ const LocalModal = ({ isOpen, onClose, title, children }) => {
         <div className="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             {/* Backdrop */}
             <div 
-                className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity animate-fadeIn" 
+                className="fixed inset-0 bg-primary/60 backdrop-blur-sm transition-opacity animate-fadeIn" 
                 onClick={onClose}
             ></div>
 
@@ -31,7 +31,7 @@ const LocalModal = ({ isOpen, onClose, title, children }) => {
                     {/* Header - Absolute top right close button for clean look */}
                     <button 
                         type="button" 
-                        className="absolute top-4 right-4 p-2 rounded-full bg-white/80 hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors z-10" 
+                        className="absolute top-4 right-4 p-2 rounded-full bg-white/80 hover:bg-muted text-muted-foreground/70 hover:text-foreground/80 transition-colors z-10" 
                         onClick={onClose}
                     >
                         <X className="h-5 w-5" />
@@ -49,28 +49,28 @@ const LocalModal = ({ isOpen, onClose, title, children }) => {
 
 const SlotRow = ({ register, index, remove, errors, isOneLeft }) => {
     return (
-        <div className="group relative flex items-center gap-3 p-3 mb-3 bg-white border border-slate-200 rounded-xl shadow-md hover:border-blue-300 hover:shadow-lg transition-all duration-200">
+        <div className="group relative flex items-center gap-3 p-3 mb-3 bg-white border border-border rounded-xl shadow-md hover:border-blue-300 hover:shadow-lg transition-all duration-200">
             {/* Number Badge */}
-            <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 text-xs font-semibold group-hover:bg-blue-50 group-hover:text-blue-600">
+            <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-muted text-muted-foreground text-xs font-semibold group-hover:bg-muted/40 group-hover:text-foreground">
                 {index + 1}
             </div>
 
             <div className="flex-1 grid grid-cols-2 gap-4">
                 <div className="relative">
-                    <label className="block text-xs uppercase font-medium text-slate-400 mb-1 ml-1">Start</label>
+                    <label className="block text-xs uppercase font-medium text-muted-foreground/70 mb-1 ml-1">Start</label>
                     <select 
                         {...register(`slots.${index}.startTime`, { required: true })} 
-                        className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 outline-none transition-colors"
+                        className="w-full bg-muted/40 border border-border text-foreground/90 text-sm rounded-lg focus:ring-primary focus:border-primary block p-2.5 outline-none transition-colors"
                     >
                         <option value="" disabled>Select time</option>
                         {TIME_SLOTS.map(slot => <option key={slot.value} value={slot.value}>{slot.label}</option>)}
                     </select>
                 </div>
                 <div className="relative">
-                    <label className="block text-xs uppercase font-medium text-slate-400 mb-1 ml-1">End</label>
+                    <label className="block text-xs uppercase font-medium text-muted-foreground/70 mb-1 ml-1">End</label>
                     <select 
                         {...register(`slots.${index}.endTime`, { required: true })} 
-                        className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 outline-none transition-colors"
+                        className="w-full bg-muted/40 border border-border text-foreground/90 text-sm rounded-lg focus:ring-primary focus:border-primary block p-2.5 outline-none transition-colors"
                     >
                         <option value="" disabled>Select time</option>
                         {TIME_SLOTS.map(slot => <option key={slot.value} value={slot.value}>{slot.label}</option>)}
@@ -83,7 +83,7 @@ const SlotRow = ({ register, index, remove, errors, isOneLeft }) => {
                 type="button"
                 onClick={() => remove(index)}
                 disabled={isOneLeft}
-                className={cn("p-2 rounded-lg transition-colors mt-4", isOneLeft ? "text-slate-300 cursor-not-allowed" : "text-slate-400 hover:text-red-500 hover:bg-red-50")}
+                className={cn("p-2 rounded-lg transition-colors mt-4", isOneLeft ? "text-muted-foreground/40 cursor-not-allowed" : "text-muted-foreground/70 hover:text-red-500 hover:bg-red-50")}
                 title="Remove Slot"
             >
                 <Trash2 className="h-5 w-5" />
@@ -147,32 +147,32 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
         <LocalModal isOpen={isOpen} onClose={onClose}>
             
             {/* --- LEFT SIDE PANEL (Fixed Info) --- */}
-            <div className="w-1/3 bg-slate-50 border-r border-slate-200 p-8 flex flex-col justify-between">
+            <div className="w-1/3 bg-muted/40 border-r border-border p-8 flex flex-col justify-between">
                 <div>
                     <h2 className="text-2xl font-semibold text-slate-800 mb-1">Availability Request</h2>
-                    <p className="text-sm text-slate-500 mb-8">Review details and provide your slots.</p>
+                    <p className="text-sm text-muted-foreground mb-8">Review details and provide your slots.</p>
 
                     {/* Interviewer Info */}
-                    <div className="flex items-center gap-4 mb-8 p-5 bg-white rounded-xl border border-slate-100 shadow-md">
-                        <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-lg">
+                    <div className="flex items-center gap-4 mb-8 p-5 bg-white rounded-xl border border-border shadow-md">
+                        <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-white font-semibold text-[15px]">
                             {currentUser?.firstName?.[0]}
                         </div>
                         <div>
-                            <p className="text-xs text-slate-400 uppercase font-medium">Interviewer</p>
+                            <p className="text-xs text-muted-foreground/70 uppercase font-medium">Interviewer</p>
                             <p className="font-semibold text-slate-800">{currentUser?.firstName} {currentUser?.lastName}</p>
                         </div>
                     </div>
 
                     {/* Date Visualization */}
                     <div className="mb-6">
-                        <p className="text-xs text-slate-400 uppercase font-medium mb-3">Interview Date</p>
-                        <div className="bg-white rounded-xl overflow-hidden shadow-md border border-slate-200 text-center w-full max-w-[200px]">
-                            <div className="bg-blue-600 text-white py-2 font-semibold uppercase tracking-widest text-sm">
+                        <p className="text-xs text-muted-foreground/70 uppercase font-medium mb-3">Interview Date</p>
+                        <div className="bg-white rounded-xl overflow-hidden shadow-md border border-border text-center w-full max-w-[200px]">
+                            <div className="bg-primary text-white py-2 font-semibold uppercase tracking-widest text-sm">
                                 {monthName}
                             </div>
                             <div className="py-4">
-                                <span className="block text-5xl font-black text-slate-800">{dayNumber}</span>
-                                <span className="block text-sm font-medium text-slate-500 mt-1">{dayName}, {year}</span>
+                                <span className="block font-display text-[48px] font-semibold text-foreground tracking-tight leading-none">{dayNumber}</span>
+                                <span className="block text-sm font-medium text-muted-foreground mt-1">{dayName}, {year}</span>
                             </div>
                         </div>
                     </div>
@@ -203,7 +203,7 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
                             type="button"
                             variant="outline"
                             onClick={() => append({ startTime: '', endTime: '' })}
-                            className="bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200"
+                            className="bg-white text-foreground hover:border-primary border border-border"
                         >
                             <Plus className="mr-2 h-4 w-4" /> Add Slot
                         </Button>
@@ -220,23 +220,23 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
                             />
                         ))}
 
-                        <div className="mt-8 pt-6 border-t border-slate-100">
-                            <label className="block text-sm font-medium text-slate-700 mb-3 flex items-center gap-2">
-                                <AlignLeft className="text-slate-400"/> 
-                                Additional Remarks <span className="text-slate-400 font-normal">(Optional)</span>
+                        <div className="mt-8 pt-6 border-t border-border">
+                            <label className="block text-sm font-medium text-foreground/90 mb-3 flex items-center gap-2">
+                                <AlignLeft className="text-muted-foreground/70"/> 
+                                Additional Remarks <span className="text-muted-foreground/70 font-normal">(Optional)</span>
                             </label>
                             <textarea
                                 {...register('remarks')}
                                 rows="3"
                                 placeholder="Any specific notes regarding your availability..."
-                                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white transition-all resize-none"
+                                className="w-full p-4 bg-muted/40 border border-border rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent focus:bg-white transition-all resize-none"
                             />
                         </div>
                     </form>
                 </div>
 
                 {/* Fixed Footer Actions */}
-                <div className="p-6 border-t border-slate-100 bg-white flex justify-end gap-4 z-10">
+                <div className="p-6 border-t border-border bg-white flex justify-end gap-4 z-10">
                     <Button
                         type="button"
                         variant="ghost"
@@ -250,7 +250,7 @@ const SlotSubmissionModal = ({ isOpen, onClose, request, onSuccess }) => {
                         type="submit"
                         form="slot-form"
                         isLoading={isSubmitting}
-                        className="rounded-xl bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200 hover:shadow-blue-300 px-8"
+                        className="rounded-xl bg-primary hover:bg-primary/90 shadow-md shadow-blue-200 hover:shadow-blue-300 px-8"
                     >
                         {!isSubmitting && <Save className="mr-2 h-4 w-4" />}
                         {isSubmitting ? 'Saving...' : (isUpdateMode ? 'Update Slots' : 'Confirm Slots')}

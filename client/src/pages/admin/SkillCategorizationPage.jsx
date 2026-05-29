@@ -34,7 +34,7 @@ const SimpleButton = ({ children, variant = 'primary', icon: Icon, ...props }) =
 };
 
 const SimpleCard = ({ children, className = '' }) => (
-    <div className={`bg-white rounded-xl border border-slate-200 shadow-sm ${className}`}>
+    <div className={`bg-white rounded-xl border border-border shadow-sm ${className}`}>
         {children}
     </div>
 );
@@ -59,20 +59,20 @@ const SimpleBadge = ({ children, color = 'gray' }) => {
 const InlineLoader = ({ text }) => (
     <div className="flex flex-col items-center justify-center">
         <div className="relative">
-            <div className="w-8 h-8 rounded-full border-[2.5px] border-slate-200" />
+            <div className="w-8 h-8 rounded-full border-[2.5px] border-border" />
             <div className="absolute inset-0 w-8 h-8 rounded-full border-[2.5px] border-transparent border-t-blue-600 border-r-blue-600 animate-spin" />
         </div>
-        {text && <p className="text-xs mt-2.5 text-slate-400 font-medium">{text}</p>}
+        {text && <p className="text-xs mt-2.5 text-muted-foreground/70 font-medium">{text}</p>}
     </div>
 );
 
 // --- Inline Empty State ---
 
-const InlineEmptyState = ({ icon: Icon, iconClassName = 'text-slate-400', title, description }) => (
+const InlineEmptyState = ({ icon: Icon, iconClassName = 'text-muted-foreground/70', title, description }) => (
     <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
         {Icon && <Icon className={`w-14 h-14 mb-4 ${iconClassName}`} />}
         <h3 className="text-base font-semibold text-slate-800 mb-1">{title}</h3>
-        <p className="text-sm text-slate-500 max-w-xs">{description}</p>
+        <p className="text-sm text-muted-foreground max-w-xs">{description}</p>
     </div>
 );
 
@@ -82,8 +82,8 @@ const ApplicantInfo = ({ applicant, skillAssessment }) => (
     <SimpleCard className="p-6 mb-6">
         <div className="flex justify-between items-start mb-4">
             <div>
-                <h1 className="text-2xl font-semibold text-slate-900 mb-2">{applicant.fullName}</h1>
-                <div className="space-y-2 text-sm text-slate-600">
+                <h1 className="text-2xl font-semibold text-foreground mb-2">{applicant.fullName}</h1>
+                <div className="space-y-2 text-sm text-foreground/80">
                     <div className="flex items-center">
                         <Mail className="w-4 h-4 mr-2" />
                         {applicant.email}
@@ -94,7 +94,7 @@ const ApplicantInfo = ({ applicant, skillAssessment }) => (
                     </div>
                     <div className="flex items-center">
                         <Linkedin className="w-4 h-4 mr-2" />
-                        <a href={applicant.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                        <a href={applicant.linkedinProfileUrl} target="_blank" rel="noopener noreferrer" className="text-foreground hover:underline">
                             LinkedIn Profile
                         </a>
                     </div>
@@ -109,39 +109,39 @@ const BasicMetrics = ({ skillAssessment }) => (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <SimpleCard className="p-5">
             <div className="flex items-center mb-2">
-                <User className="w-5 h-5 text-blue-600 mr-2" />
-                <span className="text-sm font-medium text-slate-600">Current Role</span>
+                <User className="w-5 h-5 text-foreground mr-2" />
+                <span className="text-sm font-medium text-foreground/80">Current Role</span>
             </div>
-            <p className="font-semibold text-slate-900">{skillAssessment.jobTitle}</p>
-            <p className="text-sm text-slate-600">{skillAssessment.currentEmployer}</p>
+            <p className="font-semibold text-foreground">{skillAssessment.jobTitle}</p>
+            <p className="text-sm text-foreground/80">{skillAssessment.currentEmployer}</p>
         </SimpleCard>
 
         <SimpleCard className="p-5">
             <div className="flex items-center mb-2">
-                <Clock className="w-5 h-5 text-blue-600 mr-2" />
-                <span className="text-sm font-medium text-slate-600">Experience</span>
+                <Clock className="w-5 h-5 text-foreground mr-2" />
+                <span className="text-sm font-medium text-foreground/80">Experience</span>
             </div>
-            <p className="text-xl font-semibold text-slate-900">{skillAssessment.yearsOfExperience} years</p>
+            <p className="text-xl font-semibold text-foreground">{skillAssessment.yearsOfExperience} years</p>
         </SimpleCard>
 
         <SimpleCard className="p-5">
             <div className="flex items-center mb-2">
-                <Star className="w-5 h-5 text-blue-600 mr-2" />
-                <span className="text-sm font-medium text-slate-600">Suggested Domain</span>
+                <Star className="w-5 h-5 text-foreground mr-2" />
+                <span className="text-sm font-medium text-foreground/80">Suggested Domain</span>
             </div>
-            <p className="font-semibold text-blue-700">{skillAssessment.autoCategorizedDomain || 'N/A'}</p>
+            <p className="font-semibold text-foreground">{skillAssessment.autoCategorizedDomain || 'N/A'}</p>
         </SimpleCard>
     </div>
 );
 
 const SkillsList = ({ skillAssessment }) => (
     <SimpleCard className="p-6 mb-6">
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">Technical Skills</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">Technical Skills</h3>
 
         {skillAssessment.technicalSkills && skillAssessment.technicalSkills.length > 0 ? (
             <div className="space-y-6">
                 {skillAssessment.technicalSkills.map((skill, index) => (
-                    <div key={index} className="border border-slate-200 rounded-lg p-4">
+                    <div key={index} className="border border-border rounded-lg p-4">
                         <div className="flex justify-between items-center mb-3">
                             <h4 className="font-semibold text-slate-800">{skill.technology}</h4>
                             <SimpleBadge color="gray">{skill.subSkills.length} skills</SimpleBadge>
@@ -155,14 +155,14 @@ const SkillsList = ({ skillAssessment }) => (
                 ))}
 
                 {skillAssessment.otherSkills && (
-                    <div className="border border-slate-200 rounded-lg p-4 bg-slate-50">
-                        <h4 className="font-semibold text-slate-700 mb-2">Other Skills</h4>
-                        <p className="text-sm text-slate-700 whitespace-pre-line">{skillAssessment.otherSkills}</p>
+                    <div className="border border-border rounded-lg p-4 bg-muted/40">
+                        <h4 className="font-semibold text-foreground/90 mb-2">Other Skills</h4>
+                        <p className="text-sm text-foreground/90 whitespace-pre-line">{skillAssessment.otherSkills}</p>
                     </div>
                 )}
             </div>
         ) : (
-            <div className="text-center py-8 text-slate-500">
+            <div className="text-center py-8 text-muted-foreground">
                 <p>No technical skills listed</p>
             </div>
         )}
@@ -205,13 +205,13 @@ const ReviewForm = ({ applicant, skillAssessment, onCategorizeComplete }) => {
     return (
         <SimpleCard className="p-6">
             <div className="flex items-center mb-6">
-                <CheckCircle className="w-5 h-5 text-blue-600 mr-2" />
-                <h3 className="text-lg font-semibold text-slate-900">Admin Review</h3>
+                <CheckCircle className="w-5 h-5 text-foreground mr-2" />
+                <h3 className="text-lg font-semibold text-foreground">Admin Review</h3>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground/90 mb-2">
                         Assign Domain(s) *
                     </label>
                     <Select
@@ -236,7 +236,7 @@ const ReviewForm = ({ applicant, skillAssessment, onCategorizeComplete }) => {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground/90 mb-2">
                         Review Notes (Optional)
                     </label>
                     <textarea
@@ -244,7 +244,7 @@ const ReviewForm = ({ applicant, skillAssessment, onCategorizeComplete }) => {
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Add notes about this assessment..."
                         rows={4}
-                        className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
+                        className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary"
                     />
                 </div>
 
@@ -276,27 +276,27 @@ const SimpleSidebar = ({
     const handleClear = () => onSearchChange({ target: { value: '' } });
 
     return (
-        <div className={`bg-white border-r border-slate-200 flex flex-col ${sidebarCollapsed ? 'w-0 overflow-hidden' : 'w-full lg:w-80'}`}>
-            <div className="p-4 border-b border-slate-200">
+        <div className={`bg-white border-r border-border flex flex-col ${sidebarCollapsed ? 'w-0 overflow-hidden' : 'w-full lg:w-80'}`}>
+            <div className="p-4 border-b border-border">
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-slate-900">Review Queue</h2>
+                    <h2 className="text-lg font-semibold text-foreground">Review Queue</h2>
                     <SimpleBadge color="yellow">{pagination.totalItems} Pending</SimpleBadge>
                 </div>
                 {/* Inline Search Input */}
                 <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
                     <input
                         type="text"
                         value={searchTerm}
                         onChange={onSearchChange}
                         placeholder="Search applicants..."
-                        className="w-full pl-9 pr-9 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-300 focus:outline-none"
+                        className="w-full pl-9 pr-9 py-2 bg-muted/40 border border-border rounded-lg text-sm focus:ring-2 focus:ring-primary/10 focus:border-primary focus:outline-none"
                     />
                     {searchTerm && (
                         <button
                             type="button"
                             onClick={handleClear}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground/80 focus:outline-none transition-colors"
                         >
                             <X className="h-4 w-4" />
                         </button>
@@ -324,22 +324,22 @@ const SimpleSidebar = ({
                     <button
                         key={assessment._id}
                         onClick={() => onSelectAssessment(assessment)}
-                        className={`w-full text-left p-4 border-b border-slate-100 hover:bg-slate-50 focus:outline-none transition-colors ${selectedAssessment?._id === assessment._id ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''}`}
+                        className={`w-full text-left p-4 border-b border-border hover:bg-muted/40 focus:outline-none transition-colors ${selectedAssessment?._id === assessment._id ? 'bg-muted/40 border-l-4 border-l-blue-600' : ''}`}
                     >
                         <div className="flex justify-between items-start mb-2">
-                            <p className="font-medium text-slate-900">{assessment.applicant.fullName}</p>
-                            <span className="text-xs text-slate-500">{formatDateTime(assessment.createdAt)}</span>
+                            <p className="font-medium text-foreground">{assessment.applicant.fullName}</p>
+                            <span className="text-xs text-muted-foreground">{formatDateTime(assessment.createdAt)}</span>
                         </div>
                         <div className="flex justify-between items-center text-sm">
                             <SimpleBadge color="blue">{assessment.autoCategorizedDomain || 'N/A'}</SimpleBadge>
-                            <span className="text-slate-600">{assessment.yearsOfExperience} years exp</span>
+                            <span className="text-foreground/80">{assessment.yearsOfExperience} years exp</span>
                         </div>
                     </button>
                 ))}
             </div>
 
             {pagination.totalPages > 1 && (
-                <div className="p-3 border-t border-slate-200 flex justify-between items-center">
+                <div className="p-3 border-t border-border flex justify-between items-center">
                     <SimpleButton
                         onClick={() => onPageChange(pagination.currentPage - 1)}
                         disabled={pagination.currentPage === 1}
@@ -349,7 +349,7 @@ const SimpleSidebar = ({
                         Previous
                     </SimpleButton>
 
-                    <span className="text-sm text-slate-600">
+                    <span className="text-sm text-foreground/80">
                         Page {pagination.currentPage} of {pagination.totalPages}
                     </span>
 
@@ -437,7 +437,7 @@ const SkillCategorizationPage = () => {
     };
 
     return (
-        <div className="flex h-full bg-[#f5f7fb]">
+        <div className="flex h-full bg-[#fcfaf8]">
             <SimpleSidebar
                 assessments={assessments}
                 selectedAssessment={selectedAssessment}
@@ -486,7 +486,7 @@ const SkillCategorizationPage = () => {
                         <div className="flex items-center justify-center h-full">
                             <InlineEmptyState
                                 icon={Briefcase}
-                                iconClassName="text-slate-400"
+                                iconClassName="text-muted-foreground/70"
                                 title="Select Assessment"
                                 description="Choose an applicant from the list to review"
                             />

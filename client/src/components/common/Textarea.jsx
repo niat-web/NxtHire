@@ -1,7 +1,6 @@
-// client/src/components/common/Textarea.jsx
 import React, { forwardRef } from 'react';
 
-const Textarea = forwardRef(({ 
+const Textarea = forwardRef(({
   label,
   name,
   placeholder = '',
@@ -20,9 +19,9 @@ const Textarea = forwardRef(({
   return (
     <div className={`mb-4 ${className}`}>
       {label && (
-        <label 
-          htmlFor={name} 
-          className={`block text-sm font-medium text-gray-700 mb-1 ${labelClassName}`}
+        <label
+          htmlFor={name}
+          className={`block text-[12.5px] font-semibold text-foreground/90 mb-1.5 ${labelClassName}`}
         >
           {label}
           {required && <span className="text-red-600 ml-1">*</span>}
@@ -34,10 +33,10 @@ const Textarea = forwardRef(({
         name={name}
         rows={rows}
         placeholder={placeholder}
-        className={`w-full px-3 py-2 border ${
-          error ? 'border-red-300' : 'border-gray-300'
-        } rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 ${
-          disabled ? 'bg-gray-100' : ''
+        className={`w-full px-4 py-2.5 text-[13px] text-foreground placeholder:text-muted-foreground/70 border ${
+          error ? 'border-red-300' : 'border-border'
+        } rounded-xl bg-white transition-colors focus:border-primary focus:ring-2 focus:ring-primary/10 focus:outline-none ${
+          disabled ? 'bg-muted/40 text-muted-foreground/70' : ''
         } ${textareaClassName}`}
         disabled={disabled}
         required={required}
@@ -46,17 +45,17 @@ const Textarea = forwardRef(({
         {...props}
       />
       {error && (
-        <p 
-          id={`${name}-error`} 
-          className={`mt-1 text-sm text-red-600 ${errorClassName}`}
+        <p
+          id={`${name}-error`}
+          className={`mt-1.5 text-[12px] text-red-600 ${errorClassName}`}
         >
           {error}
         </p>
       )}
       {helpText && !error && (
-        <p 
-          id={`${name}-description`} 
-          className={`mt-1 text-sm text-gray-500 ${helpTextClassName}`}
+        <p
+          id={`${name}-description`}
+          className={`mt-1.5 text-[12px] text-muted-foreground ${helpTextClassName}`}
         >
           {helpText}
         </p>

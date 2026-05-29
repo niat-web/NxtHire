@@ -1,19 +1,32 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Menu, X, User, Home, HelpCircle, Info } from 'lucide-react';
-import nxtWaveLogo from '/logo.svg';
+import { Menu, X, User, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+const BraveWordmark = ({ className = '' }) => (
+  <span className={cn('flex items-baseline gap-1 select-none', className)}>
+    <span className="font-display text-[22px] sm:text-[24px] font-extrabold tracking-tight text-primary leading-none">
+      NXTHIRE
+    </span>
+    <span
+      className="inline-block h-2 w-2 rounded-[2px]"
+      style={{ backgroundColor: 'var(--brave-amber)' }}
+      aria-hidden="true"
+    />
+  </span>
+);
 
 const Navbar = () => {
   const { currentUser } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 10);
+    const handleScroll = () => setIsScrolled(window.scrollY > 8);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -24,61 +37,75 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { to: '/', label: 'Home', icon: Home },
-    { to: '/about', label: 'About', icon: Info },
-    { to: '/faq', label: 'FAQ', icon: HelpCircle },
+    { to: '/', label: 'Home' },
+    { to: '/about', label: 'About' },
+    { to: '/faq', label: 'FAQ' },
   ];
+
+  const isActive = (to) => to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
 
   return (
     <nav
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+        'fixed top-0 left-0 right-0 z-50 transition-colors duration-200',
         isScrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-200'
-          : 'bg-transparent'
+          ? 'bg-background/90 backdrop-blur border-b border-border'
+          : 'bg-background border-b border-transparent'
       )}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 lg:h-18">
-          {/* Logo — kept exactly as-is */}
-          <Link to="/" className="flex-shrink-0">
-            <img className="h-9 sm:h-10 w-auto" src={nxtWaveLogo} alt="NxtWave" />
+      <div className="max-w-7xl mx-auto px-5 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Wordmark */}
+          <Link to="/" className="flex items-center flex-shrink-0 group" aria-label="NxtHire home">
+            <BraveWordmark className="transition-opacity group-hover:opacity-80" />
           </Link>
 
-          {/* Desktop Nav */}
+          {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const active = isActive(link.to);
+              return (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className={cn(
+                    'relative inline-flex items-center px-3.5 h-9 text-[13px] font-medium transition-colors',
+                    active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  {link.label}
+                  {active && (
+                    <span
+                      className="absolute left-1/2 -translate-x-1/2 bottom-1 h-1 w-1 rounded-full"
+                      style={{ backgroundColor: 'var(--brave-amber)' }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
 
-            <div className="ml-4 flex items-center gap-3">
+            <div className="ml-4 flex items-center gap-2">
               {currentUser ? (
                 <button
                   onClick={() => navigate(getProfileLink())}
-                  className="inline-flex items-center gap-2 px-4 h-10 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+                  className="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-5 text-[13px] font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
                 >
-                  <User size={16} />
+                  <User size={14} />
                   Dashboard
                 </button>
               ) : (
                 <>
                   <Link
                     to="/login"
-                    className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+                    className="inline-flex h-10 items-center rounded-md border border-primary px-4 text-[12.5px] font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
                   >
-                    Sign In
+                    Sign in
                   </Link>
                   <button
                     onClick={() => navigate('/applicationform')}
-                    className="px-4 h-10 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 shadow-sm transition-colors"
+                    className="inline-flex h-10 items-center gap-1.5 rounded-md bg-primary px-5 text-[13px] font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
                   >
-                    Apply Now
+                    Apply now <ArrowRight size={13} />
                   </button>
                 </>
               )}
@@ -88,60 +115,65 @@ const Navbar = () => {
           {/* Mobile toggle */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            className="md:hidden h-10 w-10 inline-flex items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
             aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            className="md:hidden bg-white border-t border-slate-200 shadow-md"
+            className="md:hidden bg-background border-t border-border"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <div className="px-4 py-4 space-y-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="flex items-center gap-3 py-2.5 px-4 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-sm font-medium"
-                >
-                  <link.icon size={18} />
-                  {link.label}
-                </Link>
-              ))}
+            <div className="px-5 py-4 space-y-0.5">
+              {navLinks.map((link) => {
+                const active = isActive(link.to);
+                return (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={cn(
+                      'flex items-center gap-3 py-2.5 px-3 rounded-md transition-colors text-[14px]',
+                      active ? 'text-foreground bg-muted font-semibold' : 'text-muted-foreground hover:text-foreground hover:bg-muted font-medium'
+                    )}
+                  >
+                    {active && <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: 'var(--brave-amber)' }} />}
+                    {link.label}
+                  </Link>
+                );
+              })}
 
-              <div className="pt-3 mt-3 border-t border-slate-100 space-y-2">
+              <div className="pt-3 mt-3 border-t border-border space-y-2">
                 {currentUser ? (
                   <button
                     onClick={() => { setIsMenuOpen(false); navigate(getProfileLink()); }}
-                    className="w-full inline-flex items-center justify-center gap-2 h-10 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+                    className="w-full inline-flex items-center justify-center gap-2 h-10 text-[13px] font-semibold text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-colors"
                   >
-                    <User size={18} />
-                    Go to Dashboard
+                    <User size={16} />
+                    Go to dashboard
                   </button>
                 ) : (
                   <>
                     <Link
                       to="/login"
                       onClick={() => setIsMenuOpen(false)}
-                      className="block text-center h-10 leading-10 rounded-md text-slate-700 font-medium border border-slate-200 hover:bg-slate-50 transition-colors text-sm"
+                      className="block text-center h-10 leading-10 rounded-md text-primary text-[13px] font-semibold border border-primary hover:bg-primary hover:text-primary-foreground transition-colors"
                     >
-                      Sign In
+                      Sign in
                     </Link>
                     <button
                       onClick={() => { setIsMenuOpen(false); navigate('/applicationform'); }}
-                      className="w-full h-10 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+                      className="w-full h-10 text-[13px] font-semibold text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-colors"
                     >
-                      Apply Now
+                      Apply now
                     </button>
                   </>
                 )}

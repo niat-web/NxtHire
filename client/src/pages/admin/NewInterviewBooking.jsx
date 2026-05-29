@@ -45,16 +45,16 @@ const NewInterviewBooking = () => {
     return (
         <div className="h-full w-full flex flex-col bg-white overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-2.5 border-b border-slate-200 shrink-0">
+            <div className="flex items-center justify-between px-5 py-2.5 border-b border-border shrink-0">
                 <div className="flex items-center gap-3">
                     <Link to="/admin/bookings/interviewer-bookings"
-                        className="w-8 h-8 rounded-md flex items-center justify-center border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors">
+                        className="w-8 h-8 rounded-md flex items-center justify-center border border-border text-muted-foreground hover:bg-muted/40 transition-colors">
                         <ArrowLeft size={15} />
                     </Link>
-                    <h1 className="text-sm font-semibold text-slate-900">{isEditMode ? 'Edit Booking' : 'New Booking Request'}</h1>
+                    <h1 className="text-sm font-semibold text-foreground">{isEditMode ? 'Edit Booking' : 'New Booking Request'}</h1>
                 </div>
                 <button type="submit" form="booking-form" disabled={isSubmitting}
-                    className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                    className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-primary rounded-md hover:bg-primary/90 disabled:opacity-50 transition-colors">
                     {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                     {isSubmitting ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Create & Notify')}
                 </button>
