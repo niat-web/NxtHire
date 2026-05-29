@@ -109,11 +109,11 @@ const BookingSlots = () => {
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                         <button onClick={() => setIsModalOpen(true)}
-                            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-primary px-4 text-[12.5px] font-semibold text-foreground transition-colors hover:bg-primary hover:text-white">
+                            className="inline-flex h-9 items-center gap-1.5 rounded-md border border-primary px-4 text-[12.5px] font-semibold text-foreground transition-colors hover:bg-primary hover:text-white">
                             <Plus className="h-3.5 w-3.5" aria-hidden="true" /> Add slot manually
                         </button>
                         <button onClick={handleCreatePublicLink} disabled={selectedSlotsCount === 0 || isCreatingLink}
-                            className="inline-flex h-9 items-center gap-2 rounded-full bg-primary px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed">
+                            className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed">
                             <LinkIcon className="h-3.5 w-3.5" aria-hidden="true" />
                             Create link {selectedSlotsCount > 0 && <span className="ml-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-white text-foreground text-[10.5px]">{selectedSlotsCount}</span>}
                         </button>
@@ -125,17 +125,17 @@ const BookingSlots = () => {
                     <div className="relative w-full sm:w-64">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70" aria-hidden="true" />
                         <input type="text" value={searchFilter} onChange={e => setSearchFilter(e.target.value)} placeholder="Search by name or email"
-                            className="w-full pl-10 pr-3 h-9 bg-white border border-border rounded-full text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors" />
+                            className="w-full pl-10 pr-3 h-9 bg-white border border-border rounded-md text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors" />
                     </div>
                     <div className="relative">
                         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70 z-10 pointer-events-none" aria-hidden="true" />
                         <DatePicker selected={dateFilter} onChange={setDateFilter} isClearable placeholderText="Filter by date"
                             portalId="datepicker-portal" popperClassName="!z-[9999]" popperProps={{ strategy: 'fixed' }}
-                            className="pl-10 pr-4 h-9 bg-white border border-border rounded-full text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary w-44 transition-colors" />
+                            className="pl-10 pr-4 h-9 bg-white border border-border rounded-md text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary w-44 transition-colors" />
                     </div>
                     {(searchFilter || dateFilter) && (
                         <button onClick={() => { setSearchFilter(''); setDateFilter(null); }}
-                            className="text-[12px] text-muted-foreground hover:text-foreground font-medium px-3 h-8 rounded-full hover:bg-muted transition-colors">
+                            className="text-[12px] text-muted-foreground hover:text-foreground font-medium px-3 h-8 rounded-md hover:bg-muted transition-colors">
                             Clear
                         </button>
                     )}
@@ -201,7 +201,7 @@ const BookingSlots = () => {
                                                             return (
                                                                 <button key={idx} type="button" onClick={() => handleSlotSelection(row, slot)}
                                                                     className={cn(
-                                                                        'inline-flex items-center gap-1 h-7 px-2.5 text-[11.5px] font-semibold rounded-full border transition-colors',
+                                                                        'inline-flex items-center gap-1 h-7 px-2.5 text-[11.5px] font-semibold rounded-md border transition-colors',
                                                                         isSelected
                                                                             ? 'border-primary bg-primary text-white'
                                                                             : 'border-border bg-white text-foreground/90 hover:border-primary hover:text-foreground'
@@ -220,7 +220,7 @@ const BookingSlots = () => {
                                                     <button
                                                         aria-label="Delete submission"
                                                         onClick={() => setDeleteDialog({ isOpen: true, bookingId: row.bookingId, submissionId: row.submissionId })}
-                                                        className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors">
+                                                        className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors">
                                                         <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                                                     </button>
                                                 </td>
@@ -242,11 +242,11 @@ const BookingSlots = () => {
                     </p>
                     <div className="flex items-center gap-2">
                         <button onClick={() => setSelectedSlots({})}
-                            className="h-9 px-4 text-[12px] font-semibold text-foreground/90 rounded-full border border-border hover:border-primary hover:text-foreground transition-colors">
+                            className="h-9 px-4 text-[12px] font-semibold text-foreground/90 rounded-md border border-border hover:border-primary hover:text-foreground transition-colors">
                             Clear
                         </button>
                         <button onClick={handleCreatePublicLink} disabled={isCreatingLink}
-                            className="inline-flex h-9 items-center gap-2 rounded-full bg-primary px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-40">
+                            className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-40">
                             <LinkIcon className="h-3.5 w-3.5" aria-hidden="true" /> Create link ({selectedSlotsCount})
                         </button>
                     </div>

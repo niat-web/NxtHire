@@ -68,7 +68,7 @@ const AddSlotsModal = ({ isOpen, onClose, publicBookingId, onSuccess }) => {
                         <h2 style={DISPLAY} className="text-[18px] font-semibold text-foreground tracking-tight">Add slots to public link</h2>
                         <p className="text-[12px] text-muted-foreground mt-0.5">Select available slots to append</p>
                     </div>
-                    <button aria-label="Close" onClick={onClose} className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                    <button aria-label="Close" onClick={onClose} className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
                         <X className="h-4 w-4" aria-hidden="true" />
                     </button>
                 </div>
@@ -109,7 +109,7 @@ const AddSlotsModal = ({ isOpen, onClose, publicBookingId, onSuccess }) => {
                                                         const isSelected = entry?.slots.some(s => s.startTime === slot.startTime && s.endTime === slot.endTime);
                                                         return (
                                                             <button key={idx} type="button" onClick={() => handleSlotToggle(row, slot)}
-                                                                className={cn('inline-flex items-center gap-1 h-7 px-2.5 text-[11.5px] font-semibold rounded-full border transition-colors',
+                                                                className={cn('inline-flex items-center gap-1 h-7 px-2.5 text-[11.5px] font-semibold rounded-md border transition-colors',
                                                                     isSelected ? 'bg-primary text-white border-primary' : 'bg-white text-foreground/90 border-border hover:border-primary hover:text-foreground')}>
                                                                 {isSelected && <Check className="h-3 w-3" aria-hidden="true" />}
                                                                 {formatTime(slot.startTime)}–{formatTime(slot.endTime)}
@@ -129,9 +129,9 @@ const AddSlotsModal = ({ isOpen, onClose, publicBookingId, onSuccess }) => {
                 <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-muted/30 shrink-0 rounded-b-2xl">
                     <span className="text-[12.5px] text-foreground/80"><span className="font-semibold text-foreground">{selectedCount}</span> slot{selectedCount === 1 ? '' : 's'} selected</span>
                     <div className="flex gap-2">
-                        <button onClick={onClose} className="h-9 px-4 text-[12.5px] font-semibold text-foreground/90 border border-border rounded-full hover:border-primary hover:text-foreground transition-colors">Cancel</button>
+                        <button onClick={onClose} className="h-9 px-4 text-[12.5px] font-semibold text-foreground/90 border border-border rounded-md hover:border-primary hover:text-foreground transition-colors">Cancel</button>
                         <button onClick={handleSave} disabled={selectedCount === 0 || saving}
-                            className="inline-flex items-center gap-1.5 h-9 px-5 text-[13px] font-semibold text-white bg-primary rounded-full hover:bg-primary/90 disabled:opacity-40 transition-colors">
+                            className="inline-flex items-center gap-1.5 h-9 px-5 text-[13px] font-semibold text-white bg-primary rounded-md hover:bg-primary/90 disabled:opacity-40 transition-colors">
                             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <Plus className="h-3.5 w-3.5" aria-hidden="true" />}
                             Add {selectedCount > 0 ? selectedCount : ''} slot{selectedCount === 1 ? '' : 's'}
                         </button>
@@ -144,7 +144,7 @@ const AddSlotsModal = ({ isOpen, onClose, publicBookingId, onSuccess }) => {
 
 // ── Stat chip ──
 const StatChip = ({ label, value, icon: Icon }) => (
-    <div className="flex items-center gap-2.5 rounded-full border border-border bg-white px-3 h-9">
+    <div className="flex items-center gap-2.5 rounded-md border border-border bg-white px-3 h-9">
         <Icon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
         <span style={DISPLAY} className="text-[15px] font-semibold text-foreground leading-none tracking-tight">{value}</span>
         <span className="text-[11.5px] text-muted-foreground">{label}</span>
@@ -215,11 +215,11 @@ const StudentBookings = () => {
                         <div className="relative w-full sm:w-56">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70" aria-hidden="true" />
                             <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Search by public ID"
-                                className="w-full pl-10 pr-3 h-9 bg-white border border-border rounded-full text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors" />
+                                className="w-full pl-10 pr-3 h-9 bg-white border border-border rounded-md text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors" />
                         </div>
                         <div className="relative">
                             <select value={creatorFilter} onChange={e => setCreatorFilter(e.target.value)}
-                                className="appearance-none h-9 pl-4 pr-9 bg-white border border-border rounded-full text-[13px] text-foreground/90 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors">
+                                className="appearance-none h-9 pl-4 pr-9 bg-white border border-border rounded-md text-[13px] text-foreground/90 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors">
                                 <option value="">All creators</option>
                                 {creatorOptions.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                             </select>
@@ -227,7 +227,7 @@ const StudentBookings = () => {
                         </div>
                         <div className="relative">
                             <select value={sortOption} onChange={e => setSortOption(e.target.value)}
-                                className="appearance-none h-9 pl-4 pr-9 bg-white border border-border rounded-full text-[13px] text-foreground/90 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors">
+                                className="appearance-none h-9 pl-4 pr-9 bg-white border border-border rounded-md text-[13px] text-foreground/90 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors">
                                 <option value="newest">Newest first</option>
                                 <option value="oldest">Oldest first</option>
                                 <option value="most_students">Most students</option>
@@ -236,12 +236,12 @@ const StudentBookings = () => {
                         </div>
                         {hasFilters && (
                             <button onClick={() => { setSearchTerm(''); setCreatorFilter(''); }}
-                                className="text-[12px] text-muted-foreground hover:text-foreground font-medium px-3 h-8 rounded-full hover:bg-muted transition-colors">
+                                className="text-[12px] text-muted-foreground hover:text-foreground font-medium px-3 h-8 rounded-md hover:bg-muted transition-colors">
                                 Clear
                             </button>
                         )}
                         <button onClick={() => navigate('/admin/bookings/booking-slots')}
-                            className="inline-flex h-9 items-center gap-2 rounded-full bg-primary px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary/90">
+                            className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary/90">
                             <Plus className="h-4 w-4" aria-hidden="true" /> New link
                         </button>
                     </div>
@@ -302,7 +302,7 @@ const StudentBookings = () => {
                                                     <div className="flex items-center gap-1.5">
                                                         <span className="font-mono text-[11.5px] font-semibold text-foreground border border-border bg-muted/40 px-2 py-0.5 rounded-md">{booking.publicId}</span>
                                                         <button aria-label="Copy link" onClick={() => { navigator.clipboard.writeText(url); showSuccess("Copied!"); }}
-                                                            className="h-7 w-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Copy link">
+                                                            className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Copy link">
                                                             <Clipboard className="h-3 w-3" aria-hidden="true" />
                                                         </button>
                                                     </div>
@@ -326,23 +326,23 @@ const StudentBookings = () => {
                                                 <td className="px-5 py-3.5 align-middle" onClick={e => e.stopPropagation()}>
                                                     <div className="flex items-center justify-end gap-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
                                                         <button aria-label="Add slots" onClick={() => setAddSlotsModal({ isOpen: true, bookingId: booking._id })}
-                                                            className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Add slots">
+                                                            className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Add slots">
                                                             <CalendarPlus className="h-3.5 w-3.5" aria-hidden="true" />
                                                         </button>
                                                         <button aria-label="Evaluations" onClick={() => navigate(`/admin/public-bookings/${booking._id}/evaluation`)}
-                                                            className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Evaluations">
+                                                            className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Evaluations">
                                                             <BarChart3 className="h-3.5 w-3.5" aria-hidden="true" />
                                                         </button>
                                                         <button aria-label="Track" onClick={() => navigate(`/admin/public-bookings/${booking._id}/tracking`)}
-                                                            className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Track">
+                                                            className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Track">
                                                             <Eye className="h-3.5 w-3.5" aria-hidden="true" />
                                                         </button>
                                                         <button aria-label="Authorize" onClick={() => navigate(`/admin/public-bookings/${booking._id}/authorize`)}
-                                                            className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Authorize">
+                                                            className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Authorize">
                                                             <Users className="h-3.5 w-3.5" aria-hidden="true" />
                                                         </button>
                                                         <button aria-label="Delete" onClick={() => setDeleteDialog({ isOpen: true, id: booking._id })}
-                                                            className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors" title="Delete">
+                                                            className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors" title="Delete">
                                                             <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                                                         </button>
                                                     </div>

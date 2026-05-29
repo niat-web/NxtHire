@@ -32,7 +32,7 @@ const InlineDropdownMenu = ({ options }) => {
             <button
                 aria-label="Row actions"
                 onClick={() => setOpen(v => !v)}
-                className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
             >
                 <MoreVertical className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -55,7 +55,7 @@ const InlineDropdownMenu = ({ options }) => {
 
 // ─── Stat chip ──────────────────────────────────────────────────────────────
 const StatChip = ({ label, value, icon: Icon }) => (
-    <div className="flex items-center gap-2.5 rounded-full border border-border bg-white px-3 h-9">
+    <div className="flex items-center gap-2.5 rounded-md border border-border bg-white px-3 h-9">
         <Icon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
         <span style={DISPLAY} className="text-[15px] font-semibold text-foreground leading-none tracking-tight">{value}</span>
         <span className="text-[11.5px] text-muted-foreground">{label}</span>
@@ -137,7 +137,7 @@ const InterviewBookings = () => {
                         </p>
                     </div>
                     <button onClick={() => navigate('/admin/bookings/new')}
-                        className="inline-flex h-9 items-center gap-2 rounded-full bg-primary px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary/90">
+                        className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary/90">
                         <Plus className="h-4 w-4" aria-hidden="true" /> New request
                     </button>
                 </div>
@@ -156,11 +156,11 @@ const InterviewBookings = () => {
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70" aria-hidden="true" />
                         <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
                             placeholder="Search date or creator"
-                            className="w-full pl-10 pr-3 h-9 bg-white border border-border rounded-full text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors" />
+                            className="w-full pl-10 pr-3 h-9 bg-white border border-border rounded-md text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors" />
                     </div>
                     <div className="relative">
                         <select value={creatorFilter} onChange={e => setCreatorFilter(e.target.value)}
-                            className="h-9 pl-4 pr-9 bg-white border border-border rounded-full text-[13px] text-foreground/90 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary appearance-none cursor-pointer transition-colors">
+                            className="h-9 pl-4 pr-9 bg-white border border-border rounded-md text-[13px] text-foreground/90 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary appearance-none cursor-pointer transition-colors">
                             <option value="">All creators</option>
                             {creatorOptions.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                         </select>
@@ -170,7 +170,7 @@ const InterviewBookings = () => {
                     <div className="flex-1" />
 
                     {/* Status tab group */}
-                    <div className="flex items-center bg-muted rounded-full p-0.5">
+                    <div className="flex items-center bg-muted rounded-md p-0.5">
                         {[
                             { id: '', label: 'All' },
                             { id: 'Open', label: 'Open' },
@@ -178,7 +178,7 @@ const InterviewBookings = () => {
                         ].map(tab => (
                             <button key={tab.id} onClick={() => setFilter(tab.id)}
                                 className={cn(
-                                    'px-4 h-8 text-[12px] font-semibold rounded-full transition-colors',
+                                    'px-4 h-8 text-[12px] font-semibold rounded-md transition-colors',
                                     filter === tab.id ? 'bg-white text-foreground' : 'text-muted-foreground hover:text-foreground'
                                 )}>
                                 {tab.label}
@@ -188,7 +188,7 @@ const InterviewBookings = () => {
 
                     {hasFilters && (
                         <button onClick={() => { setSearchTerm(''); setCreatorFilter(''); setFilter(''); }}
-                            className="text-[12px] text-muted-foreground hover:text-foreground font-medium px-3 h-8 rounded-full hover:bg-muted transition-colors">
+                            className="text-[12px] text-muted-foreground hover:text-foreground font-medium px-3 h-8 rounded-md hover:bg-muted transition-colors">
                             Clear
                         </button>
                     )}
@@ -212,7 +212,7 @@ const InterviewBookings = () => {
                         </p>
                         {!hasFilters && (
                             <button onClick={() => navigate('/admin/bookings/new')}
-                                className="mt-5 inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-[13px] font-semibold text-white hover:bg-primary/90 transition-colors">
+                                className="mt-5 inline-flex h-10 items-center gap-2 rounded-md bg-primary px-5 text-[13px] font-semibold text-white hover:bg-primary/90 transition-colors">
                                 <Plus className="h-4 w-4" aria-hidden="true" /> New request
                             </button>
                         )}
@@ -326,7 +326,7 @@ const BookingRow = ({ booking, onEdit, onDelete, onTrack, onStatusChange }) => {
             {/* Actions */}
             <div className="flex items-center gap-1.5 shrink-0">
                 <button onClick={onTrack}
-                    className="inline-flex items-center gap-1 h-8 px-3.5 text-[12px] font-semibold text-foreground border border-primary rounded-full bg-white hover:bg-primary hover:text-white transition-colors">
+                    className="inline-flex items-center gap-1 h-8 px-3.5 text-[12px] font-semibold text-foreground border border-primary rounded-md bg-white hover:bg-primary hover:text-white transition-colors">
                     Track <ChevronRight className="h-3 w-3" aria-hidden="true" />
                 </button>
                 <InlineDropdownMenu options={dropdownOptions} />

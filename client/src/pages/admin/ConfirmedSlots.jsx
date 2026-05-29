@@ -30,7 +30,7 @@ const LocalSearchInput = ({ value, onChange, placeholder }) => (
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            className="w-full pl-10 pr-4 h-9 bg-white border border-border rounded-full text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors"
+            className="w-full pl-10 pr-4 h-9 bg-white border border-border rounded-md text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors"
         />
     </div>
 );
@@ -98,7 +98,7 @@ const PaginationControls = ({ currentPage, totalPages, onPageChange, totalItems,
                 <span>Rows</span>
                 <div className="relative">
                     <select value={itemsPerPage} onChange={onItemsPerPageChange}
-                        className="appearance-none h-8 pl-3 pr-7 bg-white border border-border rounded-full text-[12px] text-foreground/90 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors">
+                        className="appearance-none h-8 pl-3 pr-7 bg-white border border-border rounded-md text-[12px] text-foreground/90 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors">
                         {[15, 20, 50, 100].map(size => (<option key={size} value={size}>{size}</option>))}
                     </select>
                 </div>
@@ -108,11 +108,11 @@ const PaginationControls = ({ currentPage, totalPages, onPageChange, totalItems,
             </p>
             <div className="flex items-center gap-1">
                 <button aria-label="First page" onClick={() => onPageChange(1)} disabled={currentPage === 1}
-                    className="h-8 w-8 rounded-full flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-primary hover:text-white hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-foreground/80 disabled:hover:border-border transition-colors">
+                    className="h-8 w-8 rounded-md flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-primary hover:text-white hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-foreground/80 disabled:hover:border-border transition-colors">
                     <ChevronsLeft className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
                 <button aria-label="Previous page" onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1}
-                    className="h-8 w-8 rounded-full flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-primary hover:text-white hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-foreground/80 disabled:hover:border-border transition-colors">
+                    className="h-8 w-8 rounded-md flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-primary hover:text-white hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-foreground/80 disabled:hover:border-border transition-colors">
                     <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
                 <div className="flex items-center gap-0.5 mx-1">
@@ -121,18 +121,18 @@ const PaginationControls = ({ currentPage, totalPages, onPageChange, totalItems,
                         const active = currentPage === pageNum;
                         return (
                             <button key={pageNum} onClick={() => onPageChange(pageNum)}
-                                className={`h-8 min-w-[32px] px-2.5 rounded-full text-[12px] font-semibold transition-colors ${active ? 'text-white bg-primary' : 'text-foreground/90 border border-border bg-white hover:border-primary hover:text-foreground'}`}>
+                                className={`h-8 min-w-[32px] px-2.5 rounded-md text-[12px] font-semibold transition-colors ${active ? 'text-white bg-primary' : 'text-foreground/90 border border-border bg-white hover:border-primary hover:text-foreground'}`}>
                                 {pageNum}
                             </button>
                         );
                     })}
                 </div>
                 <button aria-label="Next page" onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages}
-                    className="h-8 w-8 rounded-full flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-primary hover:text-white hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-foreground/80 disabled:hover:border-border transition-colors">
+                    className="h-8 w-8 rounded-md flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-primary hover:text-white hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-foreground/80 disabled:hover:border-border transition-colors">
                     <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
                 <button aria-label="Last page" onClick={() => onPageChange(totalPages)} disabled={currentPage === totalPages}
-                    className="h-8 w-8 rounded-full flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-primary hover:text-white hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-foreground/80 disabled:hover:border-border transition-colors">
+                    className="h-8 w-8 rounded-md flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-primary hover:text-white hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-foreground/80 disabled:hover:border-border transition-colors">
                     <ChevronsRight className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
             </div>
@@ -148,7 +148,7 @@ const EditableDomainCell = ({ booking, domainOptions, onSave }) => {
     const handleSave = async (newDomain) => { if (newDomain === currentValue) return; setIsLoading(true); setCurrentValue(newDomain); try { await updateStudentBooking(booking._id, { domain: newDomain }); onSave(booking._id, 'domain', newDomain); showSuccess("Domain updated successfully."); } catch (err) { showError("Failed to update domain."); setCurrentValue(booking.domain || ''); } finally { setIsLoading(false); } };
     return (
         <select value={currentValue} onChange={(e) => handleSave(e.target.value)} disabled={isLoading}
-            className={`w-full text-[12px] font-semibold px-3 h-8 border border-border rounded-full bg-white text-foreground/90 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary cursor-pointer transition-colors ${isLoading ? 'opacity-50' : ''}`}
+            className={`w-full text-[12px] font-semibold px-3 h-8 border border-border rounded-md bg-white text-foreground/90 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary cursor-pointer transition-colors ${isLoading ? 'opacity-50' : ''}`}
             onClick={(e) => e.stopPropagation()}>
             <option value="" disabled>Select domain</option>
             {domainOptions.map(opt => (opt.value && <option key={opt.value} value={opt.value}>{opt.label}</option>))}
@@ -163,7 +163,7 @@ const EditableHostEmail = ({ booking, hostEmails, onSave }) => {
     const options = hostEmails.map(email => ({ label: email, value: email }));
     const selectStyles = {
         menuPortal: base => ({ ...base, zIndex: 9999 }),
-        control: (base, s) => ({ ...base, fontSize: '13px', minHeight: '34px', borderRadius: '9999px', borderColor: s.isFocused ? '#0f172a' : '#e2e8f0', boxShadow: s.isFocused ? '0 0 0 2px rgba(15,23,42,0.1)' : 'none', '&:hover': { borderColor: '#0f172a' } }),
+        control: (base, s) => ({ ...base, fontSize: '13px', minHeight: '34px', borderRadius: '6px', borderColor: s.isFocused ? '#0f172a' : '#e2e8f0', boxShadow: s.isFocused ? '0 0 0 2px rgba(15,23,42,0.1)' : 'none', '&:hover': { borderColor: '#0f172a' } }),
         menu: base => ({ ...base, fontSize: '13px', borderRadius: '16px', overflow: 'hidden' }),
         option: (base, s) => ({ ...base, backgroundColor: s.isSelected ? '#0f172a' : s.isFocused ? '#f8fafc' : 'white', color: s.isSelected ? 'white' : '#0f172a' }),
     };
@@ -221,7 +221,7 @@ const EditableInputCell = ({ booking, fieldKey, value, onSave, placeholder = "Ed
     };
     return (
         <input type="text" value={currentValue} onChange={(e) => setCurrentValue(e.target.value)} onBlur={handleSave} disabled={isLoading} placeholder={placeholder}
-            className="w-full h-9 px-4 border border-border rounded-full bg-white text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary disabled:bg-muted/40 transition-colors" />
+            className="w-full h-9 px-4 border border-border rounded-md bg-white text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary disabled:bg-muted/40 transition-colors" />
     );
 };
 
@@ -321,12 +321,12 @@ const ManualBookingControls = ({ row, onBooking, publicBookingDetails, onIntervi
     return (
         <div className="flex items-center gap-2">
             <select value={bookingState.date} onChange={e => setBookingState({ date: e.target.value, slot: '' })}
-                className="h-9 px-3 border border-border rounded-full text-[12.5px] text-foreground/90 bg-white w-36 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors">
+                className="h-9 px-3 border border-border rounded-md text-[12.5px] text-foreground/90 bg-white w-36 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors">
                 <option value="">Select date</option>
                 {availableDates.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
             </select>
             <select value={bookingState.slot} onChange={handleSlotChange} disabled={!bookingState.date}
-                className="h-9 px-3 border border-border rounded-full text-[12.5px] text-foreground/90 bg-white w-52 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary disabled:bg-muted/40 transition-colors">
+                className="h-9 px-3 border border-border rounded-md text-[12.5px] text-foreground/90 bg-white w-52 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary disabled:bg-muted/40 transition-colors">
                 <option value="">Select time & interviewer</option>
                 {availableSlotsAndInterviewers.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
@@ -492,10 +492,10 @@ const ConfirmedSlotsView = () => {
                             <div className="w-full sm:w-72"><LocalSearchInput value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search name, email, domain, interviewer…"/></div>
                             <div className="relative" ref={filterMenuRef}>
                                 <button onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
-                                    className={`h-9 inline-flex items-center gap-2 px-4 text-[13px] font-semibold rounded-full border transition-colors ${isFilterActive ? 'border-primary bg-primary text-white hover:bg-primary/90 hover:border-[#C0392B]' : 'border-border bg-white text-foreground/90 hover:border-primary hover:text-foreground'}`}>
+                                    className={`h-9 inline-flex items-center gap-2 px-4 text-[13px] font-semibold rounded-md border transition-colors ${isFilterActive ? 'border-primary bg-primary text-white hover:bg-primary/90 hover:border-[#C0392B]' : 'border-border bg-white text-foreground/90 hover:border-primary hover:text-foreground'}`}>
                                     <Filter className="h-3.5 w-3.5" aria-hidden="true" /> Filter
                                     {isFilterActive && (
-                                        <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-0.5 p-0.5 rounded-full hover:bg-white/15" role="button" aria-label="Clear filters">
+                                        <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-0.5 p-0.5 rounded-md hover:bg-white/15" role="button" aria-label="Clear filters">
                                             <X className="h-3 w-3 text-white" aria-hidden="true" />
                                         </span>
                                     )}
@@ -508,19 +508,19 @@ const ConfirmedSlotsView = () => {
                                                 <label className="block text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-2">Interview date</label>
                                                 <DatePicker selected={tempFilters.date} onChange={(date) => setTempFilters(prev => ({ ...prev, date }))} isClearable placeholderText="Select a date"
                                                     portalId="datepicker-portal" popperClassName="!z-[10000]" popperProps={{ strategy: 'fixed' }}
-                                                    className="w-full h-10 px-4 border border-border rounded-full bg-white text-[13px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors" />
+                                                    className="w-full h-10 px-4 border border-border rounded-md bg-white text-[13px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors" />
                                             </div>
                                             <div>
                                                 <label className="block text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-2">Invited on</label>
                                                 <DatePicker selected={tempFilters.invitedOnDate} onChange={(date) => setTempFilters(prev => ({ ...prev, invitedOnDate: date }))} isClearable placeholderText="Select a date"
                                                     portalId="datepicker-portal" popperClassName="!z-[10000]" popperProps={{ strategy: 'fixed' }}
-                                                    className="w-full h-10 px-4 border border-border rounded-full bg-white text-[13px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors" />
+                                                    className="w-full h-10 px-4 border border-border rounded-md bg-white text-[13px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors" />
                                             </div>
                                         </div>
                                         <div>
                                             <label className="block text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-2">Domain</label>
                                             <select value={tempFilters.domain} onChange={(e) => setTempFilters(prev => ({...prev, domain: e.target.value}))}
-                                                className="w-full h-10 px-4 border border-border rounded-full bg-white text-[13px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary cursor-pointer transition-colors">
+                                                className="w-full h-10 px-4 border border-border rounded-md bg-white text-[13px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary cursor-pointer transition-colors">
                                                 {domainOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                             </select>
                                         </div>
@@ -531,7 +531,7 @@ const ConfirmedSlotsView = () => {
                                                 isClearable isSearchable placeholder="Search or select…"
                                                 styles={{
                                                     menuPortal: base => ({ ...base, zIndex: 9999 }),
-                                                    control: (base, s) => ({ ...base, fontSize: '13px', minHeight: '40px', borderRadius: '9999px', borderColor: s.isFocused ? '#0f172a' : '#e2e8f0', boxShadow: s.isFocused ? '0 0 0 2px rgba(15,23,42,0.1)' : 'none', '&:hover': { borderColor: '#0f172a' } }),
+                                                    control: (base, s) => ({ ...base, fontSize: '13px', minHeight: '40px', borderRadius: '6px', borderColor: s.isFocused ? '#0f172a' : '#e2e8f0', boxShadow: s.isFocused ? '0 0 0 2px rgba(15,23,42,0.1)' : 'none', '&:hover': { borderColor: '#0f172a' } }),
                                                     menu: base => ({ ...base, fontSize: '13px', borderRadius: '16px', overflow: 'hidden' }),
                                                     option: (base, s) => ({ ...base, backgroundColor: s.isSelected ? '#0f172a' : s.isFocused ? '#f8fafc' : 'white', color: s.isSelected ? 'white' : '#0f172a' }),
                                                 }}
@@ -539,8 +539,8 @@ const ConfirmedSlotsView = () => {
                                         </div>
                                     </div>
                                     <div className="mt-5 pt-4 border-t border-border flex justify-end gap-2">
-                                        <button onClick={handleClearFilters} className="h-9 px-4 text-[12px] font-semibold text-foreground/90 rounded-full border border-border hover:border-primary hover:text-foreground transition-colors">Clear</button>
-                                        <button onClick={handleApplyFilters} className="h-9 px-4 text-[12px] font-semibold text-white rounded-full bg-primary hover:bg-primary/90 transition-colors">Apply</button>
+                                        <button onClick={handleClearFilters} className="h-9 px-4 text-[12px] font-semibold text-foreground/90 rounded-md border border-border hover:border-primary hover:text-foreground transition-colors">Clear</button>
+                                        <button onClick={handleApplyFilters} className="h-9 px-4 text-[12px] font-semibold text-white rounded-md bg-primary hover:bg-primary/90 transition-colors">Apply</button>
                                     </div>
                                 </div>
                             )}
