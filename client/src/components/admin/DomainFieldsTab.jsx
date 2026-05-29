@@ -1,9 +1,9 @@
 // client/src/components/admin/DomainFieldsTab.jsx
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import {
     Plus, Trash2, Save, Edit, Eye, AlertCircle, ChevronDown, ChevronUp,
-    Clipboard, Copy, X, Search, Type
+    Clipboard, Copy, X, Search, Type, GripVertical
 } from 'lucide-react';
 import { getEvaluationSheet, updateEvaluationSheet, getAllEvaluationParameters } from '@/api/admin.api';
 import { useAlert } from '@/hooks/useAlert';
@@ -235,10 +235,46 @@ const OptionsArray = ({ groupIndex, colIndex, control, register, onBulkAddClick,
     );
 };
 
-const ColumnGroup = ({ groupIndex, control, register, removeGroup, onBulkAddClick, onImportClick, watch, errors }) => {
-    const { fields: columnFields, append: appendColumn, remove: removeColumn } = useFieldArray({ control, name: `columnGroups.${groupIndex}.columns` });
+const ColumnGroup = ({ groupIndex, control, register, removeGroup, onBulkAddClick, onImportClick, watch, errors, onReorder }) => {
+    const { fields: columnFields, append: appendColumn, remove: removeColumn, move: moveColumn } = useFieldArray({ control, name: `columnGroups.${groupIndex}.columns` });
     const [collapsed, setCollapsed] = useState(false);
+    const [draggedIndex, setDraggedIndex] = useState(null);
+    const [dragOverIndex, setDragOverIndex] = useState(null);
     const titleError = errors?.columnGroups?.[groupIndex]?.title;
+
+    // ── Drag-and-drop handlers ────────────────────────────────────────────
+    // Reorders cards inside a category in real time (RHF `move`) and asks the
+    // parent to debounce-save the sheet so the new order persists automatically.
+    const handleDragStart = (idx) => (e) => {
+        setDraggedIndex(idx);
+        e.dataTransfer.effectAllowed = 'move';
+        // Some browsers need a payload to register the drag
+        try { e.dataTransfer.setData('text/plain', String(idx)); } catch { /* ignore */ }
+    };
+
+    const handleDragOver = (idx) => (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (dragOverIndex !== idx) setDragOverIndex(idx);
+    };
+
+    const handleDragLeave = () => setDragOverIndex(null);
+
+    const handleDrop = (toIndex) => (e) => {
+        e.preventDefault();
+        const fromIndex = draggedIndex;
+        setDraggedIndex(null);
+        setDragOverIndex(null);
+        if (fromIndex === null || fromIndex === toIndex) return;
+        moveColumn(fromIndex, toIndex);
+        onReorder?.();
+    };
+
+    const handleDragEnd = () => {
+        setDraggedIndex(null);
+        setDragOverIndex(null);
+    };
+
     return (
         <LocalCard>
             <div className={cn('p-3 border-b border-gray-100', titleError ? 'bg-red-50' : 'bg-white')}>
@@ -260,10 +296,34 @@ const ColumnGroup = ({ groupIndex, control, register, removeGroup, onBulkAddClic
                     <div className="flex items-start overflow-x-auto gap-4 pb-3 custom-scrollbar">
                         {columnFields.map((field, colIndex) => {
                             const fieldType = watch(`columnGroups.${groupIndex}.columns.${colIndex}.type`, 'select');
+                            const isDragging = draggedIndex === colIndex;
+                            const isDropTarget = dragOverIndex === colIndex && draggedIndex !== null && draggedIndex !== colIndex;
                             return (
-                                <div key={field.id} className="p-3 border rounded-xl bg-white shadow-md space-y-3 w-72 flex-shrink-0">
+                                <div
+                                    key={field.id}
+                                    draggable
+                                    onDragStart={handleDragStart(colIndex)}
+                                    onDragOver={handleDragOver(colIndex)}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={handleDrop(colIndex)}
+                                    onDragEnd={handleDragEnd}
+                                    className={cn(
+                                        'p-3 border rounded-xl bg-white shadow-md space-y-3 w-72 flex-shrink-0 transition-all',
+                                        isDragging && 'opacity-40 scale-[0.98]',
+                                        isDropTarget && 'ring-2 ring-primary/60 ring-offset-1'
+                                    )}
+                                >
                                     <div className="flex justify-between items-start">
-                                        <input {...register(`columnGroups.${groupIndex}.columns.${colIndex}.header`)} className="font-semibold text-sm border-none p-1 bg-transparent flex-1 -ml-1 focus:ring-1 focus:ring-gray-300 rounded-sm" placeholder="Parameter Name" />
+                                        <div className="flex items-center gap-1 flex-1 min-w-0">
+                                            <span
+                                                className="text-gray-300 hover:text-gray-600 cursor-grab active:cursor-grabbing select-none"
+                                                title="Drag to reorder"
+                                                aria-hidden="true"
+                                            >
+                                                <GripVertical className="h-4 w-4" />
+                                            </span>
+                                            <input {...register(`columnGroups.${groupIndex}.columns.${colIndex}.header`)} className="font-semibold text-sm border-none p-1 bg-transparent flex-1 -ml-1 focus:ring-1 focus:ring-gray-300 rounded-sm" placeholder="Parameter Name" />
+                                        </div>
                                         <button type="button" className="text-gray-300 hover:text-red-500 p-1" onClick={() => removeColumn(colIndex)}><Trash2 className="h-4 w-4" /></button>
                                     </div>
                                     {fieldType === 'text' ? (
@@ -282,7 +342,7 @@ const ColumnGroup = ({ groupIndex, control, register, removeGroup, onBulkAddClic
     );
 };
 
-const EditorComponent = ({ control, register, groupFields, removeGroup, appendGroup, onBulkAddClick, onImportClick, watch, errors }) => (
+const EditorComponent = ({ control, register, groupFields, removeGroup, appendGroup, onBulkAddClick, onImportClick, watch, errors, onReorder }) => (
     <div className="space-y-4">
         {groupFields.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-xl border border-dashed border-gray-300">
@@ -293,7 +353,7 @@ const EditorComponent = ({ control, register, groupFields, removeGroup, appendGr
             </div>
         ) : (
             groupFields.map((group, groupIndex) => (
-                <ColumnGroup key={group.id} control={control} register={register} groupIndex={groupIndex} removeGroup={removeGroup} onBulkAddClick={onBulkAddClick} onImportClick={onImportClick} watch={watch} errors={errors} />
+                <ColumnGroup key={group.id} control={control} register={register} groupIndex={groupIndex} removeGroup={removeGroup} onBulkAddClick={onBulkAddClick} onImportClick={onImportClick} watch={watch} errors={errors} onReorder={onReorder} />
             ))
         )}
     </div>
@@ -307,20 +367,24 @@ const DomainFieldsTab = ({ domains, selectedDomain, setSelectedDomain }) => {
     const [allParameters, setAllParameters] = useState([]);
     const [importModal, setImportModal] = useState({ isOpen: false, target: null });
     const [bulkAddModal, setBulkAddModal] = useState({ isOpen: false, groupIndex: null, colIndex: null });
-    
+    // Auto-save status: 'idle' | 'saving' | 'saved' | 'error'
+    const [autoSaveStatus, setAutoSaveStatus] = useState('idle');
+    const autoSaveTimeoutRef = useRef(null);
+    const savedFlashTimeoutRef = useRef(null);
+
     const { register, control, handleSubmit, reset, formState: { errors, isSubmitting }, getValues, setValue, watch } = useForm({
         defaultValues: { columnGroups: [] }
     });
-    
+
     const { fields: groupFields, append: appendGroup, remove: removeGroup } = useFieldArray({ control, name: "columnGroups" });
     const domainOptions = domains?.map(d => ({ value: d._id, label: d.name })) || [];
-    
+
     const fetchSheet = useCallback(async (domainId) => {
         setLoading(true);
         try {
             const res = await getEvaluationSheet(domainId);
             reset(res.data.data || { columnGroups: [] });
-        } catch (error) { showError("Failed to load evaluation sheet."); } 
+        } catch (error) { showError("Failed to load evaluation sheet."); }
         finally { setLoading(false); }
     }, [reset, showError]);
 
@@ -333,11 +397,42 @@ const DomainFieldsTab = ({ domains, selectedDomain, setSelectedDomain }) => {
         else reset({ columnGroups: [] });
     }, [selectedDomain, fetchSheet, reset]);
 
+    // Cleanup pending timeouts on unmount / domain change
+    useEffect(() => {
+        return () => {
+            if (autoSaveTimeoutRef.current) clearTimeout(autoSaveTimeoutRef.current);
+            if (savedFlashTimeoutRef.current) clearTimeout(savedFlashTimeoutRef.current);
+        };
+    }, []);
+
+    // Debounced auto-save — triggered by card reorder (and any other place we want
+    // background saves). Coalesces multiple reorders within 600ms into one request.
+    const triggerAutoSave = useCallback(() => {
+        if (!selectedDomain) return;
+        if (autoSaveTimeoutRef.current) clearTimeout(autoSaveTimeoutRef.current);
+        autoSaveTimeoutRef.current = setTimeout(async () => {
+            try {
+                setAutoSaveStatus('saving');
+                await updateEvaluationSheet(selectedDomain.value, getValues());
+                setAutoSaveStatus('saved');
+                // Flash "Saved" for 1.5s then return to idle
+                if (savedFlashTimeoutRef.current) clearTimeout(savedFlashTimeoutRef.current);
+                savedFlashTimeoutRef.current = setTimeout(() => setAutoSaveStatus('idle'), 1500);
+            } catch (err) {
+                setAutoSaveStatus('error');
+                showError('Auto-save failed. Use the Save Sheet button to retry.');
+            }
+        }, 600);
+    }, [selectedDomain, getValues, showError]);
+
     const onSubmit = async (data) => {
         try {
             await updateEvaluationSheet(selectedDomain.value, data);
             showSuccess(`Evaluation sheet saved.`);
-        } catch (error) { showError("Failed to save evaluation sheet."); }
+            setAutoSaveStatus('saved');
+            if (savedFlashTimeoutRef.current) clearTimeout(savedFlashTimeoutRef.current);
+            savedFlashTimeoutRef.current = setTimeout(() => setAutoSaveStatus('idle'), 1500);
+        } catch (error) { showError("Failed to save evaluation sheet."); setAutoSaveStatus('error'); }
     };
     
     const openImportModal = (groupIndex, colIndex) => setImportModal({ isOpen: true, target: { groupIndex, colIndex } });
@@ -395,6 +490,34 @@ const DomainFieldsTab = ({ domains, selectedDomain, setSelectedDomain }) => {
                             </div>
                             {mode === 'edit' && (
                                 <>
+                                   {/* Auto-save indicator — quiet when idle, animated when active */}
+                                   {autoSaveStatus !== 'idle' && (
+                                       <span className={cn(
+                                           'inline-flex items-center gap-1.5 text-[11.5px] font-medium px-2 py-1 rounded-md',
+                                           autoSaveStatus === 'saving' && 'text-gray-500 bg-gray-100',
+                                           autoSaveStatus === 'saved' && 'text-emerald-700 bg-emerald-50',
+                                           autoSaveStatus === 'error' && 'text-red-700 bg-red-50'
+                                       )}>
+                                           {autoSaveStatus === 'saving' && (
+                                               <>
+                                                   <span className="h-1.5 w-1.5 rounded-full bg-gray-500 animate-pulse" />
+                                                   Saving…
+                                               </>
+                                           )}
+                                           {autoSaveStatus === 'saved' && (
+                                               <>
+                                                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                                                   Saved
+                                               </>
+                                           )}
+                                           {autoSaveStatus === 'error' && (
+                                               <>
+                                                   <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                                                   Save failed
+                                               </>
+                                           )}
+                                       </span>
+                                   )}
                                    <LocalButton type="button" icon={Plus} variant="outline" size="sm" onClick={() => appendGroup({ title: '', columns: [] })}>Add Category</LocalButton>
                                    <LocalButton type="submit" icon={isSubmitting ? null : Save} isLoading={isSubmitting} variant="primary" size="sm" disabled={groupFields.length === 0}>Save Sheet</LocalButton>
                                 </>
@@ -408,7 +531,7 @@ const DomainFieldsTab = ({ domains, selectedDomain, setSelectedDomain }) => {
                         <div className="flex justify-center p-12"><div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-600 border-t-transparent"></div></div>
                     ) : (
                         <div>
-                            {mode === 'edit' ? <EditorComponent control={control} register={register} groupFields={groupFields} removeGroup={removeGroup} appendGroup={appendGroup} onBulkAddClick={openBulkAddModal} onImportClick={openImportModal} watch={watch} errors={errors} /> : <PreviewComponent sheetData={getValues()} />}
+                            {mode === 'edit' ? <EditorComponent control={control} register={register} groupFields={groupFields} removeGroup={removeGroup} appendGroup={appendGroup} onBulkAddClick={openBulkAddModal} onImportClick={openImportModal} watch={watch} errors={errors} onReorder={triggerAutoSave} /> : <PreviewComponent sheetData={getValues()} />}
                         </div>
                     )
                 ) : (
