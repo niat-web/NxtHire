@@ -16,6 +16,12 @@ dotenv.config();
 // Initialize Express
 const app = express();
 
+// Render (and most modern hosts) sit behind a reverse proxy that forwards the
+// real client IP via X-Forwarded-For. Without `trust proxy`, express-rate-limit
+// throws a ValidationError because it can't safely identify users. `1` trusts a
+// single hop (the platform's edge), which is what Render uses.
+app.set('trust proxy', 1);
+
 // Security headers
 app.use(helmet({ contentSecurityPolicy: false }));
 
