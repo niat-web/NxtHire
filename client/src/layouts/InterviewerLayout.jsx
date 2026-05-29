@@ -1,9 +1,9 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/common/Sidebar';
 import Header from '../components/common/Header';
 import PageTransition from '../components/common/PageTransition';
-import { Home, Settings, Calendar, Clipboard, Grid } from 'lucide-react';
+import { Home, Settings, Calendar, Clipboard, Grid, Menu } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { usePushNotifications } from '../hooks/usePushNotifications';
 import { useBookingRequests } from '../hooks/useInterviewerQueries';
@@ -16,6 +16,7 @@ const InterviewerLayout = () => {
   const location = useLocation();
   const { showInfo } = useAlert();
   const { askPermissionAndSubscribe } = usePushNotifications();
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -107,11 +108,31 @@ const InterviewerLayout = () => {
       <Sidebar
         navItems={interviewerNavItems}
         variant="interviewer"
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
       />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        {/* Mobile top bar — hamburger + brand. Hidden at lg+. */}
+        <header className="lg:hidden bg-card border-b border-border h-14 flex items-center justify-between px-4 shrink-0">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setMobileSidebarOpen(true)}
+              className="h-9 w-9 -ml-1 inline-flex items-center justify-center rounded-md text-foreground hover:bg-muted transition-colors"
+              aria-label="Open menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <div className="flex items-baseline gap-1">
+              <span className="font-display text-[18px] font-extrabold tracking-tight text-primary leading-none">NXTHIRE</span>
+              <span className="inline-block h-1.5 w-1.5 rounded-[2px]" style={{ backgroundColor: 'var(--brave-amber)' }} aria-hidden="true" />
+            </div>
+          </div>
+        </header>
+
         {!useFullPageLayout && (
-          <Header />
+          <div className="hidden lg:block"><Header /></div>
         )}
 
         <main className={cn('flex-1 bg-background', useFullPageLayout ? 'overflow-hidden' : 'overflow-y-auto')}>

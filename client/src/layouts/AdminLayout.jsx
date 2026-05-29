@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/common/Sidebar';
 import PageTransition from '../components/common/PageTransition';
-import { Home, UserCheck, Shield, Calendar, Grid, Settings, Clipboard, Mail, BarChart2, Bell } from 'lucide-react';
+import { Home, UserCheck, Shield, Calendar, Grid, Settings, Clipboard, Mail, BarChart2, Bell, Menu } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useDashboardStats } from '../hooks/useAdminQueries';
 import { cn } from '@/lib/utils';
@@ -11,6 +11,7 @@ import NotificationBell from '../components/admin/NotificationBell';
 const AdminLayout = () => {
   const { currentUser } = useAuth();
   const location = useLocation();
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Sidebar badges: refresh in the background but don't hammer the API every minute.
   // Socket.io pushes the most urgent updates already; a 3-minute poll covers the rest.
@@ -77,12 +78,33 @@ const AdminLayout = () => {
       <Sidebar
         navItems={adminNavItemsWithCounts}
         variant="admin"
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
       />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top bar — only on dashboard */}
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        {/* Mobile top bar — hamburger + brand. Hidden at lg+. */}
+        <header className="lg:hidden bg-card border-b border-border h-14 flex items-center justify-between px-4 shrink-0">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setMobileSidebarOpen(true)}
+              className="h-9 w-9 -ml-1 inline-flex items-center justify-center rounded-md text-foreground hover:bg-muted transition-colors"
+              aria-label="Open menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <div className="flex items-baseline gap-1">
+              <span className="font-display text-[18px] font-extrabold tracking-tight text-primary leading-none">NXTHIRE</span>
+              <span className="inline-block h-1.5 w-1.5 rounded-[2px]" style={{ backgroundColor: 'var(--brave-amber)' }} aria-hidden="true" />
+            </div>
+          </div>
+          <NotificationBell />
+        </header>
+
+        {/* Desktop top bar — only on dashboard */}
         {location.pathname === '/admin/dashboard' && (
-          <header className="bg-card border-b border-border h-14 flex items-center justify-between px-6 lg:px-10 shrink-0">
+          <header className="hidden lg:flex bg-card border-b border-border h-14 items-center justify-between px-6 lg:px-10 shrink-0">
             <div className="flex items-center gap-3">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
                 <span className="h-1.5 w-1.5 rounded-[2px]" style={{ backgroundColor: 'var(--brave-amber)' }} />

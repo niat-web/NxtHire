@@ -24,8 +24,9 @@ const tabComponents = {
 
 const BASE = '/admin/hiring';
 
+// Desktop: vertical sidebar rail
 const HiringSidebar = memo(({ activeTab, onTabClick, counts }) => (
-  <aside className="w-56 flex-shrink-0 bg-card border-r border-border flex flex-col">
+  <aside className="hidden md:flex w-56 flex-shrink-0 bg-card border-r border-border flex-col">
     <nav className="flex-1 p-3 space-y-0.5">
       {tabs.map(tab => {
         const isActive = activeTab === tab.id;
@@ -56,6 +57,39 @@ const HiringSidebar = memo(({ activeTab, onTabClick, counts }) => (
 ));
 HiringSidebar.displayName = 'HiringSidebar';
 
+// Mobile: horizontal scrolling tab strip at top
+const HiringTabStrip = memo(({ activeTab, onTabClick, counts }) => (
+  <div className="md:hidden border-b border-border bg-card shrink-0">
+    <nav className="flex overflow-x-auto no-scrollbar px-3 gap-1">
+      {tabs.map(tab => {
+        const isActive = activeTab === tab.id;
+        const count = tab.countKey ? (counts[tab.countKey] || 0) : 0;
+        return (
+          <button
+            key={tab.id}
+            onClick={() => onTabClick(tab.id)}
+            className={cn(
+              'shrink-0 flex items-center gap-2 py-3 px-2 text-[12.5px] font-semibold border-b-2 transition-colors whitespace-nowrap',
+              isActive
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <tab.icon className="w-3.5 h-3.5" />
+            {tab.label}
+            {count > 0 && (
+              <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full text-[10px] font-bold bg-primary text-primary-foreground">
+                {count}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </nav>
+  </div>
+));
+HiringTabStrip.displayName = 'HiringTabStrip';
+
 const getInitialTab = () => {
   const suffix = window.location.pathname.replace(BASE, '').replace(/^\//, '');
   return tabs.find(t => t.id === suffix)?.id || 'applicants';
@@ -73,9 +107,10 @@ const HiringPage = () => {
   const ActiveComponent = tabComponents[activeTab];
 
   return (
-    <div className="flex h-full w-full overflow-hidden bg-background">
+    <div className="flex flex-col md:flex-row h-full w-full overflow-hidden bg-background">
+      <HiringTabStrip activeTab={activeTab} onTabClick={handleTabClick} counts={counts} />
       <HiringSidebar activeTab={activeTab} onTabClick={handleTabClick} counts={counts} />
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden min-w-0">
         <ActiveComponent key={activeTab} />
       </main>
     </div>
