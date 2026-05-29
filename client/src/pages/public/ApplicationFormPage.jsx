@@ -26,22 +26,24 @@ const ApplicationFormPage = () => {
       <SEO title="Apply as Interviewer" description="Apply to become a freelance interviewer at NxtWave. Fill out the application form to get started." path="/applicationform" />
 
       <motion.div
-        className="lg:w-[420px] xl:w-[460px] shrink-0 bg-primary text-white p-8 lg:p-10 flex flex-col justify-between lg:h-screen overflow-y-auto"
+        className="lg:w-[420px] xl:w-[460px] shrink-0 p-8 lg:p-10 flex flex-col justify-between lg:h-screen overflow-y-auto"
+        style={{ backgroundColor: 'var(--brave-footer)' }}
         initial={{ opacity: 0, x: -12 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.4 }}
       >
         <div>
           <div className="flex items-center justify-between mb-10">
-            <Link to="/" aria-label="NxtHire home">
-              <img src={nxtHireLogoLight} alt="NxtHire" className="h-7" />
+            <Link to="/" aria-label="NxtHire home" className="flex items-baseline gap-1">
+              <span className="font-display text-[24px] font-extrabold tracking-tight leading-none text-white">NXTHIRE</span>
+              <span className="inline-block h-2 w-2 rounded-[2px]" style={{ backgroundColor: AMBER }} aria-hidden="true" />
             </Link>
-            <Link to="/" className="inline-flex items-center gap-1.5 text-[12px] text-white/75 hover:text-white transition-colors font-medium">
+            <Link to="/" className="inline-flex items-center gap-1.5 text-[12px] text-slate-400 hover:text-[color:var(--brave-amber)] transition-colors font-medium">
               <ArrowLeft size={13} /> Back
             </Link>
           </div>
 
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-white/90 mb-5">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.22em] text-slate-300 mb-5">
             <span className="h-1.5 w-1.5 rounded-[2px]" style={{ backgroundColor: AMBER }} />
             Apply
           </span>
@@ -49,7 +51,7 @@ const ApplicationFormPage = () => {
           <h2 style={DISPLAY} className="text-[32px] lg:text-[38px] font-semibold leading-[1.08] tracking-tight mb-4 text-white">
             Become a <em className="italic" style={{ color: AMBER }}>tech interviewer</em>.
           </h2>
-          <p className="text-white/80 text-[13.5px] leading-relaxed mb-8 max-w-sm">
+          <p className="text-slate-400 text-[13.5px] leading-relaxed mb-8 max-w-sm">
             Join our community of industry professionals conducting interviews and shaping the careers of aspiring developers.
           </p>
 
@@ -57,24 +59,24 @@ const ApplicationFormPage = () => {
             {benefits.map((item, i) => (
               <motion.div
                 key={i}
-                className="flex items-start gap-3.5 py-3 border-t border-white/15"
+                className="flex items-start gap-3.5 py-3 border-t border-white/10"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 + i * 0.05 }}
               >
-                <div className="w-8 h-8 rounded-md border border-white/20 bg-white/10 flex items-center justify-center shrink-0" style={{ color: AMBER }}>
+                <div className="w-8 h-8 rounded-md bg-white/5 border border-white/15 flex items-center justify-center shrink-0" style={{ color: AMBER }}>
                   <item.icon size={14} />
                 </div>
                 <div>
                   <p className="text-[13px] font-semibold text-white">{item.title}</p>
-                  <p className="text-[12px] text-white/75 mt-0.5">{item.desc}</p>
+                  <p className="text-[12px] text-slate-400 mt-0.5">{item.desc}</p>
                 </div>
               </motion.div>
             ))}
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-white/15">
+        <div className="mt-10 pt-6 border-t border-white/10">
           <div className="grid grid-cols-3 gap-4">
             {[
               { num: '500+', label: 'Interviews' },
@@ -83,7 +85,7 @@ const ApplicationFormPage = () => {
             ].map((stat, i) => (
               <div key={i}>
                 <p style={DISPLAY} className="text-[22px] font-semibold text-white tracking-tight">{stat.num}</p>
-                <p className="text-[10px] text-white/70 uppercase tracking-[0.2em] font-semibold mt-1">{stat.label}</p>
+                <p className="text-[10px] text-slate-500 uppercase tracking-[0.22em] font-semibold mt-1">{stat.label}</p>
               </div>
             ))}
           </div>
