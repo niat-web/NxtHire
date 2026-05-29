@@ -45,11 +45,18 @@ app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/applicant', require('./routes/applicant.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
 app.use('/api/interviewer', require('./routes/interviewer.routes'));
-app.use('/api/public-bookings', require('./routes/public.routes')); // ** NEW **
+app.use('/api/public-bookings', require('./routes/public.routes'));
+
+// Legacy / external-monitor probe paths — return 200 silently so they don't
+// generate 404s in the logs. These never existed as real endpoints; they
+// appear to come from an external uptime monitor or stale browser cache.
+app.get('/api/users', (_req, res) => {
+  res.json({ success: true, message: 'This endpoint has moved. Authenticated admins should use /api/admin/users.' });
+});
 
 // Basic route for API health check
 app.get('/', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'NxtWave Interviewer API is running',
     version: '1.0.0',
     environment: process.env.NODE_ENV

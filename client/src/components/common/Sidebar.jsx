@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { LogOut, ChevronRight, ChevronsUpDown, User, Bell, KeyRound, Settings, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -8,21 +8,26 @@ import { cn } from '@/lib/utils';
  * BRAVE-style Sidebar
  * - Desktop: persistent w-64 sidebar
  * - Mobile (< lg): off-canvas drawer with backdrop, opened/closed via `mobileOpen` + `onMobileClose` props
+ *
+ * Note: `sidebarInner` is rendered twice (once in the desktop wrapper, once in the
+ * mobile drawer). A single useRef would bind to whichever container mounted last,
+ * which broke the profile dropdown clicks. We detect "click inside profile menu"
+ * via a data-attribute selector instead, so both copies work independently.
  */
 const Sidebar = ({ navItems, variant = 'admin', mobileOpen = false, onMobileClose }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef(null);
 
   useEffect(() => {
+    if (!menuOpen) return;
     const handleClick = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setMenuOpen(false);
-      }
+      // If the click target is inside ANY profile-menu container, leave the menu open.
+      if (e.target.closest('[data-sidebar-profile]')) return;
+      setMenuOpen(false);
     };
-    if (menuOpen) document.addEventListener('mousedown', handleClick);
+    document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, [menuOpen]);
 
@@ -149,7 +154,7 @@ const Sidebar = ({ navItems, variant = 'admin', mobileOpen = false, onMobileClos
       </nav>
 
       {/* Bottom user block */}
-      <div className="border-t border-sidebar-border/70 p-3 shrink-0 relative" ref={menuRef}>
+      <div className="border-t border-sidebar-border/70 p-3 shrink-0 relative" data-sidebar-profile>
         {menuOpen && (
           <div className="absolute bottom-2 left-full ml-3 w-64 bg-card text-card-foreground rounded-xl shadow-xl border border-border overflow-hidden z-50">
             <div className="px-4 py-3.5 border-b border-border bg-muted/40">

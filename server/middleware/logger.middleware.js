@@ -23,15 +23,13 @@ const logger = winston.createLogger({
   ]
 });
 
-// If we're not in production, also log to the console
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.combine(
-      winston.format.colorize(),
-      winston.format.simple()
-    )
-  }));
-}
+// Always log to console — in production we want logs to surface in the
+// hosting platform (Render, etc.) rather than only living on disk.
+logger.add(new winston.transports.Console({
+  format: process.env.NODE_ENV === 'production'
+    ? winston.format.simple()
+    : winston.format.combine(winston.format.colorize(), winston.format.simple()),
+}));
 
 // Middleware to log requests
 const requestLogger = (req, res, next) => {
