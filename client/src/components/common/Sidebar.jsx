@@ -211,7 +211,10 @@ const Sidebar = ({ navItems, variant = 'admin', mobileOpen = false, onMobileClos
               {currentUser?.firstName} {currentUser?.lastName}
             </span>
             <span className="block mt-0.5 text-[10.5px] font-medium uppercase tracking-[0.18em] text-sidebar-muted-foreground">
-              {currentUser?.role}
+              {/* Show the variant the user is currently viewing, NOT the underlying
+                  user.role — dual-role admins keep role='admin' even when viewing
+                  the interviewer side, so the variant prop reflects the actual page */}
+              {variant === 'admin' ? 'Admin' : 'Interviewer'}
             </span>
           </span>
           <ChevronsUpDown className="h-3.5 w-3.5 text-sidebar-muted-foreground shrink-0" aria-hidden="true" />

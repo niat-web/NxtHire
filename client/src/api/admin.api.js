@@ -296,6 +296,18 @@ export const manualBookStudentSlot = (studentEmailId, data) => {
     return api.post(`/api/admin/student-bookings/${studentEmailId}/manual-book`, data);
 };
 
+// Admin manually adds a fresh student + books a slot in one shot on a public link.
+// Used when a student gave their info directly to the admin instead of using the link.
+export const adminManualAddStudentBooking = (publicBookingId, data) => {
+    return api.post(`/api/admin/public-bookings/${publicBookingId}/manual-add-booking`, data);
+};
+
+// Bulk version of the above — admin uploads a CSV/Excel of students and the
+// server books each to the next available slot on the public link.
+export const adminBulkManualAddStudentBookings = (publicBookingId, data) => {
+    return api.post(`/api/admin/public-bookings/${publicBookingId}/bulk-manual-book`, data);
+};
+
 // *** Domain & Evaluation Sheet APIs ***
 export const getDomains = () => {
     return api.get('/api/admin/domains');

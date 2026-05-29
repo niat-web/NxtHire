@@ -1,17 +1,29 @@
-import React, { useMemo, useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import React, { useMemo, useState, Suspense } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/common/Sidebar';
 import PageTransition from '../components/common/PageTransition';
-import { Home, UserCheck, Shield, Calendar, Grid, Settings, Clipboard, Mail, BarChart2, Bell, Menu } from 'lucide-react';
+import Loader from '../components/common/Loader';
+import { Home, UserCheck, Shield, Calendar, Grid, Settings, Clipboard, Mail, BarChart2, Bell, Menu, ArrowRightLeft } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useDashboardStats } from '../hooks/useAdminQueries';
 import { cn } from '@/lib/utils';
 import NotificationBell from '../components/admin/NotificationBell';
 
+// Local fallback for the right pane only — keeps the sidebar fully mounted
+// while a lazy-loaded admin page chunk is fetching.
+const RightPaneFallback = () => (
+  <div className="flex items-center justify-center min-h-[40vh]">
+    <Loader size="lg" />
+  </div>
+);
+
 const AdminLayout = () => {
   const { currentUser } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  // Dual-role: admin who is also an interviewer can flip to the interviewer view
+  const isDualRole = currentUser?.role === 'admin' && currentUser?.alsoInterviewer === true;
 
   // Sidebar badges: refresh in the background but don't hammer the API every minute.
   // Socket.io pushes the most urgent updates already; a 3-minute poll covers the rest.
@@ -99,7 +111,20 @@ const AdminLayout = () => {
               <span className="inline-block h-1.5 w-1.5 rounded-[2px]" style={{ backgroundColor: 'var(--brave-amber)' }} aria-hidden="true" />
             </div>
           </div>
-          <NotificationBell />
+          <div className="flex items-center gap-2">
+            {isDualRole && (
+              <button
+                type="button"
+                onClick={() => navigate('/interviewer/dashboard')}
+                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-primary/30 bg-primary/5 text-[12px] font-semibold text-primary hover:bg-primary/10 transition-colors"
+                title="Switch to Interviewer view"
+              >
+                <ArrowRightLeft className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Interviewer</span>
+              </button>
+            )}
+            <NotificationBell />
+          </div>
         </header>
 
         {/* Desktop top bar — only on dashboard */}
@@ -112,20 +137,52 @@ const AdminLayout = () => {
               </span>
               <h1 className="font-display text-[18px] font-bold text-foreground tracking-tight leading-none">Dashboard</h1>
             </div>
-            <NotificationBell />
+            <div className="flex items-center gap-3">
+              {isDualRole && (
+                <button
+                  type="button"
+                  onClick={() => navigate('/interviewer/dashboard')}
+                  className="inline-flex items-center gap-2 h-9 px-3.5 rounded-md border border-primary/30 bg-primary/5 text-[12.5px] font-semibold text-primary hover:bg-primary/10 transition-colors"
+                  title="Switch to Interviewer view"
+                >
+                  <ArrowRightLeft className="h-3.5 w-3.5" />
+                  Switch to Interviewer
+                </button>
+              )}
+              <NotificationBell />
+            </div>
           </header>
+        )}
+
+        {/* Desktop persistent switch button — shown on non-dashboard pages for dual-role admins */}
+        {isDualRole && location.pathname !== '/admin/dashboard' && (
+          <div className="hidden lg:flex justify-end px-6 lg:px-10 pt-3 pb-1 shrink-0 bg-background">
+            <button
+              type="button"
+              onClick={() => navigate('/interviewer/dashboard')}
+              className="inline-flex items-center gap-2 h-8 px-3 rounded-md border border-primary/30 bg-primary/5 text-[12px] font-semibold text-primary hover:bg-primary/10 transition-colors"
+              title="Switch to Interviewer view"
+            >
+              <ArrowRightLeft className="h-3.5 w-3.5" />
+              Switch to Interviewer
+            </button>
+          </div>
         )}
 
         <main className={cn('flex-1 bg-background', useFullPageLayout ? 'overflow-hidden' : 'overflow-y-auto')}>
           {useFullPageLayout ? (
             <div className="h-full flex flex-col">
                 <PageTransition className="h-full flex flex-col">
-                  <Outlet />
+                  <Suspense fallback={<RightPaneFallback />}>
+                    <Outlet />
+                  </Suspense>
                 </PageTransition>
             </div>
           ) : (
             <PageTransition className="container mx-auto px-4 py-6 lg:px-6 lg:py-8">
-                <Outlet />
+                <Suspense fallback={<RightPaneFallback />}>
+                  <Outlet />
+                </Suspense>
             </PageTransition>
           )}
         </main>

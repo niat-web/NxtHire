@@ -51,9 +51,15 @@ const adminOnly = asyncHandler(async (req, res, next) => {
   next();
 });
 
-// Interviewer only middleware
+// Interviewer-only middleware — also lets dual-role admins (admin accounts
+// with the alsoInterviewer flag) reach interviewer endpoints.
 const interviewerOnly = asyncHandler(async (req, res, next) => {
-  if (!req.user || req.user.role !== 'interviewer') {
+  if (!req.user) {
+    res.status(403);
+    throw new Error('Not authorized');
+  }
+  const isInterviewer = req.user.role === 'interviewer' || req.user.alsoInterviewer === true;
+  if (!isInterviewer) {
     res.status(403);
     throw new Error('Not authorized, interviewer only');
   }

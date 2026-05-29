@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Mail, Phone, User, Save, X, Send } from 'lucide-react';
+import ReactSelect from 'react-select';
+import { Mail, Phone, User, Save, X, Send, UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAlert } from '../../hooks/useAlert';
 import { createUser, updateUser } from '../../api/admin.api';
+import { useDomainOptions } from '../../hooks/useAdminQueries';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -35,24 +37,60 @@ const UserFormModal = ({ isOpen, onClose, onSuccess, userData }) => {
     const { register, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm();
     const roleOptions = [{ value: 'admin', label: 'Admin' }, { value: 'interviewer', label: 'Interviewer' }];
     const isActive = watch('isActive');
+    const selectedRole = watch('role');
+    const DOMAINS = useDomainOptions();
+
+    // ── Dual-role state (admin who is ALSO an interviewer) ──
+    const [alsoInterviewer, setAlsoInterviewer] = useState(false);
+    const [interviewerDomains, setInterviewerDomains] = useState([]); // [{value,label}, ...]
 
     useEffect(() => {
         if (isOpen) {
             if (isEditMode && userData) {
                 reset({ ...userData });
+                setAlsoInterviewer(userData.alsoInterviewer === true);
+                // Existing interviewer domains aren't returned by the User endpoint;
+                // admin can re-pick them when toggling. Leaving empty by default.
+                setInterviewerDomains([]);
             } else {
                 reset({ role: 'interviewer', isActive: true });
+                setAlsoInterviewer(false);
+                setInterviewerDomains([]);
             }
         }
     }, [userData, isEditMode, reset, isOpen]);
 
+    // If the admin flips the role away from "admin", auto-disable the dual flag
+    useEffect(() => {
+        if (selectedRole !== 'admin' && alsoInterviewer) {
+            setAlsoInterviewer(false);
+        }
+    }, [selectedRole, alsoInterviewer]);
+
     const onSubmit = async (data) => {
         try {
+            // Build the dual-role payload only when the flag is on AND the role is admin
+            const dualPayload = (data.role === 'admin' && alsoInterviewer)
+                ? {
+                    alsoInterviewer: true,
+                    interviewerDomains: interviewerDomains.map(d => d.value),
+                    interviewerPrimaryDomain: interviewerDomains[0]?.value || '',
+                }
+                : { alsoInterviewer: false };
+
+            // Client-side guard: if dual flag is on, require at least one domain
+            if (dualPayload.alsoInterviewer && (!dualPayload.interviewerDomains || dualPayload.interviewerDomains.length === 0)) {
+                showError('Please select at least one domain for the interviewer role.');
+                return;
+            }
+
+            const payload = { ...data, ...dualPayload };
+
             if (isEditMode) {
-                await updateUser(userData._id, data);
+                await updateUser(userData._id, payload);
                 showSuccess('User updated successfully!');
             } else {
-                await createUser(data);
+                await createUser(payload);
                 showSuccess('User created! A setup email has been sent to set their password.');
             }
             onSuccess();
@@ -110,6 +148,51 @@ const UserFormModal = ({ isOpen, onClose, onSuccess, userData }) => {
                                         {roleOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                     </select>
                                 </div>
+
+                                {/* Dual-role section — only shown for Admin role */}
+                                {selectedRole === 'admin' && (
+                                    <div className="p-4 border border-primary/20 rounded-xl bg-primary/5 space-y-3">
+                                        <label className="flex items-start gap-3 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={alsoInterviewer}
+                                                onChange={(e) => setAlsoInterviewer(e.target.checked)}
+                                                className="mt-0.5 h-4 w-4 rounded border-primary/40 text-primary focus:ring-primary"
+                                            />
+                                            <span className="flex-1">
+                                                <span className="flex items-center gap-1.5 text-[13px] font-semibold text-foreground">
+                                                    <UserCheck className="h-3.5 w-3.5 text-primary" />
+                                                    Also enable as Interviewer
+                                                </span>
+                                                <span className="block text-[11.5px] text-muted-foreground mt-0.5">
+                                                    This admin will also be able to conduct interviews. They'll appear in the Interviewers list and can switch between the two views.
+                                                </span>
+                                            </span>
+                                        </label>
+
+                                        {alsoInterviewer && (
+                                            <div className="pt-3 border-t border-primary/15">
+                                                <label className="block text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-1.5">
+                                                    Interviewer Domains *
+                                                </label>
+                                                <ReactSelect
+                                                    isMulti
+                                                    options={DOMAINS}
+                                                    value={interviewerDomains}
+                                                    onChange={(opts) => setInterviewerDomains(opts || [])}
+                                                    placeholder="Select one or more domains"
+                                                    menuPortalTarget={document.body}
+                                                    styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+                                                />
+                                                <p className="text-[11px] text-muted-foreground mt-1.5">
+                                                    The first selected domain becomes the primary. {interviewerDomains.length > 0 && (
+                                                        <>Primary: <span className="font-semibold text-foreground">{interviewerDomains[0].label}</span>.</>
+                                                    )}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
 
                                 <div className="p-5 border border-gray-100 rounded-xl bg-gray-50">
                                     <ToggleSwitch label="Account Active" enabled={isActive}

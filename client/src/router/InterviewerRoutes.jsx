@@ -14,8 +14,12 @@ const InterviewerRoutes = () => {
     );
   }
 
-  // Check if user is authenticated and has interviewer role
-  if (!currentUser || currentUser.role !== 'interviewer') {
+  // Allow real interviewers AND dual-role admins (admins with alsoInterviewer = true)
+  const isAuthorized =
+    currentUser?.role === 'interviewer' ||
+    (currentUser?.role === 'admin' && currentUser?.alsoInterviewer === true);
+
+  if (!isAuthorized) {
     return <Navigate to="/login" replace />;
   }
 

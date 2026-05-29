@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { useEffect, useMemo, useState, Suspense } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/common/Sidebar';
 import Header from '../components/common/Header';
 import PageTransition from '../components/common/PageTransition';
-import { Home, Settings, Calendar, Clipboard, Grid, Menu } from 'lucide-react';
+import Loader from '../components/common/Loader';
+import { Home, Settings, Calendar, Clipboard, Grid, Menu, ArrowRightLeft } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { usePushNotifications } from '../hooks/usePushNotifications';
 import { useBookingRequests } from '../hooks/useInterviewerQueries';
@@ -11,12 +12,23 @@ import { useAlert } from '../hooks/useAlert';
 import { cn } from '@/lib/utils';
 import { startOfDay } from 'date-fns';
 
+// Local fallback for the right pane only — keeps the sidebar fully mounted
+// while a lazy-loaded interviewer page chunk is fetching.
+const RightPaneFallback = () => (
+  <div className="flex items-center justify-center min-h-[40vh]">
+    <Loader size="lg" />
+  </div>
+);
+
 const InterviewerLayout = () => {
   const { currentUser } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const { showInfo } = useAlert();
   const { askPermissionAndSubscribe } = usePushNotifications();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  // Dual-role: if this is actually an admin viewing the interviewer side, let them switch back
+  const isDualRoleAdmin = currentUser?.role === 'admin' && currentUser?.alsoInterviewer === true;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -113,7 +125,7 @@ const InterviewerLayout = () => {
       />
 
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        {/* Mobile top bar — hamburger + brand. Hidden at lg+. */}
+        {/* Mobile top bar — hamburger + brand + (optional) dual-role switch. Hidden at lg+. */}
         <header className="lg:hidden bg-card border-b border-border h-14 flex items-center justify-between px-4 shrink-0">
           <div className="flex items-center gap-3">
             <button
@@ -129,20 +141,63 @@ const InterviewerLayout = () => {
               <span className="inline-block h-1.5 w-1.5 rounded-[2px]" style={{ backgroundColor: 'var(--brave-amber)' }} aria-hidden="true" />
             </div>
           </div>
+          {isDualRoleAdmin && (
+            <button
+              type="button"
+              onClick={() => navigate('/admin/dashboard')}
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-primary/30 bg-primary/5 text-[12px] font-semibold text-primary hover:bg-primary/10 transition-colors"
+              title="Switch to Admin view"
+            >
+              <ArrowRightLeft className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Admin</span>
+            </button>
+          )}
         </header>
 
         {!useFullPageLayout && (
-          <div className="hidden lg:block"><Header /></div>
+          <div className="hidden lg:block relative">
+            <Header />
+            {isDualRoleAdmin && (
+              <button
+                type="button"
+                onClick={() => navigate('/admin/dashboard')}
+                className="absolute right-6 top-1/2 -translate-y-1/2 inline-flex items-center gap-2 h-9 px-3.5 rounded-md border border-primary/30 bg-primary/5 text-[12.5px] font-semibold text-primary hover:bg-primary/10 transition-colors"
+                title="Switch to Admin view"
+              >
+                <ArrowRightLeft className="h-3.5 w-3.5" />
+                Switch to Admin
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* For full-page-layout interviewer routes, dock the switch button at the top-right floating */}
+        {isDualRoleAdmin && useFullPageLayout && (
+          <div className="hidden lg:flex justify-end px-6 lg:px-10 pt-3 pb-1 shrink-0 bg-background">
+            <button
+              type="button"
+              onClick={() => navigate('/admin/dashboard')}
+              className="inline-flex items-center gap-2 h-8 px-3 rounded-md border border-primary/30 bg-primary/5 text-[12px] font-semibold text-primary hover:bg-primary/10 transition-colors"
+              title="Switch to Admin view"
+            >
+              <ArrowRightLeft className="h-3.5 w-3.5" />
+              Switch to Admin
+            </button>
+          </div>
         )}
 
         <main className={cn('flex-1 bg-background', useFullPageLayout ? 'overflow-hidden' : 'overflow-y-auto')}>
           {useFullPageLayout ? (
              <PageTransition className="h-full">
-                <Outlet />
+                <Suspense fallback={<RightPaneFallback />}>
+                  <Outlet />
+                </Suspense>
              </PageTransition>
           ) : (
             <PageTransition className="container mx-auto">
-                <Outlet />
+                <Suspense fallback={<RightPaneFallback />}>
+                  <Outlet />
+                </Suspense>
             </PageTransition>
           )}
         </main>

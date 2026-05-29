@@ -179,7 +179,8 @@ const login = asyncHandler(async (req, res) => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      role: user.role
+      role: user.role,
+      alsoInterviewer: user.alsoInterviewer === true,
     }
   });
 });
@@ -190,9 +191,10 @@ const login = asyncHandler(async (req, res) => {
 const getMe = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user.id);
 
-  // Get role-specific data if needed
+  // Role-specific data: also load for dual-role admins so the interviewer
+  // dashboard has what it needs when they switch.
   let roleData = null;
-  if (user.role === 'interviewer') {
+  if (user.role === 'interviewer' || user.alsoInterviewer === true) {
     roleData = await Interviewer.findOne({ user: user._id })
       .select('status paymentTier metrics profileCompleteness primaryDomain');
   }
@@ -207,6 +209,7 @@ const getMe = asyncHandler(async (req, res) => {
       phoneNumber: user.phoneNumber,
       whatsappNumber: user.whatsappNumber,
       role: user.role,
+      alsoInterviewer: user.alsoInterviewer === true,
       lastLogin: user.lastLogin,
       roleData
     }
