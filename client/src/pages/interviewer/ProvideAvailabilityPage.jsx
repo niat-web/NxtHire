@@ -76,7 +76,7 @@ const ProvideAvailabilityPage = () => {
                 <nav className="flex items-center space-x-4">
                 <Link
                     to="/interviewer/availability"
-                    className="group flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
+                    className="group flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-foreground hover:bg-muted/40 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                     aria-label="Go back to availability requests"
                 >
                     <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
@@ -110,7 +110,7 @@ const ProvideAvailabilityPage = () => {
               {/* Main Details Card */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 {/* Card Header */}
-                <div className="bg-slate-900 px-6 py-5">
+                <div className="bg-primary px-6 py-5">
                   <div className="flex items-center">
                     <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mr-4">
                       <Calendar className="w-5 h-5 text-white" />
@@ -126,13 +126,13 @@ const ProvideAvailabilityPage = () => {
                 {bookingRequest && (
                   <div className="p-6 space-y-3">
                     {/* Interview Date */}
-                    <div className="flex items-start space-x-4 p-4 rounded-2xl border border-slate-200 bg-white">
-                      <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl border border-slate-200 bg-white text-slate-700 flex-shrink-0">
+                    <div className="flex items-start space-x-4 p-4 rounded-2xl border border-border bg-white">
+                      <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl border border-border bg-white text-foreground/90 flex-shrink-0">
                         <Calendar className="h-5 w-5" aria-hidden="true" />
                       </span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1">Interview date</p>
-                        <p className="text-[16px] font-semibold text-slate-900 leading-tight">
+                        <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-1">Interview date</p>
+                        <p className="text-[16px] font-semibold text-foreground leading-tight">
                           {formatDate(bookingRequest.bookingDate)}
                         </p>
                       </div>
@@ -140,13 +140,13 @@ const ProvideAvailabilityPage = () => {
 
                     {/* Candidate Information */}
                     {bookingRequest.candidateName && (
-                      <div className="flex items-start space-x-4 p-4 rounded-2xl border border-slate-200 bg-white">
-                        <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl border border-slate-200 bg-white text-slate-700 flex-shrink-0">
+                      <div className="flex items-start space-x-4 p-4 rounded-2xl border border-border bg-white">
+                        <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl border border-border bg-white text-foreground/90 flex-shrink-0">
                           <User className="h-5 w-5" aria-hidden="true" />
                         </span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1">Candidate</p>
-                          <p className="text-[16px] font-semibold text-slate-900 leading-tight truncate">
+                          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-1">Candidate</p>
+                          <p className="text-[16px] font-semibold text-foreground leading-tight truncate">
                             {bookingRequest.candidateName}
                           </p>
                         </div>
@@ -155,13 +155,13 @@ const ProvideAvailabilityPage = () => {
 
                     {/* Position */}
                     {bookingRequest.position && (
-                      <div className="flex items-start space-x-4 p-4 rounded-2xl border border-slate-200 bg-white">
-                        <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl border border-slate-200 bg-white text-slate-700 flex-shrink-0">
+                      <div className="flex items-start space-x-4 p-4 rounded-2xl border border-border bg-white">
+                        <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl border border-border bg-white text-foreground/90 flex-shrink-0">
                           <Building2 className="h-5 w-5" aria-hidden="true" />
                         </span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1">Position</p>
-                          <p className="text-[16px] font-semibold text-slate-900 leading-tight">
+                          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-1">Position</p>
+                          <p className="text-[16px] font-semibold text-foreground leading-tight">
                             {bookingRequest.position}
                           </p>
                         </div>
@@ -189,7 +189,7 @@ const ProvideAvailabilityPage = () => {
 
               {/* Tips and Guidelines Card */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="bg-slate-900 px-6 py-4">
+                <div className="bg-primary px-6 py-4">
                   <div className="flex items-center">
                     <CheckCircle className="w-6 h-6 text-white mr-3" />
                     <h3 className="text-lg font-semibold text-white">Best Practices</h3>
@@ -203,10 +203,10 @@ const ProvideAvailabilityPage = () => {
                       'Ensure stable internet for video calls'
                     ].map((tip, index) => (
                       <li key={index} className="flex items-start space-x-3">
-                        <span className="w-6 h-6 rounded-full border border-slate-200 bg-white flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="w-6 h-6 rounded-full border border-border bg-white flex items-center justify-center flex-shrink-0 mt-0.5">
                           <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#C0392B' }} />
                         </span>
-                        <span className="text-[13.5px] text-slate-700 leading-relaxed">{tip}</span>
+                        <span className="text-[13.5px] text-foreground/90 leading-relaxed">{tip}</span>
                       </li>
                     ))}
                   </ul>
@@ -240,7 +240,7 @@ const ProvideAvailabilityPage = () => {
             <div className="text-center">
               <div className="relative mb-6">
                 <div className="w-16 h-16 mx-auto relative">
-                  <div className="absolute inset-0 rounded-full border-4 border-slate-200"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-border"></div>
                   <div className="absolute inset-0 rounded-full border-4 border-blue-600 border-t-transparent animate-spin"></div>
                 </div>
               </div>
@@ -249,7 +249,7 @@ const ProvideAvailabilityPage = () => {
                 Please wait while we process your time slots and notify the candidate...
               </p>
               <div className="mt-6 bg-gray-100 rounded-full h-2 overflow-hidden">
-                <div className="h-full bg-slate-900 rounded-full animate-pulse"></div>
+                <div className="h-full bg-primary rounded-full animate-pulse"></div>
               </div>
             </div>
           </div>

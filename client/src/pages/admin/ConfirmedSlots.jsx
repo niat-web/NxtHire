@@ -24,13 +24,13 @@ const ACCENT = '#C0392B';
 
 const LocalSearchInput = ({ value, onChange, placeholder }) => (
     <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70" aria-hidden="true" />
         <input
             type="text"
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            className="w-full pl-10 pr-4 h-9 bg-white border border-slate-200 rounded-full text-[13px] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors"
+            className="w-full pl-10 pr-4 h-9 bg-white border border-border rounded-full text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors"
         />
     </div>
 );
@@ -43,11 +43,11 @@ const LocalLoader = () => (
 
 const LocalEmptyState = ({ message, icon: Icon }) => (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-        <span className="inline-flex items-center justify-center h-12 w-12 rounded-full border border-slate-200 bg-white text-slate-400 mb-4">
+        <span className="inline-flex items-center justify-center h-12 w-12 rounded-full border border-border bg-white text-muted-foreground/70 mb-4">
             <Icon className="h-5 w-5" aria-hidden="true" />
         </span>
-        <h3 style={DISPLAY} className="text-[20px] font-semibold text-slate-900 tracking-tight">No data found</h3>
-        <p className="mt-1 text-[13px] text-slate-500 max-w-sm">{message}</p>
+        <h3 style={DISPLAY} className="text-[20px] font-semibold text-foreground tracking-tight">No data found</h3>
+        <p className="mt-1 text-[13px] text-muted-foreground max-w-sm">{message}</p>
     </div>
 );
 
@@ -56,22 +56,22 @@ const LocalTable = ({ columns, data, isLoading, emptyMessage, emptyIcon }) => (
         <thead>
             <tr>
                 {columns.map(col => (
-                    <th key={col.key} scope="col" className="sticky top-0 px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] border-b border-slate-200 bg-slate-50/70 backdrop-blur z-10" style={{ minWidth: col.minWidth }}>
+                    <th key={col.key} scope="col" className="sticky top-0 px-4 py-3 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em] border-b border-border bg-muted/40 backdrop-blur z-10" style={{ minWidth: col.minWidth }}>
                         {col.title}
                     </th>
                 ))}
             </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-border">
             {isLoading ? (
                 <tr><td colSpan={columns.length}><LocalLoader /></td></tr>
             ) : data.length === 0 ? (
                 <tr><td colSpan={columns.length}><LocalEmptyState message={emptyMessage} icon={emptyIcon} /></td></tr>
             ) : (
                 data.map((row, rowIndex) => (
-                    <tr key={row._id || rowIndex} className="hover:bg-slate-50/60 transition-colors">
+                    <tr key={row._id || rowIndex} className="hover:bg-muted/30 transition-colors">
                         {columns.map(col => (
-                            <td key={col.key} className="px-4 py-2.5 whitespace-nowrap text-slate-700 align-middle">
+                            <td key={col.key} className="px-4 py-2.5 whitespace-nowrap text-foreground/90 align-middle">
                                 {col.render ? col.render(row, rowIndex) : row[col.key]}
                             </td>
                         ))}
@@ -93,46 +93,46 @@ const PaginationControls = ({ currentPage, totalPages, onPageChange, totalItems,
     let finalCleanedButtons = pageButtons.filter((item, index) => item !== '...' || pageButtons[index - 1] !== '...');
 
     return (
-        <div className="flex items-center justify-between px-6 lg:px-8 py-3 border-t border-slate-200 bg-white flex-shrink-0">
-            <div className="flex items-center gap-2 text-[12px] text-slate-500">
+        <div className="flex items-center justify-between px-5 lg:px-6 py-2.5 border-t border-border bg-card flex-shrink-0">
+            <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
                 <span>Rows</span>
                 <div className="relative">
                     <select value={itemsPerPage} onChange={onItemsPerPageChange}
-                        className="appearance-none h-8 pl-3 pr-7 bg-white border border-slate-200 rounded-full text-[12px] text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors">
+                        className="appearance-none h-8 pl-3 pr-7 bg-white border border-border rounded-full text-[12px] text-foreground/90 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors">
                         {[15, 20, 50, 100].map(size => (<option key={size} value={size}>{size}</option>))}
                     </select>
                 </div>
             </div>
-            <p className="text-[12px] text-slate-500">
-                <span className="font-semibold text-slate-900">{showingFrom}</span>–<span className="font-semibold text-slate-900">{showingTo}</span> of <span className="font-semibold text-slate-900">{totalItems}</span>
+            <p className="text-[12px] text-muted-foreground">
+                <span className="font-semibold text-foreground">{showingFrom}</span>–<span className="font-semibold text-foreground">{showingTo}</span> of <span className="font-semibold text-foreground">{totalItems}</span>
             </p>
             <div className="flex items-center gap-1">
                 <button aria-label="First page" onClick={() => onPageChange(1)} disabled={currentPage === 1}
-                    className="h-8 w-8 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors">
+                    className="h-8 w-8 rounded-full flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-primary hover:text-white hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-foreground/80 disabled:hover:border-border transition-colors">
                     <ChevronsLeft className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
                 <button aria-label="Previous page" onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1}
-                    className="h-8 w-8 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors">
+                    className="h-8 w-8 rounded-full flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-primary hover:text-white hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-foreground/80 disabled:hover:border-border transition-colors">
                     <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
                 <div className="flex items-center gap-0.5 mx-1">
                     {finalCleanedButtons.map((pageNum, index) => {
-                        if (pageNum === '...') return <span key={`ellipsis-${index}`} className="px-1.5 text-[12px] text-slate-400">…</span>;
+                        if (pageNum === '...') return <span key={`ellipsis-${index}`} className="px-1.5 text-[12px] text-muted-foreground/70">…</span>;
                         const active = currentPage === pageNum;
                         return (
                             <button key={pageNum} onClick={() => onPageChange(pageNum)}
-                                className={`h-8 min-w-[32px] px-2.5 rounded-full text-[12px] font-semibold transition-colors ${active ? 'text-white bg-slate-900' : 'text-slate-700 border border-slate-200 bg-white hover:border-slate-900 hover:text-slate-900'}`}>
+                                className={`h-8 min-w-[32px] px-2.5 rounded-full text-[12px] font-semibold transition-colors ${active ? 'text-white bg-primary' : 'text-foreground/90 border border-border bg-white hover:border-primary hover:text-foreground'}`}>
                                 {pageNum}
                             </button>
                         );
                     })}
                 </div>
                 <button aria-label="Next page" onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages}
-                    className="h-8 w-8 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors">
+                    className="h-8 w-8 rounded-full flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-primary hover:text-white hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-foreground/80 disabled:hover:border-border transition-colors">
                     <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
                 <button aria-label="Last page" onClick={() => onPageChange(totalPages)} disabled={currentPage === totalPages}
-                    className="h-8 w-8 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors">
+                    className="h-8 w-8 rounded-full flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-primary hover:text-white hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-foreground/80 disabled:hover:border-border transition-colors">
                     <ChevronsRight className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
             </div>
@@ -148,7 +148,7 @@ const EditableDomainCell = ({ booking, domainOptions, onSave }) => {
     const handleSave = async (newDomain) => { if (newDomain === currentValue) return; setIsLoading(true); setCurrentValue(newDomain); try { await updateStudentBooking(booking._id, { domain: newDomain }); onSave(booking._id, 'domain', newDomain); showSuccess("Domain updated successfully."); } catch (err) { showError("Failed to update domain."); setCurrentValue(booking.domain || ''); } finally { setIsLoading(false); } };
     return (
         <select value={currentValue} onChange={(e) => handleSave(e.target.value)} disabled={isLoading}
-            className={`w-full text-[12px] font-semibold px-3 h-8 border border-slate-200 rounded-full bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 cursor-pointer transition-colors ${isLoading ? 'opacity-50' : ''}`}
+            className={`w-full text-[12px] font-semibold px-3 h-8 border border-border rounded-full bg-white text-foreground/90 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary cursor-pointer transition-colors ${isLoading ? 'opacity-50' : ''}`}
             onClick={(e) => e.stopPropagation()}>
             <option value="" disabled>Select domain</option>
             {domainOptions.map(opt => (opt.value && <option key={opt.value} value={opt.value}>{opt.label}</option>))}
@@ -221,7 +221,7 @@ const EditableInputCell = ({ booking, fieldKey, value, onSave, placeholder = "Ed
     };
     return (
         <input type="text" value={currentValue} onChange={(e) => setCurrentValue(e.target.value)} onBlur={handleSave} disabled={isLoading} placeholder={placeholder}
-            className="w-full h-9 px-4 border border-slate-200 rounded-full bg-white text-[13px] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 disabled:bg-slate-50 transition-colors" />
+            className="w-full h-9 px-4 border border-border rounded-full bg-white text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary disabled:bg-muted/40 transition-colors" />
     );
 };
 
@@ -247,7 +247,7 @@ const StatusBadge = ({ status }) => {
         Booked:  { text: 'Booked',  Icon: CheckCircle, cls: 'border-emerald-200 bg-emerald-50/60 text-emerald-700' },
         Pending: { text: 'Pending', Icon: Clock,       cls: 'border-amber-200 bg-amber-50/60 text-amber-800' },
     };
-    const { text, Icon, cls } = statusMap[status] || { text: status, Icon: Clock, cls: 'border-slate-200 bg-slate-50 text-slate-600' };
+    const { text, Icon, cls } = statusMap[status] || { text: status, Icon: Clock, cls: 'border-border bg-muted/40 text-foreground/80' };
     return (
         <span className={`inline-flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-wide px-2.5 py-0.5 rounded-full border ${cls}`}>
             <Icon className="h-3 w-3" aria-hidden="true" /> {text}
@@ -321,12 +321,12 @@ const ManualBookingControls = ({ row, onBooking, publicBookingDetails, onIntervi
     return (
         <div className="flex items-center gap-2">
             <select value={bookingState.date} onChange={e => setBookingState({ date: e.target.value, slot: '' })}
-                className="h-9 px-3 border border-slate-200 rounded-full text-[12.5px] text-slate-700 bg-white w-36 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors">
+                className="h-9 px-3 border border-border rounded-full text-[12.5px] text-foreground/90 bg-white w-36 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors">
                 <option value="">Select date</option>
                 {availableDates.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
             </select>
             <select value={bookingState.slot} onChange={handleSlotChange} disabled={!bookingState.date}
-                className="h-9 px-3 border border-slate-200 rounded-full text-[12.5px] text-slate-700 bg-white w-52 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 disabled:bg-slate-50 transition-colors">
+                className="h-9 px-3 border border-border rounded-full text-[12.5px] text-foreground/90 bg-white w-52 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary disabled:bg-muted/40 transition-colors">
                 <option value="">Select time & interviewer</option>
                 {availableSlotsAndInterviewers.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
@@ -448,7 +448,7 @@ const ConfirmedSlotsView = () => {
         { key: 'bookingDate', title: 'Interview Date', render: row => formatDate(row.bookingDate) },
         { key: 'slot', title: 'Time Slot', render: row => row.bookedSlot ? `${formatTime(row.bookedSlot.startTime)} - ${formatTime(row.bookedSlot.endTime)}` : '' },
         { key: 'domain', title: 'Domain', minWidth: '150px', render: (row) => <EditableDomainCell booking={row} domainOptions={domainOptions} onSave={handleCellSave} /> },
-        { key: 'meet', title: 'Meet Link', render: (row) => row.meetLink ? <a href={row.meetLink} target="_blank" rel="noopener noreferrer" className="text-slate-900 hover:underline">Join</a> : <MeetLinkCell booking={row} onLinkGenerated={handleCellSave} /> },
+        { key: 'meet', title: 'Meet Link', render: (row) => row.meetLink ? <a href={row.meetLink} target="_blank" rel="noopener noreferrer" className="text-foreground hover:underline">Join</a> : <MeetLinkCell booking={row} onLinkGenerated={handleCellSave} /> },
         { key: 'hostEmail', title: 'Host Email', minWidth: '250px', render: (row) => <EditableHostEmail booking={row} hostEmails={hostEmails} onSave={handleCellSave} /> },
         { key: 'eventTitle', title: 'Event Title', minWidth: "250px", render: row => <EditableInputCell booking={row} fieldKey="eventTitle" value={row.eventTitle} onSave={handleCellSave} placeholder={`${row.domain} || ${row.studentName}`} /> },
         { key: 'createdAt', title: 'Submitted Time', render: (row) => formatDateTime(row.createdAt) },
@@ -463,26 +463,26 @@ const ConfirmedSlotsView = () => {
         { key: 'hostEmail', title: 'Host Email', minWidth: '250px', render: row => <EditableHostEmail booking={row} hostEmails={hostEmails} onSave={handleCellSave} /> },
         { key: 'eventTitle', title: 'Event Title', minWidth: '250px', render: row => <EditableInputCell booking={row} fieldKey="eventTitle" value={row.eventTitle} onSave={handleCellSave} placeholder={row.eventTitle} /> },
         { key: 'interviewerEmail', title: 'Interviewer Email', minWidth: '200px', render: row => row.interviewerEmail || '' },
-        { key: 'meet', title: 'Meet Link', minWidth: '120px', render: row => (row.meetLink ? <a href={row.meetLink} target="_blank" rel="noopener noreferrer" className="text-slate-900 hover:underline">Link</a> : null) },
+        { key: 'meet', title: 'Meet Link', minWidth: '120px', render: row => (row.meetLink ? <a href={row.meetLink} target="_blank" rel="noopener noreferrer" className="text-foreground hover:underline">Link</a> : null) },
         { key: 'hiringName', title: 'Hiring Name', minWidth: '150px', render: row => row.hiringName },
         { key: 'mobileNumber', title: 'Mobile', render: row => row.mobileNumber || '' },
         { key: 'interviewId', title: 'Int ID', minWidth: '120px', render: row => row.interviewId },
         { key: 'userId', title: 'User ID' },
-        { key: 'resumeLink', title: 'Resume', render: (row) => row.resumeLink ? <a href={row.resumeLink} target="_blank" rel="noopener noreferrer" className="text-slate-900 hover:underline">Link</a> : 'N/A' },
-        { key: 'publicLink', title: 'Public Link', render: (row) => row.publicBookingId ? (<a href={`/book/${row.publicBookingId}`} target="_blank" rel="noopener noreferrer" className="text-slate-900 hover:underline font-mono text-xs">{row.publicBookingId}</a>) : ('N/A') },
+        { key: 'resumeLink', title: 'Resume', render: (row) => row.resumeLink ? <a href={row.resumeLink} target="_blank" rel="noopener noreferrer" className="text-foreground hover:underline">Link</a> : 'N/A' },
+        { key: 'publicLink', title: 'Public Link', render: (row) => row.publicBookingId ? (<a href={`/book/${row.publicBookingId}`} target="_blank" rel="noopener noreferrer" className="text-foreground hover:underline font-mono text-xs">{row.publicBookingId}</a>) : ('N/A') },
     ], [publicBookingDetailsCache, handleCellSave, handleManualBooking, hostEmails]);
 
     return (
-       <div className="h-full flex flex-col bg-[#fcfaf8]">
-            {/* Hero + toolbar + tabs — one slab */}
-            <section className="bg-white border-b border-slate-200 shrink-0">
-                <div className="px-6 lg:px-8 pt-5 pb-3">
-                    <div className="flex flex-wrap items-center justify-between gap-4">
+       <div className="h-full flex flex-col bg-card overflow-hidden">
+            {/* Hero + toolbar + tabs — edge-to-edge slab */}
+            <section className="bg-card border-b border-border shrink-0">
+                <div className="px-5 lg:px-6 pt-3 pb-2">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
-                            <h1 style={DISPLAY} className="text-[26px] sm:text-[30px] font-semibold text-slate-900 tracking-tight leading-none">
+                            <h1 style={DISPLAY} className="text-[22px] sm:text-[26px] font-semibold text-foreground tracking-tight leading-none">
                                 Confirmed slots
                             </h1>
-                            <p className="mt-2 text-[13px] text-slate-500">
+                            <p className="mt-1 text-[12.5px] text-muted-foreground">
                                 {confirmedBookings.length} confirmed · {pendingInvitations.length} pending
                             </p>
                         </div>
@@ -492,7 +492,7 @@ const ConfirmedSlotsView = () => {
                             <div className="w-full sm:w-72"><LocalSearchInput value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search name, email, domain, interviewer…"/></div>
                             <div className="relative" ref={filterMenuRef}>
                                 <button onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
-                                    className={`h-9 inline-flex items-center gap-2 px-4 text-[13px] font-semibold rounded-full border transition-colors ${isFilterActive ? 'border-slate-900 bg-slate-900 text-white hover:bg-[#C0392B] hover:border-[#C0392B]' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-900 hover:text-slate-900'}`}>
+                                    className={`h-9 inline-flex items-center gap-2 px-4 text-[13px] font-semibold rounded-full border transition-colors ${isFilterActive ? 'border-primary bg-primary text-white hover:bg-primary/90 hover:border-[#C0392B]' : 'border-border bg-white text-foreground/90 hover:border-primary hover:text-foreground'}`}>
                                     <Filter className="h-3.5 w-3.5" aria-hidden="true" /> Filter
                                     {isFilterActive && (
                                         <span onClick={(e) => { e.stopPropagation(); handleClearFilters(); }} className="ml-0.5 p-0.5 rounded-full hover:bg-white/15" role="button" aria-label="Clear filters">
@@ -501,31 +501,31 @@ const ConfirmedSlotsView = () => {
                                     )}
                                 </button>
                             {isFilterMenuOpen && (
-                                <div className="absolute top-full right-0 mt-2 w-[480px] bg-white rounded-2xl shadow-xl border border-slate-200 z-50 p-5">
+                                <div className="absolute top-full right-0 mt-2 w-[480px] bg-white rounded-2xl shadow-xl border border-border z-50 p-5">
                                     <div className="space-y-4">
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-2">Interview date</label>
+                                                <label className="block text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-2">Interview date</label>
                                                 <DatePicker selected={tempFilters.date} onChange={(date) => setTempFilters(prev => ({ ...prev, date }))} isClearable placeholderText="Select a date"
                                                     portalId="datepicker-portal" popperClassName="!z-[10000]" popperProps={{ strategy: 'fixed' }}
-                                                    className="w-full h-10 px-4 border border-slate-200 rounded-full bg-white text-[13px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors" />
+                                                    className="w-full h-10 px-4 border border-border rounded-full bg-white text-[13px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors" />
                                             </div>
                                             <div>
-                                                <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-2">Invited on</label>
+                                                <label className="block text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-2">Invited on</label>
                                                 <DatePicker selected={tempFilters.invitedOnDate} onChange={(date) => setTempFilters(prev => ({ ...prev, invitedOnDate: date }))} isClearable placeholderText="Select a date"
                                                     portalId="datepicker-portal" popperClassName="!z-[10000]" popperProps={{ strategy: 'fixed' }}
-                                                    className="w-full h-10 px-4 border border-slate-200 rounded-full bg-white text-[13px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors" />
+                                                    className="w-full h-10 px-4 border border-border rounded-full bg-white text-[13px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors" />
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-2">Domain</label>
+                                            <label className="block text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-2">Domain</label>
                                             <select value={tempFilters.domain} onChange={(e) => setTempFilters(prev => ({...prev, domain: e.target.value}))}
-                                                className="w-full h-10 px-4 border border-slate-200 rounded-full bg-white text-[13px] text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 cursor-pointer transition-colors">
+                                                className="w-full h-10 px-4 border border-border rounded-full bg-white text-[13px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary cursor-pointer transition-colors">
                                                 {domainOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-2">Public ID</label>
+                                            <label className="block text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-2">Public ID</label>
                                             <Select options={publicBookingOptions} value={publicBookingOptions.find(opt => opt.value === tempFilters.publicId) || null}
                                                 onChange={(selectedOption) => setTempFilters(prev => ({ ...prev, publicId: selectedOption ? selectedOption.value : '' }))}
                                                 isClearable isSearchable placeholder="Search or select…"
@@ -538,9 +538,9 @@ const ConfirmedSlotsView = () => {
                                                 menuPortalTarget={document.body} menuPosition={'fixed'} />
                                         </div>
                                     </div>
-                                    <div className="mt-5 pt-4 border-t border-slate-100 flex justify-end gap-2">
-                                        <button onClick={handleClearFilters} className="h-9 px-4 text-[12px] font-semibold text-slate-700 rounded-full border border-slate-200 hover:border-slate-900 hover:text-slate-900 transition-colors">Clear</button>
-                                        <button onClick={handleApplyFilters} className="h-9 px-4 text-[12px] font-semibold text-white rounded-full bg-slate-900 hover:bg-[#C0392B] transition-colors">Apply</button>
+                                    <div className="mt-5 pt-4 border-t border-border flex justify-end gap-2">
+                                        <button onClick={handleClearFilters} className="h-9 px-4 text-[12px] font-semibold text-foreground/90 rounded-full border border-border hover:border-primary hover:text-foreground transition-colors">Clear</button>
+                                        <button onClick={handleApplyFilters} className="h-9 px-4 text-[12px] font-semibold text-white rounded-full bg-primary hover:bg-primary/90 transition-colors">Apply</button>
                                     </div>
                                 </div>
                             )}
@@ -550,19 +550,19 @@ const ConfirmedSlotsView = () => {
                 </div>
 
                 {/* Tabs */}
-                <div className="px-6 lg:px-8">
+                <div className="px-5 lg:px-6">
                     <nav className="-mb-px flex space-x-6">
                         <button onClick={() => setActiveTab('confirmed')}
-                            className={`whitespace-nowrap py-3 border-b-2 text-[13px] font-semibold transition-colors ${activeTab === 'confirmed' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-900 hover:border-slate-300'}`}>
+                            className={`whitespace-nowrap py-3 border-b-2 text-[13px] font-semibold transition-colors ${activeTab === 'confirmed' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-primary/40'}`}>
                             Confirmed
-                            <span className={`ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10.5px] font-semibold ${activeTab === 'confirmed' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                            <span className={`ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10.5px] font-semibold ${activeTab === 'confirmed' ? 'bg-primary text-white' : 'bg-muted text-foreground/80'}`}>
                                 {confirmedBookings.length}
                             </span>
                         </button>
                         <button onClick={() => setActiveTab('pending')}
-                            className={`whitespace-nowrap py-3 border-b-2 text-[13px] font-semibold transition-colors ${activeTab === 'pending' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-900 hover:border-slate-300'}`}>
+                            className={`whitespace-nowrap py-3 border-b-2 text-[13px] font-semibold transition-colors ${activeTab === 'pending' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-primary/40'}`}>
                             Pending
-                            <span className={`ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10.5px] font-semibold ${activeTab === 'pending' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                            <span className={`ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10.5px] font-semibold ${activeTab === 'pending' ? 'bg-primary text-white' : 'bg-muted text-foreground/80'}`}>
                                 {pendingInvitations.length}
                             </span>
                         </button>

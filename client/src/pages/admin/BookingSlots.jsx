@@ -95,47 +95,47 @@ const BookingSlots = () => {
     const allSelected = slots.length > 0 && slots.every(row => selectedSlots[row.submissionId]?.slots.length === row.timeSlots.length);
 
     return (
-        <div className="h-full flex flex-col bg-[#fcfaf8] overflow-hidden">
-            {/* Hero + toolbar */}
-            <section className="border-b border-slate-200 bg-white px-6 lg:px-8 pt-5 pb-4 shrink-0">
-                <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="h-full flex flex-col bg-card overflow-hidden">
+            {/* Hero + toolbar — edge-to-edge slab */}
+            <section className="border-b border-border bg-card px-5 lg:px-6 pt-3 pb-3 shrink-0">
+                <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                        <h1 style={DISPLAY} className="text-[26px] sm:text-[30px] font-semibold text-slate-900 tracking-tight leading-none">
+                        <h1 style={DISPLAY} className="text-[22px] sm:text-[26px] font-semibold text-foreground tracking-tight leading-none">
                             Booking slots
                         </h1>
-                        <p className="mt-2 text-[13px] text-slate-500">
+                        <p className="mt-1 text-[12.5px] text-muted-foreground">
                             {slots.length} submitted · pick times and publish a candidate booking link
                         </p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                         <button onClick={() => setIsModalOpen(true)}
-                            className="inline-flex h-10 items-center gap-1.5 rounded-full border border-slate-900 px-4 text-[12.5px] font-semibold text-slate-900 transition-colors hover:bg-slate-900 hover:text-white">
+                            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-primary px-4 text-[12.5px] font-semibold text-foreground transition-colors hover:bg-primary hover:text-white">
                             <Plus className="h-3.5 w-3.5" aria-hidden="true" /> Add slot manually
                         </button>
                         <button onClick={handleCreatePublicLink} disabled={selectedSlotsCount === 0 || isCreatingLink}
-                            className="inline-flex h-10 items-center gap-2 rounded-full bg-slate-900 px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#C0392B] disabled:opacity-40 disabled:cursor-not-allowed">
+                            className="inline-flex h-9 items-center gap-2 rounded-full bg-primary px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed">
                             <LinkIcon className="h-3.5 w-3.5" aria-hidden="true" />
-                            Create link {selectedSlotsCount > 0 && <span className="ml-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-white text-slate-900 text-[10.5px]">{selectedSlotsCount}</span>}
+                            Create link {selectedSlotsCount > 0 && <span className="ml-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-white text-foreground text-[10.5px]">{selectedSlotsCount}</span>}
                         </button>
                     </div>
                 </div>
 
                 {/* Filter row */}
-                <div className="flex flex-wrap items-center gap-2.5 mt-4">
+                <div className="flex flex-wrap items-center gap-2.5 mt-3">
                     <div className="relative w-full sm:w-64">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70" aria-hidden="true" />
                         <input type="text" value={searchFilter} onChange={e => setSearchFilter(e.target.value)} placeholder="Search by name or email"
-                            className="w-full pl-10 pr-3 h-9 bg-white border border-slate-200 rounded-full text-[13px] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors" />
+                            className="w-full pl-10 pr-3 h-9 bg-white border border-border rounded-full text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors" />
                     </div>
                     <div className="relative">
-                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 z-10 pointer-events-none" aria-hidden="true" />
+                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70 z-10 pointer-events-none" aria-hidden="true" />
                         <DatePicker selected={dateFilter} onChange={setDateFilter} isClearable placeholderText="Filter by date"
                             portalId="datepicker-portal" popperClassName="!z-[9999]" popperProps={{ strategy: 'fixed' }}
-                            className="pl-10 pr-4 h-9 bg-white border border-slate-200 rounded-full text-[13px] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 w-44 transition-colors" />
+                            className="pl-10 pr-4 h-9 bg-white border border-border rounded-full text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary w-44 transition-colors" />
                     </div>
                     {(searchFilter || dateFilter) && (
                         <button onClick={() => { setSearchFilter(''); setDateFilter(null); }}
-                            className="text-[12px] text-slate-500 hover:text-slate-900 font-medium px-3 h-8 rounded-full hover:bg-slate-100 transition-colors">
+                            className="text-[12px] text-muted-foreground hover:text-foreground font-medium px-3 h-8 rounded-full hover:bg-muted transition-colors">
                             Clear
                         </button>
                     )}
@@ -148,19 +148,19 @@ const BookingSlots = () => {
                     <div className="flex items-center justify-center h-64"><Loader size="lg" /></div>
                 ) : slots.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center">
-                        <span className="inline-flex items-center justify-center h-12 w-12 rounded-full border border-slate-200 bg-white text-slate-400 mb-4">
+                        <span className="inline-flex items-center justify-center h-12 w-12 rounded-full border border-border bg-white text-muted-foreground/70 mb-4">
                             <Inbox className="h-5 w-5" aria-hidden="true" />
                         </span>
-                        <h3 style={DISPLAY} className="text-[20px] font-semibold text-slate-900 tracking-tight">No slots yet</h3>
-                        <p className="mt-1 text-[13px] text-slate-500">{searchFilter || dateFilter ? 'Try adjusting your filters.' : 'Interviewer submissions will appear here.'}</p>
+                        <h3 style={DISPLAY} className="text-[20px] font-semibold text-foreground tracking-tight">No slots yet</h3>
+                        <p className="mt-1 text-[13px] text-muted-foreground">{searchFilter || dateFilter ? 'Try adjusting your filters.' : 'Interviewer submissions will appear here.'}</p>
                     </div>
                 ) : (
-                    <div className="px-6 lg:px-8 py-5">
-                        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                    <div className="px-5 lg:px-6 py-3">
+                        <div className="bg-white rounded-lg border border-border overflow-hidden">
                             <table className="min-w-full text-[13px]">
                                 <thead>
                                     <tr>
-                                        <th className="sticky top-0 w-10 px-4 py-3 bg-slate-50/70 backdrop-blur border-b border-slate-200 z-10">
+                                        <th className="sticky top-0 w-10 px-4 py-3 bg-muted/40 backdrop-blur border-b border-border z-10">
                                             <input type="checkbox" aria-label="Select all rows"
                                                 checked={allSelected}
                                                 onChange={e => {
@@ -170,30 +170,30 @@ const BookingSlots = () => {
                                                         setSelectedSlots(all);
                                                     } else setSelectedSlots({});
                                                 }}
-                                                className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
+                                                className="h-4 w-4 rounded border-slate-300 text-foreground focus:ring-primary" />
                                         </th>
-                                        <th className="sticky top-0 px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] bg-slate-50/70 backdrop-blur border-b border-slate-200 z-10">Interviewer</th>
-                                        <th className="sticky top-0 px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] bg-slate-50/70 backdrop-blur border-b border-slate-200 z-10 w-32">Date</th>
-                                        <th className="sticky top-0 px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] bg-slate-50/70 backdrop-blur border-b border-slate-200 z-10">Time slots</th>
-                                        <th className="sticky top-0 w-12 px-4 py-3 bg-slate-50/70 backdrop-blur border-b border-slate-200 z-10" />
+                                        <th className="sticky top-0 px-4 py-3 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em] bg-muted/40 backdrop-blur border-b border-border z-10">Interviewer</th>
+                                        <th className="sticky top-0 px-4 py-3 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em] bg-muted/40 backdrop-blur border-b border-border z-10 w-32">Date</th>
+                                        <th className="sticky top-0 px-4 py-3 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em] bg-muted/40 backdrop-blur border-b border-border z-10">Time slots</th>
+                                        <th className="sticky top-0 w-12 px-4 py-3 bg-muted/40 backdrop-blur border-b border-border z-10" />
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100">
+                                <tbody className="divide-y divide-border">
                                     {slots.map(row => {
                                         const entry = selectedSlots[row.submissionId];
                                         const isAllSelected = entry && entry.slots.length === row.timeSlots.length;
                                         const selectedCountInRow = entry?.slots.length || 0;
                                         return (
-                                            <tr key={row.submissionId} className="hover:bg-slate-50/60 transition-colors">
+                                            <tr key={row.submissionId} className="hover:bg-muted/30 transition-colors">
                                                 <td className="px-4 py-3 align-middle">
                                                     <input type="checkbox" aria-label={`Select all slots for ${row.fullName}`} checked={isAllSelected || false} onChange={() => handleSelectAllForRow(row)}
-                                                        className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
+                                                        className="h-4 w-4 rounded border-slate-300 text-foreground focus:ring-primary" />
                                                 </td>
                                                 <td className="px-4 py-3 align-middle">
-                                                    <p className="text-[13px] font-semibold text-slate-900">{row.fullName}</p>
-                                                    <p className="text-[11.5px] text-slate-500">{row.email}</p>
+                                                    <p className="text-[13px] font-semibold text-foreground">{row.fullName}</p>
+                                                    <p className="text-[11.5px] text-muted-foreground">{row.email}</p>
                                                 </td>
-                                                <td className="px-4 py-3 text-[12.5px] text-slate-700 whitespace-nowrap align-middle">{formatDate(row.interviewDate)}</td>
+                                                <td className="px-4 py-3 text-[12.5px] text-foreground/90 whitespace-nowrap align-middle">{formatDate(row.interviewDate)}</td>
                                                 <td className="px-4 py-3 align-middle">
                                                     <div className="flex flex-wrap items-center gap-1.5">
                                                         {row.timeSlots.map((slot, idx) => {
@@ -203,8 +203,8 @@ const BookingSlots = () => {
                                                                     className={cn(
                                                                         'inline-flex items-center gap-1 h-7 px-2.5 text-[11.5px] font-semibold rounded-full border transition-colors',
                                                                         isSelected
-                                                                            ? 'border-slate-900 bg-slate-900 text-white'
-                                                                            : 'border-slate-200 bg-white text-slate-700 hover:border-slate-900 hover:text-slate-900'
+                                                                            ? 'border-primary bg-primary text-white'
+                                                                            : 'border-border bg-white text-foreground/90 hover:border-primary hover:text-foreground'
                                                                     )}>
                                                                     {isSelected && <Check className="h-3 w-3" aria-hidden="true" />}
                                                                     {formatTime(slot.startTime)}–{formatTime(slot.endTime)}
@@ -212,7 +212,7 @@ const BookingSlots = () => {
                                                             );
                                                         })}
                                                         {selectedCountInRow > 0 && (
-                                                            <span className="text-[11px] text-slate-500 ml-1">{selectedCountInRow}/{row.timeSlots.length} selected</span>
+                                                            <span className="text-[11px] text-muted-foreground ml-1">{selectedCountInRow}/{row.timeSlots.length} selected</span>
                                                         )}
                                                     </div>
                                                 </td>
@@ -220,7 +220,7 @@ const BookingSlots = () => {
                                                     <button
                                                         aria-label="Delete submission"
                                                         onClick={() => setDeleteDialog({ isOpen: true, bookingId: row.bookingId, submissionId: row.submissionId })}
-                                                        className="h-8 w-8 rounded-full flex items-center justify-center text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors">
+                                                        className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors">
                                                         <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                                                     </button>
                                                 </td>
@@ -236,17 +236,17 @@ const BookingSlots = () => {
 
             {/* Sticky selection bar */}
             {selectedSlotsCount > 0 && (
-                <div className="shrink-0 border-t border-slate-200 bg-white px-6 lg:px-8 py-3 flex items-center justify-between">
-                    <p className="text-[12.5px] text-slate-700">
-                        <span className="font-semibold text-slate-900">{selectedSlotsCount}</span> slot{selectedSlotsCount === 1 ? '' : 's'} selected across <span className="font-semibold text-slate-900">{Object.keys(selectedSlots).length}</span> interviewer{Object.keys(selectedSlots).length === 1 ? '' : 's'}
+                <div className="shrink-0 border-t border-border bg-white px-6 lg:px-8 py-3 flex items-center justify-between">
+                    <p className="text-[12.5px] text-foreground/90">
+                        <span className="font-semibold text-foreground">{selectedSlotsCount}</span> slot{selectedSlotsCount === 1 ? '' : 's'} selected across <span className="font-semibold text-foreground">{Object.keys(selectedSlots).length}</span> interviewer{Object.keys(selectedSlots).length === 1 ? '' : 's'}
                     </p>
                     <div className="flex items-center gap-2">
                         <button onClick={() => setSelectedSlots({})}
-                            className="h-9 px-4 text-[12px] font-semibold text-slate-700 rounded-full border border-slate-200 hover:border-slate-900 hover:text-slate-900 transition-colors">
+                            className="h-9 px-4 text-[12px] font-semibold text-foreground/90 rounded-full border border-border hover:border-primary hover:text-foreground transition-colors">
                             Clear
                         </button>
                         <button onClick={handleCreatePublicLink} disabled={isCreatingLink}
-                            className="inline-flex h-9 items-center gap-2 rounded-full bg-slate-900 px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#C0392B] disabled:opacity-40">
+                            className="inline-flex h-9 items-center gap-2 rounded-full bg-primary px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-40">
                             <LinkIcon className="h-3.5 w-3.5" aria-hidden="true" /> Create link ({selectedSlotsCount})
                         </button>
                     </div>

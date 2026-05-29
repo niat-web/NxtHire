@@ -30,7 +30,7 @@ const AccordionItem = ({ tech, register, setValue, watch, isOpen, onToggle }) =>
       <button type="button" onClick={onToggle}
         className="flex justify-between items-center w-full px-5 py-4 text-left">
         <div className="flex items-center gap-3">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[12px] font-semibold border ${selectedCount > 0 ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-white text-slate-600'}`}>
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[12px] font-semibold border ${selectedCount > 0 ? 'border-primary bg-primary text-white' : 'border-border bg-white text-foreground/80'}`}>
             {selectedCount > 0 ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : tech.name.charAt(0)}
           </div>
           <div>
@@ -46,7 +46,7 @@ const AccordionItem = ({ tech, register, setValue, watch, isOpen, onToggle }) =>
             <label className="flex items-center gap-2 mb-3 pb-3 border-b border-gray-100 cursor-pointer">
               <input type="checkbox" onChange={handleSelectAll}
                 checked={watchedSubSkills.length === allSubSkills.length && allSubSkills.length > 0}
-                className="h-4 w-4 rounded border-gray-300 text-slate-900 focus:ring-slate-500" />
+                className="h-4 w-4 rounded border-gray-300 text-foreground focus:ring-slate-500" />
               <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Select All</span>
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -54,7 +54,7 @@ const AccordionItem = ({ tech, register, setValue, watch, isOpen, onToggle }) =>
                 <label key={subSkill.value} className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
                   <input {...register(`technicalSkills.${tech.id}.subSkills`)}
                     type="checkbox" value={subSkill.value}
-                    className="h-4 w-4 mt-0.5 rounded border-gray-300 text-slate-900 focus:ring-slate-500" />
+                    className="h-4 w-4 mt-0.5 rounded border-gray-300 text-foreground focus:ring-slate-500" />
                   <span className="text-sm text-gray-700 leading-tight">{subSkill.label}</span>
                 </label>
               ))}
@@ -151,10 +151,10 @@ const SkillAssessment = () => {
           <span className="inline-flex items-center justify-center h-14 w-14 rounded-full border border-red-200 bg-white text-red-600 mx-auto mb-5">
             <AlertCircle className="h-6 w-6" aria-hidden="true" />
           </span>
-          <h2 className="font-display text-[26px] font-semibold text-slate-900 tracking-tight mb-2">Access denied.</h2>
-          <p className="text-[13.5px] text-slate-500 mb-6 leading-relaxed">{error}</p>
+          <h2 className="font-display text-[26px] font-semibold text-foreground tracking-tight mb-2">Access denied.</h2>
+          <p className="text-[13.5px] text-muted-foreground mb-6 leading-relaxed">{error}</p>
           <Button onClick={() => navigate('/')}
-            className="px-5 h-10 bg-slate-900 text-white text-[13px] font-semibold rounded-full hover:bg-[#C0392B] transition-colors">
+            className="px-5 h-10 bg-primary text-white text-[13px] font-semibold rounded-full hover:bg-primary/90 transition-colors">
             Return home
           </Button>
         </div>
@@ -170,10 +170,10 @@ const SkillAssessment = () => {
     <div className="h-screen flex bg-gray-50 overflow-hidden">
 
       {/* ─── Left Sidebar ──────────────────────────────────────────── */}
-      <div className="hidden lg:flex flex-col w-80 bg-slate-900 text-white shrink-0">
+      <div className="hidden lg:flex flex-col w-80 bg-primary text-white shrink-0">
         <div className="p-6 border-b border-slate-800">
           <h1 className="text-base font-semibold">Skill Assessment</h1>
-          <p className="text-xs text-slate-400 mt-1">Complete both steps to submit</p>
+          <p className="text-xs text-muted-foreground/70 mt-1">Complete both steps to submit</p>
         </div>
 
         {/* Steps */}
@@ -186,15 +186,15 @@ const SkillAssessment = () => {
               <button key={s.num} onClick={() => s.num === 1 && setStep(1)}
                 className={`w-full flex items-start gap-3 p-4 rounded-xl text-left transition-colors ${step === s.num ? 'bg-slate-800' : 'hover:bg-slate-800/50'}`}>
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm font-semibold ${
-                  step > s.num ? 'bg-slate-500 text-white' :
-                  step === s.num ? 'bg-slate-500 text-white' :
-                  'bg-slate-700 text-slate-400'
+                  step > s.num ? 'bg-muted/400 text-white' :
+                  step === s.num ? 'bg-muted/400 text-white' :
+                  'bg-slate-700 text-muted-foreground/70'
                 }`}>
                   {step > s.num ? <Check size={14} /> : s.num}
                 </div>
                 <div>
-                  <p className={`text-sm font-semibold ${step >= s.num ? 'text-white' : 'text-slate-500'}`}>{s.label}</p>
-                  <p className={`text-xs mt-0.5 ${step >= s.num ? 'text-slate-400' : 'text-slate-600'}`}>{s.desc}</p>
+                  <p className={`text-sm font-semibold ${step >= s.num ? 'text-white' : 'text-muted-foreground'}`}>{s.label}</p>
+                  <p className={`text-xs mt-0.5 ${step >= s.num ? 'text-muted-foreground/70' : 'text-foreground/80'}`}>{s.desc}</p>
                 </div>
               </button>
             ))}
@@ -204,11 +204,11 @@ const SkillAssessment = () => {
         {/* Progress */}
         <div className="p-6 border-t border-slate-800">
           <div className="flex justify-between text-xs mb-2">
-            <span className="text-slate-400">Progress</span>
-            <span className="text-slate-300 font-semibold">{step}/2</span>
+            <span className="text-muted-foreground/70">Progress</span>
+            <span className="text-muted-foreground/40 font-semibold">{step}/2</span>
           </div>
           <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
-            <div className="h-full bg-slate-500 rounded-full transition-all" style={{ width: `${step * 50}%` }} />
+            <div className="h-full bg-muted/400 rounded-full transition-all" style={{ width: `${step * 50}%` }} />
           </div>
         </div>
       </div>
@@ -219,7 +219,7 @@ const SkillAssessment = () => {
         <div className="lg:hidden bg-white border-b border-gray-200 px-5 py-3 flex items-center justify-between sticky top-0 z-10 shrink-0">
           <h1 className="text-sm font-semibold text-gray-900">Skill Assessment</h1>
           <div className="flex items-center gap-2">
-            <span className={`px-2 py-0.5 text-xs font-semibold rounded ${step === 1 ? 'bg-blue-100 text-slate-900' : 'bg-blue-100 text-slate-900'}`}>
+            <span className={`px-2 py-0.5 text-xs font-semibold rounded ${step === 1 ? 'bg-blue-100 text-foreground' : 'bg-blue-100 text-foreground'}`}>
               Step {step}/2
             </span>
           </div>
@@ -232,8 +232,8 @@ const SkillAssessment = () => {
             {step === 1 && (
               <div>
                 <div className="mb-8">
-                  <h2 className="font-display text-[26px] font-semibold text-slate-900 tracking-tight leading-none">Professional background</h2>
-                  <p className="text-[13.5px] text-slate-500 mt-2">Tell us about your current role and experience.</p>
+                  <h2 className="font-display text-[26px] font-semibold text-foreground tracking-tight leading-none">Professional background</h2>
+                  <p className="text-[13.5px] text-muted-foreground mt-2">Tell us about your current role and experience.</p>
                 </div>
 
                 <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-5">
@@ -262,7 +262,7 @@ const SkillAssessment = () => {
                       </label>
                       <input {...register('currentEmployer', { required: 'Required' })}
                         placeholder="e.g., Google"
-                        className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 transition-all ${errors.currentEmployer ? 'border-red-300 focus:ring-red-500/20' : 'border-gray-200 focus:ring-slate-900/10 focus:border-slate-400'}`} />
+                        className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 transition-all ${errors.currentEmployer ? 'border-red-300 focus:ring-red-500/20' : 'border-gray-200 focus:ring-primary/10 focus:border-slate-400'}`} />
                       {errors.currentEmployer && <p className="mt-1 text-xs text-red-500">{errors.currentEmployer.message}</p>}
                     </div>
                   </div>
@@ -273,7 +273,7 @@ const SkillAssessment = () => {
                     </label>
                     <input {...register('jobTitle', { required: 'Required' })}
                       placeholder="e.g., Senior Software Engineer"
-                      className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 transition-all ${errors.jobTitle ? 'border-red-300 focus:ring-red-500/20' : 'border-gray-200 focus:ring-slate-900/10 focus:border-slate-400'}`} />
+                      className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 transition-all ${errors.jobTitle ? 'border-red-300 focus:ring-red-500/20' : 'border-gray-200 focus:ring-primary/10 focus:border-slate-400'}`} />
                     {errors.jobTitle && <p className="mt-1 text-xs text-red-500">{errors.jobTitle.message}</p>}
                   </div>
 
@@ -283,14 +283,14 @@ const SkillAssessment = () => {
                     </label>
                     <input {...register('yearsOfExperience', { required: 'Required', valueAsNumber: true, min: { value: 0, message: 'Cannot be negative' } })}
                       type="number" step="0.1" placeholder="e.g., 5.5"
-                      className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 transition-all ${errors.yearsOfExperience ? 'border-red-300 focus:ring-red-500/20' : 'border-gray-200 focus:ring-slate-900/10 focus:border-slate-400'}`} />
+                      className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 transition-all ${errors.yearsOfExperience ? 'border-red-300 focus:ring-red-500/20' : 'border-gray-200 focus:ring-primary/10 focus:border-slate-400'}`} />
                     {errors.yearsOfExperience && <p className="mt-1 text-xs text-red-500">{errors.yearsOfExperience.message}</p>}
                   </div>
                 </div>
 
                 <div className="mt-8 flex justify-end">
                   <Button type="button" onClick={handleNext}
-                    className="flex items-center gap-2 px-6 h-10 bg-slate-900 text-white text-sm font-medium rounded-md hover:bg-black transition-colors">
+                    className="flex items-center gap-2 px-6 h-10 bg-primary text-white text-sm font-medium rounded-md hover:bg-black transition-colors">
                     Next <ArrowRight size={15} />
                   </Button>
                 </div>
@@ -302,11 +302,11 @@ const SkillAssessment = () => {
               <div className="flex-1 flex flex-col">
                 <div className="mb-4 flex items-start justify-between shrink-0">
                   <div>
-                    <h2 className="font-display text-[26px] font-semibold text-slate-900 tracking-tight leading-none">Technical expertise</h2>
-                    <p className="text-[13.5px] text-slate-500 mt-2">Select the technologies you're proficient in.</p>
+                    <h2 className="font-display text-[26px] font-semibold text-foreground tracking-tight leading-none">Technical expertise</h2>
+                    <p className="text-[13.5px] text-muted-foreground mt-2">Select the technologies you're proficient in.</p>
                   </div>
                   {totalSelected > 0 && (
-                    <span className="px-3 py-1 bg-blue-100 text-slate-900 text-xs font-semibold rounded-full shrink-0">
+                    <span className="px-3 py-1 bg-blue-100 text-foreground text-xs font-semibold rounded-full shrink-0">
                       {totalSelected} skills selected
                     </span>
                   )}
@@ -328,7 +328,7 @@ const SkillAssessment = () => {
                   <textarea {...register('otherSkills')}
                     placeholder="Docker, Kubernetes, AWS, etc..."
                     rows={3}
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 resize-none" />
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-slate-400 resize-none" />
                 </div>
 
                 <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center shrink-0">
@@ -337,7 +337,7 @@ const SkillAssessment = () => {
                     <ArrowLeft size={15} /> Previous
                   </Button>
                   <Button type="submit" disabled={isSubmitting}
-                    className="flex items-center gap-2 px-6 h-10 bg-slate-900 text-white text-sm font-medium rounded-md hover:bg-black disabled:opacity-50 transition-colors">
+                    className="flex items-center gap-2 px-6 h-10 bg-primary text-white text-sm font-medium rounded-md hover:bg-black disabled:opacity-50 transition-colors">
                     {isSubmitting ? (
                       <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Submitting...</>
                     ) : (

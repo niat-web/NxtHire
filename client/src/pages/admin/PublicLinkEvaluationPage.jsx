@@ -14,9 +14,9 @@ import { cn } from '@/lib/utils';
 const StatusBadge = ({ status }) => {
     const styles = {
         Completed: 'bg-emerald-50 text-emerald-700', Scheduled: 'bg-amber-50 text-amber-700',
-        InProgress: 'bg-slate-50 text-slate-900', Cancelled: 'bg-red-50 text-red-700',
+        InProgress: 'bg-muted/40 text-foreground', Cancelled: 'bg-red-50 text-red-700',
     };
-    return <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${styles[status] || 'bg-slate-100 text-slate-600'}`}>{status || '—'}</span>;
+    return <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${styles[status] || 'bg-muted text-foreground/80'}`}>{status || '—'}</span>;
 };
 
 const PublicLinkEvaluationPage = () => {
@@ -52,11 +52,11 @@ const PublicLinkEvaluationPage = () => {
         { key: 'uid', title: 'UID', minWidth: '160px' },
         { key: 'mobileNumber', title: 'Mobile', minWidth: '120px' },
         { key: 'mailId', title: 'Email', minWidth: '200px' },
-        { key: 'candidateResume', title: 'Resume', minWidth: '80px', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="text-[11px] font-medium text-slate-900 hover:text-blue-800 inline-flex items-center gap-0.5"><ExternalLink size={10} /> Link</a> : '—' },
+        { key: 'candidateResume', title: 'Resume', minWidth: '80px', render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="text-[11px] font-medium text-foreground hover:text-blue-800 inline-flex items-center gap-0.5"><ExternalLink size={10} /> Link</a> : '—' },
         { key: 'interviewDate', title: 'Date', minWidth: '100px', render: (row) => row.interviewDate ? formatDate(row.interviewDate) : '—' },
         { key: 'interviewTime', title: 'Time', minWidth: '120px', render: (row) => row.interviewTime ? row.interviewTime.split('-').map(t => formatTime(t.trim())).join(' - ') : '—' },
         { key: 'interviewStatus', title: 'Status', minWidth: '110px', render: (row) => <StatusBadge status={row.interviewStatus} /> },
-        { key: 'interviewerRemarks', title: 'Remarks', minWidth: '180px', render: (row) => row.interviewerRemarks ? <span className="text-[11px] text-slate-600 truncate block max-w-[160px]" title={row.interviewerRemarks}>{row.interviewerRemarks}</span> : '—' },
+        { key: 'interviewerRemarks', title: 'Remarks', minWidth: '180px', render: (row) => row.interviewerRemarks ? <span className="text-[11px] text-foreground/80 truncate block max-w-[160px]" title={row.interviewerRemarks}>{row.interviewerRemarks}</span> : '—' },
     ], []);
 
     // Dynamic columns from evaluation sheet
@@ -104,10 +104,10 @@ const PublicLinkEvaluationPage = () => {
 
     if (domains.length === 0 && !isLoading) {
         return (
-            <div className="h-full flex flex-col items-center justify-center text-slate-400">
-                <p className="text-sm font-medium text-slate-500">No evaluation data found for this public link</p>
-                <p className="text-[11px] text-slate-400 mt-1">No matching candidates found in the main sheet</p>
-                <Link to="/admin/bookings/student-bookings" className="mt-4 inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-slate-900 rounded-md hover:bg-[#C0392B] transition-colors">
+            <div className="h-full flex flex-col items-center justify-center text-muted-foreground/70">
+                <p className="text-sm font-medium text-muted-foreground">No evaluation data found for this public link</p>
+                <p className="text-[11px] text-muted-foreground/70 mt-1">No matching candidates found in the main sheet</p>
+                <Link to="/admin/bookings/student-bookings" className="mt-4 inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-primary rounded-md hover:bg-primary/90 transition-colors">
                     <ArrowLeft size={14} /> Back to Public Links
                 </Link>
             </div>
@@ -117,13 +117,13 @@ const PublicLinkEvaluationPage = () => {
     return (
         <div className="h-full flex flex-col bg-white overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-2.5 border-b border-slate-200 shrink-0">
+            <div className="flex items-center justify-between px-5 py-2.5 border-b border-border shrink-0">
                 <div className="flex items-center gap-3">
                     <Link to="/admin/bookings/student-bookings"
-                        className="w-8 h-8 rounded-md flex items-center justify-center border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors">
+                        className="w-8 h-8 rounded-md flex items-center justify-center border border-border text-muted-foreground hover:bg-muted/40 transition-colors">
                         <ArrowLeft size={15} />
                     </Link>
-                    <h1 className="text-sm font-semibold text-slate-900">Public Link Evaluation</h1>
+                    <h1 className="text-sm font-semibold text-foreground">Public Link Evaluation</h1>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -131,34 +131,34 @@ const PublicLinkEvaluationPage = () => {
                     {domains.length > 0 && (
                         <div className="relative">
                             <select value={selectedDomain} onChange={e => setSelectedDomain(e.target.value)}
-                                className="appearance-none h-9 pl-3 pr-8 bg-white border border-slate-200 rounded-md text-[13px] font-medium text-slate-700 cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors">
+                                className="appearance-none h-9 pl-3 pr-8 bg-white border border-border rounded-md text-[13px] font-medium text-foreground/90 cursor-pointer hover:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors">
                                 {domains.map(d => <option key={d} value={d}>{d}</option>)}
                             </select>
-                            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+                            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70 pointer-events-none" />
                         </div>
                     )}
 
                     {/* Search */}
                     <div className="relative w-48">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70" />
                         <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..."
-                            className="w-full pl-9 pr-3 h-9 bg-slate-50 border border-slate-200 rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all" />
+                            className="w-full pl-9 pr-3 h-9 bg-muted/40 border border-border rounded-md text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all" />
                     </div>
 
                     {/* Export */}
                     <button onClick={handleExport} disabled={!interviews.length}
-                        className="inline-flex items-center gap-1.5 h-9 px-3 text-[12px] font-medium text-slate-700 border border-slate-200 rounded-md bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors">
+                        className="inline-flex items-center gap-1.5 h-9 px-3 text-[12px] font-medium text-foreground/90 border border-border rounded-md bg-white hover:bg-muted/40 disabled:opacity-40 transition-colors">
                         <Download size={13} /> Export
                     </button>
                 </div>
             </div>
 
             {/* Stats bar */}
-            <div className="flex items-center gap-4 px-5 py-2 border-b border-slate-100 shrink-0 text-[11px]">
-                <span className="text-slate-400">Domain: <span className="font-semibold text-slate-900">{selectedDomain || '—'}</span></span>
-                <span className="text-slate-400">Candidates: <span className="font-semibold text-slate-900">{interviews.length}</span></span>
-                <span className="text-slate-400">Completed: <span className="font-semibold text-emerald-600">{interviews.filter(i => i.interviewStatus === 'Completed').length}</span></span>
-                <span className="text-slate-400">Pending: <span className="font-semibold text-amber-600">{interviews.filter(i => !i.interviewStatus || i.interviewStatus === 'Scheduled').length}</span></span>
+            <div className="flex items-center gap-4 px-5 py-2 border-b border-border shrink-0 text-[11px]">
+                <span className="text-muted-foreground/70">Domain: <span className="font-semibold text-foreground">{selectedDomain || '—'}</span></span>
+                <span className="text-muted-foreground/70">Candidates: <span className="font-semibold text-foreground">{interviews.length}</span></span>
+                <span className="text-muted-foreground/70">Completed: <span className="font-semibold text-emerald-600">{interviews.filter(i => i.interviewStatus === 'Completed').length}</span></span>
+                <span className="text-muted-foreground/70">Pending: <span className="font-semibold text-amber-600">{interviews.filter(i => !i.interviewStatus || i.interviewStatus === 'Scheduled').length}</span></span>
             </div>
 
             {/* Table */}
@@ -166,8 +166,8 @@ const PublicLinkEvaluationPage = () => {
                 {isLoading ? (
                     <div className="flex items-center justify-center h-64"><Loader size="lg" /></div>
                 ) : interviews.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-64 text-slate-400">
-                        <p className="text-sm font-medium text-slate-500">No evaluation data</p>
+                    <div className="flex flex-col items-center justify-center h-64 text-muted-foreground/70">
+                        <p className="text-sm font-medium text-muted-foreground">No evaluation data</p>
                         <p className="text-[11px] mt-0.5">No candidates from this public link found in {selectedDomain}</p>
                     </div>
                 ) : (() => {
@@ -175,7 +175,7 @@ const PublicLinkEvaluationPage = () => {
                         { bg: 'bg-sky-100', text: 'text-sky-800', border: 'border-sky-200' },
                         { bg: 'bg-violet-100', text: 'text-violet-800', border: 'border-violet-200' },
                         { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-200' },
-                        { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-slate-200' },
+                        { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-border' },
                         { bg: 'bg-rose-100', text: 'text-rose-800', border: 'border-rose-200' },
                         { bg: 'bg-teal-100', text: 'text-teal-800', border: 'border-teal-200' },
                         { bg: 'bg-fuchsia-100', text: 'text-fuchsia-800', border: 'border-fuchsia-200' },
@@ -185,7 +185,7 @@ const PublicLinkEvaluationPage = () => {
                         { bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-100' },
                         { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-100' },
                         { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100' },
-                        { bg: 'bg-slate-50', text: 'text-slate-900', border: 'border-slate-200' },
+                        { bg: 'bg-muted/40', text: 'text-foreground', border: 'border-border' },
                         { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-100' },
                         { bg: 'bg-teal-50', text: 'text-teal-700', border: 'border-teal-100' },
                         { bg: 'bg-fuchsia-50', text: 'text-fuchsia-700', border: 'border-fuchsia-100' },
@@ -202,8 +202,8 @@ const PublicLinkEvaluationPage = () => {
                                     {staticColumns.map(col => (
                                         <th key={col.key}
                                             className={cn(
-                                                'sticky top-0 px-4 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] border-b border-slate-200 bg-slate-50 whitespace-nowrap',
-                                                col.isSticky ? 'z-30 bg-slate-50' : 'z-10'
+                                                'sticky top-0 px-4 py-2.5 text-left text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-[0.15em] border-b border-border bg-muted/40 whitespace-nowrap',
+                                                col.isSticky ? 'z-30 bg-muted/40' : 'z-10'
                                             )}
                                             style={{ minWidth: col.minWidth, ...(col.isSticky ? { position: 'sticky', left: 0 } : {}) }}
                                             rowSpan={hasEvalColumns ? 2 : 1}>
@@ -238,12 +238,12 @@ const PublicLinkEvaluationPage = () => {
                                     </tr>
                                 )}
                             </thead>
-                            <tbody className="divide-y divide-slate-100">
+                            <tbody className="divide-y divide-border">
                                 {interviews.map((iv, i) => (
-                                    <tr key={iv._id || i} className="hover:bg-slate-50/60 transition-colors">
+                                    <tr key={iv._id || i} className="hover:bg-muted/30 transition-colors">
                                         {staticColumns.map(col => (
                                             <td key={col.key}
-                                                className={cn('px-4 py-2.5 text-[12px] text-slate-700 whitespace-nowrap align-middle', col.isSticky && 'sticky bg-white z-[5]')}
+                                                className={cn('px-4 py-2.5 text-[12px] text-foreground/90 whitespace-nowrap align-middle', col.isSticky && 'sticky bg-white z-[5]')}
                                                 style={col.isSticky ? { left: 0 } : {}}>
                                                 {col.render ? col.render(iv) : (iv[col.key] || '—')}
                                             </td>
@@ -253,7 +253,7 @@ const PublicLinkEvaluationPage = () => {
                                                 const headerKey = col.header || group.title;
                                                 return (
                                                     <td key={`${group.title}-${col.header || cIdx}`}
-                                                        className="px-3 py-2.5 text-[12px] text-slate-700 whitespace-nowrap align-middle text-center">
+                                                        className="px-3 py-2.5 text-[12px] text-foreground/90 whitespace-nowrap align-middle text-center">
                                                         {iv.evaluationData?.[headerKey] || '—'}
                                                     </td>
                                                 );

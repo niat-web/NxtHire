@@ -15,7 +15,7 @@ const Loader = ({ size = 'md', text, fullScreen = false, className }) => {
     <div className={cn('flex flex-col items-center justify-center', className)}>
       <div className="relative">
         {/* Track ring */}
-        <div className={cn('rounded-full border-slate-200', s.spinner, s.border)} />
+        <div className={cn('rounded-full border-border', s.spinner, s.border)} />
         {/* Spinning arc */}
         <div
           className={cn(
@@ -26,7 +26,7 @@ const Loader = ({ size = 'md', text, fullScreen = false, className }) => {
         />
       </div>
       {text && (
-        <p className={cn('text-slate-400 font-medium', s.text)}>{text}</p>
+        <p className={cn('text-muted-foreground/70 font-medium', s.text)}>{text}</p>
       )}
     </div>
   );

@@ -22,17 +22,17 @@ const Modal = ({
 
   const themeStyles = {
     light: {
-      panel: 'bg-white border border-slate-200 shadow-xl',
-      header: 'border-slate-200',
-      title: 'text-slate-900',
-      closeButton: 'text-slate-500 hover:text-slate-900',
-      footer: 'border-slate-200 bg-slate-50/60',
+      panel: 'bg-white border border-border shadow-xl',
+      header: 'border-border',
+      title: 'text-foreground',
+      closeButton: 'text-muted-foreground hover:text-foreground',
+      footer: 'border-border bg-muted/30',
     },
     dark: {
-      panel: 'bg-slate-900 border border-slate-800 shadow-xl',
+      panel: 'bg-primary border border-slate-800 shadow-xl',
       header: 'border-slate-800',
       title: 'text-white',
-      closeButton: 'text-slate-400 hover:text-white',
+      closeButton: 'text-muted-foreground/70 hover:text-white',
       footer: 'border-slate-800 bg-slate-950/40',
     }
   };
@@ -47,7 +47,7 @@ const Modal = ({
           enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100"
           leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm" aria-hidden="true" />
+          <div className="fixed inset-0 bg-primary/40 backdrop-blur-sm" aria-hidden="true" />
         </Transition.Child>
 
         <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
@@ -69,7 +69,7 @@ const Modal = ({
                   {showCloseButton && (
                     <button
                       type="button"
-                      className={cn('rounded-full h-8 w-8 inline-flex items-center justify-center transition-colors hover:bg-slate-100', currentTheme.closeButton)}
+                      className={cn('rounded-full h-8 w-8 inline-flex items-center justify-center transition-colors hover:bg-muted', currentTheme.closeButton)}
                       onClick={onClose}
                     >
                       <span className="sr-only">Close</span>

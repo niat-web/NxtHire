@@ -62,8 +62,8 @@ const AvailabilityForm = ({ onSubmit, bookingDate, isSubmitting }) => {
                     <h3 className="text-xl font-semibold text-slate-800 mb-4">Time Slots</h3>
                     
                     <div className="grid grid-cols-12 gap-x-4 px-1 pb-2">
-                        <label className="col-span-5 text-sm font-semibold text-slate-600">Start Time</label>
-                        <label className="col-span-5 text-sm font-semibold text-slate-600">End Time</label>
+                        <label className="col-span-5 text-sm font-semibold text-foreground/80">Start Time</label>
+                        <label className="col-span-5 text-sm font-semibold text-foreground/80">End Time</label>
                     </div>
 
                     <div className="space-y-3">
@@ -106,7 +106,7 @@ const AvailabilityForm = ({ onSubmit, bookingDate, isSubmitting }) => {
                                 <div className="col-span-2 flex items-center justify-center pt-1">
                                     <button 
                                       type="button" 
-                                      className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-all duration-200 opacity-50 group-hover:opacity-100" 
+                                      className="p-2 text-muted-foreground/70 hover:text-red-600 hover:bg-red-50 rounded-full transition-all duration-200 opacity-50 group-hover:opacity-100" 
                                       onClick={() => remove(index)} 
                                       disabled={fields.length <= 1}
                                       title="Remove slot"
@@ -123,7 +123,7 @@ const AvailabilityForm = ({ onSubmit, bookingDate, isSubmitting }) => {
                             type="button"
                             variant="outline"
                             onClick={() => append({ startTime: null, endTime: null })}
-                            className="w-full border-2 border-dashed border-slate-300 text-slate-900 hover:bg-slate-50 hover:border-blue-500"
+                            className="w-full border-2 border-dashed border-slate-300 text-foreground hover:bg-muted/40 hover:border-blue-500"
                         >
                             <Plus className="w-4 h-4 mr-2" />
                             Add Another Slot
@@ -133,13 +133,13 @@ const AvailabilityForm = ({ onSubmit, bookingDate, isSubmitting }) => {
 
                 {/* --- REDESIGNED REMARKS SECTION --- */}
                 <div>
-                    <label htmlFor="remarks" className="block text-xl font-semibold text-slate-800 mb-4">Remarks <span className="text-sm font-normal text-slate-500">(Optional)</span></label>
+                    <label htmlFor="remarks" className="block text-xl font-semibold text-slate-800 mb-4">Remarks <span className="text-sm font-normal text-muted-foreground">(Optional)</span></label>
                     <textarea
                         id="remarks"
                         placeholder="Add any notes for the admin regarding your availability..."
                         rows="4"
                         {...register('remarks')}
-                        className="w-full px-4 py-3 border border-slate-300 rounded-lg shadow-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-colors"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-lg shadow-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
                     />
                 </div>
             </div>

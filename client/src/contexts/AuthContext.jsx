@@ -1,5 +1,5 @@
 // client/src/contexts/AuthContext.jsx
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import api from '../api/axios';
 import { useAlert } from '../hooks/useAlert';
@@ -118,12 +118,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Logout function
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('cachedUser');
     delete api.defaults.headers.common['Authorization'];
     setCurrentUser(null);
-  };
+  }, []);
 
   // Update user profile
   const updateProfile = async (userData) => {
@@ -213,7 +213,8 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const value = {
+  // Memoize the context value so every consumer doesn't re-render on every parent render.
+  const value = useMemo(() => ({
     currentUser,
     loading,
     error,
@@ -225,8 +226,8 @@ export const AuthProvider = ({ children }) => {
     changePassword,
     requestPasswordReset,
     resetPassword,
-    createPassword
-  };
+    createPassword,
+  }), [currentUser, loading, error, logout]);
 
   return (
     <AuthContext.Provider value={value}>

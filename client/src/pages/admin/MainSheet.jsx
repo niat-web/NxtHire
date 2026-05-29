@@ -31,13 +31,13 @@ const LocalButton = ({ children, onClick, isLoading = false, variant = 'primary'
 
 const LocalSearchInput = ({ value, onChange, placeholder }) => (
     <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
         <input
             type="text"
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            className="w-full pl-10 pr-3 h-10 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 text-sm text-slate-900 placeholder:text-slate-400 transition-colors"
+            className="w-full pl-10 pr-3 h-10 border border-border rounded-xl bg-muted/40 focus:bg-card focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary text-sm text-foreground placeholder:text-muted-foreground/70 transition-colors"
         />
     </div>
 );
@@ -71,8 +71,8 @@ const LocalConfirmDialog = ({ isOpen, onClose, onConfirm, title, message, isLoad
                             <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                         </span>
                         <div>
-                            <h3 className="text-[16px] font-semibold text-slate-900 tracking-tight">{title}</h3>
-                            <p className="mt-1.5 text-[13.5px] text-slate-600 leading-relaxed">{message}</p>
+                            <h3 className="text-[16px] font-semibold text-foreground tracking-tight">{title}</h3>
+                            <p className="mt-1.5 text-[13.5px] text-foreground/80 leading-relaxed">{message}</p>
                         </div>
                     </div>
                 </div>
@@ -106,11 +106,11 @@ const LocalDropdownMenu = ({ options }) => {
     }, [isOpen]);
 
     const MenuContent = () => (
-        <div ref={menuRef} className="fixed z-50 w-48 origin-top-right bg-white rounded-xl shadow-xl shadow-slate-900/10 border border-slate-200 focus:outline-none overflow-hidden" style={{ top: `${position.top}px`, left: `${position.left}px` }}>
+        <div ref={menuRef} className="fixed z-50 w-48 origin-top-right bg-white rounded-xl shadow-xl shadow-slate-900/10 border border-border focus:outline-none overflow-hidden" style={{ top: `${position.top}px`, left: `${position.left}px` }}>
             <div className="py-1.5">
                 {options.map((option) => (
-                    <button key={option.label} onClick={() => { option.onClick(); setIsOpen(false); }} className={`group flex items-center gap-2.5 w-full px-4 py-2 text-sm font-medium transition-colors ${option.isDestructive ? 'text-rose-600 hover:bg-rose-50' : 'text-slate-700 hover:bg-slate-50'}`}>
-                        {option.icon && <option.icon className={`h-4 w-4 ${option.isDestructive ? 'text-rose-400' : 'text-slate-400'}`} />}
+                    <button key={option.label} onClick={() => { option.onClick(); setIsOpen(false); }} className={`group flex items-center gap-2.5 w-full px-4 py-2 text-sm font-medium transition-colors ${option.isDestructive ? 'text-rose-600 hover:bg-rose-50' : 'text-foreground/90 hover:bg-muted/40'}`}>
+                        {option.icon && <option.icon className={`h-4 w-4 ${option.isDestructive ? 'text-rose-400' : 'text-muted-foreground/70'}`} />}
                         {option.label}
                     </button>
                 ))}
@@ -123,7 +123,7 @@ const LocalDropdownMenu = ({ options }) => {
                 aria-label="Row actions"
                 ref={buttonRef}
                 onClick={toggleMenu}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground/70 hover:bg-muted hover:text-foreground/90 transition-colors"
             >
                 <MoreVertical className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -172,19 +172,19 @@ const ActionsMenu = ({ onAddEntries, onReload, onExport, onImport, isRefreshing,
                 aria-label="More actions"
                 ref={buttonRef}
                 onClick={toggleMenu}
-                className="h-10 w-10 rounded-xl flex items-center justify-center border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-slate-600 transition-colors"
+                className="h-10 w-10 rounded-xl flex items-center justify-center border border-border bg-white hover:bg-muted/40 hover:border-primary/40 text-foreground/80 transition-colors"
             >
                 <MoreVertical className="h-4 w-4" aria-hidden="true" />
             </button>
             {open && createPortal(
                 <div
                     ref={menuRef}
-                    className="fixed w-48 bg-white rounded-xl shadow-xl shadow-slate-900/10 border border-slate-200 py-1.5 z-[9999] overflow-hidden"
+                    className="fixed w-48 bg-white rounded-xl shadow-xl shadow-slate-900/10 border border-border py-1.5 z-[9999] overflow-hidden"
                     style={{ top: `${position.top}px`, left: `${position.left}px` }}
                 >
                     {items.map((item, i) => (
                         <button key={item.label} onClick={item.onClick} disabled={item.disabled}
-                            className={`flex items-center gap-2.5 w-full px-4 py-2.5 text-sm font-medium disabled:opacity-40 transition-colors ${i === 0 ? 'text-slate-900 hover:bg-slate-50' : 'text-slate-700 hover:bg-slate-50'}`}>
+                            className={`flex items-center gap-2.5 w-full px-4 py-2.5 text-sm font-medium disabled:opacity-40 transition-colors ${i === 0 ? 'text-foreground hover:bg-muted/40' : 'text-foreground/90 hover:bg-muted/40'}`}>
                             <item.icon className="h-4 w-4" />
                             {item.label}
                         </button>
@@ -198,11 +198,11 @@ const ActionsMenu = ({ onAddEntries, onReload, onExport, onImport, isRefreshing,
 
 const LocalEmptyState = ({ message, icon: Icon }) => (
     <div className="text-center py-20 px-6">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/60 shadow-sm mb-4">
-            <Icon className="h-6 w-6 text-slate-400" />
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-border/60 shadow-sm mb-4">
+            <Icon className="h-6 w-6 text-muted-foreground/70" />
         </div>
-        <h3 className="text-sm font-semibold text-slate-900">No entries yet</h3>
-        <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">{message}</p>
+        <h3 className="text-sm font-semibold text-foreground">No entries yet</h3>
+        <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">{message}</p>
     </div>
 );
 
@@ -216,14 +216,14 @@ const LocalTable = ({ columns, data, isLoading, emptyMessage, emptyIcon, sortCon
                            key={col.key}
                            scope="col"
                            onClick={() => col.sortable && onSort && onSort(col.key)}
-                           className={`sticky top-0 z-10 px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] whitespace-nowrap border-b border-slate-200 ${col.sortable ? 'cursor-pointer hover:text-slate-900' : ''} ${col.isSticky ? 'left-0 z-20' : ''} bg-slate-50/70 backdrop-blur`}
+                           className={`sticky top-0 z-10 px-4 py-3 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em] whitespace-nowrap border-b border-border ${col.sortable ? 'cursor-pointer hover:text-foreground' : ''} ${col.isSticky ? 'left-0 z-20' : ''} bg-muted/40 backdrop-blur`}
                            style={{ minWidth: col.minWidth }}
                         >
                             <div className="flex items-center gap-1.5">
                                 {col.title}
                                 {col.sortable && (
                                     <span className="text-[10px]">
-                                        {sortConfig.key === col.key ? (sortConfig.direction === 'asc' ? '▲' : '▼') : <span className="text-slate-300">⇅</span>}
+                                        {sortConfig.key === col.key ? (sortConfig.direction === 'asc' ? '▲' : '▼') : <span className="text-muted-foreground/40">⇅</span>}
                                     </span>
                                 )}
                             </div>
@@ -231,18 +231,18 @@ const LocalTable = ({ columns, data, isLoading, emptyMessage, emptyIcon, sortCon
                     ))}
                 </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-border">
                 {isLoading ? (
                     [...Array(15)].map((_, i) => <SkeletonRow key={i} columns={columns} />)
                 ) : data.length === 0 ? (
                     <tr><td colSpan={columns.length}><LocalEmptyState message={emptyMessage} icon={emptyIcon} /></td></tr>
                 ) : (
                     data.map((row, rowIndex) => (
-                        <tr key={row._id || rowIndex} className="hover:bg-slate-50/70 transition-colors group h-px">
+                        <tr key={row._id || rowIndex} className="hover:bg-muted/40 transition-colors group h-px">
                             {columns.map(col => (
                                 <td
                                     key={col.key}
-                                    className={`${col.isCustomCell ? 'p-0' : 'px-4 py-0.5'} whitespace-nowrap text-sm text-slate-700 align-middle h-full ${col.isSticky ? 'sticky left-0 z-[1] bg-white group-hover:bg-slate-50/70' : ''}`}
+                                    className={`${col.isCustomCell ? 'p-0' : 'px-4 py-0.5'} whitespace-nowrap text-sm text-foreground/90 align-middle h-full ${col.isSticky ? 'sticky left-0 z-[1] bg-white group-hover:bg-muted/40' : ''}`}
                                 >
                                     {col.render ? col.render(row, rowIndex) : row[col.key]}
                                 </td>
@@ -355,7 +355,7 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, title, instructions, re
             <div className="relative w-full max-w-4xl bg-white rounded-xl shadow-lg flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                 <div className="p-4 border-b"><h3 className="text-lg font-semibold text-gray-800">{title}</h3></div>
                 <div className="p-6 flex-grow overflow-y-auto space-y-4">
-                    <div className="flex items-center gap-4"><input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-slate-50 file:text-slate-900 hover:file:bg-blue-100"/>{error && <p className="text-red-600 text-sm font-semibold">{error}</p>}</div>
+                    <div className="flex items-center gap-4"><input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-muted/40 file:text-foreground hover:file:bg-blue-100"/>{error && <p className="text-red-600 text-sm font-semibold">{error}</p>}</div>
                     {parsedData.length > 0 && (<div className="border border-gray-200 rounded-xl max-h-80 overflow-auto"><table className="min-w-full text-xs"><thead className="bg-gray-100 sticky top-0"><tr className="text-left font-semibold text-gray-600">{Object.keys(parsedData[0]).map(h => <th key={h} className="p-2 border-b">{h}</th>)}</tr></thead><tbody>{parsedData.slice(0, 10).map((row, i) => (<tr key={i} className="bg-white border-b">{Object.values(row).map((val, j) => <td key={j} className="p-2 truncate" title={val}>{String(val)}</td>)}</tr>))}</tbody></table>{parsedData.length > 10 && <div className="p-2 text-center text-sm bg-gray-50">...and {parsedData.length - 10} more rows</div>}</div>)}
                 </div>
                 <div className="bg-gray-50 p-4 flex justify-between items-center border-t">
@@ -637,12 +637,12 @@ const MainSheet = () => {
     // Reusable link-pill cell with clear resource color-coding so rows scan fast.
     // Palette is strictly semantic: orange accent = actionable artefact, slate = neutral.
     const renderLinkPill = (href, label, tone = 'neutral') => {
-        if (!href) return <span className="text-slate-300">—</span>;
+        if (!href) return <span className="text-muted-foreground/40">—</span>;
         const tones = {
             // Orange accent border — asset that leads to candidate material
-            accent: 'border-[#C0392B]/30 text-[#C0392B] hover:bg-[#C0392B] hover:text-white hover:border-[#C0392B]',
+            accent: 'border-[#C0392B]/30 text-[#C0392B] hover:bg-primary/90 hover:text-white hover:border-[#C0392B]',
             // Neutral — meeting / generic links
-            neutral: 'border-slate-200 text-slate-700 hover:border-slate-900 hover:text-slate-900',
+            neutral: 'border-border text-foreground/90 hover:border-primary hover:text-foreground',
             // Emerald — recording / artefact-of-record (completed)
             emerald: 'border-emerald-200 text-emerald-700 hover:bg-emerald-50',
         };
@@ -658,22 +658,22 @@ const MainSheet = () => {
     const columns = useMemo(() => [
         // Primary anchor — slate-900 semibold, sticky
         { key: 'candidateName', title: 'Candidate Name', minWidth: '200px', isSticky: true, render: (row) => (
-            <span className="font-semibold text-slate-900">{row.candidateName || <span className="text-slate-300">—</span>}</span>
+            <span className="font-semibold text-foreground">{row.candidateName || <span className="text-muted-foreground/40">—</span>}</span>
         ) },
         // Identifier — mono, tabular-nums, slate-900 semibold (reads as code/system-generated)
         { key: 'interviewId', title: 'Interview ID', minWidth: '140px', sortable: true, render: (row) => (
-            <span className="font-mono text-[12px] font-semibold text-slate-900 tabular-nums">{row.interviewId || '—'}</span>
+            <span className="font-mono text-[12px] font-semibold text-foreground tabular-nums">{row.interviewId || '—'}</span>
         )},
         // Secondary identifier — mono but muted (signals "system, not human-entered")
         { key: 'uid', title: 'UID', minWidth: '180px', render: (row) => (
-            <span className="font-mono text-[11.5px] text-slate-500">{row.uid || <span className="text-slate-300">—</span>}</span>
+            <span className="font-mono text-[11.5px] text-muted-foreground">{row.uid || <span className="text-muted-foreground/40">—</span>}</span>
         ) },
         // Contact columns — slate-600 (secondary reading hierarchy)
         { key: 'mobileNumber', title: 'Mobile', minWidth: '130px', render: (row) => (
-            <span className="text-slate-700 tabular-nums">{row.mobileNumber || <span className="text-slate-300">—</span>}</span>
+            <span className="text-foreground/90 tabular-nums">{row.mobileNumber || <span className="text-muted-foreground/40">—</span>}</span>
         ) },
         { key: 'mailId', title: 'Mail ID', minWidth: '220px', render: (row) => (
-            <span className="text-slate-600">{row.mailId || <span className="text-slate-300">—</span>}</span>
+            <span className="text-foreground/80">{row.mailId || <span className="text-muted-foreground/40">—</span>}</span>
         ) },
         // Candidate resource — accent orange, clearly actionable
         { key: 'candidateResume', title: 'Resume', render: (row) => renderLinkPill(row.candidateResume, 'Resume', 'accent') },
@@ -684,26 +684,26 @@ const MainSheet = () => {
         { key: 'transcriptLink', title: 'Transcript', minWidth: '110px', render: (row) => renderLinkPill(row.transcriptLink, 'Read', 'emerald') },
         // Date — tabular-nums for vertical alignment across rows
         { key: 'interviewDate', title: 'Date', render: (row) => (
-            <span className="text-slate-700 tabular-nums whitespace-nowrap">{row.interviewDate ? formatDate(row.interviewDate) : <span className="text-slate-300">—</span>}</span>
+            <span className="text-foreground/90 tabular-nums whitespace-nowrap">{row.interviewDate ? formatDate(row.interviewDate) : <span className="text-muted-foreground/40">—</span>}</span>
         ) },
         {
             key: 'interviewTime',
             title: 'Time',
             render: (row) => {
                 const timeSlot = row.interviewTime;
-                if (!timeSlot || !timeSlot.includes('-')) return <span className="text-slate-700 tabular-nums whitespace-nowrap">{timeSlot || <span className="text-slate-300">—</span>}</span>;
+                if (!timeSlot || !timeSlot.includes('-')) return <span className="text-foreground/90 tabular-nums whitespace-nowrap">{timeSlot || <span className="text-muted-foreground/40">—</span>}</span>;
                 const [startTimeStr, endTimeStr] = timeSlot.split('-').map(t => t.trim());
-                return <span className="text-slate-700 tabular-nums whitespace-nowrap">{formatTime(startTimeStr)} – {formatTime(endTimeStr)}</span>;
+                return <span className="text-foreground/90 tabular-nums whitespace-nowrap">{formatTime(startTimeStr)} – {formatTime(endTimeStr)}</span>;
             }
         },
         { key: 'interviewDuration', title: 'Duration', render: (row) => (
-            <span className="text-slate-700 tabular-nums">{row.interviewDuration || <span className="text-slate-300">—</span>}</span>
+            <span className="text-foreground/90 tabular-nums">{row.interviewDuration || <span className="text-muted-foreground/40">—</span>}</span>
         ) },
         { key: 'interviewStatus', title: 'Status', minWidth: '150px', isCustomCell: true, render: (row) => {
             const statusColors = {
                 'Completed':  'bg-emerald-50 text-emerald-700',
                 'Scheduled':  'bg-amber-50 text-amber-800',
-                'InProgress': 'bg-slate-100 text-slate-800',
+                'InProgress': 'bg-muted text-slate-800',
                 'Cancelled':  'bg-red-50 text-red-700',
             };
             return (
@@ -712,7 +712,7 @@ const MainSheet = () => {
                         value={row.interviewStatus || ''}
                         onChange={(e) => handleStatusChange(row._id, e.target.value)}
                         disabled={updatingId === row._id}
-                        className={`block w-full h-full min-h-[36px] text-[11px] font-semibold uppercase tracking-wide pl-3 pr-7 py-2 border-0 rounded-none cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-inset focus:ring-slate-900 transition-colors ${statusColors[row.interviewStatus] || 'bg-white text-slate-500'}`}
+                        className={`block w-full h-full min-h-[36px] text-[11px] font-semibold uppercase tracking-wide pl-3 pr-7 py-2 border-0 rounded-none cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-inset focus:ring-primary transition-colors ${statusColors[row.interviewStatus] || 'bg-white text-muted-foreground'}`}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <option value="" disabled>Select</option>
@@ -720,7 +720,7 @@ const MainSheet = () => {
                             <option key={status.value} value={status.value}>{status.label}</option>
                         ))}
                     </select>
-                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-500 pointer-events-none" aria-hidden="true" />
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" aria-hidden="true" />
                 </div>
             );
         } },
@@ -734,7 +734,7 @@ const MainSheet = () => {
                         value={row.interviewer?._id || ''}
                         onChange={(e) => handleInterviewerChange(row._id, e.target.value)}
                         disabled={updatingId === row._id}
-                        className={`block w-full h-full min-h-[36px] pl-3 pr-7 py-2 text-[12.5px] border-0 rounded-none bg-white cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-inset focus:ring-slate-900 transition-colors ${isAssigned ? 'text-slate-900 font-semibold' : 'text-slate-400 italic'}`}
+                        className={`block w-full h-full min-h-[36px] pl-3 pr-7 py-2 text-[12.5px] border-0 rounded-none bg-white cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-inset focus:ring-primary transition-colors ${isAssigned ? 'text-foreground font-semibold' : 'text-muted-foreground/70 italic'}`}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <option value="">Unassigned</option>
@@ -742,22 +742,22 @@ const MainSheet = () => {
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
                     </select>
-                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" aria-hidden="true" />
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground/70 pointer-events-none" aria-hidden="true" />
                 </div>
             );
         } },
         { key: 'interviewerMail', title: 'Interviewer Mail', minWidth: '220px', render: (row) => (
-            <span className="text-slate-500">{row.interviewer?.user?.email || <span className="text-slate-300">—</span>}</span>
+            <span className="text-muted-foreground">{row.interviewer?.user?.email || <span className="text-muted-foreground/40">—</span>}</span>
         ) },
         { key: 'interviewerRemarks', title: 'Interviewer Remarks', minWidth: '260px', render: (row) => {
             const remarks = row.interviewerRemarks;
             const charLimit = 50;
-            if (!remarks) return <span className="text-slate-300">—</span>;
-            if (remarks.length <= charLimit) return <div className="whitespace-normal break-words text-slate-700" title={remarks}>{remarks}</div>;
+            if (!remarks) return <span className="text-muted-foreground/40">—</span>;
+            if (remarks.length <= charLimit) return <div className="whitespace-normal break-words text-foreground/90" title={remarks}>{remarks}</div>;
             return (
                 <div className="flex items-center overflow-hidden">
-                    <span className="truncate text-slate-700" title={remarks}>{remarks.substring(0, charLimit)}…</span>
-                    <button onClick={() => openRemarksModal(remarks)} className="ml-1 text-slate-900 hover:text-[#C0392B] text-[11.5px] font-semibold flex-shrink-0 underline underline-offset-2 transition-colors">more</button>
+                    <span className="truncate text-foreground/90" title={remarks}>{remarks.substring(0, charLimit)}…</span>
+                    <button onClick={() => openRemarksModal(remarks)} className="ml-1 text-foreground hover:text-[#C0392B] text-[11.5px] font-semibold flex-shrink-0 underline underline-offset-2 transition-colors">more</button>
                 </div>
             );
         }},
@@ -782,12 +782,12 @@ const MainSheet = () => {
     return (
         <div className="h-full w-full flex flex-col overflow-hidden bg-[#fcfaf8]">
             {/* Header */}
-            <div className="bg-white border-b border-slate-200 px-6 py-4 flex-shrink-0">
+            <div className="bg-white border-b border-border px-6 py-4 flex-shrink-0">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                        <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">Main Sheet</h1>
+                        <h1 className="text-xl font-extrabold text-foreground tracking-tight">Main Sheet</h1>
                         {pagination.totalItems > 0 && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold tracking-widest uppercase border border-slate-200 bg-white text-slate-700 border border-emerald-100 px-2.5 py-0.5 rounded-full">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold tracking-widest uppercase border border-border bg-white text-foreground/90 border border-emerald-100 px-2.5 py-0.5 rounded-full">
                                 {pagination.totalItems} records
                             </span>
                         )}
@@ -799,7 +799,7 @@ const MainSheet = () => {
                         <button
                             ref={filterButtonRef}
                             onClick={toggleFilterMenu}
-                            className={`h-10 inline-flex items-center gap-2 px-4 text-sm font-semibold rounded-xl border transition-colors ${isFilterActive ? 'border-slate-200 bg-slate-50 text-slate-900' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                            className={`h-10 inline-flex items-center gap-2 px-4 text-sm font-semibold rounded-xl border transition-colors ${isFilterActive ? 'border-border bg-muted/40 text-foreground' : 'border-border bg-white text-foreground/90 hover:bg-muted/40'}`}
                         >
                             <Filter className="h-3.5 w-3.5" />
                             Filter
@@ -808,52 +808,52 @@ const MainSheet = () => {
                                     onClick={(e) => { e.stopPropagation(); handleClearFilters(); }}
                                     className="ml-0.5 p-0.5 rounded-full hover:bg-blue-100"
                                 >
-                                    <X className="h-3 w-3 text-slate-900" />
+                                    <X className="h-3 w-3 text-foreground" />
                                 </span>
                             )}
                         </button>
                         {isFilterMenuOpen && createPortal(
                             <div
                                 ref={filterMenuRef}
-                                className="fixed w-80 bg-white rounded-xl shadow-xl shadow-slate-900/10 border border-slate-200 z-[9999] p-5"
+                                className="fixed w-80 bg-white rounded-xl shadow-xl shadow-slate-900/10 border border-border z-[9999] p-5"
                                 style={{ top: `${filterMenuPos.top}px`, left: `${filterMenuPos.left}px` }}
                             >
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] mb-2">Date</label>
+                                        <label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em] mb-2">Date</label>
                                         <DatePicker
                                             selected={tempFilters.interviewDate}
                                             onChange={(date) => setTempFilters(prev => ({ ...prev, interviewDate: date }))}
                                             isClearable
                                             placeholderText="Select a date"
-                                            className="w-full h-10 px-3 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors"
+                                            className="w-full h-10 px-3 border border-border rounded-lg bg-muted/40 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors"
                                             portalId="datepicker-portal"
                                             popperClassName="!z-[10000]"
                                             popperProps={{ strategy: 'fixed' }}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] mb-2">Status</label>
+                                        <label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em] mb-2">Status</label>
                                         <select
                                             value={tempFilters.interviewStatus}
                                             onChange={(e) => setTempFilters(prev => ({ ...prev, interviewStatus: e.target.value }))}
-                                            className="w-full h-10 px-3 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 cursor-pointer transition-colors"
+                                            className="w-full h-10 px-3 border border-border rounded-lg bg-muted/40 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary cursor-pointer transition-colors"
                                         >
                                             <option value="">All Statuses</option>
                                             {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
                                         </select>
                                     </div>
                                 </div>
-                                <div className="mt-5 pt-4 border-t border-slate-100 flex justify-end gap-2">
+                                <div className="mt-5 pt-4 border-t border-border flex justify-end gap-2">
                                     <button
                                         onClick={handleClearFilters}
-                                        className="h-9 px-4 text-xs font-medium text-slate-600 rounded-md border border-slate-200 hover:bg-slate-50 transition-colors"
+                                        className="h-9 px-4 text-xs font-medium text-foreground/80 rounded-md border border-border hover:bg-muted/40 transition-colors"
                                     >
                                         Clear
                                     </button>
                                     <button
                                         onClick={handleApplyFilters}
-                                        className="h-9 px-4 text-xs font-medium text-white rounded-md bg-slate-900 hover:bg-[#C0392B] transition-all"
+                                        className="h-9 px-4 text-xs font-medium text-white rounded-md bg-primary hover:bg-primary/90 transition-all"
                                     >
                                         Apply
                                     </button>
@@ -887,12 +887,12 @@ const MainSheet = () => {
             </div>
 
             {!loading && pagination && pagination.totalItems > 0 && (
-                <div className="flex items-center justify-between border-t border-slate-200 bg-white px-6 py-2.5 flex-shrink-0">
+                <div className="flex items-center justify-between border-t border-border bg-white px-6 py-2.5 flex-shrink-0">
                     <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2 text-[12px] text-slate-500">
+                        <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
                             <span>Rows per page</span>
                             <select value={rowsPerPage} onChange={e => { setRowsPerPage(Number(e.target.value)); setCurrentPage(1); }}
-                                className="h-7 pl-2 pr-6 border border-slate-200 rounded text-[12px] bg-white appearance-none cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-300">
+                                className="h-7 pl-2 pr-6 border border-border rounded text-[12px] bg-white appearance-none cursor-pointer hover:border-primary/40 focus:outline-none focus:ring-1 focus:ring-blue-300">
                                 <option value={25}>25</option>
                                 <option value={50}>50</option>
                                 <option value={100}>100</option>
@@ -900,15 +900,15 @@ const MainSheet = () => {
                                 <option value={500}>500</option>
                             </select>
                         </div>
-                        <p className="text-[12px] text-slate-500">
-                            Showing <span className="font-semibold text-slate-900">{showingFrom}</span>–<span className="font-semibold text-slate-900">{showingTo}</span> of <span className="font-semibold text-slate-900">{pagination.totalItems}</span>
+                        <p className="text-[12px] text-muted-foreground">
+                            Showing <span className="font-semibold text-foreground">{showingFrom}</span>–<span className="font-semibold text-foreground">{showingTo}</span> of <span className="font-semibold text-foreground">{pagination.totalItems}</span>
                         </p>
                     </div>
                     <div className="flex items-center gap-1.5">
                         <button
                             onClick={() => setCurrentPage(pagination.currentPage - 1)}
                             disabled={loading || pagination.currentPage <= 1}
-                            className="h-9 w-9 rounded-md flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            className="h-9 w-9 rounded-md flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-muted/40 hover:border-primary/40 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                         >
                             <ChevronLeft className="h-4 w-4" />
                         </button>
@@ -927,15 +927,15 @@ const MainSheet = () => {
                                 }
                                 return pages.map((p, idx) =>
                                     p === '...' ? (
-                                        <span key={`dots-${idx}`} className="px-1.5 text-xs text-slate-400">…</span>
+                                        <span key={`dots-${idx}`} className="px-1.5 text-xs text-muted-foreground/70">…</span>
                                     ) : (
                                         <button
                                             key={p}
                                             onClick={() => setCurrentPage(p)}
                                             className={`h-9 min-w-[36px] px-2.5 rounded-md text-xs font-medium transition-all ${
                                                 p === current
-                                                    ? 'text-white bg-slate-900'
-                                                    : 'text-slate-600 border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300'
+                                                    ? 'text-white bg-primary'
+                                                    : 'text-foreground/80 border border-border bg-white hover:bg-muted/40 hover:border-primary/40'
                                             }`}
                                         >
                                             {p}
@@ -947,7 +947,7 @@ const MainSheet = () => {
                         <button
                             onClick={() => setCurrentPage(pagination.currentPage + 1)}
                             disabled={loading || pagination.currentPage >= pagination.totalPages}
-                            className="h-9 w-9 rounded-md flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            className="h-9 w-9 rounded-md flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-muted/40 hover:border-primary/40 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                         >
                             <ChevronRight className="h-4 w-4" />
                         </button>

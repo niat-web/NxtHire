@@ -81,41 +81,41 @@ const UserManagement = () => {
     const renderCell = (col, row) => {
         switch (col.key) {
             case 'name':
-                return <span className="text-[13px] font-medium text-slate-900">{row.firstName} {row.lastName}</span>;
+                return <span className="text-[13px] font-medium text-foreground">{row.firstName} {row.lastName}</span>;
             case 'email':
-                return <span className="text-[13px] text-slate-500">{row.email}</span>;
+                return <span className="text-[13px] text-muted-foreground">{row.email}</span>;
             case 'isActive':
                 return (
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => toggleActiveStatus(row)}
-                            className={`relative w-8 h-[18px] rounded-full transition-colors ${row.isActive ? 'bg-slate-900' : 'bg-slate-200'}`}
+                            className={`relative w-8 h-[18px] rounded-full transition-colors ${row.isActive ? 'bg-primary' : 'bg-slate-200'}`}
                             title={row.isActive ? 'Active' : 'Inactive'}
                         >
                             <span className={`block w-3.5 h-3.5 rounded-full bg-white shadow-sm transform transition-transform mt-[2px] ml-[2px] ${row.isActive ? 'translate-x-[14px]' : 'translate-x-0'}`} />
                         </button>
-                        <span className={`text-[11px] font-semibold ${row.isActive ? 'text-emerald-600' : 'text-slate-400'}`}>
+                        <span className={`text-[11px] font-semibold ${row.isActive ? 'text-emerald-600' : 'text-muted-foreground/70'}`}>
                             {row.isActive ? 'Active' : 'Inactive'}
                         </span>
                     </div>
                 );
             case 'lastLogin':
                 return (
-                    <span className={`text-[12px] ${row.lastLogin ? 'text-slate-500' : 'text-slate-300 italic'}`}>
+                    <span className={`text-[12px] ${row.lastLogin ? 'text-muted-foreground' : 'text-muted-foreground/40 italic'}`}>
                         {row.lastLogin ? formatDateTime(row.lastLogin) : 'Never'}
                     </span>
                 );
             case 'createdAt':
-                return <span className="text-[12px] text-slate-500">{formatDateTime(row.createdAt)}</span>;
+                return <span className="text-[12px] text-muted-foreground">{formatDateTime(row.createdAt)}</span>;
             case 'actions':
                 return (
                     <div className="flex items-center gap-0.5">
                         <button onClick={() => setModalState({ type: 'edit', data: row })}
-                            className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-colors" title="Edit">
+                            className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground/70 hover:text-foreground hover:bg-muted/40 transition-colors" title="Edit">
                             <Edit className="w-3.5 h-3.5" />
                         </button>
                         <button onClick={() => setDeleteDialog({ isOpen: true, user: row })}
-                            className="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors" title="Delete">
+                            className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground/70 hover:text-rose-600 hover:bg-rose-50 transition-colors" title="Delete">
                             <Trash2 className="w-3.5 h-3.5" />
                         </button>
                     </div>
@@ -126,19 +126,19 @@ const UserManagement = () => {
     };
 
     return (
-        <div className="flex flex-col h-full bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div className="flex flex-col h-full bg-white rounded-xl border border-border overflow-hidden">
 
             {/* Single header row: tabs + search + add button */}
-            <div className="bg-white border-b border-slate-200 px-5 py-3 shrink-0">
+            <div className="bg-white border-b border-border px-5 py-3 shrink-0">
                 <div className="flex items-center gap-3">
                     {/* Tabs */}
-                    <div className="inline-flex bg-slate-100 rounded-lg p-0.5 shrink-0">
+                    <div className="inline-flex bg-muted rounded-lg p-0.5 shrink-0">
                         <button
                             onClick={() => setActiveTab('admin')}
                             className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold rounded-md transition-all ${
                                 activeTab === 'admin'
-                                    ? 'bg-white text-slate-900 shadow-sm'
-                                    : 'text-slate-500 hover:text-slate-700'
+                                    ? 'bg-white text-foreground shadow-sm'
+                                    : 'text-muted-foreground hover:text-foreground/90'
                             }`}
                         >
                             <Shield className="w-3 h-3" /> Admins
@@ -147,8 +147,8 @@ const UserManagement = () => {
                             onClick={() => setActiveTab('interviewer')}
                             className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold rounded-md transition-all ${
                                 activeTab === 'interviewer'
-                                    ? 'bg-white text-slate-900 shadow-sm'
-                                    : 'text-slate-500 hover:text-slate-700'
+                                    ? 'bg-white text-foreground shadow-sm'
+                                    : 'text-muted-foreground hover:text-foreground/90'
                             }`}
                         >
                             <User className="w-3 h-3" /> Interviewers
@@ -160,14 +160,14 @@ const UserManagement = () => {
 
                     {/* Search — right side */}
                     <div className="relative w-64 shrink-0">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70" />
                         <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or email..."
-                            className="w-full pl-9 pr-3 h-9 bg-slate-50 border border-slate-200 rounded-lg text-[13px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white transition-colors" />
+                            className="w-full pl-9 pr-3 h-9 bg-muted/40 border border-border rounded-lg text-[13px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary focus:bg-white transition-colors" />
                     </div>
 
                     {/* Add button */}
                     <button onClick={() => setModalState({ type: 'add', data: null })}
-                        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white rounded-md bg-slate-900 hover:bg-[#C0392B] transition-colors shrink-0">
+                        className="inline-flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white rounded-md bg-primary hover:bg-primary/90 transition-colors shrink-0">
                         <Plus className="w-3.5 h-3.5" /> Add User
                     </button>
                 </div>
@@ -181,14 +181,14 @@ const UserManagement = () => {
                             <tr>
                                 {columns.map((col) => (
                                     <th key={col.key} scope="col"
-                                        className={`sticky top-0 px-5 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] whitespace-nowrap border-b border-slate-100 bg-slate-50/80 backdrop-blur-sm z-10 ${col.sortable ? 'cursor-pointer hover:text-slate-600' : ''}`}
+                                        className={`sticky top-0 px-5 py-2.5 text-left text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-[0.15em] whitespace-nowrap border-b border-border bg-muted/40/80 backdrop-blur-sm z-10 ${col.sortable ? 'cursor-pointer hover:text-foreground/80' : ''}`}
                                         style={{ minWidth: col.minWidth }}
                                         onClick={() => col.sortable && handleSort(col.key)}>
                                         <div className="flex items-center gap-1">
                                             {col.title}
                                             {col.sortable && (
                                                 <span className="text-[9px]">
-                                                    {sortConfig.key === col.key ? (sortConfig.direction === 'asc' ? '▲' : '▼') : <span className="text-slate-300">⇅</span>}
+                                                    {sortConfig.key === col.key ? (sortConfig.direction === 'asc' ? '▲' : '▼') : <span className="text-muted-foreground/40">⇅</span>}
                                                 </span>
                                             )}
                                         </div>
@@ -196,20 +196,20 @@ const UserManagement = () => {
                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-slate-100/80">
+                        <tbody className="bg-white divide-y divide-border/80">
                             {loading ? (
                                 [...Array(6)].map((_, i) => (
                                     <tr key={i} className="animate-pulse">
                                         {columns.map((col) => (
-                                            <td key={col.key} className="px-5 py-3"><div className="h-3.5 w-3/4 bg-slate-100 rounded" /></td>
+                                            <td key={col.key} className="px-5 py-3"><div className="h-3.5 w-3/4 bg-muted rounded" /></td>
                                         ))}
                                     </tr>
                                 ))
                             ) : users.length === 0 ? (
-                                <tr><td colSpan={columns.length} className="px-6 py-14 text-center text-[13px] text-slate-400">No {activeTab === 'admin' ? 'administrators' : 'interviewers'} found.</td></tr>
+                                <tr><td colSpan={columns.length} className="px-6 py-14 text-center text-[13px] text-muted-foreground/70">No {activeTab === 'admin' ? 'administrators' : 'interviewers'} found.</td></tr>
                             ) : (
                                 users.map((row) => (
-                                    <tr key={row._id} className="hover:bg-slate-50/60 transition-colors">
+                                    <tr key={row._id} className="hover:bg-muted/30 transition-colors">
                                         {columns.map((col) => (
                                             <td key={col.key} className="px-5 py-2.5 whitespace-nowrap align-middle">
                                                 {renderCell(col, row)}
@@ -224,21 +224,21 @@ const UserManagement = () => {
 
                 {/* Pagination */}
                 {!loading && pagination.totalItems > 0 && (
-                    <div className="px-5 py-2.5 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
-                        <p className="text-[11px] text-slate-400">
+                    <div className="px-5 py-2.5 border-t border-border bg-white flex items-center justify-between shrink-0">
+                        <p className="text-[11px] text-muted-foreground/70">
                             Showing {((pagination.currentPage - 1) * itemsPerPage) + 1}–{Math.min(pagination.currentPage * itemsPerPage, pagination.totalItems)} of {pagination.totalItems}
                         </p>
                         <div className="flex items-center gap-3">
-                            <span className="text-[11px] text-slate-500">
+                            <span className="text-[11px] text-muted-foreground">
                                 Page {pagination.currentPage} of {pagination.totalPages}
                             </span>
                             <div className="flex items-center gap-1">
                                 <button onClick={() => setPage(p => p - 1)} disabled={pagination.currentPage === 1}
-                                    className="h-7 w-7 rounded-md flex items-center justify-center border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                                    className="h-7 w-7 rounded-md flex items-center justify-center border border-border bg-white text-muted-foreground hover:bg-muted/40 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
                                     <ChevronLeft className="w-3.5 h-3.5" />
                                 </button>
                                 <button onClick={() => setPage(p => p + 1)} disabled={pagination.currentPage === pagination.totalPages}
-                                    className="h-7 w-7 rounded-md flex items-center justify-center border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                                    className="h-7 w-7 rounded-md flex items-center justify-center border border-border bg-white text-muted-foreground hover:bg-muted/40 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
                                     <ChevronRight className="w-3.5 h-3.5" />
                                 </button>
                             </div>

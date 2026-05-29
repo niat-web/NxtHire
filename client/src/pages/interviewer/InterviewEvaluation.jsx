@@ -21,7 +21,7 @@ import Loader from '@/components/common/Loader';
 
 // ─── STATUS CONFIG ───────────────────────────────────────────────────────────
 const STATUS_CONFIG = {
-  Scheduled:  { bg: 'bg-slate-50',   border: 'border-blue-500', text: 'text-slate-900', dot: 'bg-slate-500', pill: 'bg-slate-50 text-slate-900 border-slate-200', label: 'Scheduled' },
+  Scheduled:  { bg: 'bg-muted/40',   border: 'border-blue-500', text: 'text-foreground', dot: 'bg-muted/400', pill: 'bg-muted/40 text-foreground border-border', label: 'Scheduled' },
   InProgress: { bg: 'bg-amber-50',    border: 'border-amber-500',  text: 'text-amber-700',  dot: 'bg-amber-500',  pill: 'bg-amber-50 text-amber-700 border-amber-200',   label: 'In Progress' },
   Completed:  { bg: 'bg-emerald-50',  border: 'border-emerald-500',text: 'text-emerald-700',dot: 'bg-emerald-500',pill: 'bg-emerald-50 text-emerald-700 border-emerald-200',label: 'Completed' },
   Cancelled:  { bg: 'bg-red-50',      border: 'border-red-500',    text: 'text-red-700',    dot: 'bg-red-500',    pill: 'bg-red-50 text-red-700 border-red-200',           label: 'Cancelled' },
@@ -62,7 +62,7 @@ const getInitials = (name) => {
 // ─── STAT CARD ──────────────────────────────────────────────────────────────
 const StatCard = ({ label, value, icon: Icon, color = 'blue', active, onClick }) => {
   const palette = {
-    blue:    { bg: 'bg-slate-50 text-slate-900', ring: 'ring-blue-200' },
+    blue:    { bg: 'bg-muted/40 text-foreground', ring: 'ring-blue-200' },
     amber:   { bg: 'bg-amber-50 text-amber-600',   ring: 'ring-amber-200' },
     emerald: { bg: 'bg-emerald-50 text-emerald-600',ring: 'ring-emerald-200' },
     red:     { bg: 'bg-red-50 text-red-600',        ring: 'ring-red-200' },
@@ -80,7 +80,7 @@ const StatCard = ({ label, value, icon: Icon, color = 'blue', active, onClick })
           <Icon size={14} />
         </div>
       </div>
-      <p className="font-display text-[26px] font-semibold text-slate-900 tracking-tight leading-none">{value}</p>
+      <p className="font-display text-[26px] font-semibold text-foreground tracking-tight leading-none">{value}</p>
     </button>
   );
 };
@@ -106,7 +106,7 @@ const InterviewCard = ({ interview, onClick }) => {
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-slate-900 transition-colors">
+            <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-foreground transition-colors">
               {interview.candidateName}
             </p>
             <span className={cn('inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-semibold uppercase', config.pill)}>
@@ -136,7 +136,7 @@ const InterviewCard = ({ interview, onClick }) => {
         {interview.meetingLink && (
           <a href={interview.meetingLink} target="_blank" rel="noopener noreferrer"
             onClick={e => e.stopPropagation()}
-            className="shrink-0 flex items-center gap-2 px-3 h-8 text-xs font-medium text-slate-900 bg-slate-50 rounded-md hover:bg-blue-100 border border-slate-200 transition-colors">
+            className="shrink-0 flex items-center gap-2 px-3 h-8 text-xs font-medium text-foreground bg-muted/40 rounded-md hover:bg-blue-100 border border-border transition-colors">
             <Video size={13} /> Join
           </a>
         )}
@@ -169,7 +169,7 @@ const InterviewDetailsModal = ({ isOpen, onClose, interview, onStatusChange }) =
             <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
               <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-xl bg-white shadow-xl transition-all">
                 {/* Header */}
-                <div className="relative bg-slate-900 px-6 py-5 text-white">
+                <div className="relative bg-primary px-6 py-5 text-white">
                   <Button variant="ghost" size="icon" onClick={onClose} className="absolute top-4 right-4 rounded-full hover:bg-white/10 text-white">
                     <X size={18} />
                   </Button>
@@ -213,17 +213,17 @@ const InterviewDetailsModal = ({ isOpen, onClose, interview, onStatusChange }) =
 
                   {interview.meetingLink && (
                     <a href={interview.meetingLink} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-200 hover:border-slate-900 transition-colors group">
+                      className="flex items-center justify-between p-4 bg-white rounded-2xl border border-border hover:border-primary transition-colors group">
                       <div className="flex items-center gap-3">
-                        <span className="inline-flex items-center justify-center h-9 w-9 rounded-lg border border-slate-200 bg-white text-slate-700">
+                        <span className="inline-flex items-center justify-center h-9 w-9 rounded-lg border border-border bg-white text-foreground/90">
                           <Video className="h-4 w-4" aria-hidden="true" />
                         </span>
                         <div>
-                          <p className="text-[13px] font-semibold text-slate-900">Join meeting</p>
-                          <p className="text-[12px] text-slate-500 truncate max-w-[240px]">{interview.meetingLink}</p>
+                          <p className="text-[13px] font-semibold text-foreground">Join meeting</p>
+                          <p className="text-[12px] text-muted-foreground truncate max-w-[240px]">{interview.meetingLink}</p>
                         </div>
                       </div>
-                      <ExternalLink className="h-4 w-4 text-slate-400 group-hover:text-slate-900 transition-colors" aria-hidden="true" />
+                      <ExternalLink className="h-4 w-4 text-muted-foreground/70 group-hover:text-foreground transition-colors" aria-hidden="true" />
                     </a>
                   )}
 
@@ -232,7 +232,7 @@ const InterviewDetailsModal = ({ isOpen, onClose, interview, onStatusChange }) =
                     <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Update Status</label>
                     <div className="relative">
                       <select value={status} onChange={(e) => setStatus(e.target.value)}
-                        className="w-full pl-3 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 outline-none appearance-none cursor-pointer">
+                        className="w-full pl-3 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none cursor-pointer">
                         {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => (
                           <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
@@ -262,7 +262,7 @@ const InterviewDetailsModal = ({ isOpen, onClose, interview, onStatusChange }) =
 const FilterListbox = ({ value, onChange, options, label, icon: Icon }) => (
   <Listbox value={value} onChange={onChange} multiple>
     <div className="relative">
-      <Listbox.Button className="relative cursor-pointer rounded-lg bg-white py-2 pl-8 pr-7 text-left border border-gray-200 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-slate-900/20 transition-all text-sm font-medium text-gray-700 min-w-[130px]">
+      <Listbox.Button className="relative cursor-pointer rounded-lg bg-white py-2 pl-8 pr-7 text-left border border-gray-200 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm font-medium text-gray-700 min-w-[130px]">
         <span className="absolute inset-y-0 left-0 flex items-center pl-2.5 text-gray-400"><Icon size={14} /></span>
         <span className="block truncate">{value.length > 0 ? `${value.length} selected` : label}</span>
         <span className="absolute inset-y-0 right-0 flex items-center pr-2"><ChevronDown size={13} className="text-gray-400" /></span>
@@ -271,11 +271,11 @@ const FilterListbox = ({ value, onChange, options, label, icon: Icon }) => (
         <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-sm shadow-xl ring-1 ring-black/5 z-50 focus:outline-none">
           {options.map((opt) => (
             <Listbox.Option key={opt.value} value={opt.value}
-              className={({ active }) => cn("relative cursor-pointer select-none py-2.5 pl-9 pr-4", active ? "bg-slate-50 text-blue-900" : "text-gray-600")}>
+              className={({ active }) => cn("relative cursor-pointer select-none py-2.5 pl-9 pr-4", active ? "bg-muted/40 text-blue-900" : "text-gray-600")}>
               {({ selected }) => (
                 <>
                   <span className={cn("block truncate", selected && "font-semibold text-gray-900")}>{opt.label}</span>
-                  {selected && <CheckCircle className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-900" size={14} />}
+                  {selected && <CheckCircle className="absolute left-2.5 top-1/2 -translate-y-1/2 text-foreground" size={14} />}
                 </>
               )}
             </Listbox.Option>
@@ -390,8 +390,8 @@ const InterviewEvaluation = () => {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div className="flex items-center gap-4">
             <div>
-              <h1 className="font-display text-[26px] font-semibold text-slate-900 tracking-tight leading-none">Scheduled interviews</h1>
-              <p className="text-[12.5px] text-slate-500 mt-2">
+              <h1 className="font-display text-[26px] font-semibold text-foreground tracking-tight leading-none">Scheduled interviews</h1>
+              <p className="text-[12.5px] text-muted-foreground mt-2">
                 {formatDateFns(weekDays[0], 'MMM d')} – {formatDateFns(weekDays[6], 'MMM d, yyyy')}
               </p>
             </div>
@@ -412,7 +412,7 @@ const InterviewEvaluation = () => {
           <div className="flex items-center gap-2">
             <FilterListbox label="Domains" icon={MapPin} value={filters.domain} options={domains.map(d => ({ value: d, label: d }))} onChange={(v) => setFilters(p => ({ ...p, domain: v }))} />
             <FilterListbox label="Statuses" icon={Filter} value={filters.status} options={MAIN_SHEET_INTERVIEW_STATUSES} onChange={(v) => setFilters(p => ({ ...p, status: v }))} />
-            <Button variant="outline" size="icon" onClick={() => refetch()} className="h-9 w-9 rounded-lg text-gray-400 hover:text-slate-900 hover:border-slate-200 hover:bg-slate-50" title="Refresh">
+            <Button variant="outline" size="icon" onClick={() => refetch()} className="h-9 w-9 rounded-lg text-gray-400 hover:text-foreground hover:border-border hover:bg-muted/40" title="Refresh">
               <RefreshCw size={14} />
             </Button>
           </div>
@@ -459,13 +459,13 @@ const InterviewEvaluation = () => {
                   <div className="flex items-center gap-3 mb-3">
                     <div className={cn(
                       'w-10 h-10 rounded-xl flex flex-col items-center justify-center shrink-0 border',
-                      isToday(date) ? 'bg-slate-900 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-200'
+                      isToday(date) ? 'bg-primary text-white border-blue-600' : 'bg-white text-gray-700 border-gray-200'
                     )}>
                       <span className="text-[9px] font-semibold uppercase leading-none">{formatDateFns(date, 'EEE')}</span>
                       <span className="text-sm font-black leading-none">{formatDateFns(date, 'd')}</span>
                     </div>
                     <div>
-                      <p className={cn('text-sm font-semibold', isToday(date) ? 'text-slate-900' : 'text-gray-900')}>
+                      <p className={cn('text-sm font-semibold', isToday(date) ? 'text-foreground' : 'text-gray-900')}>
                         {isToday(date) ? 'Today' : formatDateFns(date, 'EEEE')}
                       </p>
                       <p className="text-xs text-gray-400">{formatDateFns(date, 'MMMM d, yyyy')} · {interviews.length} interview{interviews.length !== 1 ? 's' : ''}</p>

@@ -16,7 +16,7 @@ const ProgressBar = ({
   const percentage = ((normalizedValue - min) / (max - min)) * 100;
 
   const variantClasses = {
-    primary: 'bg-slate-900',
+    primary: 'bg-primary',
     secondary: 'bg-slate-600',
     success: 'bg-emerald-600',
     warning: 'bg-amber-500',
@@ -31,11 +31,11 @@ const ProgressBar = ({
     <div className={cn('w-full', className)}>
       {showValue && valuePosition === 'top' && (
         <div className="flex justify-end mb-1">
-          <span className="text-[12px] font-semibold text-slate-700">{value}%</span>
+          <span className="text-[12px] font-semibold text-foreground/90">{value}%</span>
         </div>
       )}
 
-      <div className={cn('w-full bg-slate-100 rounded-full', height)}>
+      <div className={cn('w-full bg-muted rounded-full', height)}>
         <div
           className={cn(barColorClass, height, 'rounded-full transition-all duration-300 ease-in-out')}
           style={{ width: `${percentage}%` }}
@@ -44,7 +44,7 @@ const ProgressBar = ({
 
       {showValue && valuePosition === 'right' && (
         <div className="flex justify-end mt-1">
-          <span className="text-[12px] font-semibold text-slate-700">{value}%</span>
+          <span className="text-[12px] font-semibold text-foreground/90">{value}%</span>
         </div>
       )}
     </div>

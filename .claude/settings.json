@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "PowerShell($f = 'c:\\\\Users\\\\NxtWave\\\\Downloads\\\\NxtHire-1\\\\client\\\\src\\\\pages\\\\public\\\\Home.jsx'; \\(Get-Content -Raw -Path $f\\).Substring\\(0, 800\\))"
+      "PowerShell($f = 'c:\\\\Users\\\\NxtWave\\\\Downloads\\\\NxtHire-1\\\\client\\\\src\\\\pages\\\\public\\\\Home.jsx'; \\(Get-Content -Raw -Path $f\\).Substring\\(0, 800\\))",
+      "Bash(node -e \"require\\('./controllers/admin.controller.js'\\); console.log\\('Controller loaded OK'\\);\")",
+      "Bash(Get-ChildItem -Recurse -Depth 2)",
+      "PowerShell(head -50)",
+      "Bash(grep -n '$regex' 'c:\\\\Users\\\\NxtWave\\\\Downloads\\\\NxtHire-1\\\\server\\\\controllers\\\\admin.controller.js')"
     ]
   }
 }

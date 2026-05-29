@@ -36,11 +36,11 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
     };
 
     const DetailItem = ({ label, value, icon: Icon }) => (
-        <div className="flex flex-col gap-1 p-3 bg-slate-50 rounded-lg border border-slate-100">
-            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
+        <div className="flex flex-col gap-1 p-3 bg-muted/40 rounded-md border border-border">
+            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.18em] flex items-center gap-1.5">
                 {Icon && <Icon className="w-3 h-3" />} {label}
             </span>
-            <span className="text-sm font-medium text-slate-900 break-words">{value || <span className="text-slate-400 italic">N/A</span>}</span>
+            <span className="text-[13px] font-medium text-foreground break-words">{value || <span className="text-muted-foreground/60 italic">N/A</span>}</span>
         </div>
     );
 
@@ -56,33 +56,34 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
                 <div className="fixed inset-0 overflow-y-auto">
                     <div className="flex min-h-full items-center justify-center p-4 text-center">
                         <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
-                            <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-xl bg-white text-left align-middle shadow-lg transition-all flex flex-col max-h-[90vh]">
-                                {/* Header */}
-                                <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                            <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-lg bg-card text-card-foreground text-left align-middle shadow-lg transition-all flex flex-col max-h-[90vh] border border-border">
+                                <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-muted/30">
                                     <div className="flex items-center gap-4">
-                                        <div className="h-12 w-12 rounded-lg bg-slate-50 text-slate-900 flex items-center justify-center text-lg font-semibold border border-slate-200">
+                                        <div
+                                            className="h-12 w-12 rounded-md flex items-center justify-center text-[15px] font-bold"
+                                            style={{ backgroundColor: 'hsl(var(--sidebar-primary))', color: 'hsl(var(--sidebar-primary-foreground))' }}
+                                        >
                                             {data.user?.firstName?.[0]}{data.user?.lastName?.[0]}
                                         </div>
                                         <div>
-                                            <Dialog.Title as="h3" className="text-lg font-semibold text-slate-900 leading-tight">
+                                            <Dialog.Title as="h3" className="font-display text-[18px] font-bold text-foreground leading-tight">
                                                 {data.user?.firstName} {data.user?.lastName}
                                             </Dialog.Title>
-                                            <p className="text-sm text-slate-500">{data.jobTitle} · <span className={`font-semibold ${data.status === 'Active' ? 'text-emerald-600' : 'text-amber-600'}`}>{data.status}</span></p>
+                                            <p className="text-[13px] text-muted-foreground">{data.jobTitle} · <span className={`font-semibold ${data.status === 'Active' ? 'text-emerald-600' : 'text-amber-600'}`}>{data.status}</span></p>
                                         </div>
                                     </div>
-                                    <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition-colors"><X className="h-5 w-5" /></button>
+                                    <button onClick={onClose} className="w-8 h-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><X className="h-5 w-5" /></button>
                                 </div>
 
-                                {/* Scrollable Content */}
                                 <div className="p-6 overflow-y-auto custom-scrollbar">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="col-span-1 md:col-span-2"><h4 className="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2"><User size={14} /> Contact Information</h4></div>
+                                        <div className="col-span-1 md:col-span-2"><h4 className="font-display text-[13px] font-bold text-foreground mb-2 flex items-center gap-2"><User size={14} className="text-primary" /> Contact Information</h4></div>
                                         <DetailItem label="Email Address" value={data.user?.email} />
                                         <DetailItem label="Phone Number" value={data.user?.phoneNumber} />
                                         <DetailItem label="WhatsApp" value={data.user?.whatsappNumber} />
                                         <DetailItem label="Onboarded Date" value={data.onboardingDate ? formatDateTime(data.onboardingDate) : 'N/A'} />
 
-                                        <div className="col-span-1 md:col-span-2 mt-2"><h4 className="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2"><Briefcase size={14} /> Professional Details</h4></div>
+                                        <div className="col-span-1 md:col-span-2 mt-2"><h4 className="font-display text-[13px] font-bold text-foreground mb-2 flex items-center gap-2"><Briefcase size={14} className="text-primary" /> Professional Details</h4></div>
                                         <DetailItem label="Current Employer" value={data.currentEmployer} />
                                         <DetailItem label="Total Experience" value={`${data.yearsOfExperience} Years`} />
                                         <DetailItem label="Company Type" value={data.companyType} />
@@ -91,7 +92,7 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
                                         <DetailItem label="Payout ID" value={data.payoutId} />
                                         <DetailItem label="Interviews Completed" value={data.metrics?.interviewsCompleted || 0} />
 
-                                        <div className="col-span-1 md:col-span-2 mt-2"><h4 className="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2"><CreditCard size={14} /> Bank Details</h4></div>
+                                        <div className="col-span-1 md:col-span-2 mt-2"><h4 className="font-display text-[13px] font-bold text-foreground mb-2 flex items-center gap-2"><CreditCard size={14} className="text-primary" /> Bank Details</h4></div>
                                         <DetailItem label="Bank Name" value={data.bankDetails?.bankName} />
                                         <DetailItem label="Account Name" value={data.bankDetails?.accountName} />
                                         <DetailItem label="Account Number" value={data.bankDetails?.accountNumber} />
@@ -99,13 +100,12 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
                                     </div>
                                 </div>
 
-                                {/* Footer Actions */}
-                                <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-wrap justify-between items-center gap-3">
+                                <div className="px-6 py-4 bg-muted/30 border-t border-border flex flex-wrap justify-between items-center gap-3">
                                     <div className="flex gap-2">
                                         <button
                                             onClick={() => handleAction(onSendWelcome, 'welcome')}
                                             disabled={loadingAction === 'welcome'}
-                                            className={`inline-flex items-center gap-2 px-3 h-8 text-xs font-medium rounded-md border transition-colors disabled:opacity-40 ${data.welcomeEmailSentAt ? 'text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100' : 'text-slate-700 border-slate-200 bg-white hover:bg-slate-50'}`}
+                                            className={`inline-flex items-center gap-2 px-3 h-9 text-[12px] font-semibold rounded-md border transition-colors disabled:opacity-40 ${data.welcomeEmailSentAt ? 'text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100' : 'text-foreground border-border bg-card hover:bg-muted'}`}
                                         >
                                             {loadingAction === 'welcome' ? <Loader2 size={13} className="animate-spin" /> : (data.welcomeEmailSentAt ? <RefreshCw size={13} /> : <Send size={13} />)}
                                             {data.welcomeEmailSentAt ? "Resend Welcome Mail" : "Send Welcome Mail"}
@@ -115,7 +115,7 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
                                             <button
                                                 onClick={() => handleAction(onSendProbation, 'probation')}
                                                 disabled={loadingAction === 'probation'}
-                                                className={`inline-flex items-center gap-2 px-3 h-8 text-xs font-medium rounded-md border transition-colors disabled:opacity-40 ${data.probationEmailSentAt ? 'text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100' : 'text-slate-700 border-slate-200 bg-white hover:bg-slate-50'}`}
+                                                className={`inline-flex items-center gap-2 px-3 h-9 text-[12px] font-semibold rounded-md border transition-colors disabled:opacity-40 ${data.probationEmailSentAt ? 'text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100' : 'text-foreground border-border bg-card hover:bg-muted'}`}
                                             >
                                                 {loadingAction === 'probation' ? <Loader2 size={13} className="animate-spin" /> : (data.probationEmailSentAt ? <RefreshCw size={13} /> : <Send size={13} />)}
                                                 {data.probationEmailSentAt ? "Resend Probation Mail" : "Send Probation Mail"}
@@ -126,14 +126,14 @@ const ViewDetailsModal = ({ isOpen, onClose, data, onSendWelcome, onSendProbatio
                                             <button
                                                 onClick={() => handleAction(onMarkProbation, 'mark')}
                                                 disabled={loadingAction === 'mark'}
-                                                className="inline-flex items-center gap-2 px-3 h-8 text-xs font-medium rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-40"
+                                                className="inline-flex items-center gap-2 px-3 h-9 text-[12px] font-semibold rounded-md border border-border bg-card text-foreground hover:bg-muted transition-colors disabled:opacity-40"
                                             >
                                                 {loadingAction === 'mark' ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle size={13} />}
                                                 Mark Probation Sent
                                             </button>
                                         )}
                                     </div>
-                                    <button onClick={onClose} className="inline-flex items-center px-4 h-10 text-sm font-medium text-white bg-slate-900 rounded-md hover:bg-[#C0392B] transition-colors">Close</button>
+                                    <button onClick={onClose} className="inline-flex items-center px-4 h-10 text-[13px] font-semibold text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-colors">Close</button>
                                 </div>
                             </Dialog.Panel>
                         </Transition.Child>
@@ -174,16 +174,16 @@ const UploadModal = ({ isOpen, onClose, onUploadConfirm, isLoading }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={onClose}>
-            <div className="w-full max-w-lg bg-white rounded-xl shadow-lg border border-slate-200 p-6" onClick={e => e.stopPropagation()}>
-                <h3 className="text-base font-semibold text-slate-900 mb-4">Bulk Import Interviewers</h3>
+            <div className="w-full max-w-lg bg-card text-card-foreground rounded-lg shadow-lg border border-border p-6" onClick={e => e.stopPropagation()}>
+                <h3 className="font-display text-[16px] font-semibold text-foreground mb-4">Bulk Import Interviewers</h3>
                 <div className="space-y-4">
-                    <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-slate-100 file:text-slate-700 cursor-pointer border border-slate-200 rounded-lg p-2" />
-                    {error && <p className="text-red-600 text-sm">{error}</p>}
-                    <p className="text-xs text-slate-500">Supported files: .csv, .xlsx. Headers: firstName, email, phoneNumber, etc.</p>
+                    <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv, .xlsx" className="block w-full text-[13px] text-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-muted file:text-foreground cursor-pointer border border-border rounded-md p-2 bg-background" />
+                    {error && <p className="text-destructive text-[13px]">{error}</p>}
+                    <p className="text-[12px] text-muted-foreground">Supported files: .csv, .xlsx. Headers: firstName, email, phoneNumber, etc.</p>
                 </div>
                 <div className="mt-6 flex justify-end gap-2">
-                    <button onClick={onClose} className="px-4 h-10 text-sm font-medium text-slate-700 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors">Cancel</button>
-                    <button onClick={() => onUploadConfirm(parsedData)} disabled={isLoading || !parsedData.length} className="inline-flex items-center gap-2 px-4 h-10 text-sm font-medium text-white bg-slate-900 rounded-md hover:bg-[#C0392B] disabled:opacity-40 transition-colors">
+                    <button onClick={onClose} className="px-4 h-10 text-[13px] font-medium text-foreground border border-border rounded-md hover:bg-muted transition-colors">Cancel</button>
+                    <button onClick={() => onUploadConfirm(parsedData)} disabled={isLoading || !parsedData.length} className="inline-flex items-center gap-2 px-4 h-10 text-[13px] font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 disabled:opacity-40 transition-colors">
                         {isLoading && <Loader2 size={14} className="animate-spin" />} Upload
                     </button>
                 </div>
@@ -310,37 +310,34 @@ const Interviewers = () => {
     const renderCell = (col, r) => {
         switch (col.key) {
             case 'select':
-                return <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900" checked={selectedRows.includes(r._id)} onChange={() => setSelectedRows(p => p.includes(r._id) ? p.filter(id => id !== r._id) : [...p, r._id])} />;
+                return <input type="checkbox" className="h-4 w-4 rounded border-border text-primary focus:ring-primary" checked={selectedRows.includes(r._id)} onChange={() => setSelectedRows(p => p.includes(r._id) ? p.filter(id => id !== r._id) : [...p, r._id])} />;
             case 'user.firstName':
                 return (
                     <div className="flex flex-col">
-                        <button onClick={() => navigate(`/admin/interviewers/${r._id}`)} className="text-[13px] font-semibold text-slate-900 hover:text-[#C0392B] text-left transition-colors">
+                        <button onClick={() => navigate(`/admin/interviewers/${r._id}`)} className="text-[13px] font-semibold text-foreground hover:text-primary text-left transition-colors">
                             {r.user.firstName} {r.user.lastName}
                         </button>
-                        <span className="text-[12px] text-slate-500">{r.jobTitle || 'N/A'}</span>
+                        <span className="text-[12px] text-muted-foreground">{r.jobTitle || 'N/A'}</span>
                     </div>
                 );
             case 'user.email':
-                return <span className="text-slate-600 text-[13px]">{r.user.email}</span>;
+                return <span className="text-muted-foreground text-[13px]">{r.user.email}</span>;
             case 'user.phoneNumber':
-                return <div className="flex items-center gap-2 text-slate-700 text-[13px] tabular-nums"><Phone className="h-3 w-3 text-slate-400" aria-hidden="true" /> {r.user.phoneNumber}</div>;
+                return <div className="flex items-center gap-2 text-foreground/85 text-[13px] tabular-nums"><Phone className="h-3 w-3 text-muted-foreground" aria-hidden="true" /> {r.user.phoneNumber}</div>;
             case 'user.whatsappNumber':
-                return <div className="flex items-center gap-2 text-[13px] tabular-nums"><MessageCircle className="h-3 w-3 text-emerald-500" aria-hidden="true" /> {r.user.whatsappNumber ? <span className="text-slate-700">{r.user.whatsappNumber}</span> : <span className="text-slate-300">—</span>}</div>;
+                return <div className="flex items-center gap-2 text-[13px] tabular-nums"><MessageCircle className="h-3 w-3 text-emerald-500" aria-hidden="true" /> {r.user.whatsappNumber ? <span className="text-foreground/85">{r.user.whatsappNumber}</span> : <span className="text-muted-foreground/40">—</span>}</div>;
             case 'yearsOfExperience': {
-                // Experience read as a tiny metric chip; seasoned interviewers (5+ years)
-                // pick up an orange-accent dot so senior folks are scannable at a glance.
+                // Senior interviewers (5+ years) get an amber pip so they're scannable at a glance.
                 const years = Number(r.yearsOfExperience || 0);
                 const senior = years >= 5;
                 return (
-                    <span className="inline-flex items-center gap-1.5 text-[13px] text-slate-900 tabular-nums font-semibold">
-                        {senior && <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: '#C0392B' }} aria-hidden="true" title="5+ years" />}
-                        {years} <span className="text-slate-500 font-normal">yrs</span>
+                    <span className="inline-flex items-center gap-1.5 text-[13px] text-foreground tabular-nums font-semibold">
+                        {senior && <span className="h-1.5 w-1.5 rounded-[2px]" style={{ backgroundColor: 'var(--brave-amber)' }} aria-hidden="true" title="5+ years" />}
+                        {years} <span className="text-muted-foreground font-normal">yrs</span>
                     </span>
                 );
             }
             case 'paymentAmount': {
-                // Payment cell uses semantic emerald for positive rates (interviewer is billable)
-                // and muted slate-300 for zero (action needed). The ₹ glyph mirrors the colour.
                 const EditablePayment = () => {
                     const [val, setVal] = useState(String(r.paymentAmount || '').replace(/[^0-9]/g, ''));
                     const [saving, setSaving] = useState(false);
@@ -354,19 +351,18 @@ const Interviewers = () => {
                     const isZero = !val || val === '0';
                     return (
                         <div className="relative">
-                            <span className={`absolute left-2.5 top-1/2 -translate-y-1/2 text-[12px] font-semibold ${isZero ? 'text-slate-300' : 'text-emerald-600'}`} aria-hidden="true">₹</span>
+                            <span className={`absolute left-2.5 top-1/2 -translate-y-1/2 text-[12px] font-semibold ${isZero ? 'text-muted-foreground/40' : 'text-emerald-600'}`} aria-hidden="true">₹</span>
                             <input type="text" value={val} onChange={e => setVal(e.target.value.replace(/[^0-9]/g, ''))} onBlur={save} disabled={saving} placeholder="0"
-                                className={`w-24 pl-6 pr-2 py-1.5 text-[13px] font-semibold border border-transparent rounded-lg bg-transparent hover:border-slate-200 focus:bg-white focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 text-right tabular-nums transition-colors ${isZero ? 'text-slate-400' : 'text-emerald-700'}`} />
+                                className={`w-24 pl-6 pr-2 py-1.5 text-[13px] font-semibold border border-transparent rounded-md bg-transparent hover:border-border focus:bg-card focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10 text-right tabular-nums transition-colors ${isZero ? 'text-muted-foreground' : 'text-emerald-700'}`} />
                         </div>
                     );
                 };
                 return <EditablePayment />;
             }
             case 'source': {
-                // Internal = solid slate-900 (staff, emphasized); External = neutral outline.
                 const isInternal = r.source === 'Internal';
                 return (
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold uppercase tracking-wide border ${isInternal ? 'bg-slate-900 text-white border-slate-900' : 'border-slate-200 bg-white text-slate-600'}`}>
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold uppercase tracking-wide border ${isInternal ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-card text-muted-foreground'}`}>
                         {isInternal ? 'Internal' : 'External'}
                     </span>
                 );
@@ -379,7 +375,7 @@ const Interviewers = () => {
                                 r.status === 'Active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
                                 r.status === 'On Probation' ? 'bg-amber-50 text-amber-800 border-amber-200' :
                                 r.status === 'Suspended' || r.status === 'Terminated' ? 'bg-red-50 text-red-700 border-red-200' :
-                                'bg-slate-50 text-slate-600 border-slate-200'
+                                'bg-muted text-muted-foreground border-border'
                             }`}>
                             {Object.values(INTERVIEWER_STATUS).map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
@@ -392,104 +388,104 @@ const Interviewers = () => {
     };
 
     return (
-        <div className="flex flex-col h-full overflow-hidden bg-white">
+        <div className="flex flex-col h-full overflow-hidden bg-background">
 
             {/* Single-row header — title left, search + filters + actions all on one line */}
-            <section className="border-b border-slate-200 bg-white px-6 lg:px-8 py-4 shrink-0">
+            <section className="border-b border-border bg-card px-6 lg:px-8 py-4 shrink-0">
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="flex items-baseline gap-3 mr-auto">
-                        <h1 style={{ fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' }} className="text-[26px] sm:text-[30px] font-semibold text-slate-900 tracking-tight leading-none">Interviewers</h1>
-                        <span className="text-[13px] text-slate-500">{totalDocs} total</span>
+                        <h1 className="font-display text-[26px] sm:text-[30px] font-bold text-foreground tracking-tight leading-none">Interviewers</h1>
+                        <span className="text-[13px] text-muted-foreground">{totalDocs} total</span>
                     </div>
 
                     <div className="relative w-full sm:w-64">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
                         <input type="text" value={filters.search} onChange={(e) => setFilters(p => ({ ...p, search: e.target.value }))} placeholder="Search by name or email"
-                            className="w-full h-9 pl-10 pr-4 bg-white border border-slate-200 rounded-full text-[13px] placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 transition-colors" />
+                            className="w-full h-9 pl-10 pr-4 bg-card border border-border rounded-md text-[13px] placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-colors" />
                     </div>
                     <div className="relative">
                         <select value={filters.status} onChange={(e) => setFilters(p => ({ ...p, status: e.target.value }))}
-                            className="appearance-none bg-white border border-slate-200 text-slate-700 text-[13px] rounded-full focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 h-9 pl-4 pr-9 cursor-pointer transition-colors">
+                            className="appearance-none bg-card border border-border text-foreground text-[13px] rounded-md focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 h-9 pl-4 pr-9 cursor-pointer transition-colors">
                             <option value="">All status</option>
                             {Object.values(INTERVIEWER_STATUS).map(s => (<option key={s} value={s}>{s}</option>))}
                         </select>
-                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" aria-hidden="true" />
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" aria-hidden="true" />
                     </div>
                     <div className="relative">
                         <select value={filters.domain} onChange={(e) => setFilters(p => ({ ...p, domain: e.target.value }))}
-                            className="appearance-none bg-white border border-slate-200 text-slate-700 text-[13px] rounded-full focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 h-9 pl-4 pr-9 cursor-pointer transition-colors">
+                            className="appearance-none bg-card border border-border text-foreground text-[13px] rounded-md focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 h-9 pl-4 pr-9 cursor-pointer transition-colors">
                             <option value="">All domains</option>
                             {DOMAINS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
                         </select>
-                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" aria-hidden="true" />
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" aria-hidden="true" />
                     </div>
                     {(filters.search || filters.status || filters.domain) && (
-                        <button onClick={resetFilters} className="text-[12px] text-slate-500 hover:text-slate-900 font-medium px-3 h-8 rounded-full hover:bg-slate-100 transition-colors">Clear</button>
+                        <button onClick={resetFilters} className="text-[12px] text-muted-foreground hover:text-foreground font-medium px-3 h-8 rounded-md hover:bg-muted transition-colors">Clear</button>
                     )}
 
                     {selectedRows.length > 0 && (
-                        <div className="flex items-center gap-2 bg-slate-900 text-white px-3 h-9 rounded-full">
+                        <div className="flex items-center gap-2 bg-primary text-primary-foreground px-3 h-9 rounded-md">
                             <span className="text-[12px] font-semibold">{selectedRows.length} selected</span>
                             {selectedRows.length === 1 && (
-                                <button aria-label="Edit" onClick={() => setModalState({ type: 'edit', data: interviewers.find(i => i._id === selectedRows[0]) })} className="h-6 w-6 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors">
+                                <button aria-label="Edit" onClick={() => setModalState({ type: 'edit', data: interviewers.find(i => i._id === selectedRows[0]) })} className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-white/10 transition-colors">
                                     <Edit className="h-3.5 w-3.5" aria-hidden="true" />
                                 </button>
                             )}
-                            <button aria-label="Delete" onClick={() => setDeleteDialog({ isOpen: true, ids: selectedRows, isBulk: true })} className="h-6 w-6 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors">
+                            <button aria-label="Delete" onClick={() => setDeleteDialog({ isOpen: true, ids: selectedRows, isBulk: true })} className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-white/10 transition-colors">
                                 <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                             </button>
                         </div>
                     )}
-                    <button onClick={() => setIsUploadModalOpen(true)} className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-900 px-4 text-[12.5px] font-semibold text-slate-900 transition-colors hover:bg-slate-900 hover:text-white">
+                    <button onClick={() => setIsUploadModalOpen(true)} className="inline-flex h-9 items-center gap-1.5 rounded-md border border-primary px-4 text-[12.5px] font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground">
                         <Upload className="h-3.5 w-3.5" aria-hidden="true" /> Import
                     </button>
-                    <button onClick={() => setModalState({ type: 'add', data: null })} className="inline-flex h-9 items-center gap-2 rounded-full bg-slate-900 px-4 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#C0392B]">
+                    <button onClick={() => setModalState({ type: 'add', data: null })} className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-[13px] font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90">
                         <Plus className="h-3.5 w-3.5" aria-hidden="true" /> Add interviewer
                     </button>
                 </div>
             </section>
 
-            {/* Table — local inline implementation */}
-            <div className="flex-1 overflow-hidden flex flex-col">
-                <div className="flex-1 overflow-auto">
+            {/* Table — local inline implementation, BRAVE styled */}
+            <div className="flex-1 overflow-hidden flex flex-col bg-background">
+                <div className="flex-1 overflow-auto custom-scrollbar">
                     <table className="min-w-full text-[13px]">
                         <thead>
                             <tr>
                                 {columns.map((col) => (
                                     <th key={col.key} scope="col"
-                                        className={`sticky top-0 px-5 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em] whitespace-nowrap border-b border-slate-200 bg-slate-50/70 backdrop-blur z-10 ${col.sortable ? 'cursor-pointer hover:text-slate-900' : ''}`}
+                                        className={`sticky top-0 px-5 py-3 text-left text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.18em] whitespace-nowrap border-b border-border bg-muted/40 backdrop-blur z-10 ${col.sortable ? 'cursor-pointer hover:text-foreground' : ''}`}
                                         style={{ minWidth: col.minWidth }}
                                         onClick={() => col.sortable && handleSort(col.key)}>
                                         <div className="flex items-center gap-1.5">
                                             {col.key === 'select' ? (
-                                                <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900" onChange={(e) => setSelectedRows(e.target.checked ? interviewers.map(i => i._id) : [])} checked={selectedRows.length === interviewers.length && interviewers.length > 0} />
+                                                <input type="checkbox" className="h-4 w-4 rounded border-border text-primary focus:ring-primary" onChange={(e) => setSelectedRows(e.target.checked ? interviewers.map(i => i._id) : [])} checked={selectedRows.length === interviewers.length && interviewers.length > 0} />
                                             ) : col.title}
                                             {col.sortable && (
                                                 sortConfig.key === col.key
-                                                    ? (sortConfig.direction === 'asc' ? <ChevronUp className="h-3 w-3 text-slate-900" aria-hidden="true" /> : <ChevronDown className="h-3 w-3 text-slate-900" aria-hidden="true" />)
-                                                    : <Minus className="h-3 w-3 text-slate-300" aria-hidden="true" />
+                                                    ? (sortConfig.direction === 'asc' ? <ChevronUp className="h-3 w-3 text-primary" aria-hidden="true" /> : <ChevronDown className="h-3 w-3 text-primary" aria-hidden="true" />)
+                                                    : <Minus className="h-3 w-3 text-muted-foreground/40" aria-hidden="true" />
                                             )}
                                         </div>
                                     </th>
                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-slate-100">
+                        <tbody className="bg-card divide-y divide-border">
                             {loading ? (
                                 [...Array(8)].map((_, i) => (
                                     <tr key={i} className="animate-pulse">
                                         {columns.map((col) => (
-                                            <td key={col.key} className="px-5 py-3"><div className="h-4 w-full bg-slate-100 rounded" /></td>
+                                            <td key={col.key} className="px-5 py-3"><div className="h-4 w-full bg-muted rounded" /></td>
                                         ))}
                                     </tr>
                                 ))
                             ) : interviewers.length === 0 ? (
-                                <tr><td colSpan={columns.length} className="px-6 py-14 text-center text-[13px] text-slate-500">No interviewers found</td></tr>
+                                <tr><td colSpan={columns.length} className="px-6 py-14 text-center text-[13px] text-muted-foreground">No interviewers found</td></tr>
                             ) : (
                                 interviewers.map((r) => (
-                                    <tr key={r._id} className="hover:bg-slate-50/60 transition-colors group">
+                                    <tr key={r._id} className="hover:bg-muted/30 transition-colors group">
                                         {columns.map((col) => (
-                                            <td key={col.key} className="px-5 py-2.5 whitespace-nowrap text-[13px] text-slate-700 align-middle">
+                                            <td key={col.key} className="px-5 py-3 whitespace-nowrap text-[13px] text-foreground/85 align-middle">
                                                 {renderCell(col, r)}
                                             </td>
                                         ))}
@@ -501,17 +497,17 @@ const Interviewers = () => {
                 </div>
 
                 {!loading && totalDocs > 0 && (
-                    <div className="px-6 lg:px-8 py-3 border-t border-slate-200 bg-white flex items-center justify-between shrink-0">
-                        <p className="text-[12px] text-slate-500">
-                            Page <span className="font-semibold text-slate-900">{currentPage}</span> of <span className="font-semibold text-slate-900">{totalPages}</span> · <span className="font-semibold text-slate-900">{totalDocs.toLocaleString()}</span> total
+                    <div className="px-6 lg:px-8 py-3 border-t border-border bg-card flex items-center justify-between shrink-0">
+                        <p className="text-[12px] text-muted-foreground">
+                            Page <span className="font-semibold text-foreground tabular-nums">{currentPage}</span> of <span className="font-semibold text-foreground tabular-nums">{totalPages}</span> · <span className="font-semibold text-foreground tabular-nums">{totalDocs.toLocaleString()}</span> total
                         </p>
                         <div className="flex items-center gap-1.5">
                             <button aria-label="Previous page" onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage === 1}
-                                className="h-8 w-8 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors">
+                                className="h-8 w-8 rounded-md flex items-center justify-center border border-border bg-card text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-muted-foreground disabled:hover:border-border transition-colors">
                                 <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
                             </button>
                             <button aria-label="Next page" onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage === totalPages}
-                                className="h-8 w-8 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors">
+                                className="h-8 w-8 rounded-md flex items-center justify-center border border-border bg-card text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-muted-foreground disabled:hover:border-border transition-colors">
                                 <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
                             </button>
                         </div>

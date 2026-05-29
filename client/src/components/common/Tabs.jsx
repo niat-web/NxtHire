@@ -27,7 +27,7 @@ const Tabs = ({ tabs, defaultTab = 0, onChange, activeTab: controlledActiveTab, 
 
   return (
     <div className={className}>
-      <div className="border-b border-slate-200">
+      <div className="border-b border-border">
         <nav className="-mb-px flex space-x-8">
           {tabs.map((tab, index) => (
             <button
@@ -37,8 +37,8 @@ const Tabs = ({ tabs, defaultTab = 0, onChange, activeTab: controlledActiveTab, 
                 whitespace-nowrap py-3.5 px-1 border-b-2 text-[13px] font-semibold transition-colors
                 ${
                   activeTab === index
-                    ? 'border-slate-900 text-slate-900'
-                    : 'border-transparent text-slate-500 hover:text-slate-900 hover:border-slate-300'
+                    ? 'border-primary text-foreground'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-primary/40'
                 }
               `}
               aria-current={activeTab === index ? 'page' : undefined}
@@ -49,8 +49,8 @@ const Tabs = ({ tabs, defaultTab = 0, onChange, activeTab: controlledActiveTab, 
                 <span
                   className={`ml-2 py-0.5 px-2 rounded-full text-[11px] font-semibold ${
                     activeTab === index
-                      ? 'bg-slate-900 text-white'
-                      : 'bg-slate-100 text-slate-600'
+                      ? 'bg-primary text-white'
+                      : 'bg-muted text-foreground/80'
                   }`}
                 >
                   {tab.count}

@@ -21,7 +21,7 @@ const AccordionItem = ({ tech, control, register, setValue, watch, isOpen, onTog
     };
   
     return (
-        <div className="border border-gray-200 rounded-xl overflow-hidden shadow-md transition-all duration-300 ease-in-out hover:shadow-md hover:border-slate-200 bg-white">
+        <div className="border border-gray-200 rounded-xl overflow-hidden shadow-md transition-all duration-300 ease-in-out hover:shadow-md hover:border-border bg-white">
             <input type="hidden" {...register(`technicalSkills.${tech.id}.technology`, { value: tech.name })} />
             <button
                 type="button"
@@ -31,7 +31,7 @@ const AccordionItem = ({ tech, control, register, setValue, watch, isOpen, onTog
                 <div className="flex items-center gap-3">
                     <h4 className="text-base font-semibold text-gray-800">{tech.name}</h4>
                     {selectedCount > 0 && (
-                        <span className="border border-slate-900 bg-slate-900 text-white text-[11px] font-semibold uppercase tracking-wide px-2.5 py-0.5 rounded-full">{selectedCount} selected</span>
+                        <span className="border border-primary bg-primary text-white text-[11px] font-semibold uppercase tracking-wide px-2.5 py-0.5 rounded-full">{selectedCount} selected</span>
                     )}
                 </div>
                 <span className={`w-6 h-6 text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-blue-500' : ''}`}>▼</span>
@@ -45,7 +45,7 @@ const AccordionItem = ({ tech, control, register, setValue, watch, isOpen, onTog
                                 id={`select-all-${tech.id}`}
                                 onChange={handleSelectAll}
                                 checked={watchedSubSkills.length === allSubSkills.length && allSubSkills.length > 0}
-                                className="h-4 w-4 text-slate-900 focus:ring-slate-900 border-gray-300 rounded"
+                                className="h-4 w-4 text-foreground focus:ring-primary border-gray-300 rounded"
                             />
                             <label htmlFor={`select-all-${tech.id}`} className="ml-3 block text-sm font-medium text-gray-900">
                                 Select All {tech.name} Skills
@@ -58,7 +58,7 @@ const AccordionItem = ({ tech, control, register, setValue, watch, isOpen, onTog
                                     type="checkbox"
                                     value={subSkill.value}
                                     id={`${tech.id}-${subSkill.value}`}
-                                    className="h-4 w-4 text-slate-900 focus:ring-slate-900 border-gray-300 rounded"
+                                    className="h-4 w-4 text-foreground focus:ring-primary border-gray-300 rounded"
                                 />
                                 <label htmlFor={`${tech.id}-${subSkill.value}`} className="ml-3 block text-sm text-gray-700">
                                     {subSkill.label}
@@ -175,7 +175,7 @@ const SkillAssessmentForm = () => {
                 <li key={index} className="flex items-start">
                     <div className="flex flex-col items-center mr-4">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-300
-                        ${isCurrent ? 'bg-slate-900 text-white ring-4 ring-blue-100' : ''}
+                        ${isCurrent ? 'bg-primary text-white ring-4 ring-blue-100' : ''}
                         ${!isCurrent ? 'bg-gray-200 text-gray-500' : ''}
                     `}>
                         {isCompleted ? <Check size={20} /> : wizardStep.id}
@@ -185,7 +185,7 @@ const SkillAssessmentForm = () => {
                     )}
                     </div>
                     <div>
-                    <h3 className={`font-semibold text-lg transition-colors duration-300 ${isCurrent ? 'text-slate-900' : 'text-gray-800'}`}>{wizardStep.name}</h3>
+                    <h3 className={`font-semibold text-lg transition-colors duration-300 ${isCurrent ? 'text-foreground' : 'text-gray-800'}`}>{wizardStep.name}</h3>
                     <p className="text-sm text-gray-500 mt-1">
                         {wizardStep.description}
                     </p>
@@ -236,7 +236,7 @@ const SkillAssessmentForm = () => {
                                 Other Skills or Technologies
                             </label>
                             <textarea
-                                className="w-full px-3 py-2 border border-gray-300 rounded-xl shadow-md focus:outline-none focus:ring-slate-900 focus:border-slate-900 h-20"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-xl shadow-md focus:outline-none focus:ring-primary focus:border-primary h-20"
                                 {...register('otherSkills')}
                                 placeholder="Mention any skills not listed above (e.g., DevOps tools, cloud platforms, other languages)."
                             />

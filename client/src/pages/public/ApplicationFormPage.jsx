@@ -25,7 +25,7 @@ const ApplicationFormPage = () => {
       <SEO title="Apply as Interviewer" description="Apply to become a freelance interviewer at NxtWave. Fill out the application form to get started." path="/applicationform" />
 
       <motion.div
-        className="lg:w-[420px] xl:w-[460px] shrink-0 bg-slate-900 text-white p-8 lg:p-10 flex flex-col justify-between lg:h-screen overflow-y-auto"
+        className="lg:w-[420px] xl:w-[460px] shrink-0 bg-primary text-white p-8 lg:p-10 flex flex-col justify-between lg:h-screen overflow-y-auto"
         initial={{ opacity: 0, x: -12 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.4 }}
@@ -35,12 +35,12 @@ const ApplicationFormPage = () => {
             <Link to="/" aria-label="NxtHire home">
               <img src={nxtHireLogoLight} alt="NxtHire" className="h-7" />
             </Link>
-            <Link to="/" className="inline-flex items-center gap-1.5 text-[12px] text-slate-400 hover:text-white transition-colors font-medium">
+            <Link to="/" className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground/70 hover:text-white transition-colors font-medium">
               <ArrowLeft size={13} /> Back
             </Link>
           </div>
 
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/5 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-slate-300 mb-5">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/5 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/40 mb-5">
             <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: ACCENT }} />
             Apply
           </span>
@@ -48,7 +48,7 @@ const ApplicationFormPage = () => {
           <h2 style={DISPLAY} className="text-[32px] lg:text-[38px] font-semibold leading-[1.08] tracking-tight mb-4">
             Become a <em className="italic" style={{ color: ACCENT }}>tech interviewer</em>.
           </h2>
-          <p className="text-slate-400 text-[13.5px] leading-relaxed mb-8 max-w-sm">
+          <p className="text-muted-foreground/70 text-[13.5px] leading-relaxed mb-8 max-w-sm">
             Join our community of industry professionals conducting interviews and shaping the careers of aspiring developers.
           </p>
 
@@ -66,7 +66,7 @@ const ApplicationFormPage = () => {
                 </div>
                 <div>
                   <p className="text-[13px] font-semibold text-white">{item.title}</p>
-                  <p className="text-[12px] text-slate-400 mt-0.5">{item.desc}</p>
+                  <p className="text-[12px] text-muted-foreground/70 mt-0.5">{item.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -82,7 +82,7 @@ const ApplicationFormPage = () => {
             ].map((stat, i) => (
               <div key={i}>
                 <p style={DISPLAY} className="text-[22px] font-semibold text-white tracking-tight">{stat.num}</p>
-                <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-semibold mt-1">{stat.label}</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-semibold mt-1">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -97,20 +97,20 @@ const ApplicationFormPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: 0.1 }}
           >
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-slate-600">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-foreground/80">
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: ACCENT }} />
               Application
             </span>
-            <h1 style={DISPLAY} className="mt-4 text-[34px] sm:text-[40px] font-semibold text-slate-900 tracking-tight leading-tight">
+            <h1 style={DISPLAY} className="mt-4 text-[34px] sm:text-[40px] font-semibold text-foreground tracking-tight leading-tight">
               Interviewer application.
             </h1>
-            <p className="mt-2 text-[13.5px] text-slate-600">
+            <p className="mt-2 text-[13.5px] text-foreground/80">
               Tell us about yourself — it takes less than 2 minutes.
             </p>
           </motion.div>
 
           <motion.div
-            className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8"
+            className="bg-white rounded-2xl border border-border p-6 sm:p-8"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: 0.15 }}
@@ -119,7 +119,7 @@ const ApplicationFormPage = () => {
           </motion.div>
 
           <motion.div
-            className="mt-6 flex flex-wrap items-center justify-center gap-4 text-[12px] text-slate-500"
+            className="mt-6 flex flex-wrap items-center justify-center gap-4 text-[12px] text-muted-foreground"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}

@@ -43,7 +43,7 @@ const CreatePasswordForm = () => {
 
   const passwordStrength = checkPasswordStrength(passwordValue);
   const strengthLabels = ['Very Weak', 'Weak', 'Okay', 'Good', 'Strong'];
-  const strengthColors = ['bg-red-500', 'bg-slate-900', 'bg-yellow-500', 'bg-lime-500', 'bg-green-500'];
+  const strengthColors = ['bg-red-500', 'bg-primary', 'bg-yellow-500', 'bg-lime-500', 'bg-green-500'];
 
   const onSubmit = async (data) => {
     if (!token) {
@@ -68,11 +68,11 @@ const CreatePasswordForm = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div>
-        <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="password">
+        <label className="block text-sm font-semibold text-foreground/90 mb-2" htmlFor="password">
           Password
         </label>
         <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"/>
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/70"/>
             <Input
               id="password"
               type={showPassword ? 'text' : 'password'}
@@ -93,7 +93,7 @@ const CreatePasswordForm = () => {
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-slate-400 hover:text-slate-600"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground/70 hover:text-foreground/80"
                 onClick={() => setShowPassword(!showPassword)}
             >
                 {showPassword ? <EyeOff className="h-5 w-5"/> : <Eye className="h-5 w-5"/>}
@@ -103,10 +103,10 @@ const CreatePasswordForm = () => {
         {passwordValue && (
             <div className="mt-2">
                 <div className="flex justify-between mb-1">
-                    <span className="text-xs font-medium text-slate-600">Password Strength</span>
+                    <span className="text-xs font-medium text-foreground/80">Password Strength</span>
                     <span className={cn(
                       'text-xs font-semibold',
-                      ['text-red-600', 'text-slate-900', 'text-yellow-600', 'text-lime-600', 'text-green-600'][passwordStrength]
+                      ['text-red-600', 'text-foreground', 'text-yellow-600', 'text-lime-600', 'text-green-600'][passwordStrength]
                     )}>
                         {strengthLabels[passwordStrength]}
                     </span>
@@ -122,11 +122,11 @@ const CreatePasswordForm = () => {
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="confirmPassword">
+        <label className="block text-sm font-semibold text-foreground/90 mb-2" htmlFor="confirmPassword">
           Confirm Password
         </label>
         <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"/>
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/70"/>
             <Input
               id="confirmPassword"
               type={showConfirmPassword ? 'text' : 'password'}
@@ -144,7 +144,7 @@ const CreatePasswordForm = () => {
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-slate-400 hover:text-slate-600"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground/70 hover:text-foreground/80"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             >
                 {showConfirmPassword ? <EyeOff className="h-5 w-5"/> : <Eye className="h-5 w-5"/>}

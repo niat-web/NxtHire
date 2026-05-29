@@ -21,7 +21,7 @@ const FilterDropdown = ({
     <Menu as="div" className="relative inline-block text-left">
       <div>
         <Menu.Button
-          className={`inline-flex h-10 items-center justify-center w-full px-4 text-[13px] font-semibold text-slate-700 bg-white border border-slate-200 rounded-full hover:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 transition-colors ${
+          className={`inline-flex h-10 items-center justify-center w-full px-4 text-[13px] font-semibold text-foreground/90 bg-white border border-border rounded-full hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10 transition-colors ${
             disabled ? 'opacity-50 cursor-not-allowed' : ''
           } ${buttonClassName}`}
           disabled={disabled}
@@ -41,7 +41,7 @@ const FilterDropdown = ({
         leaveTo="transform opacity-0 scale-95"
       >
         <Menu.Items
-          className={`absolute right-0 z-20 mt-2 w-56 origin-top-right rounded-2xl border border-slate-200 bg-white shadow-lg focus:outline-none ${menuClassName}`}
+          className={`absolute right-0 z-20 mt-2 w-56 origin-top-right rounded-2xl border border-border bg-white shadow-lg focus:outline-none ${menuClassName}`}
         >
           <div className="py-1.5">
             {options.map((option) => (
@@ -50,11 +50,11 @@ const FilterDropdown = ({
                   <button
                     onClick={() => onChange(option.value)}
                     className={`${
-                      active ? 'bg-slate-50 text-slate-900' : 'text-slate-700'
+                      active ? 'bg-muted/40 text-foreground' : 'text-foreground/90'
                     } flex w-full items-center px-4 py-2 text-[13px] transition-colors`}
                   >
                     {selectedValue === option.value && (
-                      <Check className="mr-2 h-4 w-4 text-slate-900" />
+                      <Check className="mr-2 h-4 w-4 text-foreground" />
                     )}
                     <span className={selectedValue === option.value ? 'font-semibold' : ''}>
                       {option.label}

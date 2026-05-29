@@ -162,14 +162,14 @@ const DomainsTab = ({ domains, onUpdate, onDomainClick }) => {
                                 <td className="px-6 py-4 text-gray-600">{domain.eventTitle}</td>
                                 <td className="px-6 py-4">
                                     {domain.interviewHelpDoc ? (
-                                        <a href={domain.interviewHelpDoc} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-slate-900 hover:underline font-medium text-xs">
+                                        <a href={domain.interviewHelpDoc} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-foreground hover:underline font-medium text-xs">
                                             <Link2 /> View Link
                                         </a>
                                     ) : <span className="text-gray-400 text-xs">-</span>}
                                 </td>
                                 <td className="px-6 py-4 text-center">
                                     <div className="flex items-center justify-center gap-2">
-                                        <button onClick={() => onDomainClick(domain)} className="p-2 text-gray-400 hover:text-slate-900 hover:bg-slate-50 rounded-lg" title="Configure Fields"><Settings /></button>
+                                        <button onClick={() => onDomainClick(domain)} className="p-2 text-gray-400 hover:text-foreground hover:bg-muted/40 rounded-lg" title="Configure Fields"><Settings /></button>
                                         <button onClick={() => openModal(domain)} className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg" title="Edit Domain"><Edit /></button>
                                         <button onClick={() => setDeleteDialog({ isOpen: true, id: domain._id })} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg" title="Delete Domain"><Trash2 /></button>
                                     </div>

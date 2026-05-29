@@ -46,7 +46,7 @@ const InlineStatusBadge = ({ status }) => {
     success: 'border-emerald-200 bg-emerald-50 text-emerald-700',
     warning: 'border-amber-200 bg-amber-50 text-amber-800',
     danger:  'border-red-200 bg-red-50 text-red-700',
-    neutral: 'border-slate-200 bg-slate-50 text-slate-600',
+    neutral: 'border-border bg-muted/40 text-foreground/80',
   }[meaning];
   return (
     <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${classes}`}>
@@ -117,13 +117,16 @@ const MetricCard = ({ label, value, icon: Icon, href, isLoading, isSensitive, ac
 };
 
 const ActivityItem = ({ avatar, name, detail, badge, action }) => (
-  <div className="flex items-center gap-3 py-3 border-b border-slate-100 last:border-0 group">
-    <div className="h-9 w-9 shrink-0 rounded-full bg-slate-900 flex items-center justify-center text-white text-[12px] font-semibold">
+  <div className="flex items-center gap-3 py-3 border-b border-border last:border-0 group">
+    <div
+      className="h-9 w-9 shrink-0 rounded-md flex items-center justify-center text-[12px] font-bold"
+      style={{ backgroundColor: 'hsl(var(--sidebar-primary))', color: 'hsl(var(--sidebar-primary-foreground))' }}
+    >
       {avatar}
     </div>
     <div className="flex-1 min-w-0">
-      <p className="text-[13px] font-semibold text-slate-900 truncate">{name}</p>
-      <p className="text-[12px] text-slate-500 truncate">{detail}</p>
+      <p className="text-[13px] font-semibold text-foreground truncate">{name}</p>
+      <p className="text-[12px] text-muted-foreground truncate">{detail}</p>
     </div>
     {badge && <div className="shrink-0">{badge}</div>}
     {action && <div className="shrink-0">{action}</div>}
@@ -131,15 +134,15 @@ const ActivityItem = ({ avatar, name, detail, badge, action }) => (
 );
 
 const ScheduleItem = ({ interview }) => (
-  <div className="flex items-center gap-3 py-3 border-b border-slate-100 last:border-0">
-    <div className="w-9 h-9 rounded-full border border-slate-200 bg-white text-slate-700 flex items-center justify-center shrink-0">
+  <div className="flex items-center gap-3 py-3 border-b border-border last:border-0">
+    <div className="w-9 h-9 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
       <Calendar size={14} />
     </div>
     <div className="flex-1 min-w-0">
-      <p className="text-[13px] font-semibold text-slate-900 truncate">{interview.candidateName}</p>
-      <p className="text-[12px] text-slate-500">
+      <p className="text-[13px] font-semibold text-foreground truncate">{interview.candidateName}</p>
+      <p className="text-[12px] text-muted-foreground">
         {formatDate(interview.interviewDate)}
-        {interview.interviewTime && <span className="mx-1 text-slate-300">·</span>}
+        {interview.interviewTime && <span className="mx-1 text-muted-foreground/40">·</span>}
         {interview.interviewTime && (
           <span>{interview.interviewTime.split('-').map(t => formatTime(t.trim())).join(' – ')}</span>
         )}
@@ -150,12 +153,12 @@ const ScheduleItem = ({ interview }) => (
         href={interview.meetingLink}
         target="_blank"
         rel="noopener noreferrer"
-        className="shrink-0 h-8 inline-flex items-center px-3 text-[12px] font-semibold rounded-full border border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white transition-colors"
+        className="shrink-0 h-8 inline-flex items-center px-3 text-[12px] font-semibold rounded-md border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
       >
         Join
       </a>
     ) : (
-      <span className="text-[12px] text-slate-300 shrink-0">–</span>
+      <span className="text-[12px] text-muted-foreground/40 shrink-0">–</span>
     )}
   </div>
 );
@@ -185,21 +188,24 @@ const ProbationRow = ({ interviewer, onRefresh }) => {
   };
 
   return (
-    <div className="flex items-center gap-3 py-3 border-b border-slate-100 last:border-0">
-      <div className="h-9 w-9 shrink-0 rounded-full bg-slate-900 flex items-center justify-center text-white text-[12px] font-semibold">
+    <div className="flex items-center gap-3 py-3 border-b border-border last:border-0">
+      <div
+        className="h-9 w-9 shrink-0 rounded-md flex items-center justify-center text-[12px] font-bold"
+        style={{ backgroundColor: 'hsl(var(--sidebar-primary))', color: 'hsl(var(--sidebar-primary-foreground))' }}
+      >
         {interviewer?.user?.firstName?.[0]}{interviewer?.user?.lastName?.[0]}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[13px] font-semibold text-slate-900 truncate">
+        <p className="text-[13px] font-semibold text-foreground truncate">
           {interviewer?.user?.firstName} {interviewer?.user?.lastName}
         </p>
-        <p className="text-[12px] text-slate-500">{interviewer.metrics?.interviewsCompleted} completed</p>
+        <p className="text-[12px] text-muted-foreground">{interviewer.metrics?.interviewsCompleted} completed</p>
       </div>
       <div className="flex gap-1 shrink-0">
-        <button aria-label="Send probation email" onClick={send} disabled={busy} className="h-8 w-8 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 transition-colors" title="Send email">
+        <button aria-label="Send probation email" onClick={send} disabled={busy} className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-primary/10 hover:text-primary disabled:opacity-40 transition-colors" title="Send email">
           {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <Mail className="h-3.5 w-3.5" aria-hidden="true" />}
         </button>
-        <button aria-label="Mark probation as sent" onClick={mark} disabled={busy} className="h-8 w-8 rounded-full flex items-center justify-center text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 disabled:opacity-40 transition-colors" title="Mark sent">
+        <button aria-label="Mark probation as sent" onClick={mark} disabled={busy} className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-emerald-50 hover:text-emerald-600 disabled:opacity-40 transition-colors" title="Mark sent">
           <Check className="h-3.5 w-3.5" aria-hidden="true" />
         </button>
       </div>
@@ -208,36 +214,36 @@ const ProbationRow = ({ interviewer, onRefresh }) => {
 };
 
 const Panel = ({ title, subtitle, href, linkLabel, icon: Icon, children, className = '' }) => (
-  <div className={cn('bg-white rounded-2xl border border-slate-200 overflow-hidden', className)}>
+  <div className={cn('bg-card text-card-foreground rounded-lg border border-border shadow-brave-card overflow-hidden', className)}>
     <div className="flex items-center justify-between px-5 py-4">
       <div className="flex items-center gap-3">
         {Icon && (
-          <div className="h-9 w-9 rounded-full border border-slate-200 bg-white inline-flex items-center justify-center text-slate-700">
+          <div className="h-9 w-9 rounded-md bg-primary/10 text-primary inline-flex items-center justify-center">
             <Icon size={14} />
           </div>
         )}
         <div>
-          <h3 className="text-[14px] font-semibold text-slate-900 tracking-tight">{title}</h3>
-          {subtitle && <p className="text-[11px] text-slate-500 mt-0.5">{subtitle}</p>}
+          <h3 className="font-display text-[15px] font-semibold text-foreground tracking-tight">{title}</h3>
+          {subtitle && <p className="text-[11px] text-muted-foreground mt-0.5">{subtitle}</p>}
         </div>
       </div>
       {href && (
-        <Link to={href} className="text-[12px] font-semibold text-slate-700 hover:text-[#C0392B] flex items-center gap-0.5 transition-colors">
+        <Link to={href} className="text-[12px] font-semibold text-muted-foreground hover:text-primary flex items-center gap-0.5 transition-colors">
           {linkLabel || 'View all'} <ChevronRight size={13} />
         </Link>
       )}
     </div>
-    <div className="border-t border-slate-100 px-5 py-2">{children}</div>
+    <div className="border-t border-border px-5 py-2">{children}</div>
   </div>
 );
 
 const PipelineStat = ({ label, count }) => (
-  <div className="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
+  <div className="flex items-center justify-between py-3 border-b border-border last:border-0">
     <div className="flex items-center gap-2.5">
-      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: ACCENT }} />
-      <span className="text-[13px] text-slate-700">{label}</span>
+      <span className="h-1.5 w-1.5 rounded-[2px]" style={{ backgroundColor: 'var(--brave-amber)' }} />
+      <span className="text-[13px] text-foreground/80">{label}</span>
     </div>
-    <span style={DISPLAY} className="text-[18px] font-semibold text-slate-900 tracking-tight">{count}</span>
+    <span className="font-display text-[20px] font-bold text-foreground tracking-tight tabular-nums">{count}</span>
   </div>
 );
 
@@ -265,7 +271,7 @@ const Dashboard = () => {
 
   return (
     <motion.div
-      className="flex-1 flex flex-col overflow-y-auto bg-[#fcfaf8]"
+      className="flex-1 flex flex-col overflow-y-auto bg-background"
       initial="hidden"
       animate="visible"
       variants={stagger}
@@ -273,7 +279,7 @@ const Dashboard = () => {
       <div className="px-6 py-6 lg:px-10 lg:py-8 space-y-5 max-w-7xl w-full mx-auto">
 
         {statsError && (
-          <div className="flex items-center gap-2 p-3 rounded-2xl bg-red-50 border border-red-200 text-[13px] text-red-700">
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200 text-[13px] text-red-700">
             <AlertCircle size={14} /> Failed to load dashboard data.
           </div>
         )}
@@ -295,7 +301,7 @@ const Dashboard = () => {
             <PipelineStat label="Probation reviews"  count={probationReviewList.length} />
           </Panel>
 
-          <div className="lg:col-span-8 bg-white rounded-2xl border border-slate-200 p-5 overflow-hidden">
+          <div className="lg:col-span-8 bg-card rounded-lg border border-border shadow-brave-card p-5 overflow-hidden">
             <AnalyticsDashboard />
           </div>
         </motion.div>
@@ -314,7 +320,7 @@ const Dashboard = () => {
                 />
               ))
             ) : (
-              <p className="py-8 text-center text-[13px] text-slate-500">No recent applicants</p>
+              <p className="py-8 text-center text-[13px] text-muted-foreground">No recent applicants</p>
             )}
           </Panel>
 
@@ -322,7 +328,7 @@ const Dashboard = () => {
             {upcomingInterviews.length > 0 ? (
               upcomingInterviews.map(iv => <ScheduleItem key={iv._id} interview={iv} />)
             ) : (
-              <p className="py-8 text-center text-[13px] text-slate-500">No upcoming interviews</p>
+              <p className="py-8 text-center text-[13px] text-muted-foreground">No upcoming interviews</p>
             )}
           </Panel>
 
@@ -333,11 +339,11 @@ const Dashboard = () => {
               ))
             ) : (
               <div className="py-8 text-center">
-                <div className="h-10 w-10 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto mb-2 text-emerald-600">
+                <div className="h-10 w-10 rounded-md bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto mb-2 text-emerald-600">
                   <Check size={16} />
                 </div>
-                <p className="text-[13px] font-semibold text-slate-900">All clear</p>
-                <p className="text-[12px] text-slate-500 mt-0.5">No pending probation reviews</p>
+                <p className="text-[13px] font-semibold text-foreground">All clear</p>
+                <p className="text-[12px] text-muted-foreground mt-0.5">No pending probation reviews</p>
               </div>
             )}
           </Panel>

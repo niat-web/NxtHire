@@ -4,9 +4,9 @@ const ACCENT = '#C0392B';
 const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
 
 const Section = ({ title, children }) => (
-  <div className="mb-10 pb-8 border-b border-slate-100 last:border-0 last:pb-0 last:mb-0">
-    <h2 style={DISPLAY} className="text-[22px] font-semibold text-slate-900 mb-4 tracking-tight">{title}</h2>
-    <div className="text-[15px] text-slate-600 leading-relaxed space-y-3">{children}</div>
+  <div className="mb-10 pb-8 border-b border-border last:border-0 last:pb-0 last:mb-0">
+    <h2 style={DISPLAY} className="text-[22px] font-semibold text-foreground mb-4 tracking-tight">{title}</h2>
+    <div className="text-[15px] text-foreground/80 leading-relaxed space-y-3">{children}</div>
   </div>
 );
 
@@ -14,16 +14,16 @@ const TermsOfServicePage = () => (
   <div className="min-h-screen bg-white">
     <SEO title="Terms of Service" description="Terms of Service for NxtHire interviewer platform." path="/terms-of-service" />
 
-    <section className="border-b border-slate-200 bg-white">
+    <section className="border-b border-border bg-white">
       <div className="max-w-3xl mx-auto px-5 lg:px-8 pt-20 pb-14 lg:pt-24">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-slate-600">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-foreground/80">
           <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: ACCENT }} />
           Legal
         </span>
-        <h1 style={DISPLAY} className="mt-6 text-[44px] sm:text-[56px] font-semibold text-slate-900 leading-[1.05] tracking-tight">
+        <h1 style={DISPLAY} className="mt-6 text-[44px] sm:text-[56px] font-semibold text-foreground leading-[1.05] tracking-tight">
           Terms of service.
         </h1>
-        <p className="mt-4 text-slate-500 text-[13.5px]">Last updated: April 2026</p>
+        <p className="mt-4 text-muted-foreground text-[13.5px]">Last updated: April 2026</p>
       </div>
     </section>
 
@@ -82,7 +82,7 @@ const TermsOfServicePage = () => (
       </Section>
 
       <Section title="12. Contact">
-        <p>For questions about these Terms, contact us at <a href="mailto:interviewercommunity@nxtwave.in" className="font-semibold text-slate-900 hover:text-[#C0392B] underline">interviewercommunity@nxtwave.in</a>.</p>
+        <p>For questions about these Terms, contact us at <a href="mailto:interviewercommunity@nxtwave.in" className="font-semibold text-foreground hover:text-[#C0392B] underline">interviewercommunity@nxtwave.in</a>.</p>
       </Section>
     </article>
   </div>

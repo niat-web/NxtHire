@@ -17,7 +17,7 @@ const SearchInput = ({
   return (
     <div className={cn('relative', className)}>
       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-        <Search className="h-4 w-4 text-slate-400" />
+        <Search className="h-4 w-4 text-muted-foreground/70" />
       </div>
       <Input
         type="text"
@@ -33,7 +33,7 @@ const SearchInput = ({
           <button
             type="button"
             onClick={onClear}
-            className="text-slate-400 hover:text-slate-900 focus:outline-none transition-colors"
+            className="text-muted-foreground/70 hover:text-foreground focus:outline-none transition-colors"
             disabled={disabled}
           >
             <span className="sr-only">Clear search</span>

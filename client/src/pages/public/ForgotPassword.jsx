@@ -66,12 +66,12 @@ const ForgotPassword = () => {
                 transition={{ duration: 0.3 }}
                 className="text-center"
               >
-                <div className="mx-auto w-16 h-16 rounded-2xl border border-slate-200 bg-white flex items-center justify-center mb-6 text-slate-700">
+                <div className="mx-auto w-16 h-16 rounded-2xl border border-border bg-white flex items-center justify-center mb-6 text-foreground/90">
                   <CheckCircle className="h-6 w-6" />
                 </div>
 
-                <h2 className="font-display text-[28px] font-semibold text-slate-900 tracking-tight mb-2">Check your email.</h2>
-                <p className="text-slate-600 mb-8 leading-relaxed text-[14px]">
+                <h2 className="font-display text-[28px] font-semibold text-foreground tracking-tight mb-2">Check your email.</h2>
+                <p className="text-foreground/80 mb-8 leading-relaxed text-[14px]">
                   We've sent a password reset link to your email address. Please follow the link to create a new password.
                 </p>
 

@@ -36,7 +36,7 @@ const DomainManagement = () => {
     return (
         <div className="flex h-full w-full overflow-hidden">
             {/* Left sidebar */}
-            <aside className="w-56 shrink-0 bg-white border-r border-slate-200/80 flex flex-col">
+            <aside className="w-56 shrink-0 bg-white border-r border-border/80 flex flex-col">
                 <nav className="flex-1 p-3 space-y-1">
                     {navItems.map(({ id, label, icon: Icon }) => (
                         <button
@@ -45,8 +45,8 @@ const DomainManagement = () => {
                             className={cn(
                                 'group relative flex items-center w-full gap-2.5 px-3 py-2.5 text-[13px] font-medium rounded-lg transition-all duration-200',
                                 activeTab === id
-                                    ? 'bg-white text-slate-900 shadow-sm border border-slate-200/60'
-                                    : 'text-slate-600 hover:bg-white/70 hover:text-slate-900'
+                                    ? 'bg-white text-foreground shadow-sm border border-border/60'
+                                    : 'text-foreground/80 hover:bg-white/70 hover:text-foreground'
                             )}
                         >
                             <Icon className="w-4 h-4" />

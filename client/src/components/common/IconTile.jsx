@@ -23,7 +23,7 @@ const IconTile = ({ icon: Icon, size = 'md', className, iconClassName, accent = 
   return (
     <span
       className={cn(
-        'inline-flex items-center justify-center border border-slate-200 bg-white text-slate-700 transition-colors',
+        'inline-flex items-center justify-center border border-border bg-white text-foreground/90 transition-colors',
         s.tile,
         className,
       )}

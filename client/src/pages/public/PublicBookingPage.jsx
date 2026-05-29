@@ -15,30 +15,30 @@ const EmailStep = ({ onSubmit, register, errors, isSubmitting }) => (
         <div className="flex-1 flex items-center justify-center px-4 py-10">
             <div className="w-full max-w-[380px]">
                 <div className="text-center mb-7">
-                    <h1 className="font-display text-[30px] font-semibold text-slate-900 tracking-tight leading-none">Book your interview.</h1>
-                    <p className="text-[13.5px] text-slate-500 mt-2">Verify your email to see available time slots.</p>
+                    <h1 className="font-display text-[30px] font-semibold text-foreground tracking-tight leading-none">Book your interview.</h1>
+                    <p className="text-[13.5px] text-muted-foreground mt-2">Verify your email to see available time slots.</p>
                 </div>
 
                 <form onSubmit={onSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">Email Address</label>
+                        <label className="block text-xs font-semibold text-foreground/80 mb-1.5">Email Address</label>
                         <div className="relative">
-                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
                             <input type="email" placeholder="you@example.com"
                                 {...register('email', { required: 'Email is required', pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Invalid email' } })}
-                                className={cn('w-full pl-11 pr-4 h-12 border rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-blue-400 transition-all',
-                                    errors.email ? 'border-red-300' : 'border-slate-200')} />
+                                className={cn('w-full pl-11 pr-4 h-12 border rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-blue-400 transition-all',
+                                    errors.email ? 'border-red-300' : 'border-border')} />
                         </div>
                         {errors.email && <p className="mt-1.5 text-xs text-red-500">{errors.email.message}</p>}
                     </div>
 
                     <button type="submit" disabled={isSubmitting}
-                        className="w-full inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-[#C0392B] disabled:opacity-50 transition-all shadow-sm shadow-blue-600/20">
+                        className="w-full inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary/90 disabled:opacity-50 transition-all shadow-sm shadow-blue-600/20">
                         {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <>Continue <ArrowRight size={16} /></>}
                     </button>
                 </form>
 
-                <div className="flex items-center justify-center gap-2 mt-6 text-xs text-slate-400">
+                <div className="flex items-center justify-center gap-2 mt-6 text-xs text-muted-foreground/70">
                     <Shield size={12} /> Your information is secure and private
                 </div>
             </div>
@@ -60,11 +60,11 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
     return (
         <form onSubmit={onSubmit} className="min-h-screen lg:h-screen flex flex-col bg-white overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-slate-100 shrink-0">
+            <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-border shrink-0">
                 <div className="flex items-center gap-3">
                     <img src={logoSrc} alt="NxtHire" className="h-6" />
                     <div className="w-px h-6 bg-slate-200 hidden sm:block" />
-                    <span className="text-sm font-semibold text-slate-900 hidden sm:block">Interview Booking</span>
+                    <span className="text-sm font-semibold text-foreground hidden sm:block">Interview Booking</span>
                 </div>
                 <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 rounded-full">
                     <CheckCircle size={12} className="text-emerald-600" />
@@ -74,16 +74,16 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
             </div>
 
             {/* Mobile step indicator */}
-            <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 border-b border-slate-100 lg:hidden">
+            <div className="flex items-center gap-2 px-4 py-2.5 bg-muted/40 border-b border-border lg:hidden">
                 <button type="button" onClick={() => setMobileView('details')}
                     className={cn('flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all',
-                        mobileView === 'details' ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200')}>
+                        mobileView === 'details' ? 'bg-primary text-white' : 'bg-white text-muted-foreground border border-border')}>
                     <User size={12} /> Details
                 </button>
                 <div className="w-4 h-px bg-slate-300" />
                 <button type="button" onClick={handleContinue}
                     className={cn('flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all',
-                        mobileView === 'slots' ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200')}>
+                        mobileView === 'slots' ? 'bg-primary text-white' : 'bg-white text-muted-foreground border border-border')}>
                     <Calendar size={12} /> Slots ({totalSlots})
                 </button>
             </div>
@@ -91,45 +91,45 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
             <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
                 {/* Left panel: User details */}
                 <div className={cn(
-                    'w-full lg:w-[360px] xl:w-[400px] shrink-0 lg:border-r border-slate-100 flex flex-col',
+                    'w-full lg:w-[360px] xl:w-[400px] shrink-0 lg:border-r border-border flex flex-col',
                     mobileView === 'details' ? 'flex' : 'hidden lg:flex'
                 )}>
                     <div className="flex-1 p-5 sm:p-6 overflow-y-auto">
-                        <h2 className="text-lg font-semibold text-slate-900 mb-0.5">Your Details</h2>
-                        <p className="text-xs text-slate-400 mb-6">We need a few details to confirm your booking</p>
+                        <h2 className="text-lg font-semibold text-foreground mb-0.5">Your Details</h2>
+                        <p className="text-xs text-muted-foreground/70 mb-6">We need a few details to confirm your booking</p>
 
                         <div className="space-y-5">
                             {/* Verified email display */}
-                            <div className="flex items-center gap-3 p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+                            <div className="flex items-center gap-3 p-3.5 bg-muted/40 rounded-xl border border-border">
                                 <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0">
                                     <CheckCircle size={16} className="text-emerald-600" />
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Verified Email</p>
-                                    <p className="text-sm font-medium text-slate-900 truncate">{verifiedEmail}</p>
+                                    <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider">Verified Email</p>
+                                    <p className="text-sm font-medium text-foreground truncate">{verifiedEmail}</p>
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Full Name</label>
+                                <label className="block text-xs font-semibold text-foreground/80 mb-1.5">Full Name</label>
                                 <div className="relative">
-                                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
                                     <input type="text" placeholder="Enter your full name"
                                         {...register('studentName', { required: "Name is required" })}
-                                        className={cn('w-full pl-11 pr-4 h-12 border rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-blue-400',
-                                            errors.studentName ? 'border-red-300' : 'border-slate-200')} />
+                                        className={cn('w-full pl-11 pr-4 h-12 border rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-blue-400',
+                                            errors.studentName ? 'border-red-300' : 'border-border')} />
                                 </div>
                                 {errors.studentName && <p className="mt-1.5 text-xs text-red-500">{errors.studentName.message}</p>}
                             </div>
 
                             <div>
-                                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Phone Number</label>
+                                <label className="block text-xs font-semibold text-foreground/80 mb-1.5">Phone Number</label>
                                 <div className="relative">
-                                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
                                     <input type="tel" placeholder="10-digit phone number"
                                         {...register('studentPhone', { required: "Phone is required" })}
-                                        className={cn('w-full pl-11 pr-4 h-12 border rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-blue-400',
-                                            errors.studentPhone ? 'border-red-300' : 'border-slate-200')} />
+                                        className={cn('w-full pl-11 pr-4 h-12 border rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-blue-400',
+                                            errors.studentPhone ? 'border-red-300' : 'border-border')} />
                                 </div>
                                 {errors.studentPhone && <p className="mt-1.5 text-xs text-red-500">{errors.studentPhone.message}</p>}
                             </div>
@@ -137,9 +137,9 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                     </div>
 
                     {/* Desktop confirm button */}
-                    <div className="p-5 border-t border-slate-100 hidden lg:block">
+                    <div className="p-5 border-t border-border hidden lg:block">
                         <button type="submit" disabled={isSubmitting}
-                            className="w-full inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-[#C0392B] disabled:opacity-50 transition-all shadow-sm shadow-blue-600/20">
+                            className="w-full inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary/90 disabled:opacity-50 transition-all shadow-sm shadow-blue-600/20">
                             {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <>Confirm Booking <Check size={16} /></>}
                         </button>
                     </div>
@@ -150,9 +150,9 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                     'flex-1 flex flex-col overflow-hidden bg-[#fafbfd]',
                     mobileView === 'slots' ? 'flex' : 'hidden lg:flex'
                 )}>
-                    <div className="p-5 sm:p-6 border-b border-slate-100 shrink-0 bg-white">
-                        <h2 className="text-lg font-semibold text-slate-900">Choose a Time Slot</h2>
-                        <p className="text-xs text-slate-400 mt-0.5">{totalSlots} slot{totalSlots !== 1 ? 's' : ''} available</p>
+                    <div className="p-5 sm:p-6 border-b border-border shrink-0 bg-white">
+                        <h2 className="text-lg font-semibold text-foreground">Choose a Time Slot</h2>
+                        <p className="text-xs text-muted-foreground/70 mt-0.5">{totalSlots} slot{totalSlots !== 1 ? 's' : ''} available</p>
                     </div>
 
                     {errors.selectedSlot && (
@@ -166,10 +166,10 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                             availableSlots.map((interviewerSlot) => (
                                 <div key={interviewerSlot._id}>
                                     <div className="flex items-center gap-2 mb-3">
-                                        <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
-                                            <Calendar size={14} className="text-slate-900" />
+                                        <div className="w-8 h-8 rounded-lg bg-muted/40 flex items-center justify-center">
+                                            <Calendar size={14} className="text-foreground" />
                                         </div>
-                                        <h3 className="text-sm font-semibold text-slate-900">{formatDate(interviewerSlot.date)}</h3>
+                                        <h3 className="text-sm font-semibold text-foreground">{formatDate(interviewerSlot.date)}</h3>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         {interviewerSlot.timeSlots.map((slot) => (
@@ -177,10 +177,10 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                                                 <input type="radio" className="sr-only peer"
                                                     {...register('selectedSlot', { required: "Please select a time slot" })}
                                                     value={`${interviewerSlot.interviewer._id}|${slot.startTime}|${slot.endTime}`} />
-                                                <div className="inline-flex items-center gap-1.5 h-9 px-3.5 border border-slate-200 rounded-lg text-[13px] font-medium text-slate-600 bg-white
+                                                <div className="inline-flex items-center gap-1.5 h-9 px-3.5 border border-border rounded-lg text-[13px] font-medium text-foreground/80 bg-white
                                                     transition-all duration-150
-                                                    hover:border-blue-300 hover:bg-slate-50
-                                                    peer-checked:border-blue-600 peer-checked:bg-slate-900 peer-checked:text-white">
+                                                    hover:border-blue-300 hover:bg-muted/40
+                                                    peer-checked:border-blue-600 peer-checked:bg-primary peer-checked:text-white">
                                                     {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
                                                 </div>
                                             </label>
@@ -190,11 +190,11 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
                             ))
                         ) : (
                             <div className="flex flex-col items-center justify-center h-full py-16 text-center">
-                                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-                                    <Clock size={24} className="text-slate-400" />
+                                <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
+                                    <Clock size={24} className="text-muted-foreground/70" />
                                 </div>
-                                <h3 className="text-base font-semibold text-slate-900 mb-1">No Slots Available</h3>
-                                <p className="text-sm text-slate-500 max-w-xs">There are no available time slots right now. Please check back later.</p>
+                                <h3 className="text-base font-semibold text-foreground mb-1">No Slots Available</h3>
+                                <p className="text-sm text-muted-foreground max-w-xs">There are no available time slots right now. Please check back later.</p>
                             </div>
                         )}
                     </div>
@@ -202,20 +202,20 @@ const BookingStep = ({ onSubmit, register, errors, isSubmitting, verifiedEmail, 
             </div>
 
             {/* Mobile bottom bar */}
-            <div className="p-4 border-t border-slate-200 bg-white lg:hidden shrink-0 safe-area-bottom">
+            <div className="p-4 border-t border-border bg-white lg:hidden shrink-0 safe-area-bottom">
                 {mobileView === 'details' ? (
                     <button type="button" onClick={handleContinue}
-                        className="w-full inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-[#C0392B] transition-all shadow-sm shadow-blue-600/20">
+                        className="w-full inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary/90 transition-all shadow-sm shadow-blue-600/20">
                         Choose Time Slot <ArrowRight size={16} />
                     </button>
                 ) : (
                     <div className="flex gap-2.5">
                         <button type="button" onClick={() => setMobileView('details')}
-                            className="w-12 h-12 rounded-xl border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 shrink-0">
+                            className="w-12 h-12 rounded-xl border border-border flex items-center justify-center text-foreground/80 hover:bg-muted/40 shrink-0">
                             <ArrowLeft size={18} />
                         </button>
                         <button type="submit" disabled={isSubmitting}
-                            className="flex-1 inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-[#C0392B] disabled:opacity-50 transition-all shadow-sm shadow-blue-600/20">
+                            className="flex-1 inline-flex items-center justify-center gap-2 h-12 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary/90 disabled:opacity-50 transition-all shadow-sm shadow-blue-600/20">
                             {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <>Confirm Booking <Check size={16} /></>}
                         </button>
                     </div>
@@ -235,27 +235,27 @@ const ConfirmationStep = ({ step, bookingDetails }) => (
                 <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto mb-5">
                     <CheckCircle size={28} className="text-emerald-600" />
                 </div>
-                <h1 className="font-display text-[30px] font-semibold text-slate-900 tracking-tight leading-none">
+                <h1 className="font-display text-[30px] font-semibold text-foreground tracking-tight leading-none">
                     {step === 'already_booked' ? 'Already booked.' : "You're all set."}
                 </h1>
-                <p className="text-[13.5px] text-slate-500 mt-2 leading-relaxed">
+                <p className="text-[13.5px] text-muted-foreground mt-2 leading-relaxed">
                     A confirmation email with meeting details has been sent to you.
                 </p>
 
                 {bookingDetails && (
-                    <div className="mt-6 bg-white rounded-2xl border border-slate-200 p-5 text-left space-y-4">
+                    <div className="mt-6 bg-white rounded-2xl border border-border p-5 text-left space-y-4">
                         {[
                             { icon: User, label: 'Name', value: bookingDetails.studentName },
                             { icon: Calendar, label: 'Date', value: formatDate(bookingDetails.bookingDate) },
                             { icon: Clock, label: 'Time', value: `${formatTime(bookingDetails.bookedSlot.startTime)} - ${formatTime(bookingDetails.bookedSlot.endTime)}` },
                         ].map((item, i) => (
                             <div key={i} className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center shrink-0">
-                                    <item.icon size={16} className="text-slate-500" />
+                                <div className="w-10 h-10 rounded-xl bg-muted/40 flex items-center justify-center shrink-0">
+                                    <item.icon size={16} className="text-muted-foreground" />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{item.label}</p>
-                                    <p className="text-sm font-semibold text-slate-900">{item.value}</p>
+                                    <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider">{item.label}</p>
+                                    <p className="text-sm font-semibold text-foreground">{item.value}</p>
                                 </div>
                             </div>
                         ))}
@@ -319,10 +319,10 @@ const PublicBookingPage = () => {
             <div className="min-h-screen bg-white flex items-center justify-center">
                 <div className="text-center">
                     <div className="relative w-10 h-10 mx-auto mb-3">
-                        <div className="w-10 h-10 rounded-full border-[3px] border-slate-200" />
+                        <div className="w-10 h-10 rounded-full border-[3px] border-border" />
                         <div className="absolute inset-0 w-10 h-10 rounded-full border-[3px] border-transparent border-t-blue-600 border-r-blue-600 animate-spin" />
                     </div>
-                    <p className="text-sm font-medium text-slate-500">Please wait...</p>
+                    <p className="text-sm font-medium text-muted-foreground">Please wait...</p>
                 </div>
             </div>
         );
@@ -335,9 +335,9 @@ const PublicBookingPage = () => {
                     <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-4">
                         <AlertTriangle size={24} className="text-red-500" />
                     </div>
-                    <h2 className="text-xl font-semibold text-slate-900 mb-1">Something went wrong</h2>
-                    <p className="text-sm text-slate-500">{pageError}</p>
-                    <button onClick={() => { setPageError(null); }} className="mt-5 inline-flex items-center gap-2 h-10 px-5 text-sm font-medium text-white bg-slate-900 rounded-xl hover:bg-[#C0392B] transition-colors">
+                    <h2 className="text-xl font-semibold text-foreground mb-1">Something went wrong</h2>
+                    <p className="text-sm text-muted-foreground">{pageError}</p>
+                    <button onClick={() => { setPageError(null); }} className="mt-5 inline-flex items-center gap-2 h-10 px-5 text-sm font-medium text-white bg-primary rounded-xl hover:bg-primary/90 transition-colors">
                         Try Again
                     </button>
                 </div>

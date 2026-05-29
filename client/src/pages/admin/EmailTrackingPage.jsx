@@ -14,7 +14,7 @@ import Loader from '@/components/common/Loader';
 const Table = ({ columns, data, isLoading, emptyMessage, emptyIcon: EmptyIcon }) => (
     <div className="w-full overflow-x-auto">
         <table className="min-w-full bg-white divide-y divide-gray-200">
-            <thead className="bg-slate-50">
+            <thead className="bg-muted/40">
                 <tr>{columns.map(col => <th key={col.key} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{col.title}</th>)}</tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -55,7 +55,7 @@ const StatCard = ({ title, value, icon: Icon, color }) => (
             <p className="text-sm font-medium text-gray-600">{title}</p>
             <Icon className={cn('h-5 w-5', color)} />
         </div>
-        <p className="font-display text-[30px] font-semibold text-slate-900 tracking-tight leading-none mt-3">{value}</p>
+        <p className="font-display text-[30px] font-semibold text-foreground tracking-tight leading-none mt-3">{value}</p>
     </Card>
 );
 
@@ -169,7 +169,7 @@ const EmailTrackingPage = () => {
             {/* New Header */}
             <div className="flex-shrink-0 p-4 border-b border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <Link to="/admin/bookings/student-bookings" className="text-sm text-slate-900 hover:text-blue-800 flex items-center mb-1">
+                    <Link to="/admin/bookings/student-bookings" className="text-sm text-foreground hover:text-blue-800 flex items-center mb-1">
                         <ArrowLeft className="mr-1.5 h-4 w-4"/> Back to Manage Links
                     </Link>
                 </div>

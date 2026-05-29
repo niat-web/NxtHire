@@ -32,16 +32,16 @@ const InlineDropdownMenu = ({ options }) => {
             <button
                 aria-label="Row actions"
                 onClick={() => setOpen(v => !v)}
-                className="h-8 w-8 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
             >
                 <MoreVertical className="h-4 w-4" aria-hidden="true" />
             </button>
             {open && (
-                <div className="absolute right-0 z-50 mt-1 w-44 rounded-2xl bg-white shadow-xl border border-slate-200 py-1.5">
+                <div className="absolute right-0 z-50 mt-1 w-44 rounded-2xl bg-white shadow-xl border border-border py-1.5">
                     {options.map((option) => (
                         <button key={option.label} onClick={() => { setOpen(false); option.onClick?.(); }}
                             className={cn('flex items-center gap-2.5 w-full px-4 py-2 text-[13px] font-medium transition-colors',
-                                option.isDestructive ? 'text-red-600 hover:bg-red-50' : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
+                                option.isDestructive ? 'text-red-600 hover:bg-red-50' : 'text-foreground/90 hover:bg-muted/40 hover:text-foreground'
                             )}>
                             {option.icon && <option.icon className="h-3.5 w-3.5" aria-hidden="true" />}
                             {option.label}
@@ -55,10 +55,10 @@ const InlineDropdownMenu = ({ options }) => {
 
 // ─── Stat chip ──────────────────────────────────────────────────────────────
 const StatChip = ({ label, value, icon: Icon }) => (
-    <div className="flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-3 h-9">
-        <Icon className="h-3.5 w-3.5 text-slate-500" aria-hidden="true" />
-        <span style={DISPLAY} className="text-[15px] font-semibold text-slate-900 leading-none tracking-tight">{value}</span>
-        <span className="text-[11.5px] text-slate-500">{label}</span>
+    <div className="flex items-center gap-2.5 rounded-full border border-border bg-white px-3 h-9">
+        <Icon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+        <span style={DISPLAY} className="text-[15px] font-semibold text-foreground leading-none tracking-tight">{value}</span>
+        <span className="text-[11.5px] text-muted-foreground">{label}</span>
     </div>
 );
 
@@ -123,27 +123,27 @@ const InterviewBookings = () => {
     const hasFilters = !!(searchTerm || creatorFilter || filter);
 
     return (
-        <div className="h-full flex flex-col bg-[#fcfaf8] overflow-hidden">
+        <div className="h-full flex flex-col bg-card overflow-hidden">
 
-            {/* Header — hero + stats + toolbar in one tight slab */}
-            <section className="border-b border-slate-200 bg-white px-6 lg:px-8 pt-5 pb-4 shrink-0">
-                <div className="flex flex-wrap items-start justify-between gap-4">
+            {/* Header — hero + stats + toolbar in one tight edge-to-edge slab */}
+            <section className="border-b border-border bg-card px-5 lg:px-6 pt-3 pb-3 shrink-0">
+                <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                        <h1 style={DISPLAY} className="text-[26px] sm:text-[30px] font-semibold text-slate-900 tracking-tight leading-none">
+                        <h1 style={DISPLAY} className="text-[22px] sm:text-[26px] font-semibold text-foreground tracking-tight leading-none">
                             Interviewer bookings
                         </h1>
-                        <p className="mt-2 text-[13px] text-slate-500">
+                        <p className="mt-1 text-[12.5px] text-muted-foreground">
                             {bookings.length} requests · {openCount} currently open
                         </p>
                     </div>
                     <button onClick={() => navigate('/admin/bookings/new')}
-                        className="inline-flex h-10 items-center gap-2 rounded-full bg-slate-900 px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#C0392B]">
+                        className="inline-flex h-9 items-center gap-2 rounded-full bg-primary px-5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary/90">
                         <Plus className="h-4 w-4" aria-hidden="true" /> New request
                     </button>
                 </div>
 
                 {/* Stat chips */}
-                <div className="flex flex-wrap items-center gap-2 mt-5">
+                <div className="flex flex-wrap items-center gap-2 mt-3">
                     <StatChip label="Total" value={bookings.length} icon={Calendar} />
                     <StatChip label="Open" value={openCount} icon={Clock} />
                     <StatChip label="Interviewers" value={totalInterviewers} icon={Users} />
@@ -151,26 +151,26 @@ const InterviewBookings = () => {
                 </div>
 
                 {/* Toolbar: search + creator + status tabs */}
-                <div className="flex flex-wrap items-center gap-2.5 mt-4">
+                <div className="flex flex-wrap items-center gap-2.5 mt-3">
                     <div className="relative w-full sm:w-64">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70" aria-hidden="true" />
                         <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
                             placeholder="Search date or creator"
-                            className="w-full pl-10 pr-3 h-9 bg-white border border-slate-200 rounded-full text-[13px] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors" />
+                            className="w-full pl-10 pr-3 h-9 bg-white border border-border rounded-full text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors" />
                     </div>
                     <div className="relative">
                         <select value={creatorFilter} onChange={e => setCreatorFilter(e.target.value)}
-                            className="h-9 pl-4 pr-9 bg-white border border-slate-200 rounded-full text-[13px] text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 appearance-none cursor-pointer transition-colors">
+                            className="h-9 pl-4 pr-9 bg-white border border-border rounded-full text-[13px] text-foreground/90 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary appearance-none cursor-pointer transition-colors">
                             <option value="">All creators</option>
                             {creatorOptions.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                         </select>
-                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" aria-hidden="true" />
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70 pointer-events-none" aria-hidden="true" />
                     </div>
 
                     <div className="flex-1" />
 
                     {/* Status tab group */}
-                    <div className="flex items-center bg-slate-100 rounded-full p-0.5">
+                    <div className="flex items-center bg-muted rounded-full p-0.5">
                         {[
                             { id: '', label: 'All' },
                             { id: 'Open', label: 'Open' },
@@ -179,7 +179,7 @@ const InterviewBookings = () => {
                             <button key={tab.id} onClick={() => setFilter(tab.id)}
                                 className={cn(
                                     'px-4 h-8 text-[12px] font-semibold rounded-full transition-colors',
-                                    filter === tab.id ? 'bg-white text-slate-900' : 'text-slate-500 hover:text-slate-900'
+                                    filter === tab.id ? 'bg-white text-foreground' : 'text-muted-foreground hover:text-foreground'
                                 )}>
                                 {tab.label}
                             </button>
@@ -188,7 +188,7 @@ const InterviewBookings = () => {
 
                     {hasFilters && (
                         <button onClick={() => { setSearchTerm(''); setCreatorFilter(''); setFilter(''); }}
-                            className="text-[12px] text-slate-500 hover:text-slate-900 font-medium px-3 h-8 rounded-full hover:bg-slate-100 transition-colors">
+                            className="text-[12px] text-muted-foreground hover:text-foreground font-medium px-3 h-8 rounded-full hover:bg-muted transition-colors">
                             Clear
                         </button>
                     )}
@@ -201,18 +201,18 @@ const InterviewBookings = () => {
                     <div className="flex items-center justify-center h-64"><Loader size="lg" /></div>
                 ) : sorted.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center">
-                        <span className="inline-flex items-center justify-center h-12 w-12 rounded-full border border-slate-200 bg-white text-slate-400 mb-4">
+                        <span className="inline-flex items-center justify-center h-12 w-12 rounded-full border border-border bg-white text-muted-foreground/70 mb-4">
                             <Inbox className="h-5 w-5" aria-hidden="true" />
                         </span>
-                        <h3 style={DISPLAY} className="text-[20px] font-semibold text-slate-900 tracking-tight">
+                        <h3 style={DISPLAY} className="text-[20px] font-semibold text-foreground tracking-tight">
                             {hasFilters ? 'No bookings match.' : 'No booking requests yet.'}
                         </h3>
-                        <p className="mt-1 text-[13px] text-slate-500 max-w-sm">
+                        <p className="mt-1 text-[13px] text-muted-foreground max-w-sm">
                             {hasFilters ? 'Try clearing the filters to see the full list.' : 'Create a request to gather availability from your interviewer pool.'}
                         </p>
                         {!hasFilters && (
                             <button onClick={() => navigate('/admin/bookings/new')}
-                                className="mt-5 inline-flex h-10 items-center gap-2 rounded-full bg-slate-900 px-5 text-[13px] font-semibold text-white hover:bg-[#C0392B] transition-colors">
+                                className="mt-5 inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-[13px] font-semibold text-white hover:bg-primary/90 transition-colors">
                                 <Plus className="h-4 w-4" aria-hidden="true" /> New request
                             </button>
                         )}
@@ -257,7 +257,7 @@ const BookingRow = ({ booking, onEdit, onDelete, onTrack, onStatusChange }) => {
 
     return (
         <div className={cn(
-            'group relative flex items-center gap-5 rounded-2xl border border-slate-200 bg-white px-5 py-4 transition-colors hover:border-slate-900',
+            'group relative flex items-center gap-5 rounded-2xl border border-border bg-white px-5 py-4 transition-colors hover:border-primary',
             isClosed && 'opacity-60'
         )}>
             {/* Accent stripe on hover */}
@@ -269,28 +269,28 @@ const BookingRow = ({ booking, onEdit, onDelete, onTrack, onStatusChange }) => {
 
             {/* Date block — Fraunces day number */}
             <div className="w-14 shrink-0 text-center">
-                <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-[0.2em] leading-tight">
+                <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.2em] leading-tight">
                     {bookingDate.toLocaleString('default', { month: 'short' })}
                 </div>
-                <div style={DISPLAY} className="mt-0.5 text-[24px] font-semibold text-slate-900 leading-none tracking-tight">
+                <div style={DISPLAY} className="mt-0.5 text-[24px] font-semibold text-foreground leading-none tracking-tight">
                     {bookingDate.getDate()}
                 </div>
             </div>
 
-            <div className="w-px self-stretch bg-slate-100" aria-hidden="true" />
+            <div className="w-px self-stretch bg-muted" aria-hidden="true" />
 
             {/* Primary info */}
             <div className="min-w-0 w-52 shrink-0">
                 <div className="flex items-center gap-2">
-                    <span className="text-[13.5px] font-semibold text-slate-900 truncate">{formatDate(booking.bookingDate)}</span>
+                    <span className="text-[13.5px] font-semibold text-foreground truncate">{formatDate(booking.bookingDate)}</span>
                     {isClosed && (
-                        <span className="inline-flex items-center px-1.5 py-0.5 border border-slate-200 bg-slate-50 text-slate-600 text-[9.5px] uppercase font-semibold tracking-wide rounded-full">
+                        <span className="inline-flex items-center px-1.5 py-0.5 border border-border bg-muted/40 text-foreground/80 text-[9.5px] uppercase font-semibold tracking-wide rounded-full">
                             Closed
                         </span>
                     )}
                 </div>
-                <p className="text-[12px] text-slate-500 mt-0.5 flex items-center gap-1 truncate">
-                    <User className="h-3 w-3 text-slate-400" aria-hidden="true" />
+                <p className="text-[12px] text-muted-foreground mt-0.5 flex items-center gap-1 truncate">
+                    <User className="h-3 w-3 text-muted-foreground/70" aria-hidden="true" />
                     Created by {booking.createdBy?.firstName || 'Admin'}
                 </p>
             </div>
@@ -311,13 +311,13 @@ const BookingRow = ({ booking, onEdit, onDelete, onTrack, onStatusChange }) => {
             {/* Progress — takes remaining space */}
             <div className="flex-1 min-w-[120px] hidden md:block">
                 <div className="flex items-center gap-3">
-                    <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                         <div
                             className="h-full rounded-full transition-all duration-500"
                             style={{ width: `${progress}%`, backgroundColor: progress === 100 ? '#059669' : ACCENT }}
                         />
                     </div>
-                    <span className={cn('text-[12px] font-semibold tabular-nums w-10 text-right', progress === 100 ? 'text-emerald-700' : 'text-slate-900')}>
+                    <span className={cn('text-[12px] font-semibold tabular-nums w-10 text-right', progress === 100 ? 'text-emerald-700' : 'text-foreground')}>
                         {progress}%
                     </span>
                 </div>
@@ -326,7 +326,7 @@ const BookingRow = ({ booking, onEdit, onDelete, onTrack, onStatusChange }) => {
             {/* Actions */}
             <div className="flex items-center gap-1.5 shrink-0">
                 <button onClick={onTrack}
-                    className="inline-flex items-center gap-1 h-8 px-3.5 text-[12px] font-semibold text-slate-900 border border-slate-900 rounded-full bg-white hover:bg-slate-900 hover:text-white transition-colors">
+                    className="inline-flex items-center gap-1 h-8 px-3.5 text-[12px] font-semibold text-foreground border border-primary rounded-full bg-white hover:bg-primary hover:text-white transition-colors">
                     Track <ChevronRight className="h-3 w-3" aria-hidden="true" />
                 </button>
                 <InlineDropdownMenu options={dropdownOptions} />

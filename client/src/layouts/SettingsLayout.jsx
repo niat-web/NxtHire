@@ -12,9 +12,9 @@ const settingsNavItems = [
 ];
 
 const SettingsSidebar = memo(() => (
-  <aside className="w-60 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col">
-    <div className="px-6 py-5 border-b border-slate-100">
-      <h2 style={DISPLAY} className="text-[20px] font-semibold text-slate-900 tracking-tight">Settings</h2>
+  <aside className="w-60 flex-shrink-0 bg-white border-r border-border flex flex-col">
+    <div className="px-6 py-5 border-b border-border">
+      <h2 style={DISPLAY} className="text-[20px] font-semibold text-foreground tracking-tight">Settings</h2>
     </div>
     <nav className="flex-1 p-3 space-y-0.5">
       {settingsNavItems.map(item => (
@@ -25,8 +25,8 @@ const SettingsSidebar = memo(() => (
             cn(
               'flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium rounded-xl transition-colors',
               isActive
-                ? 'bg-slate-900 text-white'
-                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                ? 'bg-primary text-white'
+                : 'text-foreground/80 hover:bg-muted/40 hover:text-foreground'
             )
           }
         >

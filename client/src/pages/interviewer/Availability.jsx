@@ -30,7 +30,7 @@ const DeclineModal = ({ isOpen, onClose, onSubmit, request }) => {
             placeholder="Please provide a reason for not being available..."
             {...register('remarks', { required: 'A reason is required to decline.' })}
             rows={3}
-            className={`w-full rounded-lg border ${errors.remarks ? 'border-red-300' : 'border-slate-200'} bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 resize-none`}
+            className={`w-full rounded-lg border ${errors.remarks ? 'border-red-300' : 'border-border'} bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary resize-none`}
           />
           {errors.remarks && <p className="mt-1 text-sm text-red-600">{errors.remarks.message}</p>}
         </div>
@@ -47,14 +47,14 @@ const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-ser
 
 // ─── Stat Card ──────────────────────────────────────────────────────────────
 const StatCard = ({ label, value, icon: Icon }) => (
-  <div className="rounded-2xl border border-slate-200 bg-white p-5">
+  <div className="rounded-2xl border border-border bg-white p-5">
     <div className="flex items-center justify-between">
-      <p className="text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em]">{label}</p>
-      <div className="h-9 w-9 rounded-full border border-slate-200 bg-white inline-flex items-center justify-center text-slate-700">
+      <p className="text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.2em]">{label}</p>
+      <div className="h-9 w-9 rounded-full border border-border bg-white inline-flex items-center justify-center text-foreground/90">
         <Icon size={14} />
       </div>
     </div>
-    <p style={DISPLAY} className="text-[28px] font-semibold text-slate-900 tracking-tight leading-none mt-4">{value}</p>
+    <p style={DISPLAY} className="text-[28px] font-semibold text-foreground tracking-tight leading-none mt-4">{value}</p>
   </div>
 );
 
@@ -63,7 +63,7 @@ const statusPill = 'inline-flex items-center gap-1.5 rounded-full border px-3 h-
 const StatusIndicator = ({ req, isExpired, canEdit, onProvide, onDecline }) => {
   if (req.bookingStatus === 'Closed') {
     return (
-      <div className={`${statusPill} bg-slate-50 text-slate-600 border-slate-200`}>
+      <div className={`${statusPill} bg-muted/40 text-foreground/80 border-border`}>
         <Lock size={13} /> Closed
       </div>
     );
@@ -96,17 +96,17 @@ const StatusIndicator = ({ req, isExpired, canEdit, onProvide, onDecline }) => {
     default:
       if (isExpired) {
         return (
-          <div className={`${statusPill} bg-slate-50 text-slate-500 border-slate-200`}>
+          <div className={`${statusPill} bg-muted/40 text-muted-foreground border-border`}>
             <AlertCircle size={13} /> Expired
           </div>
         );
       }
       return (
         <div className="flex items-center gap-2">
-          <button onClick={() => onDecline(req)} className="inline-flex h-8 items-center rounded-full border border-slate-200 px-3 text-[12px] font-semibold text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors">
+          <button onClick={() => onDecline(req)} className="inline-flex h-8 items-center rounded-full border border-border px-3 text-[12px] font-semibold text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors">
             Decline
           </button>
-          <button onClick={() => onProvide(req)} className="inline-flex h-8 items-center gap-1.5 rounded-full bg-slate-900 px-3 text-[12px] font-semibold text-white hover:bg-[#C0392B] transition-colors">
+          <button onClick={() => onProvide(req)} className="inline-flex h-8 items-center gap-1.5 rounded-full bg-primary px-3 text-[12px] font-semibold text-white hover:bg-primary/90 transition-colors">
             Provide slots <ArrowRight size={12} />
           </button>
         </div>
@@ -186,13 +186,13 @@ const Availability = () => {
   return (
     <div className="h-full flex flex-col bg-[#fcfaf8]">
       {/* Hero */}
-      <section className="border-b border-slate-200 bg-white px-6 lg:px-10 pt-8 pb-6 shrink-0">
+      <section className="border-b border-border bg-white px-6 lg:px-10 pt-8 pb-6 shrink-0">
         <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-6 max-w-7xl w-full mx-auto">
           <div>
-            <h1 style={DISPLAY} className="text-[32px] sm:text-[38px] font-semibold text-slate-900 tracking-tight leading-none">Availability requests</h1>
-            <p className="mt-2 text-[13.5px] text-slate-500">{requests.length} total</p>
+            <h1 style={DISPLAY} className="text-[32px] sm:text-[38px] font-semibold text-foreground tracking-tight leading-none">Availability requests</h1>
+            <p className="mt-2 text-[13.5px] text-muted-foreground">{requests.length} total</p>
           </div>
-          <div className="flex bg-slate-100 rounded-full p-1">
+          <div className="flex bg-muted rounded-full p-1">
             {[
               { id: 'all', label: 'All' },
               { id: 'pending', label: `Pending (${stats.pending})` },
@@ -201,7 +201,7 @@ const Availability = () => {
               <button key={f.id} onClick={() => setFilter(f.id)}
                 className={cn(
                   'px-4 h-8 text-[12px] font-semibold rounded-full transition-colors',
-                  filter === f.id ? 'bg-white text-slate-900' : 'text-slate-500 hover:text-slate-900'
+                  filter === f.id ? 'bg-white text-foreground' : 'text-muted-foreground hover:text-foreground'
                 )}>
                 {f.label}
               </button>
@@ -224,13 +224,13 @@ const Availability = () => {
           {/* Request List */}
           {filteredRequests.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="h-12 w-12 rounded-full border border-slate-200 bg-white inline-flex items-center justify-center mb-4 text-slate-400">
+              <div className="h-12 w-12 rounded-full border border-border bg-white inline-flex items-center justify-center mb-4 text-muted-foreground/70">
                 <Inbox className="h-5 w-5" />
               </div>
-              <h3 style={DISPLAY} className="text-[22px] font-semibold text-slate-900 mb-1 tracking-tight">
+              <h3 style={DISPLAY} className="text-[22px] font-semibold text-foreground mb-1 tracking-tight">
                 {filter === 'all' ? 'No requests yet' : 'No matching requests'}
               </h3>
-              <p className="text-[13px] text-slate-500 max-w-xs">
+              <p className="text-[13px] text-muted-foreground max-w-xs">
                 {filter === 'all'
                   ? 'You have no availability requests at this time.'
                   : 'Try changing the filter above.'}
@@ -248,14 +248,14 @@ const Availability = () => {
                   <div
                     key={req.bookingId}
                     className={cn(
-                      'bg-white rounded-2xl border border-slate-200 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors hover:border-slate-900',
+                      'bg-white rounded-2xl border border-border p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors hover:border-primary',
                       !isActionable && !canEdit && 'opacity-60'
                     )}
                   >
                     <div className="flex items-center gap-4">
                       <div className={cn(
                         'w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 border',
-                        isActionable ? 'bg-white text-slate-900 border-slate-200' : 'bg-slate-50 text-slate-400 border-slate-200'
+                        isActionable ? 'bg-white text-foreground border-border' : 'bg-muted/40 text-muted-foreground/70 border-border'
                       )}>
                         <span className="text-[10px] font-semibold uppercase leading-none tracking-wide">
                           {new Date(req.bookingDate).toLocaleString('default', { month: 'short' })}
@@ -266,10 +266,10 @@ const Availability = () => {
                       </div>
 
                       <div>
-                        <p className={cn('text-[13.5px] font-semibold', isActionable || canEdit ? 'text-slate-900' : 'text-slate-500')}>
+                        <p className={cn('text-[13.5px] font-semibold', isActionable || canEdit ? 'text-foreground' : 'text-muted-foreground')}>
                           {formatDate(req.bookingDate)}
                         </p>
-                        <p className="text-[12px] text-slate-500 mt-0.5">
+                        <p className="text-[12px] text-muted-foreground mt-0.5">
                           {req.bookingStatus === 'Open' ? 'Open request' : 'Closed by admin'}
                         </p>
                       </div>

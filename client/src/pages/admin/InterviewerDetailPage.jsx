@@ -21,23 +21,23 @@ const fadeUp = {
 };
 
 const InfoField = ({ label, value, icon: Icon }) => (
-  <div className="flex items-start gap-3 py-3 border-b border-slate-100 last:border-0">
+  <div className="flex items-start gap-3 py-3 border-b border-border last:border-0">
     {Icon && (
-      <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-center shrink-0 mt-0.5">
-        <Icon className="h-4 w-4 text-slate-400" />
+      <div className="w-9 h-9 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-center shrink-0 mt-0.5">
+        <Icon className="h-4 w-4 text-muted-foreground/70" />
       </div>
     )}
     <div className="min-w-0 flex-1">
-      <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] mb-0.5">{label}</p>
-      <p className="text-sm font-medium text-slate-900 break-all">{value || <span className="text-slate-300 italic">Not set</span>}</p>
+      <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-[0.15em] mb-0.5">{label}</p>
+      <p className="text-sm font-medium text-foreground break-all">{value || <span className="text-muted-foreground/40 italic">Not set</span>}</p>
     </div>
   </div>
 );
 
 const SectionCard = ({ title, children, className = '' }) => (
-  <div className={`bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden ${className}`}>
-    <div className="px-6 py-4 border-b border-slate-100">
-      <h3 className="text-sm font-semibold text-slate-900 tracking-tight">{title}</h3>
+  <div className={`bg-white rounded-xl border border-border shadow-sm overflow-hidden ${className}`}>
+    <div className="px-6 py-4 border-b border-border">
+      <h3 className="text-sm font-semibold text-foreground tracking-tight">{title}</h3>
     </div>
     <div className="px-6 py-4">{children}</div>
   </div>
@@ -67,12 +67,12 @@ const InterviewerDetailPage = () => {
   if (error || !interviewer) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4 px-6">
-        <span className="inline-flex items-center justify-center h-16 w-16 rounded-2xl border border-slate-200 bg-white text-slate-700">
+        <span className="inline-flex items-center justify-center h-16 w-16 rounded-2xl border border-border bg-white text-foreground/90">
           <Shield className="h-6 w-6" aria-hidden="true" />
         </span>
-        <h2 className="font-display text-[22px] font-semibold text-slate-900 tracking-tight">Interviewer not found.</h2>
-        <p className="text-[13.5px] text-slate-500">The record may have been deleted or the ID is invalid.</p>
-        <button onClick={() => navigate('/admin/interviewers')} className="inline-flex h-10 items-center gap-1.5 rounded-full border border-slate-900 px-4 text-[12.5px] font-semibold text-slate-900 transition-colors hover:bg-slate-900 hover:text-white">
+        <h2 className="font-display text-[22px] font-semibold text-foreground tracking-tight">Interviewer not found.</h2>
+        <p className="text-[13.5px] text-muted-foreground">The record may have been deleted or the ID is invalid.</p>
+        <button onClick={() => navigate('/admin/interviewers')} className="inline-flex h-10 items-center gap-1.5 rounded-full border border-primary px-4 text-[12.5px] font-semibold text-foreground transition-colors hover:bg-primary hover:text-white">
           <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" /> Back to interviewers
         </button>
       </div>
@@ -115,27 +115,27 @@ const InterviewerDetailPage = () => {
   const statusColors = {
     'Active': 'bg-emerald-50 text-emerald-700 border-emerald-200',
     'On Probation': 'bg-amber-50 text-amber-700 border-amber-200',
-    'Inactive': 'bg-slate-100 text-slate-600 border-slate-200',
+    'Inactive': 'bg-muted text-foreground/80 border-border',
     'Suspended': 'bg-rose-50 text-rose-700 border-rose-200',
     'Terminated': 'bg-red-50 text-red-700 border-red-200',
   };
 
   return (
-    <div className="flex-1 flex flex-col overflow-y-auto bg-slate-50">
+    <div className="flex-1 flex flex-col overflow-y-auto bg-muted/40">
       <div className="px-6 py-5 space-y-5 max-w-6xl mx-auto w-full">
 
         {/* Back + Actions bar */}
         <motion.div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4" initial="hidden" animate="visible" variants={fadeUp}>
           <button
             onClick={() => navigate('/admin/interviewers')}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-foreground/80 hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-4 w-4" /> Back to Interviewers
           </button>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setEditModalOpen(true)}
-              className="h-9 inline-flex items-center gap-2 px-4 text-sm font-semibold rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
+              className="h-9 inline-flex items-center gap-2 px-4 text-sm font-semibold rounded-xl border border-border bg-white text-foreground/90 hover:bg-muted/40 transition-colors"
             >
               <Edit className="h-3.5 w-3.5" /> Edit
             </button>
@@ -150,24 +150,24 @@ const InterviewerDetailPage = () => {
 
         {/* Header card */}
         <motion.div
-          className="rounded-2xl border border-slate-200 bg-white p-6 lg:p-7"
+          className="rounded-2xl border border-border bg-white p-6 lg:p-7"
           initial="hidden" animate="visible" variants={fadeUp}
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="font-display text-[28px] font-semibold text-slate-900 tracking-tight leading-none">{fullName}</h1>
-                <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-widest border ${statusColors[interviewer.status] || 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                <h1 className="font-display text-[28px] font-semibold text-foreground tracking-tight leading-none">{fullName}</h1>
+                <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-widest border ${statusColors[interviewer.status] || 'bg-muted text-foreground/80 border-border'}`}>
                   {interviewer.status}
                 </span>
                 <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-widest border ${
-                  interviewer.source === 'Internal' ? 'bg-slate-50 text-slate-900 border-slate-200' : 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                  interviewer.source === 'Internal' ? 'bg-muted/40 text-foreground border-border' : 'bg-emerald-50 text-emerald-700 border-emerald-100'
                 }`}>
                   {interviewer.source || 'External'}
                 </span>
               </div>
-              <p className="text-sm text-slate-500">{interviewer.jobTitle || 'N/A'} at {interviewer.currentEmployer || 'N/A'}</p>
-              <p className="text-xs text-slate-400 mt-1">ID: {interviewer.interviewerId} &middot; Onboarded {interviewer.onboardingDate ? formatDateTime(interviewer.onboardingDate) : 'N/A'}</p>
+              <p className="text-sm text-muted-foreground">{interviewer.jobTitle || 'N/A'} at {interviewer.currentEmployer || 'N/A'}</p>
+              <p className="text-xs text-muted-foreground/70 mt-1">ID: {interviewer.interviewerId} &middot; Onboarded {interviewer.onboardingDate ? formatDateTime(interviewer.onboardingDate) : 'N/A'}</p>
             </div>
 
             {/* Status change */}
@@ -176,11 +176,11 @@ const InterviewerDetailPage = () => {
                 value={interviewer.status}
                 onChange={(e) => handleStatusChange(e.target.value)}
                 disabled={updatingStatus}
-                className={`text-xs font-semibold pl-3 pr-7 py-2 rounded-xl appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-900/10 border transition-colors ${statusColors[interviewer.status] || 'bg-slate-100 text-slate-600 border-slate-200'}`}
+                className={`text-xs font-semibold pl-3 pr-7 py-2 rounded-xl appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/10 border transition-colors ${statusColors[interviewer.status] || 'bg-muted text-foreground/80 border-border'}`}
               >
                 {Object.values(INTERVIEWER_STATUS).map(s => <option key={s} value={s}>{s}</option>)}
               </select>
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70 pointer-events-none" />
             </div>
           </div>
         </motion.div>
@@ -206,7 +206,7 @@ const InterviewerDetailPage = () => {
                 value={interviewer.domains?.length ? (
                   <div className="flex flex-wrap gap-1.5 mt-1">
                     {interviewer.domains.map(d => (
-                      <span key={d} className="inline-flex px-2 py-0.5 rounded-md bg-slate-50 text-slate-900 text-[10px] font-semibold uppercase tracking-wider border border-slate-200">
+                      <span key={d} className="inline-flex px-2 py-0.5 rounded-md bg-muted/40 text-foreground text-[10px] font-semibold uppercase tracking-wider border border-border">
                         {d}
                       </span>
                     ))}
@@ -239,13 +239,13 @@ const InterviewerDetailPage = () => {
                 <button
                   onClick={() => handleAction('welcome')}
                   disabled={actionLoading === 'welcome'}
-                  className="w-full h-10 inline-flex items-center justify-center gap-2 text-sm font-semibold rounded-xl text-white bg-slate-900 hover:bg-[#C0392B] shadow-lg transition-all disabled:opacity-50"
+                  className="w-full h-10 inline-flex items-center justify-center gap-2 text-sm font-semibold rounded-xl text-white bg-primary hover:bg-primary/90 shadow-lg transition-all disabled:opacity-50"
                 >
                   {actionLoading === 'welcome' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   {interviewer.welcomeEmailSentAt ? 'Resend Welcome Email' : 'Send Welcome Email'}
                 </button>
                 {interviewer.welcomeEmailSentAt && (
-                  <p className="text-[10px] text-slate-400 text-center">Sent {formatDateTime(interviewer.welcomeEmailSentAt)}</p>
+                  <p className="text-[10px] text-muted-foreground/70 text-center">Sent {formatDateTime(interviewer.welcomeEmailSentAt)}</p>
                 )}
 
                 {showProbationActions && (
@@ -253,7 +253,7 @@ const InterviewerDetailPage = () => {
                     <button
                       onClick={() => handleAction('probation')}
                       disabled={actionLoading === 'probation'}
-                      className="w-full h-10 inline-flex items-center justify-center gap-2 text-sm font-semibold rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
+                      className="w-full h-10 inline-flex items-center justify-center gap-2 text-sm font-semibold rounded-xl border border-border bg-white text-foreground/90 hover:bg-muted/40 transition-colors disabled:opacity-50"
                     >
                       {actionLoading === 'probation' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
                       {interviewer.probationEmailSentAt ? 'Resend Probation Email' : 'Send Probation Email'}
@@ -262,14 +262,14 @@ const InterviewerDetailPage = () => {
                       <button
                         onClick={() => handleAction('markProbation')}
                         disabled={actionLoading === 'markProbation'}
-                        className="w-full h-10 inline-flex items-center justify-center gap-2 text-sm font-semibold rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
+                        className="w-full h-10 inline-flex items-center justify-center gap-2 text-sm font-semibold rounded-xl border border-border bg-white text-foreground/90 hover:bg-muted/40 transition-colors disabled:opacity-50"
                       >
                         {actionLoading === 'markProbation' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                         Mark Probation Sent
                       </button>
                     )}
                     {interviewer.probationEmailSentAt && (
-                      <p className="text-[10px] text-slate-400 text-center">Sent {formatDateTime(interviewer.probationEmailSentAt)}</p>
+                      <p className="text-[10px] text-muted-foreground/70 text-center">Sent {formatDateTime(interviewer.probationEmailSentAt)}</p>
                     )}
                   </>
                 )}

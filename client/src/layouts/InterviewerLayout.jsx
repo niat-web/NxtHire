@@ -68,9 +68,11 @@ const InterviewerLayout = () => {
   }, []);
 
   // Fetch active pending availability requests for sidebar badge
+  // Sidebar badge counter: lighter polling cadence — socket.io pushes the urgent updates.
   const { data: bookingRequests = [] } = useBookingRequests({
-    staleTime: 60 * 1000,
-    refetchInterval: 60 * 1000,
+    staleTime: 2 * 60 * 1000,
+    refetchInterval: 3 * 60 * 1000,
+    refetchIntervalInBackground: false,
   });
   const pendingAvailabilityCount = useMemo(() => {
     const today = startOfDay(new Date());

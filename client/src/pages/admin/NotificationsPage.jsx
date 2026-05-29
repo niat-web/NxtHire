@@ -21,7 +21,7 @@ const Toggle = ({ enabled, onChange, disabled }) => (
     onClick={() => onChange(!enabled)}
     className={cn(
       'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-40',
-      enabled ? 'bg-slate-900' : 'bg-gray-200'
+      enabled ? 'bg-primary' : 'bg-gray-200'
     )}
   >
     <span className={cn(
@@ -39,14 +39,14 @@ const Row = ({ icon: Icon, title, desc, settingKey, settings, onToggle, saving }
   return (
     <div className={cn(
       'flex items-center gap-3 py-3 px-3 rounded-xl transition-colors',
-      enabled ? 'hover:bg-slate-50/60' : 'opacity-60 hover:opacity-80'
+      enabled ? 'hover:bg-muted/30' : 'opacity-60 hover:opacity-80'
     )}>
-      <span className="w-9 h-9 rounded-lg border border-slate-200 bg-white flex items-center justify-center shrink-0 text-slate-700">
+      <span className="w-9 h-9 rounded-lg border border-border bg-white flex items-center justify-center shrink-0 text-foreground/90">
         <Icon className="h-4 w-4" aria-hidden="true" />
       </span>
       <div className="flex-1 min-w-0">
-        <p className="text-[13px] font-semibold text-slate-900">{title}</p>
-        <p className="text-[12px] text-slate-500 mt-0.5">{desc}</p>
+        <p className="text-[13px] font-semibold text-foreground">{title}</p>
+        <p className="text-[12px] text-muted-foreground mt-0.5">{desc}</p>
       </div>
       <Toggle enabled={enabled} onChange={(val) => onToggle(settingKey, val)} disabled={saving} />
     </div>
@@ -136,7 +136,7 @@ const NotificationsPage = () => {
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 bg-gray-50/50">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                   <Mail size={15} className="text-white" />
                 </div>
                 <div>
@@ -147,7 +147,7 @@ const NotificationsPage = () => {
               <button
                 onClick={() => toggleBulk(allEmailKeys, !allEmailOn)}
                 className={cn('text-xs font-semibold px-2.5 py-1 rounded-md transition-colors',
-                  allEmailOn ? 'text-gray-500 bg-gray-100 hover:bg-gray-200' : 'text-slate-900 bg-slate-50 hover:bg-blue-100'
+                  allEmailOn ? 'text-gray-500 bg-gray-100 hover:bg-gray-200' : 'text-foreground bg-muted/40 hover:bg-blue-100'
                 )}
               >
                 {allEmailOn ? 'Disable All' : 'Enable All'}
@@ -158,7 +158,7 @@ const NotificationsPage = () => {
             <div className="px-2 py-1">
               <GroupLabel label="Applicants" color="text-blue-500" />
               <Row icon={CheckCircle} color="bg-green-50 text-green-600" title="Application Confirmation" desc="When applicant submits form" settingKey="emailApplicationConfirmation" settings={settings} onToggle={handleToggle} saving={saving} />
-              <Row icon={FileText} color="bg-slate-50 text-slate-900" title="Skill Assessment Invite" desc="After LinkedIn profile approval" settingKey="emailSkillAssessmentInvitation" settings={settings} onToggle={handleToggle} saving={saving} />
+              <Row icon={FileText} color="bg-muted/40 text-foreground" title="Skill Assessment Invite" desc="After LinkedIn profile approval" settingKey="emailSkillAssessmentInvitation" settings={settings} onToggle={handleToggle} saving={saving} />
               <Row icon={AlertCircle} color="bg-red-50 text-red-500" title="Profile Rejection" desc="When profile is rejected" settingKey="emailProfileRejection" settings={settings} onToggle={handleToggle} saving={saving} />
               <Row icon={FileText} color="bg-violet-50 text-violet-600" title="Guidelines Invitation" desc="After skill categorization" settingKey="emailGuidelinesInvitation" settings={settings} onToggle={handleToggle} saving={saving} />
               <Row icon={Mail} color="bg-sky-50 text-sky-600" title="Account Setup Link" desc="Password setup for new accounts" settingKey="emailAccountCreation" settings={settings} onToggle={handleToggle} saving={saving} />
@@ -172,14 +172,14 @@ const NotificationsPage = () => {
               <Row icon={CheckCircle} color="bg-emerald-50 text-emerald-500" title="Probation Complete" desc="Probation completion notice" settingKey="emailProbationComplete" settings={settings} onToggle={handleToggle} saving={saving} />
               <Row icon={UserCheck} color="bg-teal-50 text-teal-600" title="Welcome Email" desc="Credentials for new interviewer" settingKey="emailNewInterviewerWelcome" settings={settings} onToggle={handleToggle} saving={saving} />
               <Row icon={CreditCard} color="bg-violet-50 text-violet-600" title="Payment Confirmation" desc="Payment details to interviewer" settingKey="emailPaymentConfirmation" settings={settings} onToggle={handleToggle} saving={saving} />
-              <Row icon={FileText} color="bg-slate-50 text-blue-500" title="Invoice Email" desc="Payment invoice" settingKey="emailInvoiceMail" settings={settings} onToggle={handleToggle} saving={saving} />
+              <Row icon={FileText} color="bg-muted/40 text-blue-500" title="Invoice Email" desc="Payment invoice" settingKey="emailInvoiceMail" settings={settings} onToggle={handleToggle} saving={saving} />
               <Row icon={CreditCard} color="bg-green-50 text-green-600" title="Payment Received" desc="Confirm payment receipt" settingKey="emailPaymentReceivedConfirmation" settings={settings} onToggle={handleToggle} saving={saving} />
               <Row icon={AlertCircle} color="bg-red-50 text-red-500" title="Interview Cancelled" desc="Cancellation notification" settingKey="emailInterviewCancelled" settings={settings} onToggle={handleToggle} saving={saving} />
 
               <GroupLabel label="Students" color="text-sky-500" />
               <Row icon={Send} color="bg-sky-50 text-sky-600" title="Booking Invitation" desc="Invite to book interview slot" settingKey="emailStudentBookingInvitation" settings={settings} onToggle={handleToggle} saving={saving} />
               <Row icon={Clock} color="bg-sky-50 text-sky-500" title="Booking Reminder" desc="Remind to complete booking" settingKey="emailStudentBookingReminder" settings={settings} onToggle={handleToggle} saving={saving} />
-              <Row icon={Video} color="bg-slate-50 text-blue-500" title="Meet Link Notification" desc="Send meet link, date & time after generating" settingKey="emailMeetLinkNotification" settings={settings} onToggle={handleToggle} saving={saving} />
+              <Row icon={Video} color="bg-muted/40 text-blue-500" title="Meet Link Notification" desc="Send meet link, date & time after generating" settingKey="emailMeetLinkNotification" settings={settings} onToggle={handleToggle} saving={saving} />
 
               <GroupLabel label="Other" color="text-gray-400" />
               <Row icon={Send} color="bg-gray-50 text-gray-500" title="Custom Bulk Email" desc="Admin custom templated emails" settingKey="emailCustomBulkEmail" settings={settings} onToggle={handleToggle} saving={saving} />
@@ -231,15 +231,15 @@ const NotificationsPage = () => {
 
             {/* Info card */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-              className="rounded-2xl border border-slate-200 bg-white p-4"
+              className="rounded-2xl border border-border bg-white p-4"
             >
               <div className="flex gap-3">
-                <span className="w-8 h-8 rounded-lg border border-slate-200 bg-white flex items-center justify-center shrink-0 text-slate-700">
+                <span className="w-8 h-8 rounded-lg border border-border bg-white flex items-center justify-center shrink-0 text-foreground/90">
                   <AlertCircle className="h-4 w-4" aria-hidden="true" />
                 </span>
                 <div>
-                  <p className="text-[13px] font-semibold text-slate-900">How it works</p>
-                  <p className="text-[12.5px] text-slate-600 mt-1 leading-relaxed">
+                  <p className="text-[13px] font-semibold text-foreground">How it works</p>
+                  <p className="text-[12.5px] text-foreground/80 mt-1 leading-relaxed">
                     Turning off a notification stops it from being sent. Critical system emails like password resets should stay enabled. Changes take effect immediately.
                   </p>
                 </div>

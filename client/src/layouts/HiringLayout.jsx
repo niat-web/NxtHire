@@ -14,9 +14,9 @@ const hiringNavItems = [
 ];
 
 const HiringSidebar = memo(({ counts }) => (
-  <aside className="w-60 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col">
-    <div className="px-6 py-5 border-b border-slate-100">
-      <h2 style={DISPLAY} className="text-[20px] font-semibold text-slate-900 tracking-tight">Interviewer Hiring</h2>
+  <aside className="w-60 flex-shrink-0 bg-white border-r border-border flex flex-col">
+    <div className="px-6 py-5 border-b border-border">
+      <h2 style={DISPLAY} className="text-[20px] font-semibold text-foreground tracking-tight">Interviewer Hiring</h2>
     </div>
     <nav className="flex-1 p-3 space-y-0.5">
       {hiringNavItems.map(item => {
@@ -29,8 +29,8 @@ const HiringSidebar = memo(({ counts }) => (
               cn(
                 'group flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium rounded-xl transition-colors',
                 isActive
-                  ? 'bg-slate-900 text-white'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-primary text-white'
+                  : 'text-foreground/80 hover:bg-muted/40 hover:text-foreground'
               )
             }
           >
@@ -42,7 +42,7 @@ const HiringSidebar = memo(({ counts }) => (
                   <span
                     className={cn(
                       'inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 text-[10px] font-semibold rounded-full',
-                      isActive ? 'bg-white text-slate-900' : 'text-white'
+                      isActive ? 'bg-white text-foreground' : 'text-white'
                     )}
                     style={!isActive ? { backgroundColor: '#C0392B' } : undefined}
                   >

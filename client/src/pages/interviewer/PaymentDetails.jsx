@@ -83,7 +83,7 @@ const PaymentDetails = () => {
                 className={cn(
                   'px-3 py-1.5 text-xs font-medium rounded-lg transition-colors',
                   activeFilter === f
-                    ? 'bg-slate-900 text-white'
+                    ? 'bg-primary text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 )}
               >
@@ -95,7 +95,7 @@ const PaymentDetails = () => {
               className={cn(
                 'px-3 py-1.5 text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5',
                 activeFilter === 'Custom'
-                  ? 'bg-slate-900 text-white'
+                  ? 'bg-primary text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               )}
             >
@@ -108,12 +108,12 @@ const PaymentDetails = () => {
               <div className="flex-1">
                 <label className="block text-xs font-medium text-gray-500 mb-1">From</label>
                 <input type="date" value={customStart} onChange={e => setCustomStart(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900" />
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary" />
               </div>
               <div className="flex-1">
                 <label className="block text-xs font-medium text-gray-500 mb-1">To</label>
                 <input type="date" value={customEnd} onChange={e => setCustomEnd(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900" />
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary" />
               </div>
               <Button onClick={applyCustom} disabled={!customStart || !customEnd} size="sm" className="rounded-lg">
                 Apply
@@ -128,14 +128,14 @@ const PaymentDetails = () => {
           <div className="bg-white rounded-xl border border-gray-100 p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm text-gray-500">Total Interviews</p>
-              <div className="w-9 h-9 rounded-lg bg-slate-50 text-slate-900 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg bg-muted/40 text-foreground flex items-center justify-center">
                 <Briefcase size={18} />
               </div>
             </div>
             {isLoading ? (
               <Skeleton className="h-9 w-16" />
             ) : (
-              <p className="font-display text-[32px] font-semibold text-slate-900 tracking-tight leading-none">{paymentData.totalInterviews}</p>
+              <p className="font-display text-[32px] font-semibold text-foreground tracking-tight leading-none">{paymentData.totalInterviews}</p>
             )}
             <p className="text-xs text-gray-400 mt-1">Completed in selected period</p>
           </div>
@@ -144,7 +144,7 @@ const PaymentDetails = () => {
           <div className="bg-white rounded-xl border border-gray-100 p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm text-gray-500">Total Earnings</p>
-              <div className="w-9 h-9 rounded-lg border border-slate-200 bg-white text-slate-700 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg border border-border bg-white text-foreground/90 flex items-center justify-center">
                 <IndianRupee size={18} />
               </div>
             </div>
@@ -180,7 +180,7 @@ const PaymentDetails = () => {
               {paymentData.breakdown.map((row, i) => (
                 <div key={i} className="flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-slate-50 text-slate-900 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg bg-muted/40 text-foreground flex items-center justify-center">
                       <Briefcase size={14} />
                     </div>
                     <div>
@@ -195,7 +195,7 @@ const PaymentDetails = () => {
               {/* Total row */}
               <div className="flex items-center justify-between px-5 py-3.5 bg-gray-50/80">
                 <p className="text-sm font-semibold text-gray-700">Total</p>
-                <p className="text-sm font-semibold text-slate-900">{fmt(paymentData.totalAmount)}</p>
+                <p className="text-sm font-semibold text-foreground">{fmt(paymentData.totalAmount)}</p>
               </div>
             </div>
           ) : (

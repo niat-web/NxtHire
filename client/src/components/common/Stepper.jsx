@@ -10,32 +10,32 @@ const Stepper = ({ steps, currentStep }) => {
             {currentStep > step.id ? (
               <>
                 <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                  <div className="h-0.5 w-full bg-slate-900" />
+                  <div className="h-0.5 w-full bg-primary" />
                 </div>
-                <div className="relative flex h-9 w-9 items-center justify-center rounded-full bg-slate-900">
+                <div className="relative flex h-9 w-9 items-center justify-center rounded-full bg-primary">
                   <Check className="h-4 w-4 text-white" aria-hidden="true" />
                 </div>
-                <span className="absolute -bottom-7 w-max text-[12px] font-semibold text-slate-900">{step.name}</span>
+                <span className="absolute -bottom-7 w-max text-[12px] font-semibold text-foreground">{step.name}</span>
               </>
             ) : currentStep === step.id ? (
               <>
                 <div className="absolute inset-0 flex items-center" aria-hidden="true">
                   <div className="h-0.5 w-full bg-slate-200" />
                 </div>
-                <div className="relative flex h-9 w-9 items-center justify-center rounded-full border-2 border-slate-900 bg-white" aria-current="step">
+                <div className="relative flex h-9 w-9 items-center justify-center rounded-full border-2 border-primary bg-white" aria-current="step">
                   <span className="h-2 w-2 rounded-full" style={{ backgroundColor: '#C0392B' }} />
                 </div>
-                <span className="absolute -bottom-7 w-max text-[12px] font-semibold text-slate-900">{step.name}</span>
+                <span className="absolute -bottom-7 w-max text-[12px] font-semibold text-foreground">{step.name}</span>
               </>
             ) : (
               <>
                 <div className="absolute inset-0 flex items-center" aria-hidden="true">
                   <div className="h-0.5 w-full bg-slate-200" />
                 </div>
-                <div className="relative flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white">
+                <div className="relative flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white">
                     <span className="h-2 w-2 rounded-full bg-transparent" />
                 </div>
-                 <span className="absolute -bottom-7 w-max text-[12px] text-slate-500">{step.name}</span>
+                 <span className="absolute -bottom-7 w-max text-[12px] text-muted-foreground">{step.name}</span>
               </>
             )}
           </li>

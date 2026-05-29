@@ -24,21 +24,21 @@ const OptionsEditorModal = ({ isOpen, onClose, path, control, register }) => {
                             <input
                                 {...register(`${path}.${index}.label`)}
                                 placeholder="e.g., Confident & Fluent"
-                                className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
+                                className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary"
                             />
                         </div>
                         <div className="col-span-5">
                              <input
                                 {...register(`${path}.${index}.value`)}
                                 placeholder="e.g., 5"
-                                className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
+                                className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary"
                             />
                         </div>
                         <div className="col-span-1">
                              <button
                                 type="button"
                                 onClick={() => remove(index)}
-                                className="inline-flex items-center justify-center px-2 h-10 text-sm font-medium rounded-md border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 transition-colors"
+                                className="inline-flex items-center justify-center px-2 h-10 text-sm font-medium rounded-md border border-slate-300 text-foreground/90 bg-white hover:bg-muted/40 transition-colors"
                              >
                                 <Trash2 className="h-4 w-4 text-red-500" />
                             </button>
@@ -48,7 +48,7 @@ const OptionsEditorModal = ({ isOpen, onClose, path, control, register }) => {
                  <button
                     type="button"
                     onClick={() => append({ label: '', value: '' })}
-                    className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 transition-colors mt-4"
+                    className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md border border-slate-300 text-foreground/90 bg-white hover:bg-muted/40 transition-colors mt-4"
                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Option
@@ -57,7 +57,7 @@ const OptionsEditorModal = ({ isOpen, onClose, path, control, register }) => {
             <div className="flex justify-end pt-4 mt-4 border-t">
                  <button
                     onClick={onClose}
-                    className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-slate-900 text-white hover:bg-[#C0392B] transition-colors"
+                    className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-primary text-white hover:bg-primary/90 transition-colors"
                  >
                     Done
                  </button>

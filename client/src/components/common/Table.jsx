@@ -36,12 +36,12 @@ const Table = ({
         return null;
     }
     if (sortConfig.key !== key) {
-        return <Minus className="h-3.5 w-3.5 text-slate-300" />;
+        return <Minus className="h-3.5 w-3.5 text-muted-foreground/40" />;
     }
     if (sortConfig.direction === 'asc') {
-        return <ChevronsUp className="h-3.5 w-3.5 text-slate-900" />;
+        return <ChevronsUp className="h-3.5 w-3.5 text-foreground" />;
     }
-    return <ChevronsDown className="h-3.5 w-3.5 text-slate-900" />;
+    return <ChevronsDown className="h-3.5 w-3.5 text-foreground" />;
   };
 
   return (
@@ -55,9 +55,9 @@ const Table = ({
                     key={column.key}
                     scope="col"
                     className={cn(
-                      'sticky top-0 px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.15em] text-slate-500 whitespace-nowrap border-b border-slate-200 bg-slate-50/70 backdrop-blur-sm',
+                      'sticky top-0 px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground whitespace-nowrap border-b border-border bg-muted/40 backdrop-blur-sm',
                       column.isSticky ? 'left-0 z-20' : 'z-10',
-                      column.sortable && 'cursor-pointer hover:text-slate-900'
+                      column.sortable && 'cursor-pointer hover:text-foreground'
                     )}
                     style={{ minWidth: column.minWidth }}
                     onClick={() => column.sortable && onSort && onSort(column.key)}
@@ -71,7 +71,7 @@ const Table = ({
               </tr>
             </thead>
             {isLoading && customLoader ? customLoader : (
-              <tbody className="bg-white divide-y divide-slate-100">
+              <tbody className="bg-white divide-y divide-border">
                 {isLoading ? (
                   <tr>
                     <td colSpan={columns.length} className="py-24">
@@ -86,13 +86,13 @@ const Table = ({
                   </tr>
                 ) : (
                   data.map((row, rowIndex) => (
-                    <tr key={row._id || `row-${rowIndex}`} className="hover:bg-slate-50/60 transition-colors duration-150 group">
+                    <tr key={row._id || `row-${rowIndex}`} className="hover:bg-muted/30 transition-colors duration-150 group">
                       {columns.map((column) => (
                         <td
                           key={`${column.key}-${row._id || rowIndex}`}
                           className={cn(
-                            'px-5 py-3.5 whitespace-nowrap text-slate-700 align-middle',
-                            column.isSticky && 'sticky left-0 z-[1] bg-white group-hover:bg-slate-50/60'
+                            'px-5 py-3.5 whitespace-nowrap text-foreground/90 align-middle',
+                            column.isSticky && 'sticky left-0 z-[1] bg-white group-hover:bg-muted/30'
                           )}
                         >
                            {column.render ? column.render(row, rowIndex) : (row[column.key] !== null && row[column.key] !== undefined ? row[column.key].toString() : '')}
@@ -107,16 +107,16 @@ const Table = ({
         </div>
 
       {pagination && pagination.totalItems > 10 && (
-          <nav className="flex items-center justify-between border-t border-slate-200 bg-white px-6 py-3.5">
-              <p className="text-[12px] text-slate-500">
-                Showing <span className="font-semibold text-slate-900">{showingFrom}</span>–<span className="font-semibold text-slate-900">{showingTo}</span> of <span className="font-semibold text-slate-900">{pagination.totalItems}</span>
+          <nav className="flex items-center justify-between border-t border-border bg-white px-6 py-3.5">
+              <p className="text-[12px] text-muted-foreground">
+                Showing <span className="font-semibold text-foreground">{showingFrom}</span>–<span className="font-semibold text-foreground">{showingTo}</span> of <span className="font-semibold text-foreground">{pagination.totalItems}</span>
               </p>
               <div className="flex items-center gap-1.5">
                   <button
                     aria-label="Previous page"
                     onClick={handlePreviousPage}
                     disabled={pagination.currentPage === 1}
-                    className="h-9 w-9 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors"
+                    className="h-9 w-9 rounded-full flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-primary hover:text-white hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-foreground/80 disabled:hover:border-border transition-colors"
                   >
                     <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                   </button>
@@ -124,7 +124,7 @@ const Table = ({
                     aria-label="Next page"
                     onClick={handleNextPage}
                     disabled={pagination.currentPage >= pagination.totalPages}
-                    className="h-9 w-9 rounded-full flex items-center justify-center border border-slate-200 bg-white text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 disabled:hover:border-slate-200 transition-colors"
+                    className="h-9 w-9 rounded-full flex items-center justify-center border border-border bg-white text-foreground/80 hover:bg-primary hover:text-white hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-foreground/80 disabled:hover:border-border transition-colors"
                   >
                     <ChevronRight className="h-4 w-4" aria-hidden="true" />
                   </button>

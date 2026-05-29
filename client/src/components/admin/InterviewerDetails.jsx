@@ -15,7 +15,7 @@ const getStatusBadgeClass = (status) => {
   if (['active', 'approved', 'completed', 'confirmed', 'onboarded'].includes(s)) return 'bg-emerald-50 text-emerald-700';
   if (['on probation', 'pending', 'under review', 'scheduled'].includes(s)) return 'bg-amber-50 text-amber-700';
   if (['inactive', 'suspended', 'rejected', 'cancelled', 'failed', 'terminated'].includes(s)) return 'bg-red-50 text-red-700';
-  return 'bg-slate-100 text-slate-600';
+  return 'bg-muted text-foreground/80';
 };
 
 const InlineStatusBadge = ({ status }) => (
@@ -25,10 +25,10 @@ const InlineStatusBadge = ({ status }) => (
 );
 
 const InlineCard = ({ title, children }) => (
-  <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+  <div className="bg-white rounded-xl border border-border overflow-hidden">
     {title && (
-      <div className="px-6 py-4 border-b border-slate-200">
-        <h3 className="text-base font-semibold text-slate-900">{typeof title === 'string' ? title : title}</h3>
+      <div className="px-6 py-4 border-b border-border">
+        <h3 className="text-base font-semibold text-foreground">{typeof title === 'string' ? title : title}</h3>
       </div>
     )}
     <div className="px-6 py-5">
@@ -97,7 +97,7 @@ const InterviewerDetails = () => {
         <p className="text-gray-500">Interviewer not found</p>
         <Link
           to="/admin/interviewers"
-          className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-slate-900 text-white hover:bg-[#C0392B] transition-colors mt-4"
+          className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-primary text-white hover:bg-primary/90 transition-colors mt-4"
         >
           Back to Interviewers
         </Link>
@@ -121,7 +121,7 @@ const InterviewerDetails = () => {
 
           <button
             onClick={() => setIsStatusModalOpen(true)}
-            className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-slate-900 text-white hover:bg-[#C0392B] transition-colors"
+            className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md bg-primary text-white hover:bg-primary/90 transition-colors"
           >
             <Edit className="h-4 w-4 mr-2" />
             Update Status
@@ -433,7 +433,7 @@ const InterviewerDetails = () => {
             <div className="flex justify-end">
               <Link
                 to={`/admin/applicants/${applicant._id}`}
-                className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 transition-colors"
+                className="inline-flex items-center px-4 h-10 text-sm font-medium rounded-md border border-slate-300 text-foreground/90 bg-white hover:bg-muted/40 transition-colors"
               >
                 View Full Application
               </Link>

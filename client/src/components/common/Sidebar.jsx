@@ -41,19 +41,17 @@ const Sidebar = ({ navItems, variant = 'admin' }) => {
         { label: 'Change Password', icon: KeyRound, action: () => { navigate('/interviewer/settings/security'); setMenuOpen(false); } },
       ];
 
-  const workspaceLabel = variant === 'admin' ? 'Dashboard' : 'Interviewer';
-
   const initials = `${currentUser?.firstName?.charAt(0) || ''}${currentUser?.lastName?.charAt(0) || ''}`.toUpperCase() || 'A';
 
   return (
     <div className="sticky top-0 h-screen w-64 flex-shrink-0 overflow-visible z-40">
       <aside className="flex h-full flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
 
-        {/* Brand block: wordmark + workspace eyebrow */}
+        {/* Brand block: wordmark only */}
         <div className="px-6 pt-7 pb-6 shrink-0">
           <div className="flex items-baseline gap-1">
             <span
-              className="font-display text-[26px] font-extrabold tracking-tight text-primary leading-none"
+              className="font-display text-[26px] font-extrabold tracking-tight leading-none"
               style={{ color: 'hsl(var(--sidebar-primary))' }}
             >
               NXTHIRE
@@ -64,9 +62,6 @@ const Sidebar = ({ navItems, variant = 'admin' }) => {
               aria-hidden="true"
             />
           </div>
-          <p className="mt-2 text-[10.5px] font-semibold uppercase tracking-[0.28em] text-sidebar-muted-foreground">
-            {workspaceLabel}
-          </p>
         </div>
 
         {/* Navigation */}

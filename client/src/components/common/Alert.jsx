@@ -13,9 +13,9 @@ const Alert = ({
 }) => {
   const typeConfig = {
     info: {
-      containerClass: 'bg-slate-50 border-slate-200 text-slate-700',
-      icon: <Info className="h-4 w-4 text-slate-500" />,
-      dismissClass: 'text-slate-500 hover:bg-slate-100 focus:ring-slate-400',
+      containerClass: 'bg-muted/40 border-border text-foreground/90',
+      icon: <Info className="h-4 w-4 text-muted-foreground" />,
+      dismissClass: 'text-muted-foreground hover:bg-muted focus:ring-slate-400',
     },
     success: {
       containerClass: 'bg-emerald-50/60 border-emerald-200 text-emerald-800',

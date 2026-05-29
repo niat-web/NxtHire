@@ -4,9 +4,9 @@ const ACCENT = '#C0392B';
 const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-serif' };
 
 const Section = ({ title, children }) => (
-  <div className="mb-10 pb-8 border-b border-slate-100 last:border-0 last:pb-0 last:mb-0">
-    <h2 style={DISPLAY} className="text-[22px] font-semibold text-slate-900 mb-4 tracking-tight">{title}</h2>
-    <div className="text-[15px] text-slate-600 leading-relaxed space-y-3">{children}</div>
+  <div className="mb-10 pb-8 border-b border-border last:border-0 last:pb-0 last:mb-0">
+    <h2 style={DISPLAY} className="text-[22px] font-semibold text-foreground mb-4 tracking-tight">{title}</h2>
+    <div className="text-[15px] text-foreground/80 leading-relaxed space-y-3">{children}</div>
   </div>
 );
 
@@ -14,16 +14,16 @@ const CookiePolicyPage = () => (
   <div className="min-h-screen bg-white">
     <SEO title="Cookie Policy" description="Cookie Policy for the NxtHire platform." path="/cookie-policy" />
 
-    <section className="border-b border-slate-200 bg-white">
+    <section className="border-b border-border bg-white">
       <div className="max-w-3xl mx-auto px-5 lg:px-8 pt-20 pb-14 lg:pt-24">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-slate-600">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-foreground/80">
           <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: ACCENT }} />
           Legal
         </span>
-        <h1 style={DISPLAY} className="mt-6 text-[44px] sm:text-[56px] font-semibold text-slate-900 leading-[1.05] tracking-tight">
+        <h1 style={DISPLAY} className="mt-6 text-[44px] sm:text-[56px] font-semibold text-foreground leading-[1.05] tracking-tight">
           Cookie policy.
         </h1>
-        <p className="mt-4 text-slate-500 text-[13.5px]">Last updated: April 2026</p>
+        <p className="mt-4 text-muted-foreground text-[13.5px]">Last updated: April 2026</p>
       </div>
     </section>
 
@@ -42,9 +42,9 @@ const CookiePolicyPage = () => (
       </Section>
 
       <Section title="3. Types of cookies we use">
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+        <div className="overflow-hidden rounded-2xl border border-border bg-white">
           <table className="min-w-full text-[13px]">
-            <thead className="bg-slate-50/70 text-[11px] font-semibold uppercase tracking-[0.15em] text-slate-500">
+            <thead className="bg-muted/40 text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
               <tr>
                 <th className="px-5 py-3 text-left">Cookie</th>
                 <th className="px-5 py-3 text-left">Type</th>
@@ -52,11 +52,11 @@ const CookiePolicyPage = () => (
                 <th className="px-5 py-3 text-left">Duration</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
-              <tr className="hover:bg-slate-50/60 transition-colors"><td className="px-5 py-3.5 font-semibold text-slate-900">auth_token</td><td className="px-5 py-3.5 text-slate-700">Essential</td><td className="px-5 py-3.5 text-slate-700">Authentication</td><td className="px-5 py-3.5 text-slate-700">7 days</td></tr>
-              <tr className="hover:bg-slate-50/60 transition-colors"><td className="px-5 py-3.5 font-semibold text-slate-900">session_id</td><td className="px-5 py-3.5 text-slate-700">Essential</td><td className="px-5 py-3.5 text-slate-700">Session management</td><td className="px-5 py-3.5 text-slate-700">Session</td></tr>
-              <tr className="hover:bg-slate-50/60 transition-colors"><td className="px-5 py-3.5 font-semibold text-slate-900">preferences</td><td className="px-5 py-3.5 text-slate-700">Functional</td><td className="px-5 py-3.5 text-slate-700">User preferences</td><td className="px-5 py-3.5 text-slate-700">1 year</td></tr>
-              <tr className="hover:bg-slate-50/60 transition-colors"><td className="px-5 py-3.5 font-semibold text-slate-900">_ga</td><td className="px-5 py-3.5 text-slate-700">Analytics</td><td className="px-5 py-3.5 text-slate-700">Usage tracking</td><td className="px-5 py-3.5 text-slate-700">2 years</td></tr>
+            <tbody className="divide-y divide-border">
+              <tr className="hover:bg-muted/30 transition-colors"><td className="px-5 py-3.5 font-semibold text-foreground">auth_token</td><td className="px-5 py-3.5 text-foreground/90">Essential</td><td className="px-5 py-3.5 text-foreground/90">Authentication</td><td className="px-5 py-3.5 text-foreground/90">7 days</td></tr>
+              <tr className="hover:bg-muted/30 transition-colors"><td className="px-5 py-3.5 font-semibold text-foreground">session_id</td><td className="px-5 py-3.5 text-foreground/90">Essential</td><td className="px-5 py-3.5 text-foreground/90">Session management</td><td className="px-5 py-3.5 text-foreground/90">Session</td></tr>
+              <tr className="hover:bg-muted/30 transition-colors"><td className="px-5 py-3.5 font-semibold text-foreground">preferences</td><td className="px-5 py-3.5 text-foreground/90">Functional</td><td className="px-5 py-3.5 text-foreground/90">User preferences</td><td className="px-5 py-3.5 text-foreground/90">1 year</td></tr>
+              <tr className="hover:bg-muted/30 transition-colors"><td className="px-5 py-3.5 font-semibold text-foreground">_ga</td><td className="px-5 py-3.5 text-foreground/90">Analytics</td><td className="px-5 py-3.5 text-foreground/90">Usage tracking</td><td className="px-5 py-3.5 text-foreground/90">2 years</td></tr>
             </tbody>
           </table>
         </div>
@@ -82,7 +82,7 @@ const CookiePolicyPage = () => (
       </Section>
 
       <Section title="7. Contact us">
-        <p>If you have questions about our use of cookies, please contact us at <a href="mailto:interviewercommunity@nxtwave.in" className="font-semibold text-slate-900 hover:text-[#C0392B] underline">interviewercommunity@nxtwave.in</a>.</p>
+        <p>If you have questions about our use of cookies, please contact us at <a href="mailto:interviewercommunity@nxtwave.in" className="font-semibold text-foreground hover:text-[#C0392B] underline">interviewercommunity@nxtwave.in</a>.</p>
       </Section>
     </article>
   </div>

@@ -9,7 +9,7 @@ const DISPLAY = { fontFamily: 'Supreme, "Plus Jakarta Sans", system-ui, sans-ser
 const Eyebrow = ({ children, dark }) => (
   <span className={cn(
     'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.2em]',
-    dark ? 'border border-white/20 bg-white/5 text-slate-300' : 'border border-slate-200 bg-white text-slate-600'
+    dark ? 'border border-white/20 bg-white/5 text-muted-foreground/40' : 'border border-border bg-white text-foreground/80'
   )}>
     <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: ACCENT }} />
     {children}
@@ -54,18 +54,18 @@ const faqs = [
 ];
 
 const AccordionItem = ({ question, answer, isOpen, onToggle }) => (
-  <div className="border-b border-slate-100 last:border-0">
+  <div className="border-b border-border last:border-0">
     <button onClick={onToggle} className="w-full flex items-center justify-between py-5 text-left group gap-4">
-      <span className={cn('text-[15px] font-semibold transition-colors', isOpen ? 'text-slate-900' : 'text-slate-900 group-hover:text-[#C0392B]')}>{question}</span>
+      <span className={cn('text-[15px] font-semibold transition-colors', isOpen ? 'text-foreground' : 'text-foreground group-hover:text-[#C0392B]')}>{question}</span>
       <div className={cn(
         'flex-shrink-0 w-8 h-8 rounded-full inline-flex items-center justify-center transition-colors',
-        isOpen ? 'bg-slate-900 text-white' : 'border border-slate-200 text-slate-500 group-hover:border-slate-900 group-hover:text-slate-900'
+        isOpen ? 'bg-primary text-white' : 'border border-border text-muted-foreground group-hover:border-primary group-hover:text-foreground'
       )}>
         <ChevronDown size={14} className={cn('transition-transform', isOpen && 'rotate-180')} />
       </div>
     </button>
     <div className={cn('overflow-hidden transition-all duration-300', isOpen ? 'max-h-96 pb-5' : 'max-h-0')}>
-      <p className="text-[14px] text-slate-600 leading-relaxed pr-10">{answer}</p>
+      <p className="text-[14px] text-foreground/80 leading-relaxed pr-10">{answer}</p>
     </div>
   </div>
 );
@@ -88,38 +88,38 @@ const FAQPage = () => {
     <div className="min-h-screen bg-white">
       <SEO title="FAQ" description="Frequently asked questions about becoming an interviewer on NxtHire." path="/faq" />
 
-      <section className="border-b border-slate-200 bg-white">
+      <section className="border-b border-border bg-white">
         <div className="max-w-3xl mx-auto px-5 lg:px-8 pt-20 pb-14 lg:pt-24">
           <Eyebrow>Support Center</Eyebrow>
-          <h1 style={DISPLAY} className="mt-6 text-[44px] sm:text-[56px] font-semibold text-slate-900 leading-[1.05] tracking-tight">
+          <h1 style={DISPLAY} className="mt-6 text-[44px] sm:text-[56px] font-semibold text-foreground leading-[1.05] tracking-tight">
             Frequently asked <em className="italic" style={{ color: ACCENT }}>questions</em>.
           </h1>
-          <p className="mt-5 text-[15px] sm:text-[16px] text-slate-600 max-w-xl leading-relaxed">
+          <p className="mt-5 text-[15px] sm:text-[16px] text-foreground/80 max-w-xl leading-relaxed">
             Find answers to common questions about joining, interviewing, and earning on NxtHire.
           </p>
 
           <div className="mt-9 max-w-md relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
             <input
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search questions"
-              className="w-full h-11 pl-11 pr-4 bg-white border border-slate-200 rounded-full text-[13.5px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 transition-colors"
+              className="w-full h-11 pl-11 pr-4 bg-white border border-border rounded-full text-[13.5px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-colors"
             />
           </div>
         </div>
       </section>
 
-      <section className="border-b border-slate-200 bg-white">
+      <section className="border-b border-border bg-white">
         <div className="max-w-3xl mx-auto px-5 lg:px-8 py-16 lg:py-20">
           {filteredFaqs.length === 0 ? (
             <div className="text-center py-16">
-              <div className="h-12 w-12 rounded-full border border-slate-200 bg-white inline-flex items-center justify-center mb-4 text-slate-400">
+              <div className="h-12 w-12 rounded-full border border-border bg-white inline-flex items-center justify-center mb-4 text-muted-foreground/70">
                 <Search className="h-5 w-5" />
               </div>
-              <p className="text-slate-900 font-semibold text-[14px]">No questions match your search.</p>
-              <p className="text-[13px] text-slate-500 mt-1">Try a different keyword.</p>
+              <p className="text-foreground font-semibold text-[14px]">No questions match your search.</p>
+              <p className="text-[13px] text-muted-foreground mt-1">Try a different keyword.</p>
             </div>
           ) : (
             <div className="space-y-10">
@@ -129,7 +129,7 @@ const FAQPage = () => {
                     <Eyebrow>{cat.category}</Eyebrow>
                     <div className="flex-1 h-px bg-slate-200" />
                   </div>
-                  <div className="bg-white rounded-2xl border border-slate-200 px-6 lg:px-7">
+                  <div className="bg-white rounded-2xl border border-border px-6 lg:px-7">
                     {cat.items.map((item, i) => {
                       const key = `${cat.category}-${i}`;
                       return <AccordionItem key={key} question={item.q} answer={item.a} isOpen={openIndex === key} onToggle={() => toggle(key)} />;
@@ -142,18 +142,18 @@ const FAQPage = () => {
         </div>
       </section>
 
-      <section className="bg-slate-900">
+      <section className="bg-primary">
         <div className="max-w-2xl mx-auto px-5 lg:px-8 py-20 lg:py-24 text-center">
           <Eyebrow dark>Contact</Eyebrow>
           <h2 style={DISPLAY} className="mt-6 text-[34px] sm:text-[48px] font-semibold text-white tracking-tight leading-[1.08]">
             Still have <em className="italic" style={{ color: ACCENT }}>questions</em>?
           </h2>
-          <p className="mt-5 text-slate-300 text-[15px] max-w-md mx-auto leading-relaxed">
+          <p className="mt-5 text-muted-foreground/40 text-[15px] max-w-md mx-auto leading-relaxed">
             Reach out to our team and we'll get back to you within 24 hours.
           </p>
           <a
             href="mailto:interviewercommunity@nxtwave.in"
-            className="mt-8 inline-flex items-center gap-2 h-11 px-6 rounded-full text-[13px] font-semibold text-slate-900 bg-white hover:bg-[#C0392B] hover:text-white transition-colors"
+            className="mt-8 inline-flex items-center gap-2 h-11 px-6 rounded-full text-[13px] font-semibold text-foreground bg-white hover:bg-primary/90 hover:text-white transition-colors"
           >
             <Mail size={14} /> interviewercommunity@nxtwave.in <ArrowRight size={14} />
           </a>

@@ -12,9 +12,12 @@ const AdminLayout = () => {
   const { currentUser } = useAuth();
   const location = useLocation();
 
+  // Sidebar badges: refresh in the background but don't hammer the API every minute.
+  // Socket.io pushes the most urgent updates already; a 3-minute poll covers the rest.
   const { data: apiCounts = {} } = useDashboardStats({
-    staleTime: 60 * 1000,
-    refetchInterval: 60 * 1000,
+    staleTime: 2 * 60 * 1000,
+    refetchInterval: 3 * 60 * 1000,
+    refetchIntervalInBackground: false,
   });
 
   const adminNavItems = [

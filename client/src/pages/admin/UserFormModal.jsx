@@ -9,9 +9,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const ToggleSwitch = ({ label, enabled, onChange }) => (
     <div className="flex items-center justify-between">
-        <span className="text-[13px] font-semibold text-slate-700">{label}</span>
+        <span className="text-[13px] font-semibold text-foreground/90">{label}</span>
         <button type="button" onClick={() => onChange(!enabled)} aria-label={label}
-            className={`${enabled ? 'bg-slate-900' : 'bg-slate-300'} relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors`}>
+            className={`${enabled ? 'bg-primary' : 'bg-slate-300'} relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors`}>
             <span className={`${enabled ? 'translate-x-5' : 'translate-x-0'} inline-block h-5 w-5 transform rounded-full bg-white shadow transition`} />
         </button>
     </div>
@@ -19,11 +19,11 @@ const ToggleSwitch = ({ label, enabled, onChange }) => (
 
 const InputField = ({ label, icon: Icon, error, register, ...props }) => (
     <div>
-        <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1.5">{label}</label>
+        <label className="block text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-1.5">{label}</label>
         <div className="relative">
-            {Icon && <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" aria-hidden="true" />}
+            {Icon && <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70" aria-hidden="true" />}
             <input {...props} {...register}
-                className={`w-full pl-10 pr-3 h-10 border rounded-lg text-[13px] text-slate-900 placeholder:text-slate-400 bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-colors ${error ? 'border-red-300' : 'border-slate-200'}`} />
+                className={`w-full pl-10 pr-3 h-10 border rounded-lg text-[13px] text-foreground placeholder:text-muted-foreground/70 bg-white focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-colors ${error ? 'border-red-300' : 'border-border'}`} />
         </div>
         {error && <p className="mt-1.5 text-[12px] text-red-600">{error.message}</p>}
     </div>
@@ -75,8 +75,8 @@ const UserFormModal = ({ isOpen, onClose, onSuccess, userData }) => {
                         {/* Header */}
                         <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 shrink-0">
                             <div>
-                                <h2 className="font-display text-[22px] font-semibold text-slate-900 tracking-tight leading-none">{isEditMode ? 'Edit user' : 'Add new user'}</h2>
-                                {!isEditMode && <p className="text-[12.5px] text-slate-500 mt-2">A password setup email will be sent automatically.</p>}
+                                <h2 className="font-display text-[22px] font-semibold text-foreground tracking-tight leading-none">{isEditMode ? 'Edit user' : 'Add new user'}</h2>
+                                {!isEditMode && <p className="text-[12.5px] text-muted-foreground mt-2">A password setup email will be sent automatically.</p>}
                             </div>
                             <button onClick={onClose} className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
                                 <X className="h-5 w-5" />
@@ -104,9 +104,9 @@ const UserFormModal = ({ isOpen, onClose, onSuccess, userData }) => {
                                     error={errors.phoneNumber} placeholder="9876543210" />
 
                                 <div>
-                                    <label className="block text-[10.5px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-1.5">Role</label>
+                                    <label className="block text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-1.5">Role</label>
                                     <select {...register('role')}
-                                        className="w-full px-4 h-10 border border-slate-200 rounded-lg text-[13px] text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 cursor-pointer transition-colors">
+                                        className="w-full px-4 h-10 border border-border rounded-lg text-[13px] text-foreground bg-white focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary cursor-pointer transition-colors">
                                         {roleOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                     </select>
                                 </div>
@@ -117,9 +117,9 @@ const UserFormModal = ({ isOpen, onClose, onSuccess, userData }) => {
                                 </div>
 
                                 {!isEditMode && (
-                                    <div className="flex items-start gap-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
-                                        <Send className="h-3.5 w-3.5 text-slate-500 mt-0.5 shrink-0" aria-hidden="true" />
-                                        <p className="text-[12.5px] text-slate-600 leading-relaxed">
+                                    <div className="flex items-start gap-3 p-4 bg-muted/40 border border-border rounded-2xl">
+                                        <Send className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" aria-hidden="true" />
+                                        <p className="text-[12.5px] text-foreground/80 leading-relaxed">
                                             An email will be sent to the user with a secure link to create their password. The link expires in 24 hours.
                                         </p>
                                     </div>

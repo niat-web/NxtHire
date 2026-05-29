@@ -40,7 +40,7 @@ const NotificationBell = () => {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="relative h-10 w-10 inline-flex items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+        className="relative h-10 w-10 inline-flex items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
       >
         <Bell size={18} />
         {unreadCount > 0 && (
@@ -54,16 +54,16 @@ const NotificationBell = () => {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden z-[70]">
-          <div className="px-4 py-3.5 border-b border-slate-100 flex items-center justify-between">
+        <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-xl border border-border overflow-hidden z-[70]">
+          <div className="px-4 py-3.5 border-b border-border flex items-center justify-between">
             <div>
-              <h3 className="text-[13px] font-semibold text-slate-900 tracking-tight">Notifications</h3>
+              <h3 className="text-[13px] font-semibold text-foreground tracking-tight">Notifications</h3>
               {unreadCount > 0 && (
-                <p className="text-[10.5px] text-slate-500 mt-0.5">{unreadCount} unread</p>
+                <p className="text-[10.5px] text-muted-foreground mt-0.5">{unreadCount} unread</p>
               )}
             </div>
             {unreadCount > 0 && (
-              <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-[11.5px] text-slate-700 hover:text-slate-900 h-7 px-2.5">
+              <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-[11.5px] text-foreground/90 hover:text-foreground h-7 px-2.5">
                 <CheckCheck size={12} className="mr-1" /> Mark all read
               </Button>
             )}
@@ -71,9 +71,9 @@ const NotificationBell = () => {
 
           <div className="max-h-[360px] overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 text-slate-300">
+              <div className="flex flex-col items-center justify-center py-10 text-muted-foreground/40">
                 <Bell size={22} className="mb-2" />
-                <p className="text-[12px] text-slate-500">No notifications yet</p>
+                <p className="text-[12px] text-muted-foreground">No notifications yet</p>
               </div>
             ) : (
               notifications.map((n) => {
@@ -84,22 +84,22 @@ const NotificationBell = () => {
                     key={n._id}
                     onClick={() => { if (!n.isRead) markAsRead(n._id); }}
                     className={cn(
-                      'w-full flex items-start gap-3 px-4 py-3 text-left transition-colors border-b border-slate-100 last:border-0',
-                      n.isRead ? 'bg-white hover:bg-slate-50/60' : 'bg-slate-50/50 hover:bg-slate-50'
+                      'w-full flex items-start gap-3 px-4 py-3 text-left transition-colors border-b border-border last:border-0',
+                      n.isRead ? 'bg-white hover:bg-muted/30' : 'bg-muted/40/50 hover:bg-muted/40'
                     )}
                   >
-                    <div className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center shrink-0 mt-0.5 text-slate-700">
+                    <div className="w-8 h-8 rounded-full border border-border bg-white flex items-center justify-center shrink-0 mt-0.5 text-foreground/90">
                       <Icon size={13} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className={cn('text-[12.5px] font-semibold truncate', n.isRead ? 'text-slate-700' : 'text-slate-900')}>
+                        <p className={cn('text-[12.5px] font-semibold truncate', n.isRead ? 'text-foreground/90' : 'text-foreground')}>
                           {n.title}
                         </p>
                         {!n.isRead && <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: '#C0392B' }} />}
                       </div>
-                      <p className="text-[11.5px] text-slate-500 truncate mt-0.5">{n.message}</p>
-                      <p className="text-[10.5px] text-slate-400 mt-1 flex items-center gap-1">
+                      <p className="text-[11.5px] text-muted-foreground truncate mt-0.5">{n.message}</p>
+                      <p className="text-[10.5px] text-muted-foreground/70 mt-1 flex items-center gap-1">
                         <Clock size={9} /> {timeAgo(n.createdAt)}
                       </p>
                     </div>
@@ -112,7 +112,7 @@ const NotificationBell = () => {
           <Link
             to="/admin/notifications-inbox"
             onClick={() => setOpen(false)}
-            className="flex items-center justify-center gap-1.5 px-4 py-3 border-t border-slate-100 text-[12px] font-semibold text-slate-900 hover:bg-slate-50/60 transition-colors"
+            className="flex items-center justify-center gap-1.5 px-4 py-3 border-t border-border text-[12px] font-semibold text-foreground hover:bg-muted/30 transition-colors"
           >
             View All Notifications <ArrowRight size={12} />
           </Link>

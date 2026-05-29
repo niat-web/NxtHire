@@ -178,13 +178,13 @@ const AdminDomainEvaluationPage = () => {
             key: 'candidateResume', 
             title: 'Resume', 
             minWidth: '100px', 
-            render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-slate-900 hover:text-blue-800 font-medium"><ExternalLink /> Link</a> : '-' 
+            render: (row) => row.candidateResume ? <a href={row.candidateResume} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-foreground hover:text-blue-800 font-medium"><ExternalLink /> Link</a> : '-' 
         },
         { 
             key: 'meetingLink', 
             title: 'Meeting Link', 
             minWidth: '200px', 
-            render: (row) => row.meetingLink ? <a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-slate-900 hover:text-blue-800 hover:underline truncate block max-w-[200px] text-xs" title={row.meetingLink}>{row.meetingLink}</a> : '-' 
+            render: (row) => row.meetingLink ? <a href={row.meetingLink} target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-blue-800 hover:underline truncate block max-w-[200px] text-xs" title={row.meetingLink}>{row.meetingLink}</a> : '-' 
         },
         { key: 'interviewDate', title: 'Date', minWidth: '110px', render: (row) => formatDate(row.interviewDate) },
         { 
@@ -200,7 +200,7 @@ const AdminDomainEvaluationPage = () => {
             title: 'Remarks', 
             minWidth: '200px', 
             render: (row) => row.interviewerRemarks ?
-                <Button variant="link" size="xs" onClick={() => setRemarksModal({isOpen: true, content: row.interviewerRemarks})} className="text-gray-700 text-xs hover:text-slate-900 text-left truncate max-w-[180px] block p-0 h-auto">
+                <Button variant="link" size="xs" onClick={() => setRemarksModal({isOpen: true, content: row.interviewerRemarks})} className="text-gray-700 text-xs hover:text-foreground text-left truncate max-w-[180px] block p-0 h-auto">
                     {row.interviewerRemarks}
                 </Button> :
                 <span className="text-gray-300">-</span> 
@@ -290,43 +290,43 @@ const AdminDomainEvaluationPage = () => {
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search candidate..."
-                                className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-colors"
+                                className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
                             />
                         </div>
 
                         {/* Filter Dropdown */}
                         <div className="relative z-50" ref={filterMenuRef}>
-                            <Button variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} className={`${(activeFilters.interviewDate || activeFilters.interviewStatus || activeFilters.hiringName) ? '!border-blue-500 !text-slate-900 !bg-slate-50' : ''}`}>
+                            <Button variant="outline" onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)} className={`${(activeFilters.interviewDate || activeFilters.interviewStatus || activeFilters.hiringName) ? '!border-blue-500 !text-foreground !bg-muted/40' : ''}`}>
                                 <Filter className="mr-2 h-4 w-4" />
                                 Filter
                             </Button>
                             {isFilterMenuOpen && (
-                                <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 p-4 z-50">
-                                    <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-3">Filter Records</h4>
+                                <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-border p-4 z-50">
+                                    <h4 className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider mb-3">Filter Records</h4>
                                     <div className="space-y-3">
                                         <div>
-                                            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Public Link</label>
-                                            <select value={tempFilters.hiringName} onChange={(e) => setTempFilters(p => ({ ...p, hiringName: e.target.value }))} className="w-full h-9 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900">
+                                            <label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Public Link</label>
+                                            <select value={tempFilters.hiringName} onChange={(e) => setTempFilters(p => ({ ...p, hiringName: e.target.value }))} className="w-full h-9 px-3 border border-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary">
                                                 <option value="">All Public Links</option>
                                                 {hiringNameOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Interview Date</label>
+                                            <label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Interview Date</label>
                                             <div className="relative">
-                                                <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(p => ({ ...p, interviewDate: date }))} isClearable placeholderText="Select date" className="w-full h-9 pl-3 pr-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900" portalId="datepicker-portal" popperClassName="!z-[9999]" popperProps={{ strategy: 'fixed' }} />
-                                                <Calendar size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                                <DatePicker selected={tempFilters.interviewDate} onChange={(date) => setTempFilters(p => ({ ...p, interviewDate: date }))} isClearable placeholderText="Select date" className="w-full h-9 pl-3 pr-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary" portalId="datepicker-portal" popperClassName="!z-[9999]" popperProps={{ strategy: 'fixed' }} />
+                                                <Calendar size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 pointer-events-none" />
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Status</label>
-                                            <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(p => ({ ...p, interviewStatus: e.target.value }))} className="w-full h-9 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900">
+                                            <label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Status</label>
+                                            <select value={tempFilters.interviewStatus} onChange={(e) => setTempFilters(p => ({ ...p, interviewStatus: e.target.value }))} className="w-full h-9 px-3 border border-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary">
                                                 <option value="">All Statuses</option>
                                                 {MAIN_SHEET_INTERVIEW_STATUSES.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                             </select>
                                         </div>
                                     </div>
-                                    <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end gap-2">
+                                    <div className="mt-4 pt-3 border-t border-border flex justify-end gap-2">
                                         <Button variant="ghost" size="sm" onClick={handleClearFilters}>Clear</Button>
                                         <Button size="sm" onClick={handleApplyFilters}>Apply</Button>
                                     </div>
@@ -356,7 +356,7 @@ const AdminDomainEvaluationPage = () => {
                             <div className="flex h-full items-center justify-center"><Loader size="lg" /></div>
                         ) : (
                             <table className="min-w-full text-sm">
-                                <thead className="bg-slate-50 sticky top-0 z-10">
+                                <thead className="bg-muted/40 sticky top-0 z-10">
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">Domain</th>
                                         <th className="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">Candidates</th>
@@ -369,9 +369,9 @@ const AdminDomainEvaluationPage = () => {
                                 </thead>
                                 <tbody className="divide-y divide-gray-50 bg-white">
                                     {summaryData.map(item => (
-                                        <tr key={item.domainName} className="hover:bg-slate-50/50 transition-colors group">
+                                        <tr key={item.domainName} className="hover:bg-muted/40/50 transition-colors group">
                                             <td className="px-6 py-4">
-                                                <Button variant="ghost" onClick={() => setSelectedDomain({ value: item.domainName, label: item.domainName })} className="font-semibold text-gray-900 group-hover:text-slate-900 flex items-center gap-2 p-0 h-auto">
+                                                <Button variant="ghost" onClick={() => setSelectedDomain({ value: item.domainName, label: item.domainName })} className="font-semibold text-gray-900 group-hover:text-foreground flex items-center gap-2 p-0 h-auto">
                                                     {item.domainName}
                                                     <ArrowLeft className="rotate-180 opacity-0 group-hover:opacity-100 transition-opacity" />
                                                 </Button>
@@ -400,12 +400,12 @@ const AdminDomainEvaluationPage = () => {
                             </div>
                         ) : (
                             <table className="min-w-full text-sm border-separate border-spacing-0">
-                                <thead className="bg-slate-50 sticky top-0 z-20">
+                                <thead className="bg-muted/40 sticky top-0 z-20">
                                     <tr>
                                         {staticColumns.map(col => (
                                             <th 
                                                 key={col.key}
-                                                className={`px-4 py-3 border-b border-r border-gray-200 text-left text-xs font-semibold text-gray-600 bg-slate-50 sticky top-0 ${col.isSticky ? 'z-30' : 'z-20'}`} 
+                                                className={`px-4 py-3 border-b border-r border-gray-200 text-left text-xs font-semibold text-gray-600 bg-muted/40 sticky top-0 ${col.isSticky ? 'z-30' : 'z-20'}`} 
                                                 style={{ 
                                                     minWidth: col.minWidth, 
                                                     left: col.isSticky ? col.left : 'auto',
@@ -422,7 +422,7 @@ const AdminDomainEvaluationPage = () => {
                                                 { bg: 'bg-sky-100', text: 'text-sky-800', border: 'border-sky-200' },
                                                 { bg: 'bg-violet-100', text: 'text-violet-800', border: 'border-violet-200' },
                                                 { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-200' },
-                                                { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-slate-200' },
+                                                { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-border' },
                                                 { bg: 'bg-rose-100', text: 'text-rose-800', border: 'border-rose-200' },
                                                 { bg: 'bg-teal-100', text: 'text-teal-800', border: 'border-teal-200' },
                                                 { bg: 'bg-fuchsia-100', text: 'text-fuchsia-800', border: 'border-fuchsia-200' },
@@ -450,7 +450,7 @@ const AdminDomainEvaluationPage = () => {
                                                 { bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-100' },
                                                 { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-100' },
                                                 { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100' },
-                                                { bg: 'bg-slate-50', text: 'text-slate-900', border: 'border-slate-200' },
+                                                { bg: 'bg-muted/40', text: 'text-foreground', border: 'border-border' },
                                                 { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-100' },
                                                 { bg: 'bg-teal-50', text: 'text-teal-700', border: 'border-teal-100' },
                                                 { bg: 'bg-fuchsia-50', text: 'text-fuchsia-700', border: 'border-fuchsia-100' },
